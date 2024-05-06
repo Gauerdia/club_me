@@ -41,7 +41,7 @@ dependencies:
   neon_widgets: ^2.0.0
   go_router: ^13.2.4
 
-  flutter_osm_plugin: ^1.0.3
+#  flutter_osm_plugin: ^1.0.3
 
   flutter_map: ^6.1.0
   flutter_map_marker_cluster: any
