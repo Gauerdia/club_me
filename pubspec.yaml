@@ -108,6 +108,7 @@ flutter_launcher_icons:
   image_path: "assets/images/club_me_icon_round.png"
   android: "launcher_icon"
   ios: true
+  remove_alpha_ios: true
 
 
 
