@@ -1,11 +1,11 @@
+import 'package:club_me/club_statistics/components/bar_chart_sample_7.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../provider/state_provider.dart';
 import '../shared/custom_bottom_navigation_bar_clubs.dart';
-
 import 'package:fl_chart/fl_chart.dart';
-
+import '../shared/custom_text_style.dart';
+import 'components/bar_chart_example.dart';
 import 'indicator.dart';
 
 class ClubStatisticsView extends StatefulWidget{
@@ -17,285 +17,26 @@ class ClubStatisticsView extends StatefulWidget{
 }
 
 class _ClubStatisticsViewState extends State<ClubStatisticsView> {
-  String headLine = "Your Stats";
+
+  String headLine = "Deine Auswertungen";
 
   int touchedIndex = -1;
-
   bool dialog = false;
-
   bool showAvg = false;
+
+  late double screenHeight, screenWidth;
+
+  late CustomTextStyle customTextStyle;
+
+  double tileHeight = 250;
+
+  Color primeColorDark = Colors.teal;
+  Color primeColor = Colors.tealAccent;
 
   List<Color> gradientColors = [
     const Color(0xff23b6e6),
     const Color(0xff02d39a),
   ];
-
-  @override
-  Widget build(BuildContext context) {
-
-    final stateProvider = Provider.of<StateProvider>(context);
-
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
-
-
-
-    return Scaffold(
-
-        extendBodyBehindAppBar: true,
-        extendBody: true,
-
-        bottomNavigationBar: CustomBottomNavigationBarClubs(),
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          title: Text(headLine,
-            style: TextStyle(
-              // color: Colors.purpleAccent
-            ),
-          ),
-        ),
-        body: Container(
-            width: screenWidth,
-            height: screenHeight,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    // Color(0xff11181f),
-                    Color(0xff2b353d),
-                    Color(0xff11181f)
-                  ],
-                  stops: [0.15, 0.6]
-              ),
-            ),
-            child: SingleChildScrollView(
-                child: Container(
-                    child: Column(
-                        children: [
-
-                          SizedBox(
-                            height: screenHeight*0.15,
-                          ),
-
-                          // Events headline
-                          Container(
-                            width: screenWidth,
-                            // color: Colors.red,
-                            padding: EdgeInsets.only(
-                                left: screenWidth*0.05,
-                                top: screenHeight*0.01
-                            ),
-                            child: const Text(
-                              "Demographie",
-                              textAlign: TextAlign.left,
-                              style: TextStyle(
-                                  fontSize: 24
-                              ),
-                            ),
-                          ),
-
-                          SizedBox(
-                            height: screenHeight*0.02,
-                          ),
-
-                          // Pie chart
-                          Container(
-                            width: screenWidth*0.9,
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: Colors.white60
-                              ),
-                              borderRadius: BorderRadius.only(
-                                topRight: Radius.circular(30),
-                                bottomLeft: Radius.circular(30)
-                              )
-                            ),
-                            child: AspectRatio(
-                              aspectRatio: 1.4,
-                              child: Card(
-                                color: Colors.transparent,//Colors.grey[850],
-                                child: Column(
-                                  children: <Widget>[
-                                    SizedBox(
-                                      height: screenHeight*0.05,
-                                    ),
-                                    Stack(
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              child: AspectRatio(
-                                                aspectRatio: 2,
-                                                child: PieChart(
-                                                  PieChartData(
-                                                      pieTouchData: PieTouchData(touchCallback:
-                                                          (FlTouchEvent event, pieTouchResponse) {
-                                                        setState(() {
-                                                          if (!event.isInterestedForInteractions ||
-                                                              pieTouchResponse == null ||
-                                                              pieTouchResponse.touchedSection == null) {
-                                                            touchedIndex = -1;
-                                                            return;
-                                                          }
-                                                          touchedIndex = pieTouchResponse
-                                                              .touchedSection!.touchedSectionIndex;
-                                                          // _showClickPiePartDialog(touchedIndex, context);
-                                                        });
-                                                      }),
-                                                      borderData: FlBorderData(
-                                                        show: false,
-                                                      ),
-                                                      sectionsSpace: 0,
-                                                      centerSpaceRadius: 40,
-                                                      sections: showingSections()),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        Padding(
-                                          padding: EdgeInsets.only(
-                                              top: screenHeight*0.02,
-                                              left: screenWidth*0.03
-                                          ),
-                                          child: const Column(
-                                            mainAxisSize: MainAxisSize.max,
-                                            mainAxisAlignment: MainAxisAlignment.end,
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: <Widget>[
-                                              Indicator(
-                                                color: Colors.lightGreen,
-                                                text: '18-20',
-                                                isSquare: true,
-                                              ),
-                                              SizedBox(
-                                                height: 4,
-                                              ),
-                                              Indicator(
-                                                color:Colors.blue,
-                                                text: '20-25',
-                                                isSquare: true,
-                                              ),
-                                              SizedBox(
-                                                height: 4,
-                                              ),
-                                              Indicator(
-                                                color: Colors.yellow,
-                                                text: '25-30',
-                                                isSquare: true,
-                                              ),
-                                              SizedBox(
-                                                height: 4,
-                                              ),
-                                              Indicator(
-                                                color: Colors.deepOrangeAccent,
-                                                text: '30-40',
-                                                isSquare: true,
-                                              ),
-                                              SizedBox(
-                                                height: 4,
-                                              ),
-                                              Indicator(
-                                                color: Colors.redAccent,
-                                                text: '40-50',
-                                                isSquare: true,
-                                              ),
-                                              SizedBox(
-                                                height: 4,
-                                              ),
-                                              Indicator(
-                                                color: Colors.black,
-                                                text: '50-60',
-                                                isSquare: true,
-                                              ),
-                                              SizedBox(
-                                                height: 4,
-                                              ),
-                                            ],
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-
-                          SizedBox(
-                            height: screenHeight*0.02,
-                          ),
-
-                          // Events headline
-                          Container(
-                            width: screenWidth,
-                            // color: Colors.red,
-                            padding: EdgeInsets.only(
-                                left: screenWidth*0.05,
-                                top: screenHeight*0.01
-                            ),
-                            child: const Text(
-                              "Besucheranzahl",
-                              textAlign: TextAlign.left,
-                              style: TextStyle(
-                                  fontSize: 24
-                              ),
-                            ),
-                          ),
-
-                          SizedBox(
-                            height: screenHeight*0.02,
-                          ),
-
-                          // Line Chart
-                          Container(
-                            width: screenWidth*0.9,
-                            decoration: BoxDecoration(
-                                border: Border.all(
-                                    color: Colors.white60
-                                ),
-                                borderRadius: BorderRadius.only(
-                                    topRight: Radius.circular(30),
-                                    bottomLeft: Radius.circular(30)
-                                )
-                            ),
-                            child: AspectRatio(
-                              aspectRatio: 1.15,
-                              child: Container(
-                                child: Stack(
-                                  children: [
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                                      children: [
-                                        Expanded(
-                                          child: Padding(
-                                            padding: const EdgeInsets.only(
-                                                right: 18.0, left: 12.0, top: 24, bottom: 12),
-                                            child: LineChart(
-                                              showAvg ? avgData() : mainData(),
-                                            ),
-                                          ),
-                                        )
-                                      ],
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-
-                          SizedBox(
-                            height: screenHeight*0.2,
-                          )
-
-                        ]
-                    )
-                )
-            )
-        )
-    );
-  }
 
   List<PieChartSectionData> showingSections() {
     return List.generate(6, (i) {
@@ -379,8 +120,8 @@ class _ClubStatisticsViewState extends State<ClubStatisticsView> {
     showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: Text('Add an equation step'),
-          content:Container(
+          title: const Text('Add an equation step'),
+          content:const SizedBox(
             height:200,
             child: Column(
               children: [
@@ -391,13 +132,13 @@ class _ClubStatisticsViewState extends State<ClubStatisticsView> {
           actions: [
             TextButton(
               onPressed: () {Navigator.of(context).pop();},
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Accept'),
+              child: const Text('Accept'),
             ),
           ],
         )
@@ -662,4 +403,638 @@ class _ClubStatisticsViewState extends State<ClubStatisticsView> {
       ],
     );
   }
+
+  Widget _buildTileWithPieChart(BuildContext context){
+
+    return Stack(
+      children: [
+
+        // Colorful accent
+        Container(
+          width: screenWidth*0.91,
+          height:  tileHeight+4,
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.bottomLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.grey[900]!,
+                    primeColorDark.withOpacity(0.4)
+                  ],
+                  stops: const [0.6, 0.9]
+              ),
+              borderRadius: BorderRadius.circular(15)
+          ),
+        ),
+
+        // Colorful accent
+        Container(
+          width: screenWidth*0.91,
+          height: tileHeight,
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.grey[900]!,
+                    primeColorDark.withOpacity(0.2)
+                  ],
+                  stops: const [0.6, 0.9]
+              ),
+              borderRadius: BorderRadius.circular(
+                  15
+              )
+          ),
+        ),
+
+        // light grey highlight
+        Container(
+          width: screenWidth*0.89,
+          height: tileHeight,
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.grey[600]!, Colors.grey[900]!],
+                  stops: const [0.1, 0.9]
+              ),
+              borderRadius: BorderRadius.circular(
+                  15
+              )
+          ),
+        ),
+
+        // light grey highlight
+        Padding(
+            padding: const EdgeInsets.only(
+                left:2
+            ),
+            child: Container(
+              width: screenWidth*0.9,
+              height: tileHeight,
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.topRight,
+                      colors: [Colors.grey[600]!, Colors.grey[900]!],
+                      stops: const [0.1, 0.9]
+                  ),
+                  borderRadius: BorderRadius.circular(
+                      15
+                  )
+              ),
+            )
+        ),
+
+        // main Div
+        Padding(
+          padding: const EdgeInsets.only(
+              left:2,
+              top: 2
+          ),
+          child: Container(
+            width: screenWidth*0.9,
+            height: tileHeight,
+            decoration: BoxDecoration(
+                gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.grey[800]!.withOpacity(0.7),
+                      Colors.grey[900]!
+                    ],
+                    stops: const [0.1,0.9]
+                ),
+                borderRadius: BorderRadius.circular(
+                    15
+                )
+            ),
+            child: _buildTileWithPieChartContent(context),
+          ),
+        )
+
+      ],
+    );
+  }
+
+  Widget _buildTileWithPieChartContent(
+      BuildContext context
+      ){
+    return Stack(
+      children: [
+        Row(
+          children: [
+            // Left column
+            Container(
+              width: screenWidth*0.3,
+              // color: Colors.red,
+              height: tileHeight,
+              child: Padding(
+                padding: EdgeInsets.only(
+                    // top: screenHeight*0.02,
+                    left: screenWidth*0.03
+                ),
+                child: const Column(
+                  // mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Indicator(
+                      color: Colors.lightGreen,
+                      text: '18-20',
+                      isSquare: true,
+                    ),
+                    SizedBox(
+                      height: 4,
+                    ),
+                    Indicator(
+                      color:Colors.blue,
+                      text: '20-25',
+                      isSquare: true,
+                    ),
+                    SizedBox(
+                      height: 4,
+                    ),
+                    Indicator(
+                      color: Colors.yellow,
+                      text: '25-30',
+                      isSquare: true,
+                    ),
+                    SizedBox(
+                      height: 4,
+                    ),
+                    Indicator(
+                      color: Colors.deepOrangeAccent,
+                      text: '30-40',
+                      isSquare: true,
+                    ),
+                    SizedBox(
+                      height: 4,
+                    ),
+                    Indicator(
+                      color: Colors.redAccent,
+                      text: '40-50',
+                      isSquare: true,
+                    ),
+                    SizedBox(
+                      height: 4,
+                    ),
+                    Indicator(
+                      color: Colors.black,
+                      text: '50-60',
+                      isSquare: true,
+                    ),
+                    SizedBox(
+                      height: 4,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            // right column, pie chart
+            Container(
+              width: screenWidth*0.6,
+              height: tileHeight,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: AspectRatio(
+                      aspectRatio: 2,
+                      child: PieChart(
+                        PieChartData(
+                            pieTouchData: PieTouchData(touchCallback:
+                                (FlTouchEvent event, pieTouchResponse) {
+                              setState(() {
+                                if (!event.isInterestedForInteractions ||
+                                    pieTouchResponse == null ||
+                                    pieTouchResponse.touchedSection == null) {
+                                  touchedIndex = -1;
+                                  return;
+                                }
+                                touchedIndex = pieTouchResponse
+                                    .touchedSection!.touchedSectionIndex;
+                                // _showClickPiePartDialog(touchedIndex, context);
+                              });
+                            }),
+                            borderData: FlBorderData(
+                              show: false,
+                            ),
+                            sectionsSpace: 0,
+                            centerSpaceRadius: 40,
+                            sections: showingSections()),
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            )
+          ],
+        )
+      ],
+    );
+  }
+
+  Widget _buildTileWithBarChart(BuildContext context){
+
+    return Stack(
+      children: [
+
+        // Colorful accent
+        Container(
+          width: screenWidth*0.91,
+          height:  tileHeight+4,
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.bottomLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.grey[900]!,
+                    primeColorDark.withOpacity(0.4)
+                  ],
+                  stops: const [0.6, 0.9]
+              ),
+              borderRadius: BorderRadius.circular(15)
+          ),
+        ),
+
+        // Colorful accent
+        Container(
+          width: screenWidth*0.91,
+          height: tileHeight,
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.grey[900]!,
+                    primeColorDark.withOpacity(0.2)
+                  ],
+                  stops: const [0.6, 0.9]
+              ),
+              borderRadius: BorderRadius.circular(
+                  15
+              )
+          ),
+        ),
+
+        // light grey highlight
+        Container(
+          width: screenWidth*0.89,
+          height: tileHeight,
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.grey[600]!, Colors.grey[900]!],
+                  stops: const [0.1, 0.9]
+              ),
+              borderRadius: BorderRadius.circular(
+                  15
+              )
+          ),
+        ),
+
+        // light grey highlight
+        Padding(
+            padding: const EdgeInsets.only(
+                left:2
+            ),
+            child: Container(
+              width: screenWidth*0.9,
+              height: tileHeight,
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.topRight,
+                      colors: [Colors.grey[600]!, Colors.grey[900]!],
+                      stops: const [0.1, 0.9]
+                  ),
+                  borderRadius: BorderRadius.circular(
+                      15
+                  )
+              ),
+            )
+        ),
+
+        // main Div
+        Padding(
+          padding: const EdgeInsets.only(
+              left:2,
+              top: 2
+          ),
+          child: Container(
+            width: screenWidth*0.9,
+            height: tileHeight,
+            decoration: BoxDecoration(
+                gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.grey[800]!.withOpacity(0.7),
+                      Colors.grey[900]!
+                    ],
+                    stops: const [0.1,0.9]
+                ),
+                borderRadius: BorderRadius.circular(
+                    15
+                )
+            ),
+            child: _buildTileWithBarChartContent(context),
+          ),
+        )
+
+      ],
+    );
+  }
+
+  Widget _buildTileWithBarChartContent(
+      BuildContext context
+      ){
+    return Stack(
+      children: [
+        Container(
+          width: screenWidth*0.85,
+          child: BarChartSample7(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTileWithFlowChart(BuildContext context){
+
+    return Stack(
+      children: [
+
+        // Colorful accent
+        Container(
+          width: screenWidth*0.91,
+          height:  tileHeight+4,
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.bottomLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.grey[900]!,
+                    primeColorDark.withOpacity(0.4)
+                  ],
+                  stops: const [0.6, 0.9]
+              ),
+              borderRadius: BorderRadius.circular(15)
+          ),
+        ),
+
+        // Colorful accent
+        Container(
+          width: screenWidth*0.91,
+          height: tileHeight,
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.grey[900]!,
+                    primeColorDark.withOpacity(0.2)
+                  ],
+                  stops: const [0.6, 0.9]
+              ),
+              borderRadius: BorderRadius.circular(
+                  15
+              )
+          ),
+        ),
+
+        // light grey highlight
+        Container(
+          width: screenWidth*0.89,
+          height: tileHeight,
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.grey[600]!, Colors.grey[900]!],
+                  stops: const [0.1, 0.9]
+              ),
+              borderRadius: BorderRadius.circular(
+                  15
+              )
+          ),
+        ),
+
+        // light grey highlight
+        Padding(
+            padding: const EdgeInsets.only(
+                left:2
+            ),
+            child: Container(
+              width: screenWidth*0.9,
+              height: tileHeight,
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.topRight,
+                      colors: [Colors.grey[600]!, Colors.grey[900]!],
+                      stops: const [0.1, 0.9]
+                  ),
+                  borderRadius: BorderRadius.circular(
+                      15
+                  )
+              ),
+            )
+        ),
+
+        // main Div
+        Padding(
+          padding: const EdgeInsets.only(
+              left:2,
+              top: 2
+          ),
+          child: Container(
+            width: screenWidth*0.9,
+            height: tileHeight,
+            decoration: BoxDecoration(
+                gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.grey[800]!.withOpacity(0.7),
+                      Colors.grey[900]!
+                    ],
+                    stops: const [0.1,0.9]
+                ),
+                borderRadius: BorderRadius.circular(
+                    15
+                )
+            ),
+            child: _buildTileWithFlowChartContent(context),
+          ),
+        )
+
+      ],
+    );
+  }
+
+  Widget _buildTileWithFlowChartContent(
+      BuildContext context
+      ){
+    return Stack(
+      children: [
+        Container(
+          width: screenWidth*0.9,
+          child:  Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                      right: 18.0, left: 12.0, top: 24, bottom: 12),
+                  child: LineChart(
+                    showAvg ? avgData() : mainData(),
+                  ),
+                ),
+              )
+            ],
+          )
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    final stateProvider = Provider.of<StateProvider>(context);
+
+    screenWidth = MediaQuery.of(context).size.width;
+    screenHeight = MediaQuery.of(context).size.height;
+
+    customTextStyle = CustomTextStyle(context: context);
+
+
+    return Scaffold(
+
+      // extendBodyBehindAppBar: true,
+        extendBody: true,
+
+        bottomNavigationBar: CustomBottomNavigationBarClubs(),
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          title: SizedBox(
+            width: screenWidth,
+            child: Text(headLine,
+              textAlign: TextAlign.center,
+              style: customTextStyle.size2(),
+            ),
+          ),
+        ),
+        body: Container(
+            width: screenWidth,
+            height: screenHeight,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    // Color(0xff11181f),
+                    Color(0xff2b353d),
+                    Color(0xff11181f)
+                  ],
+                  stops: [0.15, 0.6]
+              ),
+            ),
+            child: SingleChildScrollView(
+                child: Column(
+                    children: [
+
+                      SizedBox(
+                        height: screenHeight*0.025,
+                      ),
+
+                      // Demographie headline
+                      Container(
+                        width: screenWidth,
+                        // color: Colors.red,
+                        padding: EdgeInsets.only(
+                            left: screenWidth*0.05,
+                            top: screenHeight*0.01
+                        ),
+                        child: const Text(
+                          "Demographie",
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                              fontSize: 24
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(
+                        height: screenHeight*0.02,
+                      ),
+
+                      _buildTileWithPieChart(context),
+
+                      SizedBox(
+                        height: screenHeight*0.03,
+                      ),
+
+                      // Demographie headline
+                      Container(
+                        width: screenWidth,
+                        // color: Colors.red,
+                        padding: EdgeInsets.only(
+                            left: screenWidth*0.05,
+                            top: screenHeight*0.01
+                        ),
+                        child: const Text(
+                          "Besucher: Entfernungen",
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                              fontSize: 24
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(
+                        height: screenHeight*0.02,
+                      ),
+
+                      _buildTileWithBarChart(context),
+
+                      SizedBox(
+                        height: screenHeight*0.02,
+                      ),
+
+                      // Events headline
+                      Container(
+                        width: screenWidth,
+                        // color: Colors.red,
+                        padding: EdgeInsets.only(
+                            left: screenWidth*0.05,
+                            top: screenHeight*0.01
+                        ),
+                        child: const Text(
+                          "Besucheranzahl",
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                              fontSize: 24
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(
+                        height: screenHeight*0.02,
+                      ),
+
+                      _buildTileWithFlowChart(context),
+
+                      SizedBox(
+                        height: screenHeight*0.2,
+                      )
+
+                    ]
+                )
+            )
+        )
+    );
+  }
+
 }

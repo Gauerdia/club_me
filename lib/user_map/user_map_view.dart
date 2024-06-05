@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:club_me/models/club.dart';
 import 'package:club_me/models/event.dart';
 import 'package:club_me/shared/custom_bottom_navigation_bar.dart';
@@ -8,9 +10,10 @@ import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
-import '../models/clubs_in_proximity.dart';
+import '../models/parser/club_me_club_parser.dart';
 import '../provider/state_provider.dart';
-import '../user_clubs/user_clubs_view.dart';
+import '../services/supabase_service.dart';
+import '../shared/custom_text_style.dart';
 import 'components/club_info_bottom_sheet.dart';
 import 'components/club_list_item.dart';
 
@@ -23,90 +26,100 @@ class UserMapView extends StatefulWidget {
 
 class _UserMapViewState extends State<UserMapView> {
 
-  String headline = "Find Your clubs!";
+  String headline = "Finde deinen Club";
+
+  late StateProvider stateProvider;
 
   bool showBottomSheet = false;
   bool showListIsActive = false;
+  bool isClubsFetched = false;
+  bool noEventAvailable = false;
+
+  late CustomTextStyle customTextStyle;
+
+  late Future getClubs;
 
   late ClubMeEvent clubMeEventToDisplay;
 
-  List<ClubMeEvent> events = [
-    ClubMeEvent(
-      title: "LATINO NIGHT",
-      clubName: "Untergrund Bochum",
-      DjName: "DJ Angerfist",
-      date: "Samstag",
-      price: "5",
-      imagePath: 'assets/images/img_4.png',
-        description: "Tauch ein in die Nacht und erlebe die ultimative Disco-Party!"
-            "Bist du bereit, die Nacht zum Tag zu machen? Dann ist diese Disco genau das Richtige für dich!"
-            "Feiere mit uns zu den besten Hits der 70er, 80er und 90er Jahre."
-            "Egal ob Discofox, Boogie oder einfach nur Tanzen - hier ist für jeden etwas dabei."
-            "Unsere erfahrenen DJs sorgen für eine ausgelassene Stimmung und bringen dich garantiert zum Schwitzen."
-            "Lasse dich von den bunten Lichtern und den pulsierenden Beats mitreißen und genieße die unvergessliche Atmosphäre."
-            "Ob alleine, mit Freunden oder deinem Partner - hier ist jeder willkommen."
-            "Komm vorbei und erlebe eine Nacht voller Spaß, Musik und Tanz!"
-            "Dresscode:"
-            "Zeige deinen ganz eigenen Style!"
-            "Von bunten Outfits bis hin zu klassischen Disco-Looks - alles ist erlaubt.",
-        musicGenres: "Latin",
-        hours: "22:00 - 03:00 Uhr"
-    ),
-    ClubMeEvent(
-      title: "TECHNO TECHNO",
-      clubName: "Zombiekeller",
-      DjName: "DJ Thomas",
-      date: "Samstag",
-      price: "3",
-      imagePath: "assets/images/dj_wallpaper_3.png",
-        description: "Tauch ein in die Nacht und erlebe die ultimative Disco-Party!"
-            "Bist du bereit, die Nacht zum Tag zu machen? Dann ist diese Disco genau das Richtige für dich!"
-            "Feiere mit uns zu den besten Hits der 70er, 80er und 90er Jahre."
-            "Egal ob Discofox, Boogie oder einfach nur Tanzen - hier ist für jeden etwas dabei."
-            "Unsere erfahrenen DJs sorgen für eine ausgelassene Stimmung und bringen dich garantiert zum Schwitzen."
-            "Lasse dich von den bunten Lichtern und den pulsierenden Beats mitreißen und genieße die unvergessliche Atmosphäre."
-            "Ob alleine, mit Freunden oder deinem Partner - hier ist jeder willkommen."
-            "Komm vorbei und erlebe eine Nacht voller Spaß, Musik und Tanz!"
-            "Dresscode:"
-            "Zeige deinen ganz eigenen Style!"
-            "Von bunten Outfits bis hin zu klassischen Disco-Looks - alles ist erlaubt.",
-        musicGenres: "Techno",
-        hours: "22:00 - 03:00 Uhr"
-    )];
+  final SupabaseService _supabaseService = SupabaseService();
+  List<ClubMeClub> clubsToDisplay = [];
 
   List<Widget> listWidgetsToDisplay = [];
-  List<ClubMeClub> clubMeClubs = [];
+
+  var _rotation;
+  MapController _mapController = MapController();
 
   @override
   void initState() {
     super.initState();
-    clubMeClubs = [
-      ClubMeClub(
-          clubName: "Untergrund Bochum",
-          distance: "1.2",
-          NOfPeople: "54",
-        genre: "90s",
-        imagePath: 'assets/images/dj_wallpaper_5.png',
-        price: "10"
-      ),
-      ClubMeClub(
-          clubName: "Nightrooms Dortmund",
-          distance: "2.5",
-          NOfPeople: "163",
-        genre: "Pop, R&B",
-        imagePath: 'assets/images/dj_wallpaper_4.png',
-        price: "15"
-      ),
-      ClubMeClub(
-          clubName: "Village Essen",
-          distance: "0.2",
-          NOfPeople: "89",
-        genre: "90s",
-        imagePath: 'assets/images/img_4.png',
-        price: "7"
-      ),
-    ];
-    // _buildListWidgets(clubMeClubs);
+    final stateProvider = Provider.of<StateProvider>(context, listen:  false);
+    if(stateProvider.getFetchedClubs().isEmpty){
+      getClubs = _supabaseService.getAllClubs();
+    }
+  }
+
+
+  Widget _buildFlutterMap(){
+
+    return FlutterMap(
+      mapController: _mapController,
+        options: MapOptions(
+          initialCenter: LatLng(48.773809, 9.182959),
+          initialZoom: 15,
+          onPositionChanged: (mapPosition, _){
+            setState(() {
+              _rotation = _mapController.camera.rotation;
+            });
+          }
+        ),
+        children: [
+          TileLayer(
+            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+            userAgentPackageName: 'com.szymendera.club_me',
+            tileBuilder: _darkModeTileBuilder,
+          ),
+
+          MarkerLayer(
+              markers: [
+
+                stateProvider.getUserLatCoord() != 0 ?
+                    Marker(
+                        point: LatLng(stateProvider.getUserLatCoord(), stateProvider.getUserLongCoord()),
+                        child: const Icon(Icons.pin_drop_outlined, color: Colors.orangeAccent,)
+                    ): const Marker(point: LatLng(0,0), child: Icon(Icons.pin_drop_outlined, color: Colors.orangeAccent,)),
+
+                for(ClubMeClub club in clubsToDisplay)
+                  Marker(
+                      point: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng()),
+                      width: 50,
+                      height: 50,
+                      child: GestureDetector(
+                        child: const Image(
+                          image: AssetImage("assets/images/pin1.png"),
+                        ),
+                        onTap: (){
+
+                          // Check if there is any event for the club
+                          if(stateProvider.fetchedEvents.where((event) => event.getClubId() == club.getClubId()).isEmpty){
+                            print("noevent=true");
+                            noEventAvailable = true;
+                          }else{
+                            print("noevent=false");
+                            clubMeEventToDisplay = stateProvider.fetchedEvents.firstWhere(
+                                    (event) => event.getClubId() == club.getClubId()
+                            );
+                            noEventAvailable = false;
+                          }
+
+                          stateProvider.setCurrentClub(club);
+                          toggleShowBottomSheet();
+                        },
+                      )
+                  )
+              ]
+          )
+        ]
+    );
   }
 
   void toggleShowBottomSheet(){
@@ -137,11 +150,63 @@ class _UserMapViewState extends State<UserMapView> {
     );
   }
 
+  Widget fetchClubsFromDbAndBuildWidget(double screenHeight, double screenWidth){
+    if(stateProvider.getFetchedClubs().isEmpty ){
+
+      return FutureBuilder(
+          future: getClubs,
+          builder: (context, snapshot){
+
+            if(snapshot.hasError){
+              print("Error: ${snapshot.error}");
+            }
+            if(!snapshot.hasData){
+              return SizedBox(
+                width: screenWidth,
+                height: screenHeight,
+                child: const Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }else{
+
+              final data = snapshot.data!;
+
+              if(clubsToDisplay.isEmpty){
+                for(var element in data){
+                  clubsToDisplay.add(parseClubMeClub(element));
+                }
+              }
+
+              stateProvider.setFetchedClubs(clubsToDisplay);
+
+              isClubsFetched = true;
+
+              // The map
+              return Container();
+            }
+          }
+      );
+    }else{
+
+      if(clubsToDisplay.isEmpty){
+        for(var club in stateProvider.getFetchedClubs()){
+          clubsToDisplay.add(club);
+        }
+      }
+
+      isClubsFetched = true;
+
+      return Container();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
 
-    final stateProvider = Provider.of<StateProvider>(context);
+    stateProvider = Provider.of<StateProvider>(context);
+
+    customTextStyle = CustomTextStyle(context: context);
 
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
@@ -152,75 +217,54 @@ class _UserMapViewState extends State<UserMapView> {
         extendBody: true,
 
       bottomNavigationBar: CustomBottomNavigationBar(),
+
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        title: Text(headline),
-
-        // Search icon
-        leading: const Icon(
-          Icons.search,
-          color: Colors.grey,
-          // size: 20,
-        ),
-
-        actions: [
-
-          // Step to club UI
-          GestureDetector(
-            child: Padding(
-              padding: const EdgeInsets.only(
-                right: 10
-              ),
-              child: Container(
-                padding: const EdgeInsets.all(7),
-                decoration: const BoxDecoration(
-                  color: Color(0xff11181f),
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(45)
-                  )
-                ),
-
-                child: const Icon(
-                  Icons.switch_access_shortcut,
-                  color: Colors.grey,
+        title: SizedBox(
+          width: screenWidth,
+          child: Stack(
+            children: [
+              SizedBox(
+                width: screenWidth,
+                child: Text(headline,
+                    textAlign: TextAlign.center,
+                    style: customTextStyle.size2()
                 ),
               ),
-            ),
-            onTap: (){
-              stateProvider.setPageIndex(0);
-              stateProvider.toggleClubUIActive();
-              context.go("/club_events");
-            },
+
+              Container(
+                alignment: Alignment.centerRight,
+                child: GestureDetector(
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                        // right: 10
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.all(7),
+                      decoration: const BoxDecoration(
+                          color: Color(0xff11181f),
+                          borderRadius: BorderRadius.all(
+                              Radius.circular(45)
+                          )
+                      ),
+
+                      child:  Icon(
+                        Icons.list_alt,
+                        color: showListIsActive ? stateProvider.getPrimeColor() : Colors.grey,
+                      ),
+                    ),
+                  ),
+                  onTap: (){
+                    toggleShowListIsActive();
+                  },
+                ),
+              )
+
+            ],
           ),
-
-          // List view
-          GestureDetector(
-            child: Padding(
-              padding: const EdgeInsets.only(
-                  right: 10
-              ),
-              child: Container(
-                padding: const EdgeInsets.all(7),
-                decoration: const BoxDecoration(
-                    color: Color(0xff11181f),
-                    borderRadius: BorderRadius.all(
-                        Radius.circular(45)
-                    )
-                ),
-
-                child:  Icon(
-                  Icons.list_alt,
-                  color: showListIsActive ? Colors.purpleAccent : Colors.grey,
-                ),
-              ),
-            ),
-            onTap: (){
-              toggleShowListIsActive();
-              // context.go("/club_events");
-            },
-          )
-        ],
+        ),
       ),
+
       body: Container(
         width: screenWidth,
           height: screenHeight,
@@ -249,57 +293,12 @@ class _UserMapViewState extends State<UserMapView> {
                 child: Stack(
                   children: [
 
-                    // The map
-                    FlutterMap(
-                        options: MapOptions(
-                          initialCenter: LatLng(48.773809, 9.182959),
-                          initialZoom: 15,
-                        ),
-                        children: [
-                          TileLayer(
-                            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                            userAgentPackageName: 'com.example.app',
-                            tileBuilder: _darkModeTileBuilder,
-                          ),
+                    fetchClubsFromDbAndBuildWidget(screenHeight, screenWidth),
 
-                          MarkerLayer(
-                              markers: [
-                                Marker(
-                                    point: const LatLng(48.773809, 9.182959),
-                                    width: 80,
-                                    height: 80,
-                                    child: GestureDetector(
-                                      child: const Image(
-                                        image: AssetImage("assets/images/club1.png"),
-                                      ),
-                                      onTap: (){
-                                        clubMeEventToDisplay = events[0];
-                                        stateProvider.setCurrentClub(clubMeClubs[0]);
-                                        toggleShowBottomSheet();
-                                      },
-                                    )
-                                ),
-
-                                Marker(
-                                    point: const LatLng(48.783809, 9.182959),
-                                    width: 80,
-                                    height: 80,
-                                    child: GestureDetector(
-                                      child: const Image(
-                                        image: AssetImage("assets/images/club1.png"),
-                                      ),
-                                      onTap: (){
-                                        clubMeEventToDisplay = events[1];
-                                        stateProvider.setCurrentClub(clubMeClubs[1]);
-                                        toggleShowBottomSheet();
-                                      },
-                                    )
-                                )
-
-                              ]
-                          )
-                        ]
-                    ),
+                    // build map
+                    isClubsFetched ?
+                    _buildFlutterMap()
+                        : const CircularProgressIndicator(),
 
                     // transparent layer to click out of bottom sheet
                     showBottomSheet?
@@ -312,7 +311,8 @@ class _UserMapViewState extends State<UserMapView> {
                           onTap: (){
                             toggleShowBottomSheet();
                           },
-                        ):Container(),
+                        )
+                        :Container(),
 
                     // The bottom info container
                     GestureDetector(
@@ -320,52 +320,73 @@ class _UserMapViewState extends State<UserMapView> {
                         alignment: Alignment.bottomCenter,
                         child:
                         showBottomSheet ?
+                        noEventAvailable?
                         ClubInfoBottomSheet
                           (showBottomSheet: showBottomSheet,
-                            clubMeEvent: clubMeEventToDisplay
+                            clubMeEvent: null,
+                            noEventAvailable: noEventAvailable
+                        ):ClubInfoBottomSheet
+                          (showBottomSheet: showBottomSheet,
+                            clubMeEvent: clubMeEventToDisplay,
+                            noEventAvailable: noEventAvailable
                         )
                             : Container(),
                       ),
                       onTap: (){
                         // club will be set in stateprovider when clicked on marker
-                        context.go("/club_details");
+                        context.push("/club_details");
                       },
                     ),
 
+                    // Grey background when list active
                     showListIsActive?
-                        Container(
-                          width: screenWidth,
-                          height: screenHeight,
-                          color: Colors.black.withOpacity(0.7),
-                        ): Container(),
+                        GestureDetector(
+                          child: Container(
+                            width: screenWidth,
+                            height: screenHeight,
+                            color: Colors.black.withOpacity(0.7),
+                          ),
+                          onTap: (){
+                            setState(() {
+                              showListIsActive = false;
+                            });
+                          },
+                        )
+                        : Container(),
 
+                    // List view of clubs
                     showListIsActive ?
                         Padding(
-                            padding: EdgeInsets.only(
+                            padding: const EdgeInsets.only(
                                 // top: screenWidth*0.1
                             ),
                           child: Center(
 
                             // Whole list background
                             child: Container(
-                              width: screenWidth*0.9,
-                              height: screenHeight*0.7,
-                              // color: Colors.red,
-                              child: Column(
-                                children: [
-                                  for( var element in clubMeClubs)
-                                    ClubListItem(
-                                        clubName: element.getClubName(),
-                                        NOfPeople: element.getNOfPeople(),
-                                        distance: element.getDistance(),
-                                        price: element.getPrice()
-                                    )
-                                ],
+                              padding: EdgeInsets.only(
+                                top: 20
+                              ),
+                              // width: screenWidth*0.9,
+                              // height: screenHeight*0.7,
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  children: [
+                                    for( ClubMeClub club in clubsToDisplay)
+                                      ClubListItem(
+                                          currentClub: club,
+                                          NOfPeople: "5",
+                                          distance: "5",
+                                          price: "5"
+                                      )
+                                  ],
+                                ),
                               )
                               
                             ),
                           )
-                        ):Container()
+                        )
+                        :Container()
                         
 
                   ],

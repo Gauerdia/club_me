@@ -4,26 +4,30 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../provider/state_provider.dart';
+import 'custom_text_style.dart';
 
 class CustomBottomNavigationBarClubs extends StatelessWidget {
 
   CustomBottomNavigationBarClubs({Key? key}) : super(key: key);
 
   var colorTransitionDuration = const Duration(milliseconds: 900);
+  late CustomTextStyle customTextStyle;
 
   @override
   Widget build(BuildContext context) {
 
     final stateProvider = Provider.of<StateProvider>(context);
 
+    customTextStyle = CustomTextStyle(context: context);
+
     Color navigationBackgroundColor = const Color(0xff11181f);
-    Color iconBackgroundColor = const Color(0xffF03ADE); //const Color(0xff68d6cf);
+    Color iconBackgroundColor = Colors.teal;
 
     return Container(
         decoration: BoxDecoration(
             borderRadius: const BorderRadius.only(
-                topRight: Radius.circular(30),
-                topLeft: Radius.circular(30)
+                // topRight: Radius.circular(30),
+                // topLeft: Radius.circular(30)
             ),
             color: navigationBackgroundColor
         ),
@@ -32,8 +36,8 @@ class CustomBottomNavigationBarClubs extends StatelessWidget {
             Container(
               decoration: const BoxDecoration(
                 borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(30),
-                    topLeft: Radius.circular(30)
+                    // topRight: Radius.circular(30),
+                    // topLeft: Radius.circular(30)
                 ),
               ),
               height: 70,
@@ -49,10 +53,10 @@ class CustomBottomNavigationBarClubs extends StatelessWidget {
                             color: stateProvider.pageIndex == 0 ? iconBackgroundColor : Colors.transparent
                         ),
                         duration: colorTransitionDuration,
-                        child: const Icon(
+                        child: Icon(
                           Icons.calendar_month_outlined,
                           color: Colors.white,
-                          size: 35,
+                          size: customTextStyle.getIconSize1(),
                         ),
                       ),
                       onTap: (){
@@ -70,10 +74,10 @@ class CustomBottomNavigationBarClubs extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10),
                             color: stateProvider.pageIndex == 1 ? iconBackgroundColor : Colors.transparent
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.insert_chart_outlined,
                           color: Colors.white,
-                          size: 35,
+                          size: customTextStyle.getIconSize1(),
                         ),
                       ),
                       onTap: (){
@@ -91,10 +95,10 @@ class CustomBottomNavigationBarClubs extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10),
                             color: stateProvider.pageIndex == 2 ? iconBackgroundColor : Colors.transparent
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.percent,
                           color: Colors.white,
-                          size: 35,
+                          size: customTextStyle.getIconSize1(),
                         ),
                       ),
                       onTap: (){
@@ -112,10 +116,10 @@ class CustomBottomNavigationBarClubs extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10),
                             color: stateProvider.pageIndex == 3 ? iconBackgroundColor : Colors.transparent
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.camera_front,
                           color: Colors.white,
-                          size: 35,
+                          size: customTextStyle.getIconSize1(),
                         ),
                       ),
                       onTap: (){

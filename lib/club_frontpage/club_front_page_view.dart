@@ -1,12 +1,19 @@
-import 'package:flutter/cupertino.dart';
+import 'package:club_me/shared/map_utils.dart';
+import 'package:club_me/shared/show_story.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
-
 import '../models/event.dart';
+import '../models/parser/club_me_event_parser.dart';
 import '../provider/state_provider.dart';
+import '../services/supabase_service.dart';
 import '../shared/custom_bottom_navigation_bar_clubs.dart';
-import '../user_clubs/user_clubs_view.dart';
+import '../shared/custom_text_style.dart';
+import '../user_clubs/components/event_card.dart';
+import 'package:timezone/standalone.dart' as tz;
 
 class ClubFrontPageView extends StatefulWidget {
   const ClubFrontPageView({Key? key}) : super(key: key);
@@ -16,58 +23,58 @@ class ClubFrontPageView extends StatefulWidget {
 }
 
 class _ClubFrontPageViewState extends State<ClubFrontPageView> {
-  String headLine = "Your Frontpage";
 
-  List<ClubMeEvent> events = [
-    ClubMeEvent(
-        title: "DJ Kheeling - Tropical Techno",
-        clubName: "Berghain",
-        DjName: "DJ Kheeling",
-        date: "Freitag",
-        price: "4",
-        imagePath: "assets/images/img_4.png",
-        description: "Tauch ein in die Nacht und erlebe die ultimative Disco-Party!"
-            "Bist du bereit, die Nacht zum Tag zu machen? Dann ist diese Disco genau das Richtige für dich!"
-            "Feiere mit uns zu den besten Hits der 70er, 80er und 90er Jahre."
-            "Egal ob Discofox, Boogie oder einfach nur Tanzen - hier ist für jeden etwas dabei."
-            "Unsere erfahrenen DJs sorgen für eine ausgelassene Stimmung und bringen dich garantiert zum Schwitzen."
-            "Lasse dich von den bunten Lichtern und den pulsierenden Beats mitreißen und genieße die unvergessliche Atmosphäre."
-            "Ob alleine, mit Freunden oder deinem Partner - hier ist jeder willkommen."
-            "Komm vorbei und erlebe eine Nacht voller Spaß, Musik und Tanz!"
-            "Dresscode:"
-            "Zeige deinen ganz eigenen Style!"
-            "Von bunten Outfits bis hin zu klassischen Disco-Looks - alles ist erlaubt.",
-        musicGenres: "House, Trance, Psy",
-        hours: "22:00 - 07:00 Uhr"
-    ),
-    ClubMeEvent(
-        title: "The Halloween Special",
-        clubName: "Berghain",
-        DjName: "DJ Jürgen",
-        date: "Samstag",
-        price: "14",
-        imagePath: "assets/images/img_4.png",
-        description: "Tauch ein in die Nacht und erlebe die ultimative Disco-Party!"
-            "Bist du bereit, die Nacht zum Tag zu machen? Dann ist diese Disco genau das Richtige für dich!"
-            "Feiere mit uns zu den besten Hits der 70er, 80er und 90er Jahre."
-            "Egal ob Discofox, Boogie oder einfach nur Tanzen - hier ist für jeden etwas dabei."
-            "Unsere erfahrenen DJs sorgen für eine ausgelassene Stimmung und bringen dich garantiert zum Schwitzen."
-            "Lasse dich von den bunten Lichtern und den pulsierenden Beats mitreißen und genieße die unvergessliche Atmosphäre."
-            "Ob alleine, mit Freunden oder deinem Partner - hier ist jeder willkommen."
-            "Komm vorbei und erlebe eine Nacht voller Spaß, Musik und Tanz!"
-            "Dresscode:"
-            "Zeige deinen ganz eigenen Style!"
-            "Von bunten Outfits bis hin zu klassischen Disco-Looks - alles ist erlaubt.",
-        musicGenres: "House, Trance, Psy",
-        hours: "23:00 - 08:00 Uhr"
-    )
-  ];
+  String headLine = "Deine Frontpage";
 
-  late VideoPlayerController _videoPlayerController;
-  late Future<void> _initializeVideoPlayerFuture;
+  List<ClubMeEvent> pastEvents = [];
+  List<ClubMeEvent> upcomingEvents = [];
+  List<String> priceListString = ["Preisliste"];
+  List<String> mehrEventsString = ["Mehr Events!", "Get more events"];
+  List<String> mehrPhotosButtonString = ["Mehr Fotos!", "Explore more photos"];
+  List<String> findOnMapsButtonString = ["Finde uns auf Maps!", "Find us on maps!"];
 
   bool showVideoIsActive = false;
+  double moreButtonWidthFactor = 0.04;
 
+  late Future getEvents;
+  late StateProvider stateProvider;
+  late CustomTextStyle customTextStyle;
+  late double screenHeight, screenWidth;
+  late Future<void> _initializeVideoPlayerFuture;
+  late VideoPlayerController _videoPlayerController;
+
+  final SupabaseService _supabaseService = SupabaseService();
+
+
+  @override
+  void initState() {
+    super.initState();
+    final stateProvider = Provider.of<StateProvider>(context, listen:  false);
+    getEvents = _supabaseService.getEventsOfSpecificClub(stateProvider);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  void addPhotoOrVideo(double screenHeight, double screenWidth){
+    showDialog(context: context, builder: (BuildContext context){
+      return AlertDialog(
+        title: const Text("Hinzufügen von Photos und Videos"),
+        content: SizedBox(
+          height: screenHeight*0.12,
+          child: Center(
+            child: Text(
+                "Diese Funktion steht zurzeit noch nicht zur Verfügung! Wir bitten um Verständnis!",
+              textAlign: TextAlign.left,
+              style: customTextStyle.size4(),
+            ),
+          )
+        ),
+      );
+    });
+  }
 
   void toggleShowVideoIsActive(){
     setState(() {
@@ -80,45 +87,1167 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
     });
   }
 
-  @override
-  void initState() {
-    super.initState();
+  void clickOnAddEvent(double screenHeight, double screenWidth){
+    showDialog(context: context, builder: (BuildContext context){
+      return AlertDialog(
+        title: const Text("Neues Event"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
 
-    _videoPlayerController = VideoPlayerController.asset("assets/videos/short_video_1.mp4");
-    _videoPlayerController.setLooping(true);
+            // Question text
+            const Text(
+              "Möchtest du ein neues Event anlegen?",
+              textAlign: TextAlign.left,
+            ),
 
-    _initializeVideoPlayerFuture = _videoPlayerController.initialize();
+            // Spacer
+            SizedBox(
+              height: screenHeight*0.03,
+            ),
 
+            // "New event" button
+            Container(
+                width: screenWidth*0.9,
+                // color: Colors.red,
+                alignment: Alignment.bottomRight,
+                child: GestureDetector(
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                        vertical: screenHeight*0.015,
+                        horizontal: screenWidth*0.03
+                    ),
+                    decoration: const BoxDecoration(
+                        color: Colors.black54,
+                        borderRadius: BorderRadius.all(Radius.circular(10))
+                    ),
+                    child: Text(
+                      "Neues Event!",
+                      textAlign: TextAlign.center,
+                      style: customTextStyle.size4BoldPrimeColor(),
+                    ),
+                  ),
+                  onTap: () => context.go("/club_new_event"),
+                )
+            ),
+
+          ],
+        ),
+      );
+    });
   }
 
-  @override
-  void dispose() {
-    _videoPlayerController.dispose();
+  void clickOnDiscoverMoreEvents(double screenHeight, double screenWidth){
+    showDialog(context: context, builder: (BuildContext context){
+      return AlertDialog(
+        title: const Text("Ausführliche Eventliste"),
+        content: Text(
+          "Diese Funktion steht zurzeit noch nicht zur Verfügung! Wir bitten um Verständnis!",
+          textAlign: TextAlign.left,
+          style: customTextStyle.size4(),
+        )
+      );
+    });
+  }
 
-    super.dispose();
+  void clickOnDiscoverMorePhotos(double screenHeight, double screenWidth){
+    showDialog(context: context, builder: (BuildContext context){
+      return AlertDialog(
+        title: const Text("Ausführliche Photoliste"),
+        content: Text(
+          "Diese Funktion steht zurzeit noch nicht zur Verfügung! Wir bitten um Verständnis!",
+          textAlign: TextAlign.left,
+          style: customTextStyle.size4(),
+        ),
+      );
+    });
+  }
+
+  void clickOnPriceList(double screenHeight, double screenWidth){
+    showDialog(context: context, builder: (BuildContext context){
+      return AlertDialog(
+        title: const Text("Preisliste"),
+        content: Text(
+          "Diese Funktion steht zurzeit noch nicht zur Verfügung! Wir bitten um Verständnis!",
+          textAlign: TextAlign.left,
+          style: customTextStyle.size4(),
+        ),
+      );
+    });
+  }
+
+  void clickOnStoryButton(BuildContext context, double screenHeight, double screenWidth, StateProvider stateProvider){
+
+    showDialog(context: context, builder: (BuildContext context){
+      return AlertDialog(
+        title: const Text("Story"),
+        content: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+
+            // Question text
+            Text(
+              "Möchtest du eine Story hochladen?",
+              textAlign: TextAlign.left,
+              style: customTextStyle.size4(),
+            ),
+
+            // Spacer
+            SizedBox(
+              height: screenHeight*0.03,
+            ),
+
+
+            // "New event" button
+            Container(
+                width: screenWidth*0.9,
+                // color: Colors.red,
+                alignment: Alignment.bottomRight,
+                child: GestureDetector(
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                        vertical: screenHeight*0.015,
+                        horizontal: screenWidth*0.03
+                    ),
+                    decoration: const BoxDecoration(
+                        color: Colors.black54,
+                        borderRadius: BorderRadius.all(Radius.circular(10))
+                    ),
+                    child: Text(
+                      "Neue Story!",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: stateProvider.getPrimeColor(),
+                          fontWeight: FontWeight.bold,
+                          fontSize: screenWidth*moreButtonWidthFactor
+                      ),
+                    ),
+                  ),
+                  onTap: () =>  context.go("/video_recording"),
+                )
+            ),
+
+            // Spacer
+            SizedBox(
+              height: screenHeight*0.01,
+            ),
+
+            // Does a story exist? Then show a button to play it
+            stateProvider.getClubStoryId().isNotEmpty ?
+
+            Container(
+                width: screenWidth*0.9,
+                // color: Colors.red,
+                alignment: Alignment.bottomRight,
+                child: GestureDetector(
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                        vertical: screenHeight*0.015,
+                        horizontal: screenWidth*0.03
+                    ),
+                    decoration: const BoxDecoration(
+                        color: Colors.black54,
+                        borderRadius: BorderRadius.all(Radius.circular(10))
+                    ),
+                    child: Text(
+                      "Story anschauen!",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: stateProvider.getPrimeColor(),
+                          fontWeight: FontWeight.bold,
+                          fontSize: screenWidth*moreButtonWidthFactor
+                      ),
+                    ),
+                  ),
+                  onTap: () =>  {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => ShowStory(storyUUID: stateProvider.getClubStoryId()),
+                      ),
+                    )
+                  },
+                )
+            ): Container(),
+
+          ],
+        ),
+      );
+    });
+  }
+
+  void clickOnEditNews(double screenHeight, double screenWidth, ){
+    showDialog(context: context, builder: (BuildContext context){
+      return AlertDialog(
+          title: const Text("News"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+
+              // Question text
+              Text("Willst du die News anpassen?"),
+
+              // Spacer
+              SizedBox(
+                height: screenHeight*0.02,
+              ),
+
+              // "News anpassen" button
+              Container(
+                  width: screenWidth*0.9,
+                  // color: Colors.red,
+                  alignment: Alignment.bottomRight,
+                  child: GestureDetector(
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                          vertical: screenHeight*0.015,
+                          horizontal: screenWidth*0.03
+                      ),
+                      decoration: const BoxDecoration(
+                          color: Colors.black54,
+                          borderRadius: BorderRadius.all(Radius.circular(10))
+                      ),
+                      child: Text(
+                        "News anpassen!",
+                        textAlign: TextAlign.center,
+                        style: customTextStyle.size4BoldPrimeColor(),
+                      ),
+                    ),
+                    onTap: () => context.go('/club_update_news'),
+                  )
+              ),
+            ],
+          )
+      );
+    });
+  }
+
+  void clickOnEditContact(double screenHeight, double screenWidth){
+    showDialog(context: context, builder: (BuildContext context){
+      return AlertDialog(
+          title: const Text("Kontakt"),
+          content:Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+
+              // Question text
+              Text("Willst du deine Adresse anpassen?"),
+
+              // Spacer
+              SizedBox(
+                height: screenHeight*0.02,
+              ),
+
+              Container(
+                  width: screenWidth*0.9,
+                  alignment: Alignment.bottomRight,
+                  child: GestureDetector(
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                          vertical: screenHeight*0.015,
+                          horizontal: screenWidth*0.03
+                      ),
+                      decoration: const BoxDecoration(
+                          color: Colors.black54,
+                          borderRadius: BorderRadius.all(Radius.circular(10))
+                      ),
+                      child: Text(
+                        "Adresse anpassen!",
+                        textAlign: TextAlign.center,
+                        style: customTextStyle.size4BoldPrimeColor(),
+                      ),
+                    ),
+                    onTap: () => context.go('/club_update_contact'),
+                  )
+              ),
+
+            ],
+          )
+      );
+    });
+  }
+
+  void filterEventsFromProvider(StateProvider stateProvider){
+    for(var currentEvent in stateProvider.getFetchedEvents()){
+      // add 23 so that we can still find it as upcoming even though it's the same day
+      DateTime eventTimestamp = currentEvent.getEventDate();
+
+      // subtract 7 so that time zones and late at night queries work well
+      // DateTime todayTimestamp = DateTime.now().subtract(Duration(hours: 7));
+
+      // Get current time for germany
+      final berlin = tz.getLocation('Europe/Berlin');
+      final todayTimestamp = tz.TZDateTime.from(DateTime.now(), berlin).subtract(const Duration(hours:5));
+
+      // Filter the events
+      if(eventTimestamp.isAfter(todayTimestamp)){
+        upcomingEvents.add(currentEvent);
+      }else{
+        pastEvents.add(currentEvent);
+      }
+    }
+  }
+
+  void filterEventsFromQuery(var data, StateProvider stateProvider){
+    for(var element in data){
+      ClubMeEvent currentEvent = parseClubMeEvent(element);
+
+      // add 23 so that we can still find it as upcoming even though it's the same day
+      DateTime eventTimestamp = currentEvent.getEventDate();
+
+      // subtract 7 so that time zones and late at night queries work well
+      // DateTime todayTimestamp = DateTime.now().subtract(Duration(hours: 7));
+
+      // Get current time for germany
+      final berlin = tz.getLocation('Europe/Berlin');
+      final todayTimestamp = tz.TZDateTime.from(DateTime.now(), berlin).subtract(const Duration(hours:5));
+
+      // Filter the events
+      if(eventTimestamp.isAfter(todayTimestamp)){
+        upcomingEvents.add(currentEvent);
+      }else{
+        pastEvents.add(currentEvent);
+      }
+
+      // Add to provider so that we dont need to call them from the db again
+      stateProvider.addEventToFetchedEvents(currentEvent);
+    }
+  }
+
+  Widget fetchEventsFromDbAndBuildWidget(
+      StateProvider stateProvider,
+      double screenHeight, double screenWidth
+      ){
+
+    return stateProvider.getFetchedEvents().isEmpty ?
+    FutureBuilder(
+        future: getEvents,
+        builder: (context, snapshot){
+
+          print("Futurebuilder: fetchedEvents isEmpty");
+
+          if(snapshot.hasError){
+            print("Error: ${snapshot.error}");
+          }
+
+          if(!snapshot.hasData){
+            return SizedBox(
+              width: screenWidth,
+              height: screenHeight,
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }else{
+
+            final data = snapshot.data!;
+
+            filterEventsFromQuery(data, stateProvider);
+
+            return _buildMainView(stateProvider, screenHeight, screenWidth);
+
+          }
+        }
+    ): _buildMainView(stateProvider, screenHeight, screenWidth);
+  }
+
+
+  Widget _buildMapAndPricelistIcons(){
+    return Column(
+      children: [
+        // Spacer
+        SizedBox(
+          height: screenHeight*0.03,
+        ),
+
+        // Icons next to logo
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            GestureDetector(
+              child: Column(
+                children: [
+
+                  Icon(
+                    Icons.route_outlined,
+                    color: stateProvider.getPrimeColor(),
+                  ),
+
+                  const Text(
+                      "Karte"
+                  ),
+                ],
+              ),
+              onTap: (){
+                MapUtils.openMap(stateProvider.getClubCoordLat(), stateProvider.getClubCoordLng());
+              },
+            ),
+            GestureDetector(
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.search,
+                    color: stateProvider.getPrimeColor(),
+                  ),
+                  Text(
+                      priceListString[0]
+                  )
+                ],
+              ),
+              onTap: () => clickOnPriceList(screenHeight, screenWidth),
+            )
+          ],
+        ),
+
+        // Spacer
+        SizedBox(
+          height: screenHeight*0.02,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEventSection(){
+    return Column(
+      children: [
+
+        // Events headline
+        Container(
+            width: screenWidth,
+            padding: EdgeInsets.only(
+                left: screenWidth*0.05,
+                top: screenHeight*0.01
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+
+                // Headline
+                Text(
+                  "Events",
+                  textAlign: TextAlign.left,
+                  style: customTextStyle.size2BoldLightGrey(),
+                ),
+
+                // New event icon
+                Padding(
+                    padding: EdgeInsets.only(
+                        right: screenWidth*0.05
+                    ),
+                    child: GestureDetector(
+                      child: Container(
+                          padding: const EdgeInsets.all(7),
+                          decoration: BoxDecoration(
+                            color: Colors.black,
+                            borderRadius: BorderRadius.circular(45),
+                          ),
+                          child: Icon(
+                            Icons.add,
+                            color: stateProvider.getPrimeColor(),
+                          )
+                      ),
+                      onTap: () => clickOnAddEvent(screenHeight, screenWidth),
+                    )
+                )
+              ],
+            )
+        ),
+
+        // Spacer
+        SizedBox(height: screenHeight*0.01,),
+
+        // First Event
+        upcomingEvents.isNotEmpty ?
+        EventCard(clubMeEvent: upcomingEvents[0])
+            : Container(),
+
+        // Spacer
+        SizedBox(height: screenHeight*0.01,),
+
+        // Second Event
+        upcomingEvents.length > 1 ?
+        EventCard(clubMeEvent: upcomingEvents[1])
+            : Container(),
+
+        // Text, when no event available
+        upcomingEvents.isEmpty ?
+        Text(
+            "Keine neuen Events.",
+          style: customTextStyle.size3(),
+        )
+            : Container(),
+
+        // Spacer
+        SizedBox(height: screenHeight*0.02,),
+
+        // Button mehr events
+        Container(
+            width: screenWidth*0.9,
+            alignment: Alignment.bottomRight,
+            child: GestureDetector(
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                    vertical: screenHeight*0.015,
+                    horizontal: screenWidth*0.03
+                ),
+                decoration: const BoxDecoration(
+                    color: Colors.black54,
+                    borderRadius: BorderRadius.all(Radius.circular(10))
+                ),
+                child: Text(
+                  mehrEventsString[0],
+                  textAlign: TextAlign.center,
+                  style: customTextStyle.size4BoldPrimeColor(),
+                ),
+              ),
+              onTap: () => clickOnDiscoverMoreEvents(screenHeight, screenWidth),
+            )
+        ),
+
+        // Spacer
+        SizedBox(height: screenHeight*0.02,),
+      ],
+    );
+  }
+
+  Widget _buildNewsSection(){
+    return Column(
+      children: [
+
+        // News Headline
+        Container(
+          width: screenWidth,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+
+              // News headline
+              Container(
+                padding: EdgeInsets.only(
+                    left: screenWidth*0.05,
+                    top: screenHeight*0.01
+                ),
+                child: Text(
+                  "News",
+                  textAlign: TextAlign.left,
+                  style: customTextStyle.size2BoldLightGrey(),
+                ),
+              ),
+
+              // New button
+              Padding(
+                  padding: EdgeInsets.only(
+                      right: screenWidth*0.05,
+                      top: screenHeight*0.01
+                  ),
+                  child: GestureDetector(
+                    child: Container(
+                        padding: const EdgeInsets.all(7),
+                        decoration: BoxDecoration(
+                          color: Colors.black,
+                          borderRadius: BorderRadius.circular(45),
+                        ),
+                        child: Icon(
+                          Icons.edit,
+                          color: stateProvider.getPrimeColor(),
+                        )
+                    ),
+                    onTap: () => clickOnEditNews(
+                        screenHeight,
+                        screenWidth
+                    ),
+                  )
+              )
+            ],
+          ),
+        ),
+
+        // News Content
+        Padding(
+          padding: EdgeInsets.all(18),
+          child: Text(
+              stateProvider.getUserClubNews(),
+            style: customTextStyle.size4(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPhotosAndVideosSection(){
+    return Column(
+      children: [
+
+        // Photos and videos headline
+        Container(
+            width: screenWidth,
+            padding: EdgeInsets.only(
+                left: screenWidth*0.05,
+                top: screenHeight*0.01
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+
+                // Headline text
+                Text(
+                  "Fotos & Videos",
+                  textAlign: TextAlign.left,
+                  style: customTextStyle.size2BoldLightGrey(),
+                ),
+
+                // Add photo icon
+                Padding(
+                    padding: EdgeInsets.only(
+                      right: screenWidth*0.05,
+                      // top: screenHeight*0.01
+                    ),
+                    child: GestureDetector(
+                      child: Container(
+                          padding: const EdgeInsets.all(7),
+                          decoration: BoxDecoration(
+                            color: Colors.black,
+                            borderRadius: BorderRadius.circular(45),
+                          ),
+                          child: Icon(
+                            Icons.add,
+                            color: stateProvider.getPrimeColor(),
+                          )
+                      ),
+                      onTap: () => addPhotoOrVideo(screenHeight, screenWidth),
+                    )
+                ),
+
+              ],
+            )
+        ),
+
+        // Spacer
+        SizedBox(
+          height: screenHeight*0.02,
+        ),
+
+        // First row images
+        Padding(
+          padding: EdgeInsets.only(left: screenWidth*0.05),
+          child: Row(
+            children: [
+              Container(
+                width: screenWidth*0.29,
+                height: screenWidth*0.29,
+                child: Image.asset(
+                  'assets/images/dj_wallpaper_3.png', // Replace with your image path
+                  fit: BoxFit.cover,
+                ),
+              ),
+              SizedBox(width: screenWidth*0.02,),
+              Container(
+                width: screenWidth*0.29,
+                height: screenWidth*0.29,
+                child: Image.asset(
+                  'assets/images/dj_wallpaper_4.png', // Replace with your image path
+                  fit: BoxFit.cover,
+                ),
+              ),
+              SizedBox(width: screenWidth*0.02,),
+              Container(
+                width: screenWidth*0.29,
+                height: screenWidth*0.29,
+                child: Image.asset(
+                  'assets/images/dj_wallpaper_5.png', // Replace with your image path
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Spacer
+        SizedBox(
+          height: screenHeight*0.02,
+        ),
+
+        // Second row images
+        Padding(
+          padding: EdgeInsets.only(left: screenWidth*0.05),
+          child: Row(
+            children: [
+              Container(
+                width: screenWidth*0.29,
+                height: screenWidth*0.29,
+                child: Image.asset(
+                  'assets/images/dj_wallpaper_3.png', // Replace with your image path
+                  fit: BoxFit.cover,
+                ),
+              ),
+              SizedBox(width: screenWidth*0.02,),
+              Container(
+                width: screenWidth*0.29,
+                height: screenWidth*0.29,
+                child: Image.asset(
+                  'assets/images/dj_wallpaper_4.png', // Replace with your image path
+                  fit: BoxFit.cover,
+                ),
+              ),
+              SizedBox(width: screenWidth*0.02,),
+              Container(
+                width: screenWidth*0.29,
+                height: screenWidth*0.29,
+                child: Image.asset(
+                  'assets/images/dj_wallpaper_5.png', // Replace with your image path
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Spacer
+        SizedBox(
+          height: screenHeight*0.02,
+        ),
+
+        // More button
+        Container(
+            width: screenWidth*0.9,
+            alignment: Alignment.bottomRight,
+            child: GestureDetector(
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                    vertical: screenHeight*0.015,
+                    horizontal: screenWidth*0.03
+                ),
+                decoration: const BoxDecoration(
+                    color: Colors.black54,
+                    borderRadius: BorderRadius.all(Radius.circular(10))
+                ),
+                child: Text(
+                  mehrPhotosButtonString[0],
+                  textAlign: TextAlign.center,
+                  style: customTextStyle.size4BoldPrimeColor(),
+                ),
+              ),
+              onTap: () => clickOnDiscoverMorePhotos(screenHeight, screenWidth),
+            )
+        ),
+
+        // Spacer
+        SizedBox(
+          height: screenHeight*0.02,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSocialMediaSection(){
+    return Column(
+      children: [
+
+        // Social Media headline
+        Container(
+          width: screenWidth,
+          // color: Colors.red,
+          padding: EdgeInsets.only(
+              left: screenWidth*0.05,
+              top: screenHeight*0.01
+          ),
+          child: Text(
+            "Social Media",
+            textAlign: TextAlign.left,
+            style: customTextStyle.size2BoldLightGrey(),
+          ),
+        ),
+
+        // Insta Icon
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            // Social media
+            Padding(
+              padding: EdgeInsets.only(
+                  left: screenWidth*0.03
+              ),
+              child: IconButton(
+                  onPressed: () => goToSocialMedia(stateProvider.getUserClubInstaLink()),
+                  icon: Icon(
+                      FontAwesomeIcons.instagram,
+                    color: stateProvider.getPrimeColor(),
+                  )
+              ),
+            ),
+
+            Padding(
+              padding: EdgeInsets.only(
+                  left: screenWidth*0.03
+              ),
+              child: IconButton(
+                  onPressed: () => goToSocialMedia(
+                      stateProvider.getUserClubWebsiteLink()
+                  ),
+                  icon: Icon(
+                    Icons.home_filled,
+                    color: stateProvider.getPrimeColor(),
+                  )
+              ),
+            ),
+
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMusicGenresSection(){
+    return Column(
+      children: [
+
+        // headline
+        Container(
+          width: screenWidth,
+          padding: EdgeInsets.only(
+              left: screenWidth*0.05,
+              top: screenHeight*0.01
+          ),
+          child: Text(
+            "Musikrichtungen",
+            textAlign: TextAlign.left,
+            style: customTextStyle.size2BoldLightGrey(),
+          ),
+        ),
+
+        // Spacer
+        SizedBox(
+          height: screenHeight*0.02,
+        ),
+
+        // Musikgenres
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(
+                  left: screenWidth*0.05
+              ),
+              child: Text(
+                stateProvider.userClub.getMusicGenres(),
+                style: customTextStyle.size4(),
+              ),
+            )
+          ],
+        ),
+
+        // Spacer
+        SizedBox(
+          height: screenHeight*0.02,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildContactSection(){
+    return Column(
+      children: [
+
+        // Kontakt headline
+        Container(
+            width: screenWidth,
+            // color: Colors.red,
+            padding: EdgeInsets.only(
+                left: screenWidth*0.05,
+                top: screenHeight*0.01
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Kontakt",
+                  textAlign: TextAlign.left,
+                  style: customTextStyle.size2BoldLightGrey(),
+                ),
+
+                // New icon
+                Padding(
+                    padding: EdgeInsets.only(
+                      right: screenWidth*0.05,
+                      // top: screenHeight*0.01
+                    ),
+                    child: GestureDetector(
+                      child: Container(
+                          padding: const EdgeInsets.all(7),
+                          decoration: BoxDecoration(
+                            color: Colors.black,
+                            borderRadius: BorderRadius.circular(45),
+                          ),
+                          child: Icon(
+                            Icons.edit,
+                            color: stateProvider.getPrimeColor(),
+                          )
+                      ),
+                      onTap: () => clickOnEditContact(screenHeight, screenWidth),
+                    )
+                ),
+              ],
+            )
+        ),
+
+        // Spacer
+        SizedBox(
+          height: screenHeight*0.02,
+        ),
+
+        // Anschrift + icon
+        Row(
+          children: [
+
+            // Spacer
+            SizedBox(
+              width: screenWidth*0.05,
+            ),
+
+            // Anschrift
+            SizedBox(
+              width: screenWidth*0.45,
+              height: screenHeight*0.12,
+              child: Column(
+                children: [
+
+                  // Contact name text
+                  SizedBox(
+                    width: screenWidth*0.5,
+                    child: Text(
+                      stateProvider.getUserContact()[0].length > 15 ?
+                      stateProvider.getUserContact()[0].substring(0,15) :
+                      stateProvider.getUserContact()[0],
+                      textAlign: TextAlign.left,
+                      style: customTextStyle.size4Bold(),
+                    ),
+                  ),
+
+                  // Street
+                  SizedBox(
+                    width: screenWidth*0.5,
+                    child: Text(
+                      stateProvider.getUserContact()[1].length > 15 ?
+                      stateProvider.getUserContact()[1].substring(0,15):
+                      stateProvider.getUserContact()[1],
+                      textAlign: TextAlign.left,
+                      style:customTextStyle.size4(),
+                    ),
+                  ),
+
+                  // City
+                  SizedBox(
+                    width: screenWidth*0.5,
+                    child: Text(
+                      stateProvider.getUserContact()[2].length > 15 ?
+                      stateProvider.getUserContact()[2].substring(0,15):
+                      stateProvider.getUserContact()[2],
+                      textAlign: TextAlign.left,
+                      style: customTextStyle.size4(),
+                  ),
+                  )
+                ],
+              ),
+            ),
+
+            // Google maps icon
+            SizedBox(
+              width: screenWidth*0.45,
+              child: Column(
+                children: [
+                  SizedBox(
+                    width: screenWidth*0.2,
+                    height: screenWidth*0.2,
+                    child: Image.asset(
+                      'assets/images/google_maps_teal.png',
+                    ),
+                  )
+                ],
+              ),
+            )
+          ],
+        ),
+
+        // Find us on maps icon
+        Container(
+            width: screenWidth*0.9,
+            alignment: Alignment.bottomRight,
+            child: GestureDetector(
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                    vertical: screenHeight*0.015,
+                    horizontal: screenWidth*0.03
+                ),
+                decoration: const BoxDecoration(
+                    color: Colors.black54,
+                    borderRadius: BorderRadius.all(Radius.circular(10))
+                ),
+                child: Text(
+                  findOnMapsButtonString[0],
+                  textAlign: TextAlign.center,
+                  style: customTextStyle.size4BoldPrimeColor(),
+                ),
+              ),
+              onTap: () => MapUtils.openMap(stateProvider.getClubCoordLat(), stateProvider.getClubCoordLng()),
+            )
+        ),
+
+      ],
+    );
+  }
+
+  Widget _buildMainView(
+      StateProvider stateProvider,
+      double screenHeight,
+      double screenWidth){
+    return Column(
+      children: [
+        // Container for the bg gradient
+        Container(
+
+          // background
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color(0xff11181f),
+                  Color(0xff2b353d),
+                ],
+                stops: [0.15, 0.6]
+            ),
+          ),
+
+          child: Column(
+            children: [
+
+              _buildMapAndPricelistIcons(),
+
+              // White line
+              const Divider(
+                height:10,
+                thickness: 1,
+                color: Colors.white,
+                indent: 20,
+                endIndent: 20,
+              ),
+
+              _buildEventSection(),
+
+              // White line
+              const Divider(
+                height:10,
+                thickness: 1,
+                color: Colors.white,
+                indent: 20,
+                endIndent: 20,
+              ),
+
+              _buildNewsSection(),
+
+              // White line
+              const Divider(
+                height:10,
+                thickness: 1,
+                color: Colors.white,
+                indent: 20,
+                endIndent: 20,
+              ),
+
+              _buildPhotosAndVideosSection(),
+
+              // White line
+              const Divider(
+                height:10,
+                thickness: 1,
+                color: Colors.white,
+                indent: 20,
+                endIndent: 20,
+              ),
+
+              _buildSocialMediaSection(),
+
+              // Spacer
+              SizedBox(
+                height: screenHeight*0.02,
+              ),
+
+              // White line
+              const Divider(
+                height:10,
+                thickness: 1,
+                color: Colors.white,
+                indent: 20,
+                endIndent: 20,
+              ),
+
+              _buildMusicGenresSection(),
+
+              // White line
+              const Divider(
+                height:10,
+                thickness: 1,
+                color: Colors.white,
+                indent: 20,
+                endIndent: 20,
+              ),
+
+              _buildContactSection(),
+
+              SizedBox(
+                height: screenHeight*0.1,
+              )
+
+
+            ],
+          ),
+        ),
+
+      ],
+    );
+  }
+
+  static Future<void> goToSocialMedia(String socialMediaLink) async{
+
+    print("Link: $socialMediaLink");
+
+    Uri googleUrl = Uri.parse(socialMediaLink);
+
+    await canLaunchUrl(googleUrl)
+        ? await launchUrl(googleUrl)
+        : print("Error");
   }
 
   @override
   Widget build(BuildContext context) {
 
-    final stateProvider = Provider.of<StateProvider>(context);
+    stateProvider = Provider.of<StateProvider>(context);
 
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
+    customTextStyle = CustomTextStyle(context: context);
+
+    screenWidth = MediaQuery.of(context).size.width;
+    screenHeight = MediaQuery.of(context).size.height;
+
+    if(upcomingEvents.isEmpty && pastEvents.isEmpty){
+      filterEventsFromProvider(stateProvider);
+    }
 
     return Scaffold(
 
         extendBodyBehindAppBar: true,
         extendBody: true,
+        resizeToAvoidBottomInset: true,
 
         bottomNavigationBar: CustomBottomNavigationBarClubs(),
         appBar: AppBar(
           backgroundColor: Colors.transparent,
-          title: Text(headLine,
-            style: TextStyle(
-              // color: Colors.purpleAccent
+          title: SizedBox(
+            width: screenWidth,
+            child: Text(headLine,
+              textAlign: TextAlign.center,
+              style: customTextStyle.size2()
             ),
-          ),
+          )
         ),
         body: Container(
           width: screenWidth,
@@ -148,12 +1277,19 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                 children: [
 
                   // BG Image
-                  SizedBox(
-                    height: screenHeight*0.25,
-                    child: Image.asset(
-                      "assets/images/dj_wallpaper_4.png",
-                      fit: BoxFit.cover,
-                    ),
+                  Container(
+                      height: screenHeight*0.25,
+                      color: stateProvider.userClub.getBackgroundColorId() == 0 ? Colors.white : Colors.black,
+                      child: Center(
+                          child: SizedBox(
+                            height: screenHeight,
+                            child: Image.asset(
+                              "assets/images/${stateProvider.userClub.getBannerId()}",
+                              // "assets/images/dj_wallpaper_3.png",
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                      )
                   ),
 
                   // main Content
@@ -170,567 +1306,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                           )
                       ),
                       child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-
-                            // Container for the bg gradient
-                            Container(
-                              // height: screenHeight*1.8,
-                              decoration: const BoxDecoration(
-                                gradient: LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: [
-                                      Color(0xff11181f),
-                                      Color(0xff2b353d),
-                                    ],
-                                    stops: [0.15, 0.6]
-                                ),
-                              ),
-
-                              child: Column(
-                                children: [
-
-                                  // Spacer
-                                  SizedBox(
-                                    height: screenHeight*0.03,
-                                  ),
-
-                                  // Icons next to logo
-                                  const Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                    children: [
-                                      // SizedBox(
-                                      //   width: screenWidth*0.1,
-                                      // ),
-                                      Column(
-                                        children: [
-
-                                          Icon(
-                                            Icons.route_outlined,
-                                            color: Colors.pinkAccent,
-                                          ),
-                                          Text(
-                                              "Karte"
-                                          ),
-                                        ],
-                                      ),
-                                      Column(
-                                        children: [
-                                          Icon(
-                                            Icons.search,
-                                            color: Colors.pinkAccent,
-                                          ),
-                                          Text(
-                                              "Preisliste"
-                                          )
-                                        ],
-                                      ),
-                                      // SizedBox(
-                                      //   width: screenWidth*0.1,
-                                      // ),
-                                    ],
-                                  ),
-
-                                  // Spacer
-                                  SizedBox(
-                                    height: screenHeight*0.02,
-                                  ),
-
-                                  // White line
-                                  const Divider(
-                                    height:10,
-                                    thickness: 1,
-                                    color: Colors.white,
-                                    indent: 20,
-                                    endIndent: 20,
-                                  ),
-
-                                  // Events headline
-                                  Container(
-                                    width: screenWidth,
-                                    // color: Colors.red,
-                                    padding: EdgeInsets.only(
-                                        left: screenWidth*0.05,
-                                        top: screenHeight*0.01
-                                    ),
-                                    child: const Text(
-                                      "Events",
-                                      textAlign: TextAlign.left,
-                                      style: TextStyle(
-                                          fontSize: 24
-                                      ),
-                                    ),
-                                  ),
-
-                                  SizedBox(height: screenHeight*0.01,),
-
-                                  // Freitag
-                                  Container(
-                                    width: screenWidth,
-                                    padding: EdgeInsets.only(
-                                        left: screenWidth*0.05,
-                                        bottom: screenHeight*0.01
-                                    ),
-                                    child: Text(
-                                      "Freitag",
-                                      style: TextStyle(
-                                          color: Colors.grey[500]
-                                      ),
-                                    ),
-                                  ),
-
-                                  EventCard(clubMeEvent: events[0]),
-
-                                  SizedBox(height: screenHeight*0.01,),
-
-                                  // Samstag
-                                  Container(
-                                    width: screenWidth,
-                                    padding: EdgeInsets.only(
-                                        left: screenWidth*0.05,
-                                        bottom: screenHeight*0.01
-                                    ),
-                                    child: Text(
-                                      "Samstag",
-                                      style: TextStyle(
-                                          color: Colors.grey[500]
-                                      ),
-                                    ),
-                                  ),
-
-                                  // SizedBox(height: screenHeight*0.02,),
-
-                                  EventCard(clubMeEvent: events[1],),
-
-                                  SizedBox(height: screenHeight*0.02,),
-
-                                  // Get more button
-                                  Padding(
-                                    padding: EdgeInsets.only(
-                                        right: screenWidth*0.05
-                                    ),
-                                    child:  Container(
-                                      alignment: Alignment.bottomRight,
-                                      width: screenWidth,
-
-                                      child: Container(
-                                          width: screenWidth*0.45,
-                                          padding: EdgeInsets.only(
-                                              top: screenHeight*0.014,
-                                              bottom: screenHeight*0.014
-                                          ),
-                                          decoration: const BoxDecoration(
-                                              color: Colors.black54,
-                                              borderRadius: BorderRadius.all(Radius.circular(15))
-                                          ),
-                                          child: const Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                "Get more events",
-                                                textAlign: TextAlign.center,
-                                                style: TextStyle(
-                                                    color: Colors.purpleAccent,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 16
-                                                ),
-                                              ),
-                                              Stack(
-                                                children: [
-                                                  Padding(
-                                                    padding: EdgeInsets.only(
-                                                        left: 5
-                                                    ),
-                                                    child: Icon(
-                                                      Icons.navigate_next,
-                                                      color: Colors.purpleAccent,
-                                                    ),
-                                                  ),
-                                                  Icon(
-                                                    Icons.navigate_next,
-                                                    color: Colors.purpleAccent,
-                                                  )
-                                                ],
-                                              )
-
-                                            ],
-                                          )
-                                      ),
-                                    ),
-                                  ),
-
-                                  SizedBox(height: screenHeight*0.02,),
-
-                                  // White line
-                                  Divider(
-                                    height:10,
-                                    thickness: 1,
-                                    color: Colors.white,
-                                    indent: 20,
-                                    endIndent: 20,
-                                  ),
-
-                                  // News headline
-                                  Container(
-                                    width: screenWidth,
-                                    // color: Colors.red,
-                                    padding: EdgeInsets.only(
-                                        left: screenWidth*0.05,
-                                        top: screenHeight*0.01
-                                    ),
-                                    child: const Text(
-                                      "News",
-                                      textAlign: TextAlign.left,
-                                      style: TextStyle(
-                                          fontSize: 24
-                                      ),
-                                    ),
-                                  ),
-
-                                  Padding(
-                                    padding: EdgeInsets.all(18),
-                                    child: Text(
-                                        "Bochum, 24. April 2024 – Nach über zwei Jahrzehnten kehrt die legendäre Bochumer Disco Tarm zurück. Im Mai 2024 öffnet die ehemalige Edel-Diskothek unter dem neuen Namen \"Tarm Event Center\" ihre Pforten und lädt Tanzbegeisterte aus der Region ein.Die neue Location befindet sich im Gewerbegebiet am Kemnader Weg und bietet neben einer großzügigen Tanzfläche auch Platz für Events und private Feiern. Inhaber Thorsten Heckendorf und sein Geschäftspartner Ralf Schäfer haben sich der Herausforderung verschrieben, dem Tarm neuen Glanz zu verleihen und gleichzeitig die Erinnerung an die legendären Partys der Vergangenheit zu bewahren."
-                                    ),
-                                  ),
-
-                                  // White line
-                                  Divider(
-                                    height:10,
-                                    thickness: 1,
-                                    color: Colors.white,
-                                    indent: 20,
-                                    endIndent: 20,
-                                  ),
-
-                                  // Fotos and videos headline
-                                  Container(
-                                    width: screenWidth,
-                                    // color: Colors.red,
-                                    padding: EdgeInsets.only(
-                                        left: screenWidth*0.05,
-                                        top: screenHeight*0.01
-                                    ),
-                                    child: const Text(
-                                      "Fotos & Videos",
-                                      textAlign: TextAlign.left,
-                                      style: TextStyle(
-                                          fontSize: 24
-                                      ),
-                                    ),
-                                  ),
-
-                                  SizedBox(
-                                    height: screenHeight*0.02,
-                                  ),
-
-                                  // First row images
-                                  Padding(
-                                    padding: EdgeInsets.only(left: screenWidth*0.05),
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                          width: screenWidth*0.29,
-                                          height: screenWidth*0.29,
-                                          child: Image.asset(
-                                            'assets/images/dj_wallpaper_3.png', // Replace with your image path
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                        SizedBox(width: screenWidth*0.02,),
-                                        Container(
-                                          width: screenWidth*0.29,
-                                          height: screenWidth*0.29,
-                                          child: Image.asset(
-                                            'assets/images/dj_wallpaper_4.png', // Replace with your image path
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                        SizedBox(width: screenWidth*0.02,),
-                                        Container(
-                                          width: screenWidth*0.29,
-                                          height: screenWidth*0.29,
-                                          child: Image.asset(
-                                            'assets/images/dj_wallpaper_5.png', // Replace with your image path
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-
-                                  SizedBox(
-                                    height: screenHeight*0.02,
-                                  ),
-
-                                  // Second row images
-                                  Padding(
-                                    padding: EdgeInsets.only(left: screenWidth*0.05),
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                          width: screenWidth*0.29,
-                                          height: screenWidth*0.29,
-                                          child: Image.asset(
-                                            'assets/images/dj_wallpaper_3.png', // Replace with your image path
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                        SizedBox(width: screenWidth*0.02,),
-                                        Container(
-                                          width: screenWidth*0.29,
-                                          height: screenWidth*0.29,
-                                          child: Image.asset(
-                                            'assets/images/dj_wallpaper_4.png', // Replace with your image path
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                        SizedBox(width: screenWidth*0.02,),
-                                        Container(
-                                          width: screenWidth*0.29,
-                                          height: screenWidth*0.29,
-                                          child: Image.asset(
-                                            'assets/images/dj_wallpaper_5.png', // Replace with your image path
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-
-                                  SizedBox(
-                                    height: screenHeight*0.02,
-                                  ),
-
-                                  // Button, get more
-                                  Padding(
-                                    padding: EdgeInsets.only(
-                                        right: screenWidth*0.05
-                                    ),
-                                    child:  Container(
-                                      alignment: Alignment.bottomRight,
-                                      width: screenWidth,
-
-                                      child: Container(
-                                          width: screenWidth*0.45,
-                                          padding: EdgeInsets.only(
-                                              top: screenHeight*0.014,
-                                              bottom: screenHeight*0.014
-                                          ),
-                                          decoration: const BoxDecoration(
-                                              color: Colors.black54,
-                                              borderRadius: BorderRadius.all(Radius.circular(15))
-                                          ),
-                                          child: const Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                "Get more photos",
-                                                textAlign: TextAlign.center,
-                                                style: TextStyle(
-                                                    color: Colors.purpleAccent,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 16
-                                                ),
-                                              ),
-                                              Stack(
-                                                children: [
-                                                  Padding(
-                                                    padding: EdgeInsets.only(
-                                                        left: 5
-                                                    ),
-                                                    child: Icon(
-                                                      Icons.navigate_next,
-                                                      color: Colors.purpleAccent,
-                                                    ),
-                                                  ),
-                                                  Icon(
-                                                    Icons.navigate_next,
-                                                    color: Colors.purpleAccent,
-                                                  )
-                                                ],
-                                              )
-
-                                            ],
-                                          )
-                                      ),
-                                    ),
-                                  ),
-
-                                  SizedBox(
-                                    height: screenHeight*0.02,
-                                  ),
-
-                                  // White line
-                                  Divider(
-                                    height:10,
-                                    thickness: 1,
-                                    color: Colors.white,
-                                    indent: 20,
-                                    endIndent: 20,
-                                  ),
-
-                                  // Kontakt headline
-                                  Container(
-                                    width: screenWidth,
-                                    // color: Colors.red,
-                                    padding: EdgeInsets.only(
-                                        left: screenWidth*0.05,
-                                        top: screenHeight*0.01
-                                    ),
-                                    child: const Text(
-                                      "Kontakt",
-                                      textAlign: TextAlign.left,
-                                      style: TextStyle(
-                                          fontSize: 24
-                                      ),
-                                    ),
-                                  ),
-
-                                  SizedBox(
-                                    height: screenHeight*0.02,
-                                  ),
-
-                                  // Anschrift + icon
-                                  Row(
-                                    children: [
-
-                                      SizedBox(
-                                        width: screenWidth*0.05,
-                                      ),
-
-                                      // Anschrift
-                                      SizedBox(
-                                        width: screenWidth*0.45,
-                                        height: screenHeight*0.12,
-                                        // color: Colors.green,
-                                        child: Column(
-                                          children: [
-                                            SizedBox(
-                                              width: screenWidth*0.5,
-                                              child: const Text(
-                                                "Untergrund Club",
-                                                textAlign: TextAlign.left,
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 18
-                                                ),
-                                              ),
-                                            ),
-
-                                            SizedBox(
-                                              width: screenWidth*0.5,
-                                              child: const Text(
-                                                "Kortumstraße 101",
-                                                textAlign: TextAlign.left,
-                                                style: TextStyle(
-                                                    fontSize: 14
-                                                ),
-                                              ),
-                                            ),
-
-                                            SizedBox(
-                                              width: screenWidth*0.5,
-                                              child: const Text(
-                                                "44787 Bochum",
-                                                textAlign: TextAlign.left,
-                                                style: TextStyle(
-                                                    fontSize: 14
-                                                ),
-                                              ),
-                                            ),
-
-                                          ],
-                                        ),
-                                      ),
-
-                                      // Google maps icon
-                                      Container(
-                                        width: screenWidth*0.45,
-                                        // height: screenHeight*0.12,
-                                        // color: Colors.red,
-                                        child: Column(
-                                          children: [
-                                            Container(
-                                              width: screenWidth*0.2,
-                                              height: screenWidth*0.2,
-                                              child: Image.asset(
-                                                'assets/images/google_maps_purple.png',
-                                              ),
-                                            )
-                                          ],
-                                        ),
-                                      )
-                                    ],
-                                  ),
-
-                                  // Button, get more
-                                  Padding(
-                                    padding: EdgeInsets.only(
-                                        right: screenWidth*0.05
-                                    ),
-                                    child:  Container(
-                                      alignment: Alignment.bottomRight,
-                                      width: screenWidth,
-
-                                      child: Container(
-                                          width: screenWidth*0.45,
-                                          padding: EdgeInsets.only(
-                                              top: screenHeight*0.014,
-                                              bottom: screenHeight*0.014
-                                          ),
-                                          decoration: const BoxDecoration(
-                                              color: Colors.black54,
-                                              borderRadius: BorderRadius.all(Radius.circular(15))
-                                          ),
-                                          child: const Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                "Find on maps!",
-                                                textAlign: TextAlign.center,
-                                                style: TextStyle(
-                                                    color: Colors.purpleAccent,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 16
-                                                ),
-                                              ),
-                                              Stack(
-                                                children: [
-                                                  Padding(
-                                                    padding: EdgeInsets.only(
-                                                        left: 5
-                                                    ),
-                                                    child: Icon(
-                                                      Icons.navigate_next,
-                                                      color: Colors.purpleAccent,
-                                                    ),
-                                                  ),
-                                                  Icon(
-                                                    Icons.navigate_next,
-                                                    color: Colors.purpleAccent,
-                                                  )
-                                                ],
-                                              )
-
-                                            ],
-                                          )
-                                      ),
-                                    ),
-                                  ),
-
-                                  SizedBox(
-                                    height: screenHeight*0.1,
-                                  )
-
-
-                                ],
-                              ),
-                            ),
-
-                          ],
-                        ),
+                        child: fetchEventsFromDbAndBuildWidget(stateProvider, screenHeight, screenWidth),
                       ),
                     ),
                   ),
@@ -744,21 +1320,21 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                         alignment: Alignment.center,
                         child: GestureDetector(
                             child: Container(
-                              decoration: const BoxDecoration(
+                              decoration: BoxDecoration(
                                   border: Border(
-                                      left: BorderSide(color: Colors.purpleAccent),
-                                      right: BorderSide(color: Colors.purpleAccent),
-                                      top: BorderSide(color: Colors.purpleAccent)
+                                      left: BorderSide(color: stateProvider.getPrimeColor()),
+                                      right: BorderSide(color: stateProvider.getPrimeColor()),
+                                      top: BorderSide(color: stateProvider.getPrimeColor())
                                   ),
                                   borderRadius: BorderRadius.all(Radius.circular(45))
                               ),
-                              child: const CircleAvatar(
+                              child: CircleAvatar(
                                 radius: 45,
                                 backgroundColor: Colors.black,
-                                child: Text("ClubMe"),
+                                child: stateProvider.getClubStoryId().isNotEmpty ? Icon(Icons.play_arrow) :Text("ClubMe"),
                               ),
                             ),
-                            onTap: () => toggleShowVideoIsActive()
+                            onTap: () => clickOnStoryButton(context, screenHeight, screenWidth, stateProvider)
                         )
                     ),
                   ),
@@ -789,7 +1365,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                                 color: Colors.grey,
                                 child: Column(
                                   children: [
-                                    Container(
+                                    SizedBox(
                                       width: screenWidth*0.9,
                                       height: screenHeight*0.48,
                                       child: VideoPlayer(_videoPlayerController),
@@ -816,808 +1392,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
         )
     );
   }
+
+
+
 }
-
-
-// class ClubFrontPageView extends StatelessWidget {
-//
-//   ClubFrontPageView({Key? key}) : super(key: key);
-//
-//   String headLine = "Your Frontpage";
-//
-//   List<ClubMeEvent> events = [
-//     ClubMeEvent(
-//         title: "DJ Kheeling - Tropical Techno",
-//         clubName: "Berghain",
-//         DjName: "DJ Kheeling",
-//         date: "Freitag",
-//         price: "4",
-//         imagePath: "assets/images/img_4.png",
-//         description: "Tauch ein in die Nacht und erlebe die ultimative Disco-Party!"
-//             "Bist du bereit, die Nacht zum Tag zu machen? Dann ist diese Disco genau das Richtige für dich!"
-//             "Feiere mit uns zu den besten Hits der 70er, 80er und 90er Jahre."
-//             "Egal ob Discofox, Boogie oder einfach nur Tanzen - hier ist für jeden etwas dabei."
-//             "Unsere erfahrenen DJs sorgen für eine ausgelassene Stimmung und bringen dich garantiert zum Schwitzen."
-//             "Lasse dich von den bunten Lichtern und den pulsierenden Beats mitreißen und genieße die unvergessliche Atmosphäre."
-//             "Ob alleine, mit Freunden oder deinem Partner - hier ist jeder willkommen."
-//             "Komm vorbei und erlebe eine Nacht voller Spaß, Musik und Tanz!"
-//             "Dresscode:"
-//             "Zeige deinen ganz eigenen Style!"
-//             "Von bunten Outfits bis hin zu klassischen Disco-Looks - alles ist erlaubt.",
-//         musicGenres: "House, Trance, Psy",
-//         hours: "22:00 - 07:00 Uhr"
-//     ),
-//     ClubMeEvent(
-//         title: "The Halloween Special",
-//         clubName: "Berghain",
-//         DjName: "DJ Jürgen",
-//         date: "Samstag",
-//         price: "14",
-//         imagePath: "assets/images/img_4.png",
-//         description: "Tauch ein in die Nacht und erlebe die ultimative Disco-Party!"
-//             "Bist du bereit, die Nacht zum Tag zu machen? Dann ist diese Disco genau das Richtige für dich!"
-//             "Feiere mit uns zu den besten Hits der 70er, 80er und 90er Jahre."
-//             "Egal ob Discofox, Boogie oder einfach nur Tanzen - hier ist für jeden etwas dabei."
-//             "Unsere erfahrenen DJs sorgen für eine ausgelassene Stimmung und bringen dich garantiert zum Schwitzen."
-//             "Lasse dich von den bunten Lichtern und den pulsierenden Beats mitreißen und genieße die unvergessliche Atmosphäre."
-//             "Ob alleine, mit Freunden oder deinem Partner - hier ist jeder willkommen."
-//             "Komm vorbei und erlebe eine Nacht voller Spaß, Musik und Tanz!"
-//             "Dresscode:"
-//             "Zeige deinen ganz eigenen Style!"
-//             "Von bunten Outfits bis hin zu klassischen Disco-Looks - alles ist erlaubt.",
-//         musicGenres: "House, Trance, Psy",
-//         hours: "23:00 - 08:00 Uhr"
-//     )
-//   ];
-//
-//   late VideoPlayerController _videoPlayerController;
-//   late Future<void> _initializeVideoPlayerFuture;
-//
-//   bool showVideoIsActive = false;
-//
-//
-//   void toggleShowVideoIsActive(){
-//     setState(() {
-//       showVideoIsActive = !showVideoIsActive;
-//       if(showVideoIsActive){
-//         _videoPlayerController.play();
-//       }else{
-//         _videoPlayerController.pause();
-//       }
-//     });
-//   }
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//
-//     _videoPlayerController = VideoPlayerController.asset("assets/videos/short_video_1.mp4");
-//     _videoPlayerController.setLooping(true);
-//
-//     _initializeVideoPlayerFuture = _videoPlayerController.initialize();
-//
-//   }
-//
-//   @override
-//   void dispose() {
-//     _videoPlayerController.dispose();
-//
-//     super.dispose();
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//
-//     final stateProvider = Provider.of<StateProvider>(context);
-//
-//     double screenWidth = MediaQuery.of(context).size.width;
-//     double screenHeight = MediaQuery.of(context).size.height;
-//
-//     return Scaffold(
-//
-//         extendBodyBehindAppBar: true,
-//         extendBody: true,
-//
-//         bottomNavigationBar: CustomBottomNavigationBarClubs(),
-//         appBar: AppBar(
-//           backgroundColor: Colors.transparent,
-//           title: Text(headLine,
-//             style: TextStyle(
-//               // color: Colors.purpleAccent
-//             ),
-//           ),
-//         ),
-//         body: Container(
-//             width: screenWidth,
-//             height: screenHeight,
-//             decoration: const BoxDecoration(
-//               gradient: LinearGradient(
-//                   begin: Alignment.topLeft,
-//                   end: Alignment.bottomRight,
-//                   colors: [
-//                     // Color(0xff11181f),
-//                     Color(0xff2b353d),
-//                     Color(0xff11181f)
-//                   ],
-//                   stops: [0.15, 0.6]
-//               ),
-//             ),
-//             child: Column(
-//               children: [
-//
-//                 // Spacer
-//                 SizedBox(
-//                   height: screenHeight*0.12,
-//                 ),
-//
-//                 // Content
-//                 Stack(
-//                   children: [
-//
-//                     // BG Image
-//                     SizedBox(
-//                       height: screenHeight*0.25,
-//                       child: Image.asset(
-//                         "assets/images/dj_wallpaper_4.png",
-//                         fit: BoxFit.cover,
-//                       ),
-//                     ),
-//
-//                     // main Content
-//                     Padding(
-//                       padding: EdgeInsets.only(
-//                         top: screenHeight*0.24,
-//                       ),
-//                       child: Container(
-//                         width: screenWidth,
-//                         height: screenHeight*0.6,
-//                         decoration: const BoxDecoration(
-//                             border: Border(
-//                                 top: BorderSide(color: Colors.grey)
-//                             )
-//                         ),
-//                         child: SingleChildScrollView(
-//                           child: Column(
-//                             children: [
-//
-//                               // Container for the bg gradeint
-//                               Container(
-//                                 // height: screenHeight*1.8,
-//                                 decoration: const BoxDecoration(
-//                                   gradient: LinearGradient(
-//                                       begin: Alignment.topCenter,
-//                                       end: Alignment.bottomCenter,
-//                                       colors: [
-//                                         Color(0xff11181f),
-//                                         Color(0xff2b353d),
-//                                       ],
-//                                       stops: [0.15, 0.6]
-//                                   ),
-//                                 ),
-//
-//                                 child: Column(
-//                                   children: [
-//
-//                                     // Spacer
-//                                     SizedBox(
-//                                       height: screenHeight*0.03,
-//                                     ),
-//
-//                                     // Icons next to logo
-//                                     const Row(
-//                                       mainAxisAlignment: MainAxisAlignment.spaceAround,
-//                                       children: [
-//                                         // SizedBox(
-//                                         //   width: screenWidth*0.1,
-//                                         // ),
-//                                         Column(
-//                                           children: [
-//
-//                                             Icon(
-//                                               Icons.route_outlined,
-//                                               color: Colors.pinkAccent,
-//                                             ),
-//                                             Text(
-//                                                 "Karte"
-//                                             ),
-//                                           ],
-//                                         ),
-//                                         Column(
-//                                           children: [
-//                                             Icon(
-//                                               Icons.search,
-//                                               color: Colors.pinkAccent,
-//                                             ),
-//                                             Text(
-//                                                 "Preisliste"
-//                                             )
-//                                           ],
-//                                         ),
-//                                         // SizedBox(
-//                                         //   width: screenWidth*0.1,
-//                                         // ),
-//                                       ],
-//                                     ),
-//
-//                                     // Spacer
-//                                     SizedBox(
-//                                       height: screenHeight*0.02,
-//                                     ),
-//
-//                                     // White line
-//                                     const Divider(
-//                                       height:10,
-//                                       thickness: 1,
-//                                       color: Colors.white,
-//                                       indent: 20,
-//                                       endIndent: 20,
-//                                     ),
-//
-//                                     // Events headline
-//                                     Container(
-//                                       width: screenWidth,
-//                                       // color: Colors.red,
-//                                       padding: EdgeInsets.only(
-//                                           left: screenWidth*0.05,
-//                                           top: screenHeight*0.01
-//                                       ),
-//                                       child: const Text(
-//                                         "Events",
-//                                         textAlign: TextAlign.left,
-//                                         style: TextStyle(
-//                                             fontSize: 24
-//                                         ),
-//                                       ),
-//                                     ),
-//
-//                                     SizedBox(height: screenHeight*0.01,),
-//
-//                                     // Freitag
-//                                     Container(
-//                                       width: screenWidth,
-//                                       padding: EdgeInsets.only(
-//                                           left: screenWidth*0.05,
-//                                           bottom: screenHeight*0.01
-//                                       ),
-//                                       child: Text(
-//                                         "Freitag",
-//                                         style: TextStyle(
-//                                             color: Colors.grey[500]
-//                                         ),
-//                                       ),
-//                                     ),
-//
-//                                     EventCard(clubMeEvent: events[0]),
-//
-//                                     SizedBox(height: screenHeight*0.01,),
-//
-//                                     // Samstag
-//                                     Container(
-//                                       width: screenWidth,
-//                                       padding: EdgeInsets.only(
-//                                           left: screenWidth*0.05,
-//                                           bottom: screenHeight*0.01
-//                                       ),
-//                                       child: Text(
-//                                         "Samstag",
-//                                         style: TextStyle(
-//                                             color: Colors.grey[500]
-//                                         ),
-//                                       ),
-//                                     ),
-//
-//                                     // SizedBox(height: screenHeight*0.02,),
-//
-//                                     EventCard(clubMeEvent: events[1],),
-//
-//                                     SizedBox(height: screenHeight*0.02,),
-//
-//                                     // Get more button
-//                                     Padding(
-//                                       padding: EdgeInsets.only(
-//                                           right: screenWidth*0.05
-//                                       ),
-//                                       child:  Container(
-//                                         alignment: Alignment.bottomRight,
-//                                         width: screenWidth,
-//
-//                                         child: Container(
-//                                             width: screenWidth*0.45,
-//                                             padding: EdgeInsets.only(
-//                                                 top: screenHeight*0.014,
-//                                                 bottom: screenHeight*0.014
-//                                             ),
-//                                             decoration: const BoxDecoration(
-//                                                 color: Colors.black54,
-//                                                 borderRadius: BorderRadius.all(Radius.circular(15))
-//                                             ),
-//                                             child: const Row(
-//                                               mainAxisAlignment: MainAxisAlignment.center,
-//                                               children: [
-//                                                 Text(
-//                                                   "Get more events",
-//                                                   textAlign: TextAlign.center,
-//                                                   style: TextStyle(
-//                                                       color: Colors.purpleAccent,
-//                                                       fontWeight: FontWeight.bold,
-//                                                       fontSize: 16
-//                                                   ),
-//                                                 ),
-//                                                 Stack(
-//                                                   children: [
-//                                                     Padding(
-//                                                       padding: EdgeInsets.only(
-//                                                           left: 5
-//                                                       ),
-//                                                       child: Icon(
-//                                                         Icons.navigate_next,
-//                                                         color: Colors.purpleAccent,
-//                                                       ),
-//                                                     ),
-//                                                     Icon(
-//                                                       Icons.navigate_next,
-//                                                       color: Colors.purpleAccent,
-//                                                     )
-//                                                   ],
-//                                                 )
-//
-//                                               ],
-//                                             )
-//                                         ),
-//                                       ),
-//                                     ),
-//
-//                                     SizedBox(height: screenHeight*0.02,),
-//
-//                                     // White line
-//                                     Divider(
-//                                       height:10,
-//                                       thickness: 1,
-//                                       color: Colors.white,
-//                                       indent: 20,
-//                                       endIndent: 20,
-//                                     ),
-//
-//                                     // News headline
-//                                     Container(
-//                                       width: screenWidth,
-//                                       // color: Colors.red,
-//                                       padding: EdgeInsets.only(
-//                                           left: screenWidth*0.05,
-//                                           top: screenHeight*0.01
-//                                       ),
-//                                       child: const Text(
-//                                         "News",
-//                                         textAlign: TextAlign.left,
-//                                         style: TextStyle(
-//                                             fontSize: 24
-//                                         ),
-//                                       ),
-//                                     ),
-//
-//                                     Padding(
-//                                       padding: EdgeInsets.all(18),
-//                                       child: Text(
-//                                           "Bochum, 24. April 2024 – Nach über zwei Jahrzehnten kehrt die legendäre Bochumer Disco Tarm zurück. Im Mai 2024 öffnet die ehemalige Edel-Diskothek unter dem neuen Namen \"Tarm Event Center\" ihre Pforten und lädt Tanzbegeisterte aus der Region ein.Die neue Location befindet sich im Gewerbegebiet am Kemnader Weg und bietet neben einer großzügigen Tanzfläche auch Platz für Events und private Feiern. Inhaber Thorsten Heckendorf und sein Geschäftspartner Ralf Schäfer haben sich der Herausforderung verschrieben, dem Tarm neuen Glanz zu verleihen und gleichzeitig die Erinnerung an die legendären Partys der Vergangenheit zu bewahren."
-//                                       ),
-//                                     ),
-//
-//                                     // White line
-//                                     Divider(
-//                                       height:10,
-//                                       thickness: 1,
-//                                       color: Colors.white,
-//                                       indent: 20,
-//                                       endIndent: 20,
-//                                     ),
-//
-//                                     // Fotos and videos headline
-//                                     Container(
-//                                       width: screenWidth,
-//                                       // color: Colors.red,
-//                                       padding: EdgeInsets.only(
-//                                           left: screenWidth*0.05,
-//                                           top: screenHeight*0.01
-//                                       ),
-//                                       child: const Text(
-//                                         "Fotos & Videos",
-//                                         textAlign: TextAlign.left,
-//                                         style: TextStyle(
-//                                             fontSize: 24
-//                                         ),
-//                                       ),
-//                                     ),
-//
-//                                     SizedBox(
-//                                       height: screenHeight*0.02,
-//                                     ),
-//
-//                                     // First row images
-//                                     Padding(
-//                                       padding: EdgeInsets.only(left: screenWidth*0.05),
-//                                       child: Row(
-//                                         children: [
-//                                           Container(
-//                                             width: screenWidth*0.29,
-//                                             height: screenWidth*0.29,
-//                                             child: Image.asset(
-//                                               'assets/images/dj_wallpaper_3.png', // Replace with your image path
-//                                               fit: BoxFit.cover,
-//                                             ),
-//                                           ),
-//                                           SizedBox(width: screenWidth*0.02,),
-//                                           Container(
-//                                             width: screenWidth*0.29,
-//                                             height: screenWidth*0.29,
-//                                             child: Image.asset(
-//                                               'assets/images/dj_wallpaper_4.png', // Replace with your image path
-//                                               fit: BoxFit.cover,
-//                                             ),
-//                                           ),
-//                                           SizedBox(width: screenWidth*0.02,),
-//                                           Container(
-//                                             width: screenWidth*0.29,
-//                                             height: screenWidth*0.29,
-//                                             child: Image.asset(
-//                                               'assets/images/dj_wallpaper_5.png', // Replace with your image path
-//                                               fit: BoxFit.cover,
-//                                             ),
-//                                           ),
-//                                         ],
-//                                       ),
-//                                     ),
-//
-//                                     SizedBox(
-//                                       height: screenHeight*0.02,
-//                                     ),
-//
-//                                     // Second row images
-//                                     Padding(
-//                                       padding: EdgeInsets.only(left: screenWidth*0.05),
-//                                       child: Row(
-//                                         children: [
-//                                           Container(
-//                                             width: screenWidth*0.29,
-//                                             height: screenWidth*0.29,
-//                                             child: Image.asset(
-//                                               'assets/images/dj_wallpaper_3.png', // Replace with your image path
-//                                               fit: BoxFit.cover,
-//                                             ),
-//                                           ),
-//                                           SizedBox(width: screenWidth*0.02,),
-//                                           Container(
-//                                             width: screenWidth*0.29,
-//                                             height: screenWidth*0.29,
-//                                             child: Image.asset(
-//                                               'assets/images/dj_wallpaper_4.png', // Replace with your image path
-//                                               fit: BoxFit.cover,
-//                                             ),
-//                                           ),
-//                                           SizedBox(width: screenWidth*0.02,),
-//                                           Container(
-//                                             width: screenWidth*0.29,
-//                                             height: screenWidth*0.29,
-//                                             child: Image.asset(
-//                                               'assets/images/dj_wallpaper_5.png', // Replace with your image path
-//                                               fit: BoxFit.cover,
-//                                             ),
-//                                           ),
-//                                         ],
-//                                       ),
-//                                     ),
-//
-//                                     SizedBox(
-//                                       height: screenHeight*0.02,
-//                                     ),
-//
-//                                     // Button, get more
-//                                     Padding(
-//                                       padding: EdgeInsets.only(
-//                                           right: screenWidth*0.05
-//                                       ),
-//                                       child:  Container(
-//                                         alignment: Alignment.bottomRight,
-//                                         width: screenWidth,
-//
-//                                         child: Container(
-//                                             width: screenWidth*0.45,
-//                                             padding: EdgeInsets.only(
-//                                                 top: screenHeight*0.014,
-//                                                 bottom: screenHeight*0.014
-//                                             ),
-//                                             decoration: const BoxDecoration(
-//                                                 color: Colors.black54,
-//                                                 borderRadius: BorderRadius.all(Radius.circular(15))
-//                                             ),
-//                                             child: const Row(
-//                                               mainAxisAlignment: MainAxisAlignment.center,
-//                                               children: [
-//                                                 Text(
-//                                                   "Get more photos",
-//                                                   textAlign: TextAlign.center,
-//                                                   style: TextStyle(
-//                                                       color: Colors.purpleAccent,
-//                                                       fontWeight: FontWeight.bold,
-//                                                       fontSize: 16
-//                                                   ),
-//                                                 ),
-//                                                 Stack(
-//                                                   children: [
-//                                                     Padding(
-//                                                       padding: EdgeInsets.only(
-//                                                           left: 5
-//                                                       ),
-//                                                       child: Icon(
-//                                                         Icons.navigate_next,
-//                                                         color: Colors.purpleAccent,
-//                                                       ),
-//                                                     ),
-//                                                     Icon(
-//                                                       Icons.navigate_next,
-//                                                       color: Colors.purpleAccent,
-//                                                     )
-//                                                   ],
-//                                                 )
-//
-//                                               ],
-//                                             )
-//                                         ),
-//                                       ),
-//                                     ),
-//
-//                                     SizedBox(
-//                                       height: screenHeight*0.02,
-//                                     ),
-//
-//                                     // White line
-//                                     Divider(
-//                                       height:10,
-//                                       thickness: 1,
-//                                       color: Colors.white,
-//                                       indent: 20,
-//                                       endIndent: 20,
-//                                     ),
-//
-//                                     // Kontakt headline
-//                                     Container(
-//                                       width: screenWidth,
-//                                       // color: Colors.red,
-//                                       padding: EdgeInsets.only(
-//                                           left: screenWidth*0.05,
-//                                           top: screenHeight*0.01
-//                                       ),
-//                                       child: const Text(
-//                                         "Kontakt",
-//                                         textAlign: TextAlign.left,
-//                                         style: TextStyle(
-//                                             fontSize: 24
-//                                         ),
-//                                       ),
-//                                     ),
-//
-//                                     SizedBox(
-//                                       height: screenHeight*0.02,
-//                                     ),
-//
-//                                     // Anschrift + icon
-//                                     Row(
-//                                       children: [
-//
-//                                         SizedBox(
-//                                           width: screenWidth*0.05,
-//                                         ),
-//
-//                                         // Anschrift
-//                                         SizedBox(
-//                                           width: screenWidth*0.45,
-//                                           height: screenHeight*0.12,
-//                                           // color: Colors.green,
-//                                           child: Column(
-//                                             children: [
-//                                               SizedBox(
-//                                                 width: screenWidth*0.5,
-//                                                 child: const Text(
-//                                                   "Untergrund Club",
-//                                                   textAlign: TextAlign.left,
-//                                                   style: TextStyle(
-//                                                       fontWeight: FontWeight.bold,
-//                                                       fontSize: 18
-//                                                   ),
-//                                                 ),
-//                                               ),
-//
-//                                               SizedBox(
-//                                                 width: screenWidth*0.5,
-//                                                 child: const Text(
-//                                                   "Kortumstraße 101",
-//                                                   textAlign: TextAlign.left,
-//                                                   style: TextStyle(
-//                                                       fontSize: 14
-//                                                   ),
-//                                                 ),
-//                                               ),
-//
-//                                               SizedBox(
-//                                                 width: screenWidth*0.5,
-//                                                 child: const Text(
-//                                                   "44787 Bochum",
-//                                                   textAlign: TextAlign.left,
-//                                                   style: TextStyle(
-//                                                       fontSize: 14
-//                                                   ),
-//                                                 ),
-//                                               ),
-//
-//                                             ],
-//                                           ),
-//                                         ),
-//
-//                                         // Google maps icon
-//                                         Container(
-//                                           width: screenWidth*0.45,
-//                                           // height: screenHeight*0.12,
-//                                           // color: Colors.red,
-//                                           child: Column(
-//                                             children: [
-//                                               Container(
-//                                                 width: screenWidth*0.2,
-//                                                 height: screenWidth*0.2,
-//                                                 child: Image.asset(
-//                                                   'assets/images/google_maps_purple.png',
-//                                                 ),
-//                                               )
-//                                             ],
-//                                           ),
-//                                         )
-//                                       ],
-//                                     ),
-//
-//                                     // Button, get more
-//                                     Padding(
-//                                       padding: EdgeInsets.only(
-//                                           right: screenWidth*0.05
-//                                       ),
-//                                       child:  Container(
-//                                         alignment: Alignment.bottomRight,
-//                                         width: screenWidth,
-//
-//                                         child: Container(
-//                                             width: screenWidth*0.45,
-//                                             padding: EdgeInsets.only(
-//                                                 top: screenHeight*0.014,
-//                                                 bottom: screenHeight*0.014
-//                                             ),
-//                                             decoration: const BoxDecoration(
-//                                                 color: Colors.black54,
-//                                                 borderRadius: BorderRadius.all(Radius.circular(15))
-//                                             ),
-//                                             child: const Row(
-//                                               mainAxisAlignment: MainAxisAlignment.center,
-//                                               children: [
-//                                                 Text(
-//                                                   "Find on maps!",
-//                                                   textAlign: TextAlign.center,
-//                                                   style: TextStyle(
-//                                                       color: Colors.purpleAccent,
-//                                                       fontWeight: FontWeight.bold,
-//                                                       fontSize: 16
-//                                                   ),
-//                                                 ),
-//                                                 Stack(
-//                                                   children: [
-//                                                     Padding(
-//                                                       padding: EdgeInsets.only(
-//                                                           left: 5
-//                                                       ),
-//                                                       child: Icon(
-//                                                         Icons.navigate_next,
-//                                                         color: Colors.purpleAccent,
-//                                                       ),
-//                                                     ),
-//                                                     Icon(
-//                                                       Icons.navigate_next,
-//                                                       color: Colors.purpleAccent,
-//                                                     )
-//                                                   ],
-//                                                 )
-//
-//                                               ],
-//                                             )
-//                                         ),
-//                                       ),
-//                                     ),
-//
-//                                     SizedBox(
-//                                       height: screenHeight*0.1,
-//                                     )
-//
-//
-//                                   ],
-//                                 ),
-//                               ),
-//
-//                             ],
-//                           ),
-//                         ),
-//                       ),
-//                     ),
-//
-//                     // Centered logo
-//                     Padding(
-//                       padding: EdgeInsets.only(
-//                           top: screenHeight*0.185
-//                       ),
-//                       child: Align(
-//                           alignment: Alignment.center,
-//                           child: Container(
-//                             decoration: const BoxDecoration(
-//                                 border: Border(
-//                                     left: BorderSide(color: Colors.purpleAccent),
-//                                     right: BorderSide(color: Colors.purpleAccent),
-//                                     top: BorderSide(color: Colors.purpleAccent)
-//                                 ),
-//                                 borderRadius: BorderRadius.all(Radius.circular(45))
-//                             ),
-//                             child: const CircleAvatar(
-//                               radius: 45,
-//                               backgroundColor: Colors.black,
-//                               child: Text("ClubMe"),
-//                             ),
-//                           )
-//                       ),
-//                     ),
-//
-//                     showVideoIsActive ? GestureDetector(
-//                         child: Container(
-//                           width: screenWidth,
-//                           height: screenHeight*0.85,
-//                           color: Colors.black.withOpacity(0.5),
-//                         ),
-//                         onTap: () => toggleShowVideoIsActive()
-//                     ): Container(),
-//
-//                     showVideoIsActive ? FutureBuilder(
-//                       future: _initializeVideoPlayerFuture,
-//                       builder: (context, snapshot) {
-//                         if (snapshot.connectionState == ConnectionState.done) {
-//                           // If the VideoPlayerController has finished initialization, use
-//                           // the data it provides to limit the aspect ratio of the video.
-//                           return Padding(
-//                             padding: EdgeInsets.only(
-//                                 top: screenHeight*0.1
-//                             ),
-//                             child: Center(
-//                               child: Container(
-//                                   width: screenWidth*0.9,
-//                                   height: screenHeight*0.5,
-//                                   color: Colors.grey,
-//                                   child: Column(
-//                                     children: [
-//                                       Container(
-//                                         width: screenWidth*0.9,
-//                                         height: screenHeight*0.48,
-//                                         child: VideoPlayer(_videoPlayerController),
-//                                       ),
-//                                       VideoProgressIndicator(_videoPlayerController, allowScrubbing: true)
-//                                     ],
-//                                   )
-//                               ),
-//                             ),
-//                           );
-//                         } else {
-//                           return const Center(
-//                             child: CircularProgressIndicator(),
-//                           );
-//                         }
-//                       },
-//                     ): Container(),
-//
-//                   ],
-//                 )
-//
-//               ],
-//             ),
-//         )
-//     );
-//   }
-// }

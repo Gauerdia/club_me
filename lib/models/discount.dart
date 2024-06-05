@@ -2,34 +2,111 @@ class ClubMeDiscount{
 
 
   ClubMeDiscount({
+    required this.discountId,
+    required this.clubId,
     required this.clubName,
-    required this.title,
+    required this.discountTitle,
     required this.numberOfUsages,
-    required this.validUntil,
-    required this.imagePath
+    required this.discountDate,
+    required this.bannerId,
+    required this.howOftenRedeemed,
+    required this.hasTimeLimit,
+    required this.hasUsageLimit,
+    required this.discountDescription
   });
 
-
-  String title;
+  String clubId;
   String clubName;
-  int numberOfUsages;
-  String validUntil;
-  String imagePath;
 
-  String getTitle(){
-    return title;
+  String discountId;
+  String discountTitle;
+
+  DateTime discountDate;
+
+  String discountDescription;
+
+  bool hasTimeLimit;
+  bool hasUsageLimit;
+
+  int numberOfUsages;
+  String bannerId;
+  int howOftenRedeemed;
+
+  String getDiscountDescription(){
+    return discountDescription;
   }
+  void setDiscountDescription(String newValue){
+    discountDescription = newValue;
+  }
+
+  bool getHasUsageLimit(){
+    return hasUsageLimit;
+  }
+  void setHasUsageLimit(bool newValue){
+    hasUsageLimit = newValue;
+  }
+
+  bool getHasTimeLimit(){
+    return hasTimeLimit;
+  }
+  void setHasTimeLimit(bool newValue){
+    hasTimeLimit = newValue;
+  }
+
+  String getClubId(){
+    return clubId;
+  }
+  void setClubId(String newValue){
+    clubName = newValue;
+  }
+
+  int getHowOftenRedeemed(){
+    return howOftenRedeemed;
+  }
+  void setHowOftenRedeemed(int newValue){
+    howOftenRedeemed = newValue;
+  }
+
+  String getDiscountId(){
+    return discountId;
+  }
+  void setDiscountId(String newValue){
+    discountId = newValue;
+  }
+
+  String getDiscountTitle(){
+    return discountTitle;
+  }
+  void setDiscountTitle(String newValue){
+    discountTitle = newValue;
+  }
+
   String getClubName(){
     return clubName;
   }
+  void setClubName(String newValue){
+    clubName = newValue;
+  }
+
   int getNumberOfUsages(){
     return numberOfUsages;
   }
-  String getValidUntil(){
-    return validUntil;
+  void setNumberOfUsages(int newValue){
+    numberOfUsages = newValue;
   }
-  String getImagePath(){
-    return imagePath;
+
+  DateTime getDiscountDate(){
+    return discountDate;
+  }
+  void setDiscountDate(DateTime newValue){
+    discountDate = newValue;
+  }
+
+  String getBannerId(){
+    return bannerId;
+  }
+  void setBannerId(String newValue){
+    bannerId = newValue;
   }
 
 }

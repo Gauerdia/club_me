@@ -3,54 +3,93 @@ import 'package:flutter/material.dart';
 class ClubMeEvent{
 
   ClubMeEvent({
-   required this.title,
+    required this.eventId,
+    required this.eventTitle,
     required this.clubName,
-    required this.DjName,
-    required this.date,
-    required this.price,
-    required this.imagePath,
-    required this.description,
+    required this.djName,
+    required this.eventDate,
+    required this.eventPrice,
+    required this.bannerId,
+    required this.eventDescription,
     required this.musicGenres,
-    required this.hours
+    required this.eventStartingHour,
+    required this.clubId
   });
 
-  String title;
+  String eventId;
+  String clubId;
+
   String clubName;
-  String DjName;
-  String date;
-  String description;
-  String imagePath;
-  String price;
+  String djName;
+
+  String eventTitle;
+  double eventPrice;
+
+  DateTime eventDate;
+  String eventStartingHour;
+  String eventDescription;
+
+  String bannerId;
   String musicGenres;
-  String hours;
+
+  // howManyAreIn
+
+
+  void setEventTitle(String newValue){
+    eventTitle = newValue;
+  }
+  void setEventDjName(String newValue){
+    djName = newValue;
+  }
+  void setEventDate(DateTime newValue){
+    eventDate = newValue;
+  }
+  void setEventPrice(double newValue){
+    eventPrice = newValue;
+  }
+  void setEventDescription(String newValue){
+    eventDescription = newValue;
+  }
+  void setEventMusicGenres(String newValue){
+    musicGenres = newValue;
+  }
+
+
+  String getEventId(){
+    return eventId;
+  }
 
   String getMusicGenres(){
     return musicGenres;
   }
-  String getHours(){
-    return hours;
+  String getEventStartingHours(){
+    return eventStartingHour;
   }
 
-  String getTitle(){
-    return title;
+  String getClubId(){
+    return clubId;
+  }
+
+  String getEventTitle(){
+    return eventTitle;
   }
   String getClubName(){
     return clubName;
   }
   String getDjName(){
-    return DjName;
+    return djName;
   }
-  String getDate(){
-    return date;
+  DateTime getEventDate(){
+    return eventDate;
   }
-  String getImagePath(){
-    return imagePath;
+  String getBannerId(){
+    return bannerId;
   }
-  String getPrice(){
-    return price;
+  double getEventPrice(){
+    return eventPrice;
   }
-  String getDescription(){
-    return description;
+  String getEventDescription(){
+    return eventDescription;
   }
 
 

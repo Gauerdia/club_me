@@ -1,9 +1,117 @@
+import 'dart:math';
+
+import 'package:camera/camera.dart';
 import 'package:club_me/models/club.dart';
 import 'package:club_me/models/discount.dart';
 import 'package:club_me/models/event.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 
 class StateProvider extends ChangeNotifier{
+
+  StateProvider({required this.camera});
+
+  ClubMeClub userClub = ClubMeClub(
+      clubId: "1111",
+      clubName: "MyClub",
+      news: "ewfwfew fwef wefwf wefefw",
+      priceList: {"" : ""},
+      musicGenres: "musicGenres",
+      storyId: "",
+      bannerId: "",
+      eventBannerId: "img_2.png",
+      photoPaths: {"" : ""},
+      geoCoordLat: 10,
+      geoCoordLng: 10,
+      contactCity: "Bochum",
+      contactName: "MyClub",
+      contactStreet: "Kortumstraße 101",
+      contactZip: "44787",
+      instagramLink: "https://www.instagram.com/hilife.stuttgart",
+      websiteLink: "https://google.de",
+      backgroundColorId: 0
+  );
+
+  // Fontsizefactors bezogen auf height
+
+  // Größe 14
+  double fontSizeFactor1 = 0.03;
+  // 12
+  double fontSizeFactor2 = 0.027;
+  // 11
+  double fontSizeFactor3 = 0.024;
+  // 10
+  double fontSizeFactor4 = 0.021;
+  // 9
+  double fontSizeFactor5 = 0.018;
+  // 8
+  double fontSizeFactor6 = 0.015;
+
+  double iconSizeFactor = 0.035;
+  double iconSizeFactor2 = 0.02;
+  double iconSizeFactor3 = 0.012;
+
+  double numberFieldFontSizeFactor = 0.05;
+
+  double dropDownItemHeightFactor = 0.08;
+
+  double getNumberFieldFontSizeFactor(){
+    return numberFieldFontSizeFactor;
+  }
+
+  double getDropDownItemHeightFactor(){
+    return dropDownItemHeightFactor;
+  }
+
+
+  double getIconSizeFactor(){
+    return iconSizeFactor;
+  }
+  double getIconSizeFactor2(){
+    return iconSizeFactor2;
+  }
+  double getIconSizeFactor3(){
+    return iconSizeFactor3;
+  }
+
+
+
+  double getFontSizeFactor1(){
+    return fontSizeFactor1;
+  }
+  double getFontSizeFactor2(){
+    return fontSizeFactor2;
+  }
+  double getFontSizeFactor3(){
+    return fontSizeFactor3;
+  }
+  double getFontSizeFactor4(){
+    return fontSizeFactor4;
+  }
+  double getFontSizeFactor5(){
+    return fontSizeFactor5;
+  }
+  double getFontSizeFactor6(){
+    return fontSizeFactor6;
+  }
+
+
+  final CameraDescription camera;
+  String videoPath = "";
+
+  double latCoord = 0.0;
+  double longCoord = 0.0;
+
+  List<ClubMeClub> fetchedClubs = [];
+  List<ClubMeEvent> fetchedEvents = [];
+  List<ClubMeDiscount> fetchedDiscounts = [];
+
+  List<String> likedClubs = [];
+  List<String> likedEvents = [];
+  List<String> likedDiscounts = [];
+
+  List<String> attendingEvents = [];
 
   int _pageIndex = 0;
   int get pageIndex => _pageIndex;
@@ -11,6 +119,7 @@ class StateProvider extends ChangeNotifier{
   late ClubMeClub _currentClub;
   late ClubMeEvent _currentEvent;
   late ClubMeDiscount _currentDiscount;
+
 
   ClubMeClub get clubMeClub => _currentClub;
   ClubMeEvent get clubMeEvent => _currentEvent;
@@ -21,9 +130,328 @@ class StateProvider extends ChangeNotifier{
   bool _wentFromClubDetailToEventDetail = false;
 
   bool get clubUIActive => _clubUIActive;
-  bool get wentFromClubDetailToEventDetail => _wentFromClubDetailToEventDetail;
   bool get clubEventViewNewActive => _clubEventViewNewActive;
+  bool get wentFromClubDetailToEventDetail => _wentFromClubDetailToEventDetail;
 
+
+  bool eventIsEditable = false;
+  bool reviewingANewEvent = false;
+  bool isCurrentlyOnlyUpdatingAnEvent = false;
+
+  Color primeColorDark = Colors.teal;
+  Color primeColor = Colors.tealAccent;
+
+  Color getPrimeColor(){
+    return primeColor;
+  }
+  Color getPrimeColorDark(){
+    return primeColorDark;
+  }
+
+  double getUserLatCoord(){
+    return latCoord;
+  }
+  double getUserLongCoord(){
+    return longCoord;
+  }
+
+  void setUserCoordinates(Position position){
+    longCoord = position.longitude;
+    latCoord = position.latitude;
+    notifyListeners();
+    // print("SetPosition: $longCoord, $latCoord");
+    // print("Distance:${Geolocator.distanceBetween(latCoord, longCoord, 48.7762112372841, 9.1740412843159)}");
+  }
+
+  // Events
+
+  void updateCurrentEvent(int index, String newValue){
+    switch(index){
+      case 0: clubMeEvent.setEventTitle(newValue);
+      case 1: clubMeEvent.setEventDjName(newValue);
+      case 2: clubMeEvent.setEventMusicGenres(newValue);
+      case 3: clubMeEvent.setEventPrice(double.parse(newValue));
+      case 4: clubMeEvent.setEventDescription(newValue);
+      case 6:
+
+      // case 5: valueToDisplay = stateProvider.clubMeEvent.getEventStartingHours();
+    }
+    notifyListeners();
+  }
+
+  bool getIsCurrentlyOnlyUpdatingAnEvent(){
+    return isCurrentlyOnlyUpdatingAnEvent;
+  }
+
+  void activateIsCurrentlyOnlyUpdatingAnEvent(){
+    isCurrentlyOnlyUpdatingAnEvent = true;
+  }
+
+  void deactivateIsCurrentlyOnlyUpdatingAnEvent(){
+    isCurrentlyOnlyUpdatingAnEvent = false;
+  }
+
+  bool getIsEventEditable(){
+    return eventIsEditable;
+  }
+
+  void activateEventEditable(){
+    eventIsEditable = true;
+    notifyListeners();
+  }
+
+  void deactivateEventEditable(){
+    eventIsEditable = false;
+    notifyListeners();
+  }
+
+
+  // Club
+
+  String getUserClubWebsiteLink(){
+    return userClub.getWebsiteLink();
+  }
+
+  String getUserClubInstaLink(){
+    return userClub.getInstagramLink();
+  }
+
+  String getUserClubEventBannerId(){
+    return userClub.getEventBannerId();
+  }
+
+  void setClubUiActive(bool value){
+    _clubUIActive = value;
+    notifyListeners();
+  }
+
+  String getUserClubBannerId(){
+    return userClub.getBannerId();
+  }
+
+  List<String> getUserContact(){
+
+    return [
+      userClub.getContactName(),
+      userClub.getContactStreet(),
+      userClub.getContactZip(),
+      userClub.getContactCity()
+    ];
+  }
+
+  void setUserContact(
+      String contactName,
+      String contactStreet,
+      String contactZip,
+      String contactCity
+      ){
+    userClub.setContactCity(contactCity);
+    userClub.setContactName(contactName);
+    userClub.setContactStreet(contactStreet);
+    userClub.setContactZip(contactZip);
+    notifyListeners();
+  }
+
+  void setUserClub(ClubMeClub clubMeClub){
+    userClub = clubMeClub;
+    notifyListeners();
+  }
+
+  void sortFetchedEvents(){
+    for(var e in fetchedEvents){
+      var date = e.getEventDate();
+      // print("Vorher: $date");
+    }
+    fetchedEvents.sort((a,b) =>
+     a.getEventDate().millisecondsSinceEpoch.compareTo(b.getEventDate().millisecondsSinceEpoch)
+    );
+    for(var e in fetchedEvents){
+      var date = e.getEventDate();
+      // print("Nachher: $date");
+    }
+  }
+
+  void sortFetchedDiscounts(){
+    fetchedDiscounts.sort((a,b) =>
+        a.getDiscountDate().millisecondsSinceEpoch.compareTo(b.getDiscountDate().millisecondsSinceEpoch)
+    );
+  }
+
+  void toggleReviewingANewEvent(){
+    reviewingANewEvent = !reviewingANewEvent;
+  }
+
+  void resetReviewingANewEvent(){
+    reviewingANewEvent = false;
+  }
+
+  bool getReviewingANewEvent(){
+    return reviewingANewEvent;
+  }
+
+  String getUserClubNews(){
+    return userClub.getNews();
+  }
+  void setClubNews(String newNews){
+    userClub.setNews(newNews);
+    notifyListeners();
+  }
+
+  String getClubName(){
+    return userClub.getClubName();
+  }
+
+  double getClubCoordLat(){
+    return userClub.getGeoCoordLat();
+  }
+  double getClubCoordLng(){
+    return userClub.getGeoCoordLng();
+  }
+
+  void setClubName(String newName){
+    userClub.setClubName(newName);
+    notifyListeners();
+  }
+
+  void setClubStoryId(String uuid){
+    userClub.setStoryId(uuid);
+    notifyListeners();
+  }
+
+  String getCurrentClubStoryId(){
+    return clubMeClub.getStoryId();
+  }
+
+  String getClubStoryId(){
+    return userClub.getStoryId();
+  }
+
+  void setClubId(String id){
+    userClub.setClubId(id);
+    notifyListeners();
+  }
+
+  String getClubId(){
+    return userClub.getClubId();
+  }
+
+  String getVideoPath(){
+    return videoPath;
+  }
+
+  CameraDescription getCamera(){
+    return camera;
+  }
+
+  List<ClubMeDiscount> getFetchedDiscounts(){
+    return fetchedDiscounts;
+  }
+
+  void setFetchedDiscounts(List<ClubMeDiscount> fetchedDiscounts){
+    this.fetchedDiscounts = fetchedDiscounts;
+  }
+
+  List<ClubMeClub> getFetchedClubs(){
+    return fetchedClubs;
+  }
+  void setFetchedClubs(List<ClubMeClub> fetchedClubs){
+    this.fetchedClubs = fetchedClubs;
+  }
+
+  List<ClubMeEvent> getFetchedEvents(){
+    return fetchedEvents;
+  }
+  void setFetchedEvents(List<ClubMeEvent> fetchedEvents){
+    this.fetchedEvents = fetchedEvents;
+  }
+
+  void addEventToFetchedEvents(ClubMeEvent clubMeEvent){
+    fetchedEvents.add(clubMeEvent);
+    sortFetchedEvents();
+  }
+  void addClubToFetchedClubs(ClubMeClub clubMeClub){
+    fetchedClubs.add(clubMeClub);
+  }
+  void addDiscountToFetchedDiscounts(ClubMeDiscount clubMeDiscount){
+    fetchedDiscounts.add(clubMeDiscount);
+    sortFetchedDiscounts();
+  }
+
+  List<String> getAttendingEvents(){
+    return attendingEvents;
+  }
+
+  List<String> getLikedDiscounts(){
+    return likedDiscounts;
+  }
+
+  List<String> getLikedEvents(){
+    return likedEvents;
+  }
+  List<String> getLikedClubs(){
+    return likedClubs;
+  }
+
+  bool checkIfAttendingEvent(String eventId){
+
+    return attendingEvents.contains(eventId);
+  }
+
+  bool checkIfClubIsAlreadyLiked(String clubId){
+    return likedClubs.contains(clubId);
+  }
+
+  bool checkIfCurrentCLubIsAlreadyLiked(){
+    return likedClubs.contains(_currentClub.getClubId());
+  }
+
+  bool checkIfSpecificCLubIsAlreadyLiked(String clubId){
+    return likedClubs.contains(clubId);
+  }
+
+  bool checkIfCurrentEventIsAlreadyLiked(){
+    return likedEvents.contains(_currentEvent.getEventId());
+  }
+
+  void setLikedEvents(List<String> likedEvents){
+    this.likedEvents = likedEvents;
+    notifyListeners();
+  }
+
+  void setLikedDiscounts(List<String> likedDiscounts){
+    this.likedDiscounts = likedDiscounts;
+    notifyListeners();
+  }
+
+  void addLikedEvent(String eventId){
+    likedEvents.add(eventId);
+    notifyListeners();
+  }
+
+  void addLikedClub(String clubId){
+    likedClubs.add(clubId);
+    notifyListeners();
+  }
+
+  void addLikedDiscount(String discountId){
+    likedDiscounts.add(discountId);
+    notifyListeners();
+  }
+
+  void deleteLikedClub(String clubId){
+    likedClubs.remove(clubId);
+    notifyListeners();
+  }
+
+  void deleteLikedEvent(String eventId){
+    likedEvents.remove(eventId);
+    notifyListeners();
+  }
+
+  void deleteLikedDiscount(String discountId){
+    likedDiscounts.remove(discountId);
+    notifyListeners();
+  }
 
   void toggleClubUIActive(){
     _clubUIActive = !_clubUIActive;
@@ -50,8 +478,14 @@ class StateProvider extends ChangeNotifier{
   }
 
   setCurrentEvent(ClubMeEvent clubMeEvent){
-    _currentEvent = clubMeEvent;
+    try{
+      _currentEvent = clubMeEvent;
+      print("setCurrentEvent successful");
+    }catch(e){
+      print("Error in setCurrentEvent: $e");
+    }
   }
+
   setCurrentDiscount(ClubMeDiscount clubMeDiscount){
     _currentDiscount = clubMeDiscount;
   }

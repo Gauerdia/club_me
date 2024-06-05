@@ -1,11 +1,21 @@
-import 'package:flutter/cupertino.dart';
+import 'package:club_me/services/hive_service.dart';
+import 'package:club_me/services/supabase_service.dart';
+import 'package:club_me/shared/custom_text_style.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:logger/logger.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 import '../models/event.dart';
+import '../models/parser/club_me_event_parser.dart';
 import '../provider/state_provider.dart';
 import '../shared/custom_bottom_navigation_bar.dart';
+import 'components/event_tile.dart';
+import 'package:intl/intl.dart';
+
+import 'package:timezone/standalone.dart' as tz;
 
 class UserEventsView extends StatefulWidget {
   const UserEventsView({Key? key}) : super(key: key);
@@ -16,450 +26,675 @@ class UserEventsView extends StatefulWidget {
 
 class _UserEventsViewState extends State<UserEventsView> {
 
-  String headLine = "Events for You";
+  String headLine = "Deine Events";
 
-  List<ClubMeEvent> events = [
-    ClubMeEvent(
-        title: "LATINO NIGHT",
-        clubName: "Untergrund Bochum",
-        DjName: "DJ Angerfist",
-        date: "Samstag",
-        price: "5",
-      imagePath: 'assets/images/img_4.png',
-        description: "Tauch ein in die Nacht und erlebe die ultimative Disco-Party!"
-            "Bist du bereit, die Nacht zum Tag zu machen? Dann ist diese Disco genau das Richtige für dich!"
-            "Feiere mit uns zu den besten Hits der 70er, 80er und 90er Jahre."
-            "Egal ob Discofox, Boogie oder einfach nur Tanzen - hier ist für jeden etwas dabei."
-            "Unsere erfahrenen DJs sorgen für eine ausgelassene Stimmung und bringen dich garantiert zum Schwitzen."
-            "Lasse dich von den bunten Lichtern und den pulsierenden Beats mitreißen und genieße die unvergessliche Atmosphäre."
-            "Ob alleine, mit Freunden oder deinem Partner - hier ist jeder willkommen."
-            "Komm vorbei und erlebe eine Nacht voller Spaß, Musik und Tanz!"
-            "Dresscode:"
-            "Zeige deinen ganz eigenen Style!"
-            "Von bunten Outfits bis hin zu klassischen Disco-Looks - alles ist erlaubt.",
-        musicGenres: "Latin",
-        hours: "22:00 - 03:00 Uhr"
-    ),
-    ClubMeEvent(
-        title: "TECHNO TECHNO",
-        clubName: "Zombiekeller",
-        DjName: "DJ Thomas",
-        date: "Samstag",
-        price: "3",
-      imagePath: "assets/images/dj_wallpaper_3.png",
-        description: "Tauch ein in die Nacht und erlebe die ultimative Disco-Party!"
-            "Bist du bereit, die Nacht zum Tag zu machen? Dann ist diese Disco genau das Richtige für dich!"
-            "Feiere mit uns zu den besten Hits der 70er, 80er und 90er Jahre."
-            "Egal ob Discofox, Boogie oder einfach nur Tanzen - hier ist für jeden etwas dabei."
-            "Unsere erfahrenen DJs sorgen für eine ausgelassene Stimmung und bringen dich garantiert zum Schwitzen."
-            "Lasse dich von den bunten Lichtern und den pulsierenden Beats mitreißen und genieße die unvergessliche Atmosphäre."
-            "Ob alleine, mit Freunden oder deinem Partner - hier ist jeder willkommen."
-            "Komm vorbei und erlebe eine Nacht voller Spaß, Musik und Tanz!"
-            "Dresscode:"
-            "Zeige deinen ganz eigenen Style!"
-            "Von bunten Outfits bis hin zu klassischen Disco-Looks - alles ist erlaubt.",
-        musicGenres: "Techno",
-        hours: "22:00 - 03:00 Uhr"
-    ),
-    ClubMeEvent(
-        title: "BEST OF 90s",
-        clubName: "Village Dortmund",
-        DjName: "DJ Gunnar",
-        date: "Sonntag",
-        price: "12",
-      imagePath: "assets/images/dj_wallpaper_4.png",
-        description: "Tauch ein in die Nacht und erlebe die ultimative Disco-Party!"
-            "Bist du bereit, die Nacht zum Tag zu machen? Dann ist diese Disco genau das Richtige für dich!"
-            "Feiere mit uns zu den besten Hits der 70er, 80er und 90er Jahre."
-            "Egal ob Discofox, Boogie oder einfach nur Tanzen - hier ist für jeden etwas dabei."
-            "Unsere erfahrenen DJs sorgen für eine ausgelassene Stimmung und bringen dich garantiert zum Schwitzen."
-            "Lasse dich von den bunten Lichtern und den pulsierenden Beats mitreißen und genieße die unvergessliche Atmosphäre."
-            "Ob alleine, mit Freunden oder deinem Partner - hier ist jeder willkommen."
-            "Komm vorbei und erlebe eine Nacht voller Spaß, Musik und Tanz!"
-            "Dresscode:"
-            "Zeige deinen ganz eigenen Style!"
-            "Von bunten Outfits bis hin zu klassischen Disco-Looks - alles ist erlaubt.",
-      musicGenres: "90s",
-      hours: "22:00 - 03:00 Uhr"
-    ),
-    ClubMeEvent(
-        title: "THE MASH!",
-        clubName: "Sausalitos Essen",
-        DjName: "DJ Fed&Up",
-        date: "24.05.2004",
-        price: "4",
-      imagePath: "assets/images/dj_wallpaper_5.png",
-        description: "Tauch ein in die Nacht und erlebe die ultimative Disco-Party!"
-            "Bist du bereit, die Nacht zum Tag zu machen? Dann ist diese Disco genau das Richtige für dich!"
-            "Feiere mit uns zu den besten Hits der 70er, 80er und 90er Jahre."
-            "Egal ob Discofox, Boogie oder einfach nur Tanzen - hier ist für jeden etwas dabei."
-            "Unsere erfahrenen DJs sorgen für eine ausgelassene Stimmung und bringen dich garantiert zum Schwitzen."
-            "Lasse dich von den bunten Lichtern und den pulsierenden Beats mitreißen und genieße die unvergessliche Atmosphäre."
-            "Ob alleine, mit Freunden oder deinem Partner - hier ist jeder willkommen."
-            "Komm vorbei und erlebe eine Nacht voller Spaß, Musik und Tanz!"
-            "Dresscode:"
-            "Zeige deinen ganz eigenen Style!"
-            "Von bunten Outfits bis hin zu klassischen Disco-Looks - alles ist erlaubt.",
-        musicGenres: "90s",
-        hours: "22:00 - 03:00 Uhr"
-    ),
-  ];
+  var logger = Logger();
+
+  late Future getEvents;
+  late String dropdownValue;
+  late StateProvider stateProvider;
+  late CustomTextStyle customTextStyle;
+  late double screenHeight, screenWidth;
+
+  final HiveService _hiveService = HiveService();
+  final SupabaseService _supabaseService = SupabaseService();
+  final TextEditingController _textEditingController = TextEditingController();
+
+  List<ClubMeEvent> eventsToDisplay = [];
+  List<ClubMeEvent> upcomingDbEvents = [];
+  List<String> genresDropdownList = ["Alle", "Techno", "90s", "Latin"];
+
+  String searchValue = "";
+  bool isSearchActive = false;
+  bool isAnyFilterActive = false;
+  bool isFilterMenuActive = false;
+  bool onlyFavoritesIsActive = false;
+
+  double maxValueRangeSlider = 0;
+  double maxValueRangeSliderToDisplay = 0;
+  RangeValues _currentRangeValues = RangeValues(0, 10);
+
 
   @override
-  Widget build(BuildContext context) {
+  void initState(){
 
-    final stateProvider = Provider.of<StateProvider>(context);
+    super.initState();
+    requestStoragePermission();
+    dropdownValue = genresDropdownList.first;
 
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
+    final stateProvider = Provider.of<StateProvider>(context, listen:  false);
+    if(stateProvider.getFetchedEvents().isEmpty) {
+      getEvents = _supabaseService.getAllEvents();
+    }
 
-    return Scaffold(
+  }
 
-        extendBodyBehindAppBar: true,
-        extendBody: true,
+  void clickedOnLike(StateProvider stateProvider, String eventId){
+    setState(() {
+      if(stateProvider.getLikedEvents().contains(eventId)){
+        stateProvider.deleteLikedEvent(eventId);
+        _hiveService.deleteFavoriteEvent(eventId);
+      }else{
+        stateProvider.addLikedEvent(eventId);
+        _hiveService.insertFavoriteEvent(eventId);
+      }
+    });
+  }
 
-        bottomNavigationBar: CustomBottomNavigationBar(),
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          title: Text(headLine,
-            style: TextStyle(
-              // color: Colors.purpleAccent
-            ),
-          ),
+  void clickedOnShare(){
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => const AlertDialog(
+        title: Text("Teilen noch nicht möglich!"),
+        content: Text("Die Funktion, ein Event zu teilen, ist derzeit noch"
+            "nicht implementiert. Wir bitten um Verständnis.")
+      )
+    );
+  }
 
-          actions: [
-            Padding(
-                padding: const EdgeInsets.only(right: 10),
-              child: Container(
-                  padding: const EdgeInsets.all(7),
-                  decoration: BoxDecoration(
-                    color: const Color(0xff11181f),
-                    borderRadius: BorderRadius.circular(45),
-                  ),
-                  child: const Icon(
-                    Icons.menu,
-                    color: Colors.grey,
-                  )
+  void sortUpcomingEvents(){
+    for(var e in upcomingDbEvents){
+      var date = e.getEventDate();
+      // print("Vorher: $date");
+    }
+    upcomingDbEvents.sort((a,b) =>
+        a.getEventDate().millisecondsSinceEpoch.compareTo(b.getEventDate().millisecondsSinceEpoch)
+    );
+    for(var e in upcomingDbEvents){
+      var date = e.getEventDate();
+      // print("Nachher: $date");
+    }
+  }
+
+  void filterEvents(){
+
+    // Just set max at the very beginning
+    if(maxValueRangeSlider == 0){
+      for(var element in upcomingDbEvents){
+        if(maxValueRangeSlider == 0){
+          maxValueRangeSlider = element.getEventPrice();
+        }else{
+          if(element.getEventPrice() > maxValueRangeSlider){
+            maxValueRangeSlider = element.getEventPrice();
+          }
+        }
+      }
+      _currentRangeValues = RangeValues(0, maxValueRangeSlider);
+    }
+
+    // Check if any filter is applied
+    if(
+        _currentRangeValues.end != maxValueRangeSlider ||
+        _currentRangeValues.start != 0 ||
+        dropdownValue != "All" ||
+        searchValue != "" ||
+        onlyFavoritesIsActive
+    ){
+
+      // set for coloring
+      isAnyFilterActive = true;
+
+      // reset array
+      eventsToDisplay = [];
+
+      // Iterate through all available events
+      for(var event in upcomingDbEvents){
+
+          // when one criterium doesnt match, set to false
+          bool fitsCriteria = true;
+
+          // Search bar used? Then filter
+          if(searchValue != "") {
+            String allInformationLowerCase = "${event.getEventTitle()} ${event
+                .getClubName()} ${event.getDjName()} ${event.getEventDate()}"
+                .toLowerCase();
+            if (allInformationLowerCase.contains(
+                searchValue.toLowerCase())) {} else {
+              fitsCriteria = false;
+            }
+          }
+
+          // Price range changed? Filter
+          if((_currentRangeValues.start != 0 || _currentRangeValues.end != 30)
+            && (event.getEventPrice() < _currentRangeValues.start || event.getEventPrice() > _currentRangeValues.end)
+          ) fitsCriteria = false;
+
+          // music genre doenst match? filter
+          if(dropdownValue != genresDropdownList[0] ){
+            if(!event.getMusicGenres().toLowerCase().contains(dropdownValue.toLowerCase())){
+              fitsCriteria = false;
+            }
+          }
+
+          if(onlyFavoritesIsActive){
+            if(!checkIfIsLiked(event)){
+              fitsCriteria = false;
+            }
+          }
+
+          // All filter passed? evaluate
+          if(fitsCriteria){
+            eventsToDisplay.add(event);
+          }
+      }
+
+      for(var element in eventsToDisplay){
+        if(maxValueRangeSliderToDisplay == 0){
+          maxValueRangeSliderToDisplay = element.getEventPrice();
+        }else{
+          if(element.getEventPrice() > maxValueRangeSliderToDisplay){
+            maxValueRangeSliderToDisplay = element.getEventPrice();
+          }
+        }
+      }
+
+    }else{
+      isAnyFilterActive = false;
+      eventsToDisplay = upcomingDbEvents;
+    }
+  }
+
+  bool checkIfIsLiked(ClubMeEvent currentEvent) {
+    var isLiked = false;
+    if (stateProvider.getLikedEvents().contains(
+        currentEvent.getEventId())) {
+      isLiked = true;
+    }
+    return isLiked;
+  }
+
+  void toggleIsSearchActive(){
+    setState(() {
+      isSearchActive = !isSearchActive;
+    });
+  }
+
+  void toggleIsAnyFilterActive(){
+    setState(() {
+      isAnyFilterActive = !isAnyFilterActive;
+    });
+  }
+
+  void toggleIsFilterMenuActive(){
+    setState(() {
+      isFilterMenuActive = !isFilterMenuActive;
+    });
+  }
+
+  void getAllLikedEvents(StateProvider stateProvider) async{
+    var likedEvents = await _hiveService.getFavoriteEvents();
+    stateProvider.setLikedEvents(likedEvents);
+  }
+
+  Widget _buildSupabaseEvents(StateProvider stateProvider, double screenHeight){
+
+    // get today in correct format to check which events are upcoming
+    var todayRaw = DateTime.now();
+    var today = DateFormat('yyyy-MM-dd hh:mm').format(todayRaw);
+    var todayFormatted = DateTime.parse(today);
+
+    // Get current time for germany
+    final berlin = tz.getLocation('Europe/Berlin');
+    final todayGermanTZ = tz.TZDateTime.from(DateTime.now(), berlin);
+
+
+    if(stateProvider.getFetchedEvents().isEmpty){
+      return FutureBuilder(
+          future: getEvents,
+          builder: (context, snapshot){
+
+            // Error-handling
+            if(snapshot.hasError){
+              print("Error: ${snapshot.error}");
+            }
+
+            // Waiting for response
+            if(!snapshot.hasData){
+              return SizedBox(
+                height: screenHeight,
+                child: const Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+              // Process response
+            }else{
+
+              final data = snapshot.data!;
+
+              // The function will be called twice after the response. Here, we avoid to fill the array twice as well.
+              if(upcomingDbEvents.isEmpty){
+                for(var element in data){
+                  ClubMeEvent currentEvent = parseClubMeEvent(element);
+
+                  // Show only events that are not yet in the past.
+                  if(
+                  currentEvent.getEventDate().isAfter(todayGermanTZ)
+                      || currentEvent.getEventDate().isAtSameMomentAs(todayGermanTZ)){
+                    upcomingDbEvents.add(currentEvent);
+                  }
+
+                  // We collect all events so we dont have to reload them everytime
+                  stateProvider.addEventToFetchedEvents(currentEvent);
+                }
+
+                // Sort so that the next events come up earliest
+                sortUpcomingEvents();
+                stateProvider.sortFetchedEvents();
+              }
+
+              filterEvents();
+
+              return ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: eventsToDisplay.length,
+                  itemBuilder: ((context, index){
+
+                    // Check if the event was already liked by the user
+                    var isLiked = false;
+                    if(stateProvider.getLikedEvents().contains(eventsToDisplay[index].getEventId())){
+                      isLiked = true;
+                    }
+
+                    // return clickable widget
+                    return GestureDetector(
+                      child: EventTile(
+                          clubMeEvent: eventsToDisplay[index],
+                          isLiked: isLiked,
+                          clickedOnLike: clickedOnLike,
+                          clickedOnShare: clickedOnShare
+                      ),
+                      onTap: (){
+                        stateProvider.setCurrentEvent(eventsToDisplay[index]);
+                        context.push('/event_details');
+                      },
+                    );
+                  })
+              );
+            }
+          }
+      );
+    }else{
+
+      if(upcomingDbEvents.isEmpty){
+        for(var currentEvent in stateProvider.getFetchedEvents()){
+          if(
+          currentEvent.getEventDate().isAfter(todayFormatted)
+              || currentEvent.getEventDate().isAtSameMomentAs(todayFormatted)){
+            upcomingDbEvents.add(currentEvent);
+          }
+        }
+      }
+
+      filterEvents();
+
+      return ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: eventsToDisplay.length,
+          itemBuilder: ((context, index){
+
+            ClubMeEvent currentEvent = eventsToDisplay[index];
+
+            var isLiked = false;
+            if(stateProvider.getLikedEvents().contains(currentEvent.getEventId())){
+              isLiked = true;
+            }
+
+            return GestureDetector(
+              child: EventTile(
+                  clubMeEvent: currentEvent,
+                  isLiked: isLiked,
+                  clickedOnLike: clickedOnLike,
+                  clickedOnShare: clickedOnShare
               ),
-            )
-          ],
+              onTap: (){
+                stateProvider.setCurrentEvent(currentEvent);
+                context.push('/event_details');
+              },
+            );
+          })
+      );
+    }
+  }
 
-          leading: Icon(
-            Icons.search,
-            color: Colors.grey,
-            // size: 20,
-          ),
+  void requestStoragePermission() async {
+    // Check if the platform is not web, as web has no permissions
+    if (!kIsWeb) {
+      // Request storage permission
+      var status = await Permission.storage.status;
+      if (!status.isGranted) {
+        await Permission.storage.request();
+      }
 
-        ),
-        body: Container(
-          width: screenWidth,
-          height: screenHeight,
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  // Color(0xff11181f),
-                  Color(0xff2b353d),
-                  Color(0xff11181f)
-                ],
-                stops: [0.15, 0.6]
-            ),
-          ),
-          child: SingleChildScrollView(
+      // Request camera permission
+      var cameraStatus = await Permission.camera.status;
+      if (!cameraStatus.isGranted) {
+        await Permission.camera.request();
+      }
+    }
+  }
+
+  void filterForFavorites(){
+    setState(() {
+      onlyFavoritesIsActive = !onlyFavoritesIsActive;
+      filterEvents();
+    });
+  }
+
+  Widget _buildAppBarShowTitle(){
+    return SizedBox(
+      width: screenWidth,
+      child: Stack(
+        children: [
+          // Headline
+          Container(
+              alignment: Alignment.bottomCenter,
+              height: 50,
+              width: screenWidth,
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-
-                  // Spacer
-                  SizedBox(height: screenHeight*0.15,),
-
-                  // EventTile, 0
-                  GestureDetector(
-                    child: EventTile(clubMeEvent: events[0]),
-                    onTap: (){
-                      stateProvider.setCurrentEvent(events[0]);
-                      context.go('/event_details');
-                    },
+                  Text(headLine,
+                      textAlign: TextAlign.center,
+                      style: customTextStyle.size2()
                   ),
-
-                  GestureDetector(
-                    child: EventTile(clubMeEvent: events[1]),
-                    onTap: (){
-                      stateProvider.setCurrentEvent(events[1]);
-                      context.go('/event_details');
-                    },
-                  ),
-
-                  GestureDetector(
-                    child: EventTile(clubMeEvent: events[2]),
-                    onTap: (){
-                      stateProvider.setCurrentEvent(events[2]);
-                      context.go('/event_details');
-                    },
-                  ),
-
-                  GestureDetector(
-                    child: EventTile(clubMeEvent: events[3]),
-                    onTap: (){
-                      stateProvider.setCurrentEvent(events[3]);
-                      context.go('/event_details');
-                    },
-                  ),
-
-                  // Spacer
-                  SizedBox(height: screenHeight*0.1,),
                 ],
               )
           ),
-        )
+
+          // Search icon
+          Container(
+              width: screenWidth,
+              alignment: Alignment.centerLeft,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                      onPressed: () => toggleIsSearchActive(),
+                      icon: Icon(
+                        Icons.search,
+                        color: searchValue != "" ? stateProvider.getPrimeColor() : Colors.grey,
+                        // size: 20,
+                      )
+                  )
+                ],
+              )
+          ),
+
+          // Right icons
+          Container(
+            width: screenWidth,
+            alignment: Alignment.centerRight,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                IconButton(
+                    onPressed: () => filterForFavorites(),
+                    icon: Icon(
+                      Icons.stars,
+                      color: onlyFavoritesIsActive ? stateProvider.getPrimeColor() : Colors.grey,
+                    )
+                ),
+                Padding(
+                    padding: const EdgeInsets.only(right: 0),
+                    child: GestureDetector(
+                      child: Container(
+                          padding: const EdgeInsets.all(7),
+                          decoration: BoxDecoration(
+                            color: const Color(0xff11181f),
+                            borderRadius: BorderRadius.circular(45),
+                          ),
+                          child: Icon(
+                            Icons.filter_list_sharp,
+                            color: isAnyFilterActive ? stateProvider.getPrimeColor() : Colors.grey,
+                          )
+                      ),
+                      onTap: (){
+                        toggleIsFilterMenuActive();
+                      },
+                    )
+                )
+              ],
+            ),
+          ),
+
+        ],
+      ),
     );
   }
-}
+  Widget _buildAppbarShowSearch(){
+    return SizedBox(
+      width: screenWidth,
+      child: Stack(
+        children: [
+          // Headline
+          Container(
+              alignment: Alignment.bottomCenter,
+              height: 50,
+              width: screenWidth,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: screenWidth*0.4,
+                    child: TextField(
+                      autofocus: true,
+                      controller: _textEditingController,
+                      onChanged: (text){
+                        _textEditingController.text = text;
+                        searchValue = text;
+                        setState(() {
+                          filterEvents();
+                        });
+                      },
+                    ),
+                  ),
+                ],
+              )
+          ),
 
-class EventTile extends StatelessWidget {
-  EventTile({Key? key, required this.clubMeEvent}) : super(key: key);
+          // Search icon
+          Container(
+              width: screenWidth,
+              alignment: Alignment.centerLeft,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                      onPressed: () => toggleIsSearchActive(),
+                      icon: Icon(
+                        Icons.search,
+                        color: searchValue != "" ? stateProvider.getPrimeColor() : Colors.grey,
+                        // size: 20,
+                      )
+                  )
+                ],
+              )
+          ),
 
-  ClubMeEvent clubMeEvent;
+          // Right icons
+          Container(
+            width: screenWidth,
+            alignment: Alignment.centerRight,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                IconButton(
+                    onPressed: () => filterForFavorites(),
+                    icon: Icon(
+                      Icons.stars,
+                      color: onlyFavoritesIsActive ? stateProvider.getPrimeColor() : Colors.grey,
+                    )
+                ),
+                Padding(
+                    padding: const EdgeInsets.only(right: 0),
+                    child: GestureDetector(
+                      child: Container(
+                          padding: const EdgeInsets.all(7),
+                          decoration: BoxDecoration(
+                            color: const Color(0xff11181f),
+                            borderRadius: BorderRadius.circular(45),
+                          ),
+                          child: Icon(
+                            Icons.filter_list_sharp,
+                            color: isAnyFilterActive ? stateProvider.getPrimeColor() : Colors.grey,
+                          )
+                      ),
+                      onTap: (){
+                        toggleIsFilterMenuActive();
+                      },
+                    )
+                )
+              ],
+            ),
+          ),
+
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
 
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
+    stateProvider = Provider.of<StateProvider>(context);
 
-    return Container(
-      padding: EdgeInsets.only(bottom: screenHeight*0.02),
-      child: Card(
-        child: Column(
-          children: [
+    getAllLikedEvents(stateProvider);
 
-            // TODO: No matter which image: Everything should be cropped the same
+    screenWidth = MediaQuery.of(context).size.width;
+    screenHeight = MediaQuery.of(context).size.height;
 
-            // Image container
-            Container(
-              width: screenWidth,
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                      topRight: Radius.circular(12),
-                      topLeft: Radius.circular(12)
-                  ),
-                  border: Border(
-                    // top: BorderSide(
-                    //     width: 1, color: Colors.white60
-                    // ),
-                    left: BorderSide(
-                        width: 1, color: Colors.white60
-                    ),
-                    right: BorderSide(
-                        width: 1, color: Colors.white60
-                    ),
-                  ),
-                ),
-                child: Container(
-                    height: screenHeight*0.17,
-                    child: ClipRRect(
-                      borderRadius: const BorderRadius.only(
-                          topRight: Radius.circular(12),
-                          topLeft: Radius.circular(12)
-                      ),
-                      child: Image.asset(
-                        clubMeEvent.getImagePath(),
-                        fit: BoxFit.cover,
-                      ),
-                    )
-                )
+    customTextStyle = CustomTextStyle(context: context);
+
+    return Scaffold(
+
+        extendBody: true,
+
+        bottomNavigationBar: CustomBottomNavigationBar(),
+        appBar: isSearchActive ?
+        AppBar(
+          automaticallyImplyLeading: false,
+          title: _buildAppbarShowSearch(),
+        ):
+        AppBar(
+            automaticallyImplyLeading: false,
+          backgroundColor: Colors.transparent,
+          title: _buildAppBarShowTitle()
+        ),
+        body: Container(
+            width: screenWidth,
+            height: screenHeight,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    // Color(0xff11181f),
+                    Color(0xff2b353d),
+                    Color(0xff11181f)
+                  ],
+                  stops: [0.15, 0.6]
+              ),
             ),
-
-            // Content container
-            Container(
-                height: screenHeight*0.19,
-                width: screenWidth,
-                decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.only(
-                        bottomRight: Radius.circular(12),
-                        bottomLeft: Radius.circular(12)
-                    ),
-                    border: const Border(
-                      left: BorderSide(
-                          width: 1, color: Colors.white60
-                      ),
-                      right: BorderSide(
-                          width: 1, color: Colors.white60
-                      ),
-                    ),
-                  gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Colors.grey[700]!,
-                        Colors.grey[850]!
-                      ],
-                      stops: [0.3, 0.8]
-                  ),
-                ),
-                child: Stack(
-                  children: [
-                    Column(
+            child: Stack(
+              children: [
+                SingleChildScrollView(
+                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                    physics: const ScrollPhysics(),
+                    child: Column(
                       children: [
 
-                        // Title
-                        Padding(
-                          padding: const EdgeInsets.only(
-                              top: 10,
-                              left: 10
-                          ),
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              clubMeEvent.getTitle(),
-                              style: TextStyle(
-                                  fontSize: screenWidth*0.07,
-                                  fontWeight: FontWeight.bold
-                              ),
-                            ),
-                          ),
-                        ),
+                        // Spacer
+                        SizedBox(height: screenHeight*0.02),
 
-                        // Location
-                        Padding(
-                          padding: const EdgeInsets.only(
-                              left: 10
-                          ),
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              clubMeEvent.getClubName(),
-                              style: TextStyle(
-                                  fontSize: screenWidth*0.035,
-                                  fontWeight: FontWeight.bold
-                              ),
-                            ),
-                          ),
-                        ),
+                        _buildSupabaseEvents(stateProvider, screenHeight),
 
-                        // DJ
-                        Padding(
-                          padding: const EdgeInsets.only(
-                              top: 3,
-                              left: 10
-                          ),
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              clubMeEvent.getDjName(),
-                              style: TextStyle(
-                                  fontSize: screenWidth*0.035,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.grey[400]
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        // When
-                        Padding(
-                          padding: const EdgeInsets.only(
-                              top: 3,
-                              left: 10
-                          ),
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              clubMeEvent.getDate(),
-                              style: TextStyle(
-                                  fontSize: screenWidth*0.035,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.grey[400]
-                              ),
-                            ),
-                          ),
-                        ),
-
+                        // Spacer
+                        SizedBox(height: screenHeight*0.1,),
                       ],
-                    ),
+                    )
+                ),
 
-                    Padding(
-                        padding: const EdgeInsets.only(
-                          top: 10,
-                          right: 15
-                        ),
-                      child: Align(
-                        alignment: Alignment.topRight,
-                        child: Text(
-                            "${clubMeEvent.getPrice()} €",
-                          style: TextStyle(
-                            fontSize: screenWidth*0.05,
-                            color: Colors.white70
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    // Icons
-                    const Align(
-                        alignment: Alignment.bottomRight,
+                isFilterMenuActive?Container(
+                  height: screenHeight*0.14,
+                  width: screenWidth,
+                  color: Color(0xff2b353d),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: screenWidth*0.5,
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Icon(
-                                  Icons.info_outline,
-                                  color: Colors.white,
-                                ),
-                                SizedBox(width: 15,),
-                                Icon(
-                                  Icons.star_border,
-                                  color: Colors.white,
-                                ),
-                                SizedBox(width: 15,),
-                                Icon(
-                                  Icons.share,
-                                  color: Colors.white,
-                                ),
-                                SizedBox(width: 25,),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Text(
-                                  "Info",
-                                  style: TextStyle(
-                                      fontSize: 12
-                                  ),
-                                ),
-                                SizedBox(width: 12,),
-                                Text(
-                                  "Like",
-                                  style: TextStyle(
-                                      fontSize: 12
-                                  ),
-                                ),
-                                SizedBox(width: 10,),
-                                Text(
-                                  "Share",
-                                  style: TextStyle(
-                                      fontSize: 12
-                                  ),
-                                ),
-                                SizedBox(width: 18,),
-                              ],
-                            ),
+
+                            // Spacer
                             SizedBox(
-                              height: 10,
+                              height: screenHeight*0.01,
+                            ),
+
+                            // Price
+                            Text(
+                                "Preis"
+                            ),
+
+                            RangeSlider(
+                                max: maxValueRangeSlider,
+                                divisions: 10,
+                                labels: RangeLabels(
+                                  "0",
+                                  _currentRangeValues.end.round().toString(),
+                                ),
+                                values: _currentRangeValues,
+                                onChanged: (RangeValues values) {
+                                  setState(() {
+                                    _currentRangeValues = values;
+                                  });
+                                }
                             )
                           ],
-                        )
-                    )
+                        ),
+                      ),
+                      Container(
+                        width: screenWidth*0.5,
+                        child: Column(
+                          children: [
 
-                  ],
-                )
+                            SizedBox(
+                              height: screenHeight*0.01,
+                            ),
+
+                            Text(
+                                "Genre"
+                            ),
+
+                            DropdownButton(
+                                value: dropdownValue,
+                                items: genresDropdownList.map<DropdownMenuItem<String>>(
+                                        (String value) {
+                                      return DropdownMenuItem(value: value,child: Text(value));
+                                    }
+                                ).toList(),
+                                onChanged: (String? value){
+                                  setState(() {
+                                    dropdownValue = value!;
+                                    filterEvents();
+                                  });
+                                }
+                            )
+
+
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                ):Container()
+              ],
             )
-          ],
-        ),
-      ),
+        )
     );
   }
+
+
+
 }

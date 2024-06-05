@@ -1,0 +1,179 @@
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:video_player/video_player.dart';
+import '../provider/state_provider.dart';
+import '../services/supabase_service.dart';
+import 'package:uuid/uuid.dart';
+
+import 'custom_text_style.dart';
+
+class VideoPlayerScreen extends StatefulWidget {
+
+  String videoPath;
+
+  VideoPlayerScreen({super.key, required this.videoPath});
+
+  @override
+  State<VideoPlayerScreen> createState() => _VideoPlayerScreenState();
+}
+
+class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
+
+
+  late var video;
+  late CustomTextStyle customTextStyle;
+  late VideoPlayerController _controller;
+  late Future<void> _initializeControllerFuture;
+
+  bool showLoading = false;
+
+  final SupabaseService _supabaseService = SupabaseService();
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = VideoPlayerController.file(File(widget.videoPath));
+
+    video = File(widget.videoPath);
+
+    _initializeControllerFuture = _controller.initialize();
+    _controller.setLooping(true);
+  }
+
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    final stateProvider = Provider.of<StateProvider>(context);
+
+    customTextStyle = CustomTextStyle(context: context);
+
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
+    return Scaffold(
+      appBar: AppBar(
+          title: SizedBox(
+            width: screenWidth,
+            child: Text(
+                'Video player screen',
+                textAlign: TextAlign.center,
+                style: customTextStyle.size1Bold(),
+            ),
+          )
+      ),
+      body: Stack(
+        children: [
+          showLoading ? Container()
+          : FutureBuilder(
+            future: _initializeControllerFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                return AspectRatio(
+                  aspectRatio: _controller.value.aspectRatio,
+                  child: VideoPlayer(_controller),
+                );
+              } else {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+            },
+          ),
+          showLoading?
+          Container()
+          :Padding(
+            padding: EdgeInsets.only(
+                bottom: screenHeight*0.04
+            ),
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  GestureDetector(
+                    child: Container(
+                        padding: const EdgeInsets.all(15),
+                        decoration: BoxDecoration(
+                            color: stateProvider.getPrimeColorDark(),
+                            borderRadius: const BorderRadius.all(Radius.circular(15))
+                        ),
+                        child: Icon(
+                          _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+                          color: Colors.white,
+                        )
+                    ),
+                    onTap: (){
+                      setState(() {
+                        if (_controller.value.isPlaying) {
+                          _controller.pause();
+                        } else {
+                          _controller.play();
+                        }
+                      });
+                    },
+                  ),
+                  GestureDetector(
+                    child: Container(
+                        padding: const EdgeInsets.all(15),
+                        decoration: BoxDecoration(
+                            color: stateProvider.getPrimeColorDark(),
+                            borderRadius: const BorderRadius.all(Radius.circular(15))
+                        ),
+                        child: const Icon(
+                          Icons.save,
+                          color: Colors.white,
+                        )
+                    ),
+                    onTap: (){
+                      saveStoryToSupabase(stateProvider, video);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          showLoading? const Center(
+              child: CircularProgressIndicator(),
+          ):Container()
+        ],
+      ),
+    );
+  }
+
+  void saveStoryToSupabase(StateProvider stateProvider, var video) async{
+
+    var uuid = const Uuid();
+    String uuidV4 = uuid.v4();
+
+    setState(() {
+      showLoading = true;
+    });
+
+    await _supabaseService.insertVideo(video, uuidV4, stateProvider.getClubId(), stateProvider)
+        .then((value){
+      if(value == 0){
+        stateProvider.setClubStoryId(uuidV4);
+        context.go('/club_frontpage');
+      }else{
+        showBottomSheet(
+            context: context,
+            builder: (BuildContext context){
+              return const Text("Sorry, something went wrong!");
+            }
+        );
+      }
+      return 0;
+    });
+  }
+}

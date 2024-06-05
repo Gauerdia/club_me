@@ -3,6 +3,38 @@
 
 // Internet permission for Iphone?
 
+Icon
+- flutter pub run flutter_launcher_icons:main
+
+
+
+    DateTime eventDateRaw = clubMeEvent.getEventDate();
+    String eventDate = DateFormat('yyyy-MM-dd').format(eventDateRaw);
+    DateTime eventDate2 = DateTime.parse(eventDate);
+
+    var eventDateWeekDay = eventDateRaw.weekday;
+
+    var testFriday = DateTime.now().subtract(Duration(days:1));
+
+    var testNextFriday = testFriday.next(DateTime.friday);
+
+    var todayRaw = DateTime.now();
+    var today = DateFormat('yyyy-MM-dd').format(todayRaw);
+
+    var nextFridayRaw = todayRaw.next(DateTime.friday);
+    var nextFriday = DateFormat('yyyy-MM-dd').format(nextFridayRaw);
+
+    var nextSaturdayRaw = todayRaw.next(DateTime.sunday);
+    String nextSaturday = DateFormat('yyyy-MM-dd').format(nextSaturdayRaw);
+    DateTime nextSaturday2 = DateTime.parse(nextSaturday);
+
+    print("test: $testFriday, $testNextFriday");
+
+    if(eventDate2.isBefore(nextSaturday2) || eventDate2.isAtSameMomentAs(nextSaturday2)){
+      print("weekday: $eventDateWeekDay, eventDate: $eventDate, today: $today, friday: $nextFriday, saturday: $nextSaturday");
+    }
+
+
 
 
 https://techblog.geekyants.com/implementing-flutter-maps-with-osm

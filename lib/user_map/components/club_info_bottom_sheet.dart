@@ -1,31 +1,78 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-
 import '../../models/event.dart';
 import '../../provider/state_provider.dart';
-import '../../user_clubs/user_clubs_view.dart';
+import '../../shared/custom_text_style.dart';
+import '../../user_clubs/components/event_card.dart';
 
 class ClubInfoBottomSheet extends StatelessWidget {
 
   ClubInfoBottomSheet({
     Key? key,
     required this.showBottomSheet,
-    required this.clubMeEvent
+    this.clubMeEvent,
+    required this.noEventAvailable
   }) : super(key: key);
 
+  late StateProvider stateProvider;
+
+  late bool noEventAvailable;
   late bool showBottomSheet;
-  late ClubMeEvent clubMeEvent;
+  late ClubMeEvent? clubMeEvent;
+  late CustomTextStyle customTextStyle;
 
   double imageHeightFactor = 0.09;
   double headlineHeightFactor = 0.09;
   double iconWidthFactor = 0.05;
 
+
+  double calculateDistanceToClub(){
+
+    if(stateProvider.getUserLatCoord() != 0){
+
+      var distance = Geolocator.distanceBetween(
+          stateProvider.getUserLatCoord(),
+          stateProvider.getUserLongCoord(),
+          stateProvider.clubMeClub.getGeoCoordLat(),
+          stateProvider.clubMeClub.getGeoCoordLng()
+      );
+
+      if(distance > 1000){
+        return 999;
+      }else{
+        return distance;
+      }
+    }else{
+      return 0;
+    }
+  }
+
+  String getAndFormatMusicGenre() {
+
+    String genreToReturn = "";
+
+    if (stateProvider.clubMeClub.getMusicGenres().contains(",")) {
+      var index = stateProvider.clubMeClub.getMusicGenres().indexOf(",");
+      genreToReturn = stateProvider.clubMeClub.getMusicGenres().substring(0, index);
+    } else {
+      genreToReturn = stateProvider.clubMeClub.getMusicGenres();
+    }
+
+    if(genreToReturn.length>8){
+      genreToReturn = "${genreToReturn.substring(0, 7)}...";
+    }
+    return genreToReturn;
+
+  }
+
   @override
   Widget build(BuildContext context) {
 
-    final stateProvider = Provider.of<StateProvider>(context);
+    stateProvider = Provider.of<StateProvider>(context);
+
+    customTextStyle = CustomTextStyle(context: context);
 
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
@@ -35,9 +82,8 @@ class ClubInfoBottomSheet extends StatelessWidget {
       opacity: showBottomSheet ? 1.0 : 0.0,
       duration: const Duration(milliseconds: 2500),
       child: AnimatedContainer(
-        // alignment: Alignment.bottomCenter,
         width: screenWidth,
-        height: screenHeight*0.35,
+        height: screenHeight*0.4,
         decoration: BoxDecoration(
 
             gradient: RadialGradient(
@@ -45,7 +91,7 @@ class ClubInfoBottomSheet extends StatelessWidget {
                   Colors.grey[600]!,
                   Colors.grey[850]!
                 ],
-                stops: [0.1, 0.35],
+                stops: const [0.1, 0.35],
                 center: Alignment.topLeft,
                 radius: 3
             ),
@@ -71,8 +117,7 @@ class ClubInfoBottomSheet extends StatelessWidget {
                   decoration: BoxDecoration(
                     image: DecorationImage(
                         image: AssetImage(
-                            stateProvider.clubMeClub.getImagePath()
-                          // clubMeEvent.getImagePath()
+                            "assets/images/${stateProvider.clubMeClub.getBannerId()}"
                         ),
                         fit: BoxFit.cover
                     ),
@@ -111,17 +156,7 @@ class ClubInfoBottomSheet extends StatelessWidget {
                     child: Text(
                       stateProvider.clubMeClub.getClubName(),
                       // clubMeEvent.getClubName(),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 32,
-                        shadows: <Shadow>[
-                          Shadow(
-                              offset: Offset(2.0, 2.0),
-                              blurRadius: 5.0,
-                              color: Colors.grey
-                          ),
-                        ],
-                      ),
+                      style: customTextStyle.size1MapHeadline(),
                     ),
                   ),
                 )
@@ -132,11 +167,17 @@ class ClubInfoBottomSheet extends StatelessWidget {
             SizedBox(height: screenHeight*0.01,),
 
             // Event Card
-            GestureDetector(
-              child: EventCard(clubMeEvent: clubMeEvent),
+            noEventAvailable ?
+            SizedBox(
+              height: screenHeight*0.18,
+              child: const Center(
+                child: Text("Derzeit kein Event geplant!"),
+              ),
+            ):GestureDetector(
+              child: EventCard(clubMeEvent: clubMeEvent!),
               onTap: (){
-                stateProvider.setCurrentEvent(clubMeEvent);
-                context.go("/event_details");
+                stateProvider.setCurrentEvent(clubMeEvent!);
+                context.push("/event_details");
               },
             ),
 
@@ -149,7 +190,7 @@ class ClubInfoBottomSheet extends StatelessWidget {
                   left: screenWidth*0.05
               ),
               child: Row(
-                // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
 
                   // Info, Like, Share
@@ -186,13 +227,13 @@ class ClubInfoBottomSheet extends StatelessWidget {
                               ),
                               child: Icon(
                                 Icons.info_outline,
-                                color: Colors.purpleAccent,
+                                color: stateProvider.getPrimeColor(),
                                 size: screenWidth*iconWidthFactor,
                               ),
                             ),
 
 
-                            SizedBox(width: 15,),
+                            const SizedBox(width: 15,),
 
                             Container(
                               padding: const EdgeInsets.all(
@@ -206,12 +247,12 @@ class ClubInfoBottomSheet extends StatelessWidget {
                               ),
                               child: Icon(
                                 Icons.star_border,
-                                color: Colors.purpleAccent,
+                                color: stateProvider.getPrimeColor(),
                                 size: screenWidth*iconWidthFactor,
                               ),
                             ),
 
-                            SizedBox(width: 15,),
+                            const SizedBox(width: 15,),
 
                             Container(
                               padding: const EdgeInsets.all(
@@ -225,7 +266,7 @@ class ClubInfoBottomSheet extends StatelessWidget {
                               ),
                               child: Icon(
                                 Icons.share,
-                                color: Colors.purpleAccent,
+                                color: stateProvider.getPrimeColor(),
                                 size: screenWidth*iconWidthFactor,
                               ),
                             ),
@@ -235,22 +276,17 @@ class ClubInfoBottomSheet extends StatelessWidget {
                     ),
                   ),
 
-                  // Spacer
-                  SizedBox(
-                    width: screenWidth*0.01,
-                  ),
-
                   // Icon Row
                   Padding(
-                    padding: EdgeInsets.only(right: 10),
+                    padding: const EdgeInsets.only(right: 10),
                     child: Align(
                       alignment: Alignment.bottomRight,
                       child: Container(
-                        width: screenWidth*0.55,
-                        height: screenHeight*0.055,
+                        // width: screenWidth*0.55,
+                        // height: screenHeight*0.055,
                         padding: EdgeInsets.symmetric(
-                            horizontal: screenWidth*0.02,
-                            vertical: screenHeight*0.005
+                            horizontal: screenWidth*0.03,
+                            vertical: screenHeight*0.012
                         ),
 
                         decoration: const BoxDecoration(
@@ -262,8 +298,10 @@ class ClubInfoBottomSheet extends StatelessWidget {
                         child: Row(
                           children: [
 
-                            SizedBox(width: 5,),
+                            // Spacer
+                            const SizedBox(width: 5,),
 
+                            // Icon distance
                             Container(
                               padding: const EdgeInsets.all(
                                   4
@@ -276,23 +314,24 @@ class ClubInfoBottomSheet extends StatelessWidget {
                               ),
                               child:  Icon(
                                 Icons.route,
-                                color: Colors.purpleAccent,
+                                color: stateProvider.getPrimeColor(),
                                 size: screenWidth*iconWidthFactor,
                               ),
                             ),
 
-                            SizedBox(width: 5,),
-
-                            const Text(
-                              "1.2",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14
-                              ),
-                            ),
-
+                            // Spacer
                             const SizedBox(width: 5,),
 
+                            // Text distance
+                            Text(
+                              calculateDistanceToClub().toString(),
+                              style: customTextStyle.size5BoldGrey(),
+                            ),
+
+                            // Spacer
+                            const SizedBox(width: 5,),
+
+                            // Icon genre
                             Container(
                               padding: const EdgeInsets.all(
                                   4
@@ -305,48 +344,18 @@ class ClubInfoBottomSheet extends StatelessWidget {
                               ),
                               child:  Icon(
                                 Icons.library_music_outlined,
-                                color: Colors.purpleAccent,
+                                color: stateProvider.getPrimeColor(),
                                 size: screenWidth*iconWidthFactor,
                               ),
                             ),
 
-                            SizedBox(width: 5,),
+                            // Spacer
+                            const SizedBox(width: 5,),
 
-                            const Text(
-                              "Techno",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14
-                              ),
-                            ),
-
-                            SizedBox(width: 5,),
-
-                            Container(
-                              padding: const EdgeInsets.all(
-                                  4
-                              ),
-                              decoration: const BoxDecoration(
-                                color: Colors.black,
-                                borderRadius: BorderRadius.all(
-                                    Radius.circular(45)
-                                ),
-                              ),
-                              child: Icon(
-                                Icons.people_alt_outlined,
-                                color: Colors.purpleAccent,
-                                size: screenWidth*iconWidthFactor,
-                              ),
-                            ),
-
-                            SizedBox(width: 5,),
-
-                            const Text(
-                              "64",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14
-                              ),
+                            // Text Genre
+                            Text(
+                              getAndFormatMusicGenre(),
+                              style: customTextStyle.size5BoldGrey(),
                             ),
                           ],
                         ),
