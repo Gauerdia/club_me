@@ -400,9 +400,11 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
                             selectedFirstElement = index;
                           });
                         },
-                        children: List<Widget>.generate(60, (index){
+                        children: List<Widget>.generate(24, (index){
                           return Center(
                             child: Text(
+                              index < 10 ?
+                              "0${index.toString()}" :
                               index.toString(),
                               style: const TextStyle(
                                   fontSize: 24
@@ -431,6 +433,8 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
                         children: List<Widget>.generate(4, (index){
                           return Center(
                             child: Text(
+                              index == 0 ?
+                              "00" :
                               (index*15).toString(),
                               style: const TextStyle(
                                   fontSize: 24
@@ -960,9 +964,11 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
                                     selectedFirstElement = index;
                                   });
                                 },
-                                children: List<Widget>.generate(60, (index){
+                                children: List<Widget>.generate(24, (index){
                                   return Center(
                                     child: Text(
+                                      index < 10 ?
+                                      "0${index.toString()}" :
                                       index.toString(),
                                       style: const TextStyle(
                                           fontSize: 24
@@ -991,6 +997,8 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
                                 children: List<Widget>.generate(4, (index){
                                   return Center(
                                     child: Text(
+                                      index == 0 ?
+                                      "00" :
                                       (index*15).toString(),
                                       style: const TextStyle(
                                           fontSize: 24

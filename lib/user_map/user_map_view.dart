@@ -92,6 +92,7 @@ class _UserMapViewState extends State<UserMapView> {
                   Marker(
                       point: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng()),
                       width: 50,
+                      rotate: true,
                       height: 50,
                       child: GestureDetector(
                         child: const Image(

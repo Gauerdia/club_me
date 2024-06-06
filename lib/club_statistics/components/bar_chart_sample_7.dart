@@ -48,7 +48,7 @@ class _BarChartSample7State extends State<BarChartSample7> {
 
 
   List<String> testValues = [
-    "<1 [km]", "1-3 [km]", "3-5[km]", "5-7[km]", ">7[km]"
+    "<1", "1-3", "3-5", "5-7", ">7"
   ];
 
   @override

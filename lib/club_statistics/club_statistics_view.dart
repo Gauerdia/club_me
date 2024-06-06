@@ -985,10 +985,10 @@ class _ClubStatisticsViewState extends State<ClubStatisticsView> {
                             top: screenHeight*0.01
                         ),
                         child: const Text(
-                          "Besucher: Entfernungen",
+                          "Besucher: Entfernungen (in km)",
                           textAlign: TextAlign.left,
                           style: TextStyle(
-                              fontSize: 24
+                              fontSize: 22
                           ),
                         ),
                       ),

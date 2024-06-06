@@ -322,6 +322,39 @@ CustomTransitionPage buildPageWithDefaultTransition<T>({
 }
 
 
+Future<bool> _onWillPop(BuildContext context) async {
+  bool? exitResult = await showDialog(
+    context: context,
+    builder: (context) => _buildExitDialog(context),
+  );
+  return exitResult ?? false;
+}
+
+Future<bool?> _showExitDialog(BuildContext context) async {
+  return await showDialog(
+    context: context,
+    builder: (context) => _buildExitDialog(context),
+  );
+}
+
+AlertDialog _buildExitDialog(BuildContext context) {
+  return AlertDialog(
+    title: const Text('Bitte bestätigen'),
+    content: const Text('Möchtest du die App schließen?'),
+    actions: <Widget>[
+      TextButton(
+        onPressed: () => Navigator.of(context).pop(false),
+        child: Text('No'),
+      ),
+      TextButton(
+        onPressed: () => Navigator.of(context).pop(true),
+        child: Text('Yes'),
+      ),
+    ],
+  );
+}
+
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -360,7 +393,7 @@ class MyApp extends StatelessWidget {
               displaySmall: GoogleFonts.pacifico()
           ),
         ),
-      )
+      ),
     );
   }
 }

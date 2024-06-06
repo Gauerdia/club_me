@@ -46,22 +46,27 @@ class _ShowStoryState extends State<ShowStory> {
 
   void fetchVideo() async {
 
-    Uint8List? videoFile = await _supabaseService.getVideo(widget.storyUUID);
+    try{
+      Uint8List? videoFile = await _supabaseService.getVideo(widget.storyUUID);
 
-    io.Directory tempDir = await getTemporaryDirectory();
-    String tempPath = tempDir.path;
-    var filePath = '$tempPath/file_01.tmp';
+      io.Directory tempDir = await getTemporaryDirectory();
+      String tempPath = tempDir.path;
+      var filePath = '$tempPath/file_01.tmp';
 
-    io.File test = await io.File(filePath).writeAsBytes(videoFile!);
+      io.File test = await io.File(filePath).writeAsBytes(videoFile!);
 
-    _controller = VideoPlayerController.file(test);
+      _controller = VideoPlayerController.file(test);
 
-    _initializeControllerFuture = _controller.initialize();
-    _controller.setLooping(true);
+      _initializeControllerFuture = _controller.initialize();
+      _controller.setLooping(true);
 
-    setState(() {
-      readyToDisplay = true;
-    });
+      setState(() {
+        readyToDisplay = true;
+      });
+    }catch(e){
+      print(e);
+      _supabaseService.createErrorLog(e.toString());
+    }
   }
 
 
