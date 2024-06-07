@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'package:club_me/main.dart';
+import 'package:club_me/models/club_me_user_data.dart';
 import 'package:club_me/models/event.dart';
 import 'package:club_me/models/price_list.dart';
 import 'package:club_me/provider/state_provider.dart';
@@ -32,14 +33,14 @@ class SupabaseService{
     }
   }
 
-  Future<PostgrestList> getEventsOfSpecificClub(StateProvider stateProvider) async{
+  Future<PostgrestList> getEventsOfSpecificClub(String clubId) async{
     try{
       return await supabase
           .from('club_me_events')
           .select()
           .match({
-        'club_id': stateProvider.getClubId()
-      });
+            'club_id': clubId
+          });
     }catch(e){
       log.d("Error in getEventsOfSpecificClub: $e");
       createErrorLog(e.toString());
@@ -139,6 +140,23 @@ class SupabaseService{
   }
 
   // CLUBS
+
+  Future<PostgrestList> checkIfClubPwIsLegit(String pw) async {
+    try{
+      var data = await supabase
+          .from('club_passwords')
+          .select()
+          .match({
+            'password':pw
+          });
+      log.d("checkIfClubPwIsLegit: Finished successfully. Response: $data");
+      return data;
+    }catch(e){
+      log.d("Error in checkIfClubPwIsLegit: $e");
+      createErrorLog(e.toString());
+      return [];
+    }
+  }
 
   Future<PostgrestList> getAllClubs() async{
     try{
@@ -332,14 +350,14 @@ class SupabaseService{
     }
   }
 
-  Future<PostgrestList> getDiscountsOfSpecificClub(StateProvider stateProvider) async{
+  Future<PostgrestList> getDiscountsOfSpecificClub(String clubId) async{
     try{
       var data = await supabase
           .from('club_me_discounts')
           .select()
           .match({
-        'club_id' : stateProvider.getClubId()
-      });
+            'club_id' : clubId
+          });
       log.d("getDiscountsOfSpecificClub: Finished successfully. Response: $data");
       return data;
     }catch(e){
@@ -389,6 +407,30 @@ class SupabaseService{
     }catch(e){
       log.d("Error in updateCompleteDiscount: $e");
       createErrorLog(e.toString());
+    }
+  }
+
+  // USERS
+
+  Future<int> insertUserDate(ClubMeUserData userData) async{
+
+    try{
+      var data = await supabase
+          .from('club_me_users')
+          .insert({
+        'first_name': userData.getFirstName(),
+        'last_name': userData.getLastName(),
+        'e_mail': userData.getEMail(),
+        'gender': userData.getGender(),
+        'birth_date': userData.getBirthDate().toString(),
+        'user_id': userData.getUserId()
+      }).select();
+      log.d("insertUserDate: Finished successfully. Response: $data");
+      return 0;
+    }catch(e){
+      log.d("Error in insertUserDate: $e");
+      createErrorLog(e.toString());
+      return 1;
     }
   }
 

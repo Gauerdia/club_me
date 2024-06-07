@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../models/parser/club_me_event_parser.dart';
 import '../provider/state_provider.dart';
+import '../services/hive_service.dart';
 import '../services/supabase_service.dart';
 import '../shared/custom_text_style.dart';
 import 'components/small_event_tile.dart';
@@ -24,6 +25,7 @@ class _ClubEventsViewState extends State<ClubEventsView> {
 
   late Future getEvents;
 
+  final HiveService _hiveService = HiveService();
   final SupabaseService _supabaseService = SupabaseService();
 
   late CustomTextStyle customTextStyle;
@@ -43,7 +45,8 @@ class _ClubEventsViewState extends State<ClubEventsView> {
     super.initState();
     final stateProvider = Provider.of<StateProvider>(context, listen:  false);
     if(stateProvider.getFetchedEvents().isEmpty){
-      getEvents = _supabaseService.getEventsOfSpecificClub(stateProvider);
+
+      getEvents = _supabaseService.getEventsOfSpecificClub(stateProvider.getUserData().getUserId());
     }
   }
 

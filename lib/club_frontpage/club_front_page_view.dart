@@ -1,3 +1,4 @@
+import 'package:club_me/models/parser/club_me_club_parser.dart';
 import 'package:club_me/shared/map_utils.dart';
 import 'package:club_me/shared/show_story.dart';
 import 'package:flutter/material.dart';
@@ -33,9 +34,11 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
   List<String> mehrPhotosButtonString = ["Mehr Fotos!", "Explore more photos"];
   List<String> findOnMapsButtonString = ["Finde uns auf Maps!", "Find us on maps!"];
 
+  bool isLoading = false;
   bool showVideoIsActive = false;
   double moreButtonWidthFactor = 0.04;
 
+  late Future getClub;
   late Future getEvents;
   late StateProvider stateProvider;
   late CustomTextStyle customTextStyle;
@@ -50,7 +53,13 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
   void initState() {
     super.initState();
     final stateProvider = Provider.of<StateProvider>(context, listen:  false);
-    getEvents = _supabaseService.getEventsOfSpecificClub(stateProvider);
+
+    getClub = _supabaseService.getSpecificClub(stateProvider.getUserData().getUserId()).then(
+            (value) => stateProvider.setUserClub(parseClubMeClub(value[0])));
+
+    if(stateProvider.getFetchedEvents().isEmpty){
+      getEvents = _supabaseService.getEventsOfSpecificClub(stateProvider.getUserData().getUserId());
+    }
   }
 
   @override
@@ -419,7 +428,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
       double screenHeight, double screenWidth
       ){
 
-    return stateProvider.getFetchedEvents().isEmpty ?
+    return stateProvider.getFetchedEvents().isEmpty || stateProvider.userClub == null ?
     FutureBuilder(
         future: getEvents,
         builder: (context, snapshot){
@@ -1243,9 +1252,31 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
           backgroundColor: Colors.transparent,
           title: SizedBox(
             width: screenWidth,
-            child: Text(headLine,
-              textAlign: TextAlign.center,
-              style: customTextStyle.size2()
+            child: Stack(
+              children: [
+                Container(
+                  width: screenWidth,
+                  padding: EdgeInsets.only(
+                    top: screenHeight*0.01
+                  ),
+                  child: Center(
+                    child: Text(headLine,
+                        textAlign: TextAlign.center,
+                        style: customTextStyle.size2()
+                    ),
+                  ),
+                ),
+                Container(
+                  width: screenWidth,
+                  alignment: Alignment.centerRight,
+                  child: IconButton(
+                    icon: Icon(
+                        Icons.settings
+                    ),
+                    onPressed: () => context.push("/settings"),
+                  ),
+                )
+              ],
             ),
           )
         ),

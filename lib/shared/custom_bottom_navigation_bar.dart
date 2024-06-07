@@ -125,6 +125,27 @@ class CustomBottomNavigationBar extends StatelessWidget {
                         context.go('/user_coupons');
                       },
                     ),
+
+                    GestureDetector(
+                      child: AnimatedContainer(
+                        duration: colorTransitionDuration,
+                        padding: const EdgeInsets.all(3),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: stateProvider.pageIndex == 4 ? iconBackgroundColor : Colors.transparent
+                        ),
+                        child: Icon(
+                          Icons.person,
+                          color: Colors.white,
+                          size: customTextStyle.getIconSize1(),
+                        ),
+                      ),
+                      onTap: (){
+                        stateProvider.setPageIndex(4);
+                        context.go('/user_profile');
+                      },
+                    ),
+
                   ],
                 ),
               ),

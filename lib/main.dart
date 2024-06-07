@@ -11,7 +11,11 @@ import 'package:club_me/club_frontpage/components/update_contact_view.dart';
 import 'package:club_me/club_frontpage/components/update_news_view.dart';
 import 'package:club_me/club_statistics/club_statistics_view.dart';
 import 'package:club_me/log_in/log_in_view.dart';
+import 'package:club_me/models/club_me_user_data.dart';
+import 'package:club_me/profile/profile_view.dart';
 import 'package:club_me/provider/state_provider.dart';
+import 'package:club_me/register/register_view.dart';
+import 'package:club_me/settings/settings_view.dart';
 import 'package:club_me/shared/detail_pages/club_detail_view.dart';
 import 'package:club_me/shared/detail_pages/discount_active_view.dart';
 import 'package:club_me/shared/detail_pages/discount_detail_view.dart';
@@ -46,6 +50,7 @@ Future<void> main() async {
 
   // Set up Hive
   await Hive.initFlutter((await getApplicationDocumentsDirectory()).path);
+  Hive.registerAdapter(ClubMeUserDataAdapter());
 
   // Used to make sure that coupons and user timezones match
   tz.initializeTimeZones();
@@ -84,6 +89,16 @@ final GoRouter _router = GoRouter(
       builder: (BuildContext context, GoRouterState state) {
         return LogInView();
       },
+    ),
+
+    GoRoute(
+      path: '/user_profile',
+      builder: (context, state) => const ProfileView(),
+    ),
+
+    GoRoute(
+      path: '/log_in',
+      builder: (context, state) => const LogInView(),
     ),
 
     // USER VIEWS
@@ -304,6 +319,17 @@ final GoRouter _router = GoRouter(
         path: '/video_recording',
         builder: (context, state) => const VideoRecorderScreen()
     ),
+
+    GoRoute(
+        path: '/register',
+        builder: (context, state) => const RegisterView()
+    ),
+
+    GoRoute(
+        path: '/settings',
+        builder: (context, state) => const SettingsView()
+    ),
+
   ],
 );
 

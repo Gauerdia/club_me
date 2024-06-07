@@ -6,6 +6,8 @@
 Icon
 - flutter pub run flutter_launcher_icons:main
 
+Hive
+- flutter packages pub run build_runner build
 
 
     DateTime eventDateRaw = clubMeEvent.getEventDate();

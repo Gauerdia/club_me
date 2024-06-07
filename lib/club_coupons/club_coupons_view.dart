@@ -41,7 +41,7 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
     super.initState();
     final stateProvider = Provider.of<StateProvider>(context, listen:  false);
     if(stateProvider.getFetchedDiscounts().isEmpty) {
-      getDiscounts = _supabaseService.getDiscountsOfSpecificClub(stateProvider);
+      getDiscounts = _supabaseService.getDiscountsOfSpecificClub(stateProvider.getUserData().getUserId());
     }
   }
 

@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:camera/camera.dart';
 import 'package:club_me/models/club.dart';
+import 'package:club_me/models/club_me_user_data.dart';
 import 'package:club_me/models/discount.dart';
 import 'package:club_me/models/event.dart';
 import 'package:flutter/cupertino.dart';
@@ -13,13 +14,13 @@ class StateProvider extends ChangeNotifier{
   StateProvider({required this.camera});
 
   ClubMeClub userClub = ClubMeClub(
-      clubId: "1111",
+      clubId: "....",
       clubName: "MyClub",
       news: "ewfwfew fwef wefwf wefefw",
       priceList: {"" : ""},
       musicGenres: "musicGenres",
       storyId: "",
-      bannerId: "",
+      bannerId: "img_2.png",
       eventBannerId: "img_2.png",
       photoPaths: {"" : ""},
       geoCoordLat: 10,
@@ -33,69 +34,15 @@ class StateProvider extends ChangeNotifier{
       backgroundColorId: 0
   );
 
-  // Fontsizefactors bezogen auf height
-
-  // Größe 14
-  double fontSizeFactor1 = 0.03;
-  // 12
-  double fontSizeFactor2 = 0.027;
-  // 11
-  double fontSizeFactor3 = 0.024;
-  // 10
-  double fontSizeFactor4 = 0.021;
-  // 9
-  double fontSizeFactor5 = 0.018;
-  // 8
-  double fontSizeFactor6 = 0.015;
-
-  double iconSizeFactor = 0.035;
-  double iconSizeFactor2 = 0.02;
-  double iconSizeFactor3 = 0.012;
-
-  double numberFieldFontSizeFactor = 0.05;
-
-  double dropDownItemHeightFactor = 0.08;
-
-  double getNumberFieldFontSizeFactor(){
-    return numberFieldFontSizeFactor;
-  }
-
-  double getDropDownItemHeightFactor(){
-    return dropDownItemHeightFactor;
-  }
-
-
-  double getIconSizeFactor(){
-    return iconSizeFactor;
-  }
-  double getIconSizeFactor2(){
-    return iconSizeFactor2;
-  }
-  double getIconSizeFactor3(){
-    return iconSizeFactor3;
-  }
-
-
-
-  double getFontSizeFactor1(){
-    return fontSizeFactor1;
-  }
-  double getFontSizeFactor2(){
-    return fontSizeFactor2;
-  }
-  double getFontSizeFactor3(){
-    return fontSizeFactor3;
-  }
-  double getFontSizeFactor4(){
-    return fontSizeFactor4;
-  }
-  double getFontSizeFactor5(){
-    return fontSizeFactor5;
-  }
-  double getFontSizeFactor6(){
-    return fontSizeFactor6;
-  }
-
+  ClubMeUserData userData = ClubMeUserData(
+      firstName: "Max",
+      lastName: "Mustermann",
+      birthDate: DateTime.now(),
+      eMail: "max@mustermann.de",
+      gender: 1,
+      userId: "000000",
+      profileType: 0
+  );
 
   final CameraDescription camera;
   String videoPath = "";
@@ -133,7 +80,6 @@ class StateProvider extends ChangeNotifier{
   bool get clubEventViewNewActive => _clubEventViewNewActive;
   bool get wentFromClubDetailToEventDetail => _wentFromClubDetailToEventDetail;
 
-
   bool eventIsEditable = false;
   bool reviewingANewEvent = false;
   bool isCurrentlyOnlyUpdatingAnEvent = false;
@@ -163,7 +109,99 @@ class StateProvider extends ChangeNotifier{
     // print("Distance:${Geolocator.distanceBetween(latCoord, longCoord, 48.7762112372841, 9.1740412843159)}");
   }
 
+
+  // Unified text styles
+  /// TODO: Check if still necessary. CustomTextStyle is the wiser choice.
+
+  // Fontsizefactors bezogen auf height
+
+  // Größe 14
+  double fontSizeFactor1 = 0.03;
+  // 12
+  double fontSizeFactor2 = 0.027;
+  // 11
+  double fontSizeFactor3 = 0.024;
+  // 10
+  double fontSizeFactor4 = 0.021;
+  // 9
+  double fontSizeFactor5 = 0.018;
+  // 8
+  double fontSizeFactor6 = 0.015;
+
+  double iconSizeFactor = 0.035;
+  double iconSizeFactor2 = 0.02;
+  double iconSizeFactor3 = 0.012;
+
+  double numberFieldFontSizeFactor = 0.05;
+
+  double dropDownItemHeightFactor = 0.08;
+
+  double getNumberFieldFontSizeFactor(){
+    return numberFieldFontSizeFactor;
+  }
+  double getDropDownItemHeightFactor(){
+    return dropDownItemHeightFactor;
+  }
+  double getIconSizeFactor(){
+    return iconSizeFactor;
+  }
+  double getIconSizeFactor2(){
+    return iconSizeFactor2;
+  }
+  double getIconSizeFactor3(){
+    return iconSizeFactor3;
+  }
+  double getFontSizeFactor1(){
+    return fontSizeFactor1;
+  }
+  double getFontSizeFactor2(){
+    return fontSizeFactor2;
+  }
+  double getFontSizeFactor3(){
+    return fontSizeFactor3;
+  }
+  double getFontSizeFactor4(){
+    return fontSizeFactor4;
+  }
+  double getFontSizeFactor5(){
+    return fontSizeFactor5;
+  }
+  double getFontSizeFactor6(){
+    return fontSizeFactor6;
+  }
+
+
+  // UserData
+
+  void setUserData(ClubMeUserData clubMeUserData){
+    userData = clubMeUserData;
+  }
+  ClubMeUserData getUserData(){
+    return userData;
+  }
+
   // Events
+
+  List<String> getLikedEvents(){
+    return likedEvents;
+  }
+
+  List<String> getAttendingEvents(){
+    return attendingEvents;
+  }
+
+  List<ClubMeEvent> getFetchedEvents(){
+    return fetchedEvents;
+  }
+
+  void setFetchedEvents(List<ClubMeEvent> fetchedEvents){
+    this.fetchedEvents = fetchedEvents;
+  }
+
+  void addEventToFetchedEvents(ClubMeEvent clubMeEvent){
+    fetchedEvents.add(clubMeEvent);
+    sortFetchedEvents();
+  }
 
   void updateCurrentEvent(int index, String newValue){
     switch(index){
@@ -205,8 +243,109 @@ class StateProvider extends ChangeNotifier{
     notifyListeners();
   }
 
+  void sortFetchedEvents(){
+    for(var e in fetchedEvents){
+      var date = e.getEventDate();
+      // print("Vorher: $date");
+    }
+    fetchedEvents.sort((a,b) =>
+        a.getEventDate().millisecondsSinceEpoch.compareTo(b.getEventDate().millisecondsSinceEpoch)
+    );
+    for(var e in fetchedEvents){
+      var date = e.getEventDate();
+      // print("Nachher: $date");
+    }
+  }
+
+  void toggleReviewingANewEvent(){
+    reviewingANewEvent = !reviewingANewEvent;
+  }
+
+  void resetReviewingANewEvent(){
+    reviewingANewEvent = false;
+  }
+
+  bool getReviewingANewEvent(){
+    return reviewingANewEvent;
+  }
+
+  setCurrentEvent(ClubMeEvent clubMeEvent){
+    try{
+      _currentEvent = clubMeEvent;
+      print("setCurrentEvent successful");
+    }catch(e){
+      print("Error in setCurrentEvent: $e");
+    }
+  }
+
+  bool checkIfAttendingEvent(String eventId){
+
+    return attendingEvents.contains(eventId);
+  }
+
+  bool checkIfCurrentEventIsAlreadyLiked(){
+    return likedEvents.contains(_currentEvent.getEventId());
+  }
+
+  void setLikedEvents(List<String> likedEvents){
+    this.likedEvents = likedEvents;
+    notifyListeners();
+  }
+
+  void addLikedEvent(String eventId){
+    likedEvents.add(eventId);
+    notifyListeners();
+  }
+
+  void deleteLikedEvent(String eventId){
+    likedEvents.remove(eventId);
+    notifyListeners();
+  }
 
   // Club
+
+  setCurrentClub(ClubMeClub clubMeClub){
+    _currentClub = clubMeClub;
+  }
+
+  void toggleClubUIActive(){
+    _clubUIActive = !_clubUIActive;
+    notifyListeners();
+  }
+
+  List<String> getLikedClubs(){
+    return likedClubs;
+  }
+
+  bool checkIfClubIsAlreadyLiked(String clubId){
+    return likedClubs.contains(clubId);
+  }
+
+  bool checkIfCurrentCLubIsAlreadyLiked(){
+    return likedClubs.contains(_currentClub.getClubId());
+  }
+
+  bool checkIfSpecificCLubIsAlreadyLiked(String clubId){
+    return likedClubs.contains(clubId);
+  }
+
+  void addLikedClub(String clubId){
+    likedClubs.add(clubId);
+    notifyListeners();
+  }
+
+  void deleteLikedClub(String clubId){
+    likedClubs.remove(clubId);
+    notifyListeners();
+  }
+
+
+  List<ClubMeClub> getFetchedClubs(){
+    return fetchedClubs;
+  }
+  void setFetchedClubs(List<ClubMeClub> fetchedClubs){
+    this.fetchedClubs = fetchedClubs;
+  }
 
   String getUserClubWebsiteLink(){
     return userClub.getWebsiteLink();
@@ -257,38 +396,6 @@ class StateProvider extends ChangeNotifier{
     notifyListeners();
   }
 
-  void sortFetchedEvents(){
-    for(var e in fetchedEvents){
-      var date = e.getEventDate();
-      // print("Vorher: $date");
-    }
-    fetchedEvents.sort((a,b) =>
-     a.getEventDate().millisecondsSinceEpoch.compareTo(b.getEventDate().millisecondsSinceEpoch)
-    );
-    for(var e in fetchedEvents){
-      var date = e.getEventDate();
-      // print("Nachher: $date");
-    }
-  }
-
-  void sortFetchedDiscounts(){
-    fetchedDiscounts.sort((a,b) =>
-        a.getDiscountDate().millisecondsSinceEpoch.compareTo(b.getDiscountDate().millisecondsSinceEpoch)
-    );
-  }
-
-  void toggleReviewingANewEvent(){
-    reviewingANewEvent = !reviewingANewEvent;
-  }
-
-  void resetReviewingANewEvent(){
-    reviewingANewEvent = false;
-  }
-
-  bool getReviewingANewEvent(){
-    return reviewingANewEvent;
-  }
-
   String getUserClubNews(){
     return userClub.getNews();
   }
@@ -304,6 +411,7 @@ class StateProvider extends ChangeNotifier{
   double getClubCoordLat(){
     return userClub.getGeoCoordLat();
   }
+
   double getClubCoordLng(){
     return userClub.getGeoCoordLng();
   }
@@ -335,12 +443,20 @@ class StateProvider extends ChangeNotifier{
     return userClub.getClubId();
   }
 
-  String getVideoPath(){
-    return videoPath;
+  void addClubToFetchedClubs(ClubMeClub clubMeClub){
+    fetchedClubs.add(clubMeClub);
   }
 
-  CameraDescription getCamera(){
-    return camera;
+  // Discounts
+
+  setCurrentDiscount(ClubMeDiscount clubMeDiscount){
+    _currentDiscount = clubMeDiscount;
+  }
+
+  void sortFetchedDiscounts(){
+    fetchedDiscounts.sort((a,b) =>
+        a.getDiscountDate().millisecondsSinceEpoch.compareTo(b.getDiscountDate().millisecondsSinceEpoch)
+    );
   }
 
   List<ClubMeDiscount> getFetchedDiscounts(){
@@ -351,85 +467,17 @@ class StateProvider extends ChangeNotifier{
     this.fetchedDiscounts = fetchedDiscounts;
   }
 
-  List<ClubMeClub> getFetchedClubs(){
-    return fetchedClubs;
-  }
-  void setFetchedClubs(List<ClubMeClub> fetchedClubs){
-    this.fetchedClubs = fetchedClubs;
-  }
-
-  List<ClubMeEvent> getFetchedEvents(){
-    return fetchedEvents;
-  }
-  void setFetchedEvents(List<ClubMeEvent> fetchedEvents){
-    this.fetchedEvents = fetchedEvents;
-  }
-
-  void addEventToFetchedEvents(ClubMeEvent clubMeEvent){
-    fetchedEvents.add(clubMeEvent);
-    sortFetchedEvents();
-  }
-  void addClubToFetchedClubs(ClubMeClub clubMeClub){
-    fetchedClubs.add(clubMeClub);
-  }
   void addDiscountToFetchedDiscounts(ClubMeDiscount clubMeDiscount){
     fetchedDiscounts.add(clubMeDiscount);
     sortFetchedDiscounts();
-  }
-
-  List<String> getAttendingEvents(){
-    return attendingEvents;
   }
 
   List<String> getLikedDiscounts(){
     return likedDiscounts;
   }
 
-  List<String> getLikedEvents(){
-    return likedEvents;
-  }
-  List<String> getLikedClubs(){
-    return likedClubs;
-  }
-
-  bool checkIfAttendingEvent(String eventId){
-
-    return attendingEvents.contains(eventId);
-  }
-
-  bool checkIfClubIsAlreadyLiked(String clubId){
-    return likedClubs.contains(clubId);
-  }
-
-  bool checkIfCurrentCLubIsAlreadyLiked(){
-    return likedClubs.contains(_currentClub.getClubId());
-  }
-
-  bool checkIfSpecificCLubIsAlreadyLiked(String clubId){
-    return likedClubs.contains(clubId);
-  }
-
-  bool checkIfCurrentEventIsAlreadyLiked(){
-    return likedEvents.contains(_currentEvent.getEventId());
-  }
-
-  void setLikedEvents(List<String> likedEvents){
-    this.likedEvents = likedEvents;
-    notifyListeners();
-  }
-
   void setLikedDiscounts(List<String> likedDiscounts){
     this.likedDiscounts = likedDiscounts;
-    notifyListeners();
-  }
-
-  void addLikedEvent(String eventId){
-    likedEvents.add(eventId);
-    notifyListeners();
-  }
-
-  void addLikedClub(String clubId){
-    likedClubs.add(clubId);
     notifyListeners();
   }
 
@@ -438,27 +486,24 @@ class StateProvider extends ChangeNotifier{
     notifyListeners();
   }
 
-  void deleteLikedClub(String clubId){
-    likedClubs.remove(clubId);
-    notifyListeners();
-  }
-
-  void deleteLikedEvent(String eventId){
-    likedEvents.remove(eventId);
-    notifyListeners();
-  }
-
   void deleteLikedDiscount(String discountId){
     likedDiscounts.remove(discountId);
     notifyListeners();
   }
 
-  void toggleClubUIActive(){
-    _clubUIActive = !_clubUIActive;
-    notifyListeners();
+
+
+  // MISC
+
+  String getVideoPath(){
+    return videoPath;
   }
 
-   void toggleClubEventViewNewActive(){
+  CameraDescription getCamera(){
+    return camera;
+  }
+
+  void toggleClubEventViewNewActive(){
      _clubEventViewNewActive = !_clubEventViewNewActive;
      notifyListeners();
    }
@@ -467,6 +512,7 @@ class StateProvider extends ChangeNotifier{
      _wentFromClubDetailToEventDetail = true;
      notifyListeners();
    }
+
    void resetWentFromCLubDetailToEventDetail(){
      _wentFromClubDetailToEventDetail = false;
      notifyListeners();
@@ -476,24 +522,6 @@ class StateProvider extends ChangeNotifier{
     _pageIndex = newPageIndex;
     notifyListeners();
   }
-
-  setCurrentEvent(ClubMeEvent clubMeEvent){
-    try{
-      _currentEvent = clubMeEvent;
-      print("setCurrentEvent successful");
-    }catch(e){
-      print("Error in setCurrentEvent: $e");
-    }
-  }
-
-  setCurrentDiscount(ClubMeDiscount clubMeDiscount){
-    _currentDiscount = clubMeDiscount;
-  }
-
-  setCurrentClub(ClubMeClub clubMeClub){
-     _currentClub = clubMeClub;
-  }
-
 
 
 }
