@@ -4,10 +4,12 @@ import 'dart:io' as io;
 
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:video_player/video_player.dart';
 
 import '../services/supabase_service.dart';
+import 'custom_text_style.dart';
 
 class ShowStoryChewie extends StatefulWidget {
   ShowStoryChewie({Key? key, required this.storyUUID}) : super(key: key);
@@ -22,6 +24,8 @@ class _ShowStoryChewieState extends State<ShowStoryChewie> {
 
   ChewieController? _chewieController;
   late VideoPlayerController _controller;
+
+  late CustomTextStyle customTextStyle;
 
   final SupabaseService _supabaseService = SupabaseService();
 
@@ -56,17 +60,16 @@ class _ShowStoryChewieState extends State<ShowStoryChewie> {
 
       file = await io.File(filePath).writeAsBytes(videoFile!);
 
-    }catch(e){
-      print(e);
-      _supabaseService.createErrorLog("Error in fetchVideo: ${e.toString()}");
-    }
-
       _controller = VideoPlayerController.file(file);
       await _controller.initialize();
       setState((){
         _createChewieController();
       });
 
+    }catch(e){
+      print(e);
+      _supabaseService.createErrorLog("Error in fetchVideo: ${e.toString()}");
+    }
   }
 
   _createChewieController() {
@@ -81,25 +84,100 @@ class _ShowStoryChewieState extends State<ShowStoryChewie> {
   }
 
 
+  void goBackClicked(){
+    print("goBack");
+    Navigator.pop(context);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-        height: MediaQuery.of(context).size.width,
-        width: MediaQuery.of(context).size.width * 1,
-        child: ClipRRect(
-            child: FittedBox(
-                fit: BoxFit.cover,
-                alignment: Alignment.center,
-                child: _chewieController != null &&
-                    _chewieController!
-                        .videoPlayerController.value.isInitialized
-                    ? Chewie(
-                  controller: _chewieController!,
+
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
+    customTextStyle = CustomTextStyle(context: context);
+
+    return Stack(
+      children: [
+        SizedBox(
+          // height: screenHeight*0.9,
+            width: screenWidth,
+            child: ClipRRect(
+                child: FittedBox(
+                    fit: BoxFit.cover,
+                    alignment: Alignment.center,
+                    child: _chewieController != null &&
+                        _chewieController!
+                            .videoPlayerController.value.isInitialized
+                        ? SizedBox(
+                      width: screenWidth,
+                      height: screenHeight,
+                      child: Chewie(
+                        controller: _chewieController!,
+                      ),
+                    )
+                        : Container(
+                      width: screenWidth,
+                      height: screenHeight,
+                      child: const Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    )
                 )
-                    : Container()
             )
+        ),
+        Padding(
+          padding: EdgeInsets.only(
+          top: screenHeight*0.05
+        ),
+          child: IconButton(
+              onPressed: () => goBackClicked(),
+              icon: const Icon(
+                  Icons.arrow_back_ios
+              )
+          ),
         )
+      ],
     );
+
+    // return Scaffold(
+    //     appBar: AppBar(
+    //         title: SizedBox(
+    //           width: screenWidth,
+    //           child: Text(
+    //             'Schau dir die Club-Story an!',
+    //             textAlign: TextAlign.center,
+    //             style: customTextStyle.size1Bold(),
+    //           ),
+    //         )
+    //     ),
+    //   body: SizedBox(
+    //       // height: screenHeight*0.9,
+    //       width: screenWidth,
+    //       child: ClipRRect(
+    //           child: FittedBox(
+    //               fit: BoxFit.cover,
+    //               alignment: Alignment.center,
+    //               child: _chewieController != null &&
+    //                   _chewieController!
+    //                       .videoPlayerController.value.isInitialized
+    //                   ? SizedBox(
+    //                 width: screenWidth,
+    //                 height: screenHeight,
+    //                 child: Chewie(
+    //                   controller: _chewieController!,
+    //                 ),
+    //               )
+    //                   : Container(
+    //                 width: screenWidth,
+    //                 height: screenHeight,
+    //                 child: const Center(
+    //                   child: CircularProgressIndicator(),
+    //                 ),
+    //               )
+    //           )
+    //       )
+    //   )
+    // );
   }
 }
