@@ -53,9 +53,11 @@ class _ShowStoryState extends State<ShowStory> {
       String tempPath = tempDir.path;
       var filePath = '$tempPath/file_01.mp4';
 
+      var raw = io.File.fromRawPath(videoFile);
+
       io.File test = await io.File(filePath).writeAsBytes(videoFile!);
 
-      _controller = VideoPlayerController.file(test);
+      _controller = VideoPlayerController.file(raw);
 
       _initializeControllerFuture = _controller.initialize();
       _controller.setLooping(true);
