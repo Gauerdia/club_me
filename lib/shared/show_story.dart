@@ -63,9 +63,10 @@ class _ShowStoryState extends State<ShowStory> {
       setState(() {
         readyToDisplay = true;
       });
+
     }catch(e){
       print(e);
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("Error in fetchVideo: ${e.toString()}");
     }
   }
 

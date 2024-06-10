@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import '../../models/club.dart';
 import '../../shared/custom_text_style.dart';
 import '../../shared/show_story.dart';
+import '../../shared/show_story_chewie.dart';
 
 class ClubListItem extends StatelessWidget {
   ClubListItem({
@@ -384,7 +385,7 @@ class ClubListItem extends StatelessWidget {
                       if(currentClub.getStoryId().isNotEmpty){
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) => ShowStory(storyUUID: currentClub.getStoryId()),
+                            builder: (context) => ShowStoryChewie(storyUUID: currentClub.getStoryId()),
                           ),
                         );
                       }
