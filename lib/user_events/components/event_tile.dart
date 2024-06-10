@@ -36,7 +36,7 @@ class EventTile extends StatelessWidget {
   String weekDayToDisplay = "";
 
   double topHeight = 170;
-  double bottomHeight = 200;
+  double bottomHeight = 170;
 
   String formatDateToDisplay(){
 
@@ -273,7 +273,7 @@ class EventTile extends StatelessWidget {
                             ),
                             child: Container(
                               // color: Colors.red,
-                              height: 60,
+                              // height: 60,
                               width: screenWidth*0.7,
                               child: Padding(
                                 padding: EdgeInsets.only(
@@ -349,26 +349,35 @@ class EventTile extends StatelessWidget {
                       ),
 
                       // DJ
-                      Container(
-                        // color: Colors.red,
-                        // height: screenHeight*0.04,
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                            // top: 5,
-                              left: screenWidth*0.02
-                          ),
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                                eventDjCut,
-                                style: TextStyle(
-                                    fontSize: 16
-                                )
-                              // style: customTextStyle.size4(),
+                      Row(
+                        children: [
+                          Container(
+                            // color: Colors.red,
+                            // height: screenHeight*0.04,
+                            width: screenWidth*0.6,
+                            child: Padding(
+                              padding: EdgeInsets.only(
+                                // top: 5,
+                                  left: screenWidth*0.02
+                              ),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                    eventDjCut,
+                                    textAlign: TextAlign.left,
+                                    style: TextStyle(
+                                        fontSize: 16
+                                    )
+                                  // style: customTextStyle.size4(),
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                      ),
+                          SizedBox(
+                            width: screenWidth*0.3,
+                          )
+                        ],
+                      )
 
                     ],
                   ),
@@ -479,15 +488,15 @@ class EventTile extends StatelessWidget {
   }
 
   void cropEventTitle(){
-    if(clubMeEvent.getEventTitle().length >= 32){
-      eventTitleCut = "${clubMeEvent.getEventTitle().substring(0, 30)}...";
+    if(clubMeEvent.getEventTitle().length >= 37){
+      eventTitleCut = "${clubMeEvent.getEventTitle().substring(0, 35)}...";
     }else{
       eventTitleCut = clubMeEvent.getEventTitle().substring(0, clubMeEvent.getEventTitle().length);
     }
   }
   void cropDjName(){
-    if(clubMeEvent.getDjName().length >= 22){
-      eventDjCut = "${clubMeEvent.getDjName().substring(0, 21)}...";
+    if(clubMeEvent.getDjName().length >= 42){
+      eventDjCut = "${clubMeEvent.getDjName().substring(0, 45)}...";
     }else{
       eventDjCut = clubMeEvent.getDjName().substring(0, clubMeEvent.getDjName().length);
     }

@@ -300,8 +300,8 @@ class _EventDetailViewState extends State<EventDetailView>{
   String cropEventTitle(){
     String titleToDisplay = "";
 
-    if(stateProvider.clubMeEvent.getEventTitle().length > 32){
-      titleToDisplay = "${stateProvider.clubMeEvent.getEventTitle().substring(0, 31)}...";
+    if(stateProvider.clubMeEvent.getEventTitle().length > 42){
+      titleToDisplay = "${stateProvider.clubMeEvent.getEventTitle().substring(0, 40)}...";
     }else{
       titleToDisplay = stateProvider.clubMeEvent.getEventTitle();
     }
@@ -312,8 +312,8 @@ class _EventDetailViewState extends State<EventDetailView>{
   String cropDjName(){
     String djNameToDisplay = "";
 
-    if(stateProvider.clubMeEvent.getDjName().length > 30){
-      djNameToDisplay = "${stateProvider.clubMeEvent.getDjName().substring(0, 30)}...";
+    if(stateProvider.clubMeEvent.getDjName().length > 42){
+      djNameToDisplay = "${stateProvider.clubMeEvent.getDjName().substring(0, 40)}...";
     }else{
       djNameToDisplay = stateProvider.clubMeEvent.getDjName();
     }
@@ -435,28 +435,61 @@ class _EventDetailViewState extends State<EventDetailView>{
 
                   // Key information
                   Column(
+                    // mainAxisAlignment: MainAxisAlignment.,
                     children: [
 
                       // Title
-                      SizedBox(
-                        height: 60,//screenHeight*0.055,
-                        child: Padding(
-                          padding: const EdgeInsets.only(
-                              top: 10,
-                              left: 10
+                      Row(
+                        children: [
+                          Container(
+                            // height: 60,//screenHeight*0.055,
+                            // color: Colors.red,
+                            alignment: Alignment.centerLeft,
+                            width: screenWidth*0.8,
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                top: 10,
+                                left: 10
+                              ),
+                              child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: GestureDetector(
+                                    child: Text(
+                                      titleToDisplay,
+                                      // textAlign: TextAlign.left,
+                                      style: customTextStyle.size2BoldLightWhite(),
+                                    ),
+                                    onTap: (){
+                                    },
+                                  )
+                              ),
+                            ),
                           ),
-                          child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: GestureDetector(
-                                child: Text(
-                                  titleToDisplay,
-                                  style: customTextStyle.size2BoldLightWhite(),
+                          SizedBox(
+                            width: screenWidth*0.2,
+                            child:                   // Price
+                            Align(
+                              alignment: Alignment.topRight,
+                              child: Padding(
+                                padding: const EdgeInsets.only(
+                                    top: 10,
+                                    right: 15
                                 ),
-                                onTap: (){
-                                },
-                              )
-                          ),
-                        ),
+                                child: Align(
+                                    alignment: Alignment.topRight,
+                                    child: GestureDetector(
+                                      child:Text(
+                                        "${eventPrice.toString().replaceFirst(".", ",")} €",
+                                        style: customTextStyle.size2BoldLightWhite(),
+                                      ),
+                                      onTap: (){
+                                      },
+                                    )
+                                ),
+                              ),
+                            ),
+                          )
+                        ],
                       ),
 
                       // Location
@@ -484,26 +517,31 @@ class _EventDetailViewState extends State<EventDetailView>{
                       ),
 
                       // DJ
-                      Container(
-                        // color: Colors.red,
-                        height: 30.w,//screenHeight*0.035,
-                        child: Padding(
-                          padding: const EdgeInsets.only(
-                              // top: 3,
-                              left: 10
-                          ),
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: GestureDetector(
-                              child: Text(
-                                  djNameToDisplay,
-                                  style: customTextStyle.size4BoldGrey2()
+                      Row(
+                        children: [
+                          Container(
+                            // color: Colors.red,
+                            // height: 30.w,//screenHeight*0.035,
+                            width: screenWidth*0.7,
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                // top: 3,
+                                  left: 10
                               ),
-                              onTap: (){
-                              },
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: GestureDetector(
+                                  child: Text(
+                                      djNameToDisplay,
+                                      style: customTextStyle.size4BoldGrey2()
+                                  ),
+                                  onTap: (){
+                                  },
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
+                          )
+                        ],
                       )
                     ],
                   ),
@@ -526,28 +564,6 @@ class _EventDetailViewState extends State<EventDetailView>{
                           //   showEditDialog(6, stateProvider, screenHeight, screenWidth);
                           // }
                         },
-                      ),
-                    ),
-                  ),
-
-                  // Price
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                          top: 10,
-                          right: 15
-                      ),
-                      child: Align(
-                          alignment: Alignment.topRight,
-                          child: GestureDetector(
-                            child:Text(
-                              "${eventPrice.toString().replaceFirst(".", ",")} €",
-                              style: customTextStyle.size2BoldLightWhite(),
-                            ),
-                            onTap: (){
-                            },
-                          )
                       ),
                     ),
                   ),

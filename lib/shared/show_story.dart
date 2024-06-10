@@ -51,7 +51,7 @@ class _ShowStoryState extends State<ShowStory> {
 
       io.Directory tempDir = await getTemporaryDirectory();
       String tempPath = tempDir.path;
-      var filePath = '$tempPath/file_01.tmp';
+      var filePath = '$tempPath/file_01.mp4';
 
       io.File test = await io.File(filePath).writeAsBytes(videoFile!);
 
