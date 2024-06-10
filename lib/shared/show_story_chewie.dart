@@ -50,13 +50,15 @@ class _ShowStoryChewieState extends State<ShowStoryChewie> {
   Future<void> initializePlayer() async {
 
     late io.File file;
+    late Uint8List? videoFile;
+    late String filePath;
 
     try{
-      Uint8List? videoFile = await _supabaseService.getVideo(widget.storyUUID);
+      videoFile = await _supabaseService.getVideo(widget.storyUUID);
 
       io.Directory tempDir = await getTemporaryDirectory();
       String tempPath = tempDir.path;
-      var filePath = '$tempPath/file_01.tmp';
+      filePath = '$tempPath/file_01.mp4';
 
       file = await io.File(filePath).writeAsBytes(videoFile!);
 
@@ -68,7 +70,18 @@ class _ShowStoryChewieState extends State<ShowStoryChewie> {
 
     }catch(e){
       print(e);
-      _supabaseService.createErrorLog("Error in fetchVideo: ${e.toString()}");
+      _supabaseService.createErrorLog("Error in fetchVideo1: ${e.toString()}");
+      try{
+        var raw = io.File.fromRawPath(videoFile!);
+
+        _controller = VideoPlayerController.file(raw);
+        await _controller.initialize();
+        setState((){
+          _createChewieController();
+        });
+      }catch(e){
+        _supabaseService.createErrorLog("Error in fetchVideo2: ${e.toString()}");
+      }
     }
   }
 
