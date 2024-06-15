@@ -17,33 +17,16 @@ class EventCard extends StatelessWidget {
   }) : super(key: key);
 
   ClubMeEvent clubMeEvent;
-
   late CustomTextStyle customTextStyle;
-
   bool wentFromClubDetailToEventDetail;
+  late String formattedEventTitle, formattedEventGenres, formattedWeekDay;
 
+  String startingHoursFormatted = "";
   List<String> buttonString = ["Erfahre mehr!", "Check it out!"];
 
 
-  String cropGenres(){
-
-    String eventGenresCut = "";
-
-    // Check and crop the music genres
-    if(clubMeEvent.getMusicGenres().length >= 22){
-      eventGenresCut = "${clubMeEvent.getMusicGenres().substring(0, 21)}...";
-    }else{
-      eventGenresCut = clubMeEvent.getMusicGenres().substring(0, clubMeEvent.getMusicGenres().length);
-    }
-
-    if(eventGenresCut.substring(eventGenresCut.length -1) == ","){
-      eventGenresCut = eventGenresCut.substring(0, eventGenresCut.length-1);
-    }
-
-    return eventGenresCut;
-  }
-
-  String formatWeekday(){
+  // FORMAT
+  void formatWeekday(){
 
     String weekdayToDisplay = "";
 
@@ -63,13 +46,28 @@ class EventCard extends StatelessWidget {
         default: weekdayToDisplay = "Montag";
       }
     }else{
-      weekdayToDisplay = "${clubMeEvent.getEventDate().day}.${clubMeEvent.getEventDate().month}.${clubMeEvent.getEventDate().year}";
+
+      String dayToDisplay = "";
+      String monthToDisplay = "";
+
+      if(clubMeEvent.getEventDate().day < 10){
+        dayToDisplay = "0${clubMeEvent.getEventDate().day}";
+      }else{
+        dayToDisplay = clubMeEvent.getEventDate().day.toString();
+      }
+
+      if(clubMeEvent.getEventDate().month < 10){
+        monthToDisplay = "0${clubMeEvent.getEventDate().month}";
+      }else{
+        monthToDisplay = clubMeEvent.getEventDate().month.toString();
+      }
+
+      weekdayToDisplay = "$dayToDisplay.$monthToDisplay.${clubMeEvent.getEventDate().year}";
     }
 
-    return weekdayToDisplay;
+    formattedWeekDay = weekdayToDisplay;
   }
-
-  String cropEventTitle(){
+  void formatEventTitle(){
     String eventTitleCut = "";
 
     // Check and crop the title
@@ -78,9 +76,37 @@ class EventCard extends StatelessWidget {
     }else{
       eventTitleCut = clubMeEvent.getEventTitle().substring(0, clubMeEvent.getEventTitle().length);
     }
-    return eventTitleCut;
+    formattedEventTitle = eventTitleCut;
+  }
+  void formatEventGenres(){
+
+    String eventGenresCut = "";
+
+    // Check and crop the music genres
+    if(clubMeEvent.getMusicGenres().length >= 22){
+      eventGenresCut = "${clubMeEvent.getMusicGenres().substring(0, 21)}...";
+    }else{
+      eventGenresCut = clubMeEvent.getMusicGenres().substring(0, clubMeEvent.getMusicGenres().length);
+    }
+
+    if(eventGenresCut.substring(eventGenresCut.length -1) == ","){
+      eventGenresCut = eventGenresCut.substring(0, eventGenresCut.length-1);
+    }
+
+    formattedEventGenres = eventGenresCut;
+  }
+  void formatStartingHour(){
+
+    var colonPosition = clubMeEvent.getEventStartingHours().indexOf(":");
+
+    if(colonPosition + 2 == clubMeEvent.getEventStartingHours().length){
+      startingHoursFormatted = "${clubMeEvent.getEventStartingHours()}0";
+    }else{
+      startingHoursFormatted = clubMeEvent.getEventStartingHours();
+    }
   }
 
+  // CLICK
   void clickedOnButton(BuildContext context, StateProvider stateProvider){
     stateProvider.setCurrentEvent(clubMeEvent);
     if(wentFromClubDetailToEventDetail)stateProvider.toggleWentFromCLubDetailToEventDetail();
@@ -92,10 +118,10 @@ class EventCard extends StatelessWidget {
 
     customTextStyle = CustomTextStyle(context: context);
 
-    String weekdayToDisplay = formatWeekday();
-
-    String eventTitleCut = cropEventTitle();
-    String eventGenresCut = cropGenres();
+    formatWeekday();
+    formatEventTitle();
+    formatEventGenres();
+    formatStartingHour();
 
     final stateProvider = Provider.of<StateProvider>(context);
 
@@ -103,7 +129,7 @@ class EventCard extends StatelessWidget {
     double screenHeight = MediaQuery.of(context).size.height;
 
     return SizedBox(
-      height: screenHeight*0.18,
+      height: 130,
       child: Column(
         children: [
 
@@ -111,19 +137,23 @@ class EventCard extends StatelessWidget {
           Container(
             width: screenWidth,
             padding: EdgeInsets.only(
-                left: screenWidth*0.02,
+                left: screenWidth*0.05,
                 bottom: screenHeight*0.01
             ),
             child: Text(
-              weekdayToDisplay,
+              formattedWeekDay,
               textAlign: TextAlign.left,
               style: customTextStyle.size5BoldDarkGrey(),
             ),
           ),
 
+          // Main card
           Container(
               width: screenWidth*0.9,
-              height: screenHeight*0.14,
+              padding: const EdgeInsets.only(
+                bottom: 5
+              ),
+              // height: screenHeight*0.14,
               decoration: BoxDecoration(
                 color: Colors.grey[800],
                 borderRadius: const BorderRadius.all(Radius.circular(10)),
@@ -138,24 +168,23 @@ class EventCard extends StatelessWidget {
               child:Stack(
                 children: [
 
+                  // Content column
                   Column(
                     children: [
 
                       // Event Title container
                       Padding(
                         padding: EdgeInsets.only(
-                            left: screenWidth*0.03,
+                          left: screenWidth*0.03,
                           top: screenHeight*0.01
                         ),
-                        child: Container(
-                          // color: Colors.green,
+                        child: SizedBox(
                           width: screenWidth*0.9,
-                          height: screenHeight*0.04,
                           child: Align(
                             alignment: Alignment.topLeft,
                             child: Text(
                               textAlign: TextAlign.start,
-                              eventTitleCut,
+                              formattedEventTitle,
                               style: customTextStyle.size3Bold(),
                             ),
                           ),
@@ -164,34 +193,28 @@ class EventCard extends StatelessWidget {
 
 
                       // eventGenre
-                      Container(
-                        // color: Colors.red,
+                      SizedBox(
                         width: screenWidth,
-                        height: screenHeight*0.04,
                         child: Padding(
                           padding: EdgeInsets.only(
-                              // top: screenHeight*0.045,
-                              left: screenWidth*0.04
+                              left: screenWidth*0.03
                           ),
                           child: Text(
-                            eventGenresCut,
+                            formattedEventGenres,
                             style: customTextStyle.size4(),
                           ),
                         ),
                       ),
 
                       // eventWhen
-                      Container(
-                        // color: Colors.green,
+                      SizedBox(
                         width: screenWidth,
-                        height: screenHeight*0.05,
                         child: Padding(
                           padding: EdgeInsets.only(
-                              // top: screenHeight*0.075,
-                              left: screenWidth*0.04
+                              left: screenWidth*0.03
                           ),
                           child: Text(
-                            clubMeEvent.getEventStartingHours(),
+                            startingHoursFormatted,
                             style: customTextStyle.size5(),
                           ),
                         ),
@@ -200,12 +223,14 @@ class EventCard extends StatelessWidget {
                     ],
                   ),
 
-
                   // Check it out button
                   Padding(
                     padding: const EdgeInsets.only(right: 7, bottom: 7),
-                    child: Align(
+                    child: Container(
+                      height: 80,
+                      // width: screenWidth*0.92,
                       alignment: Alignment.bottomRight,
+                      // color: Colors.red,
                       child: GestureDetector(
                         child: Container(
                           decoration: const BoxDecoration(
@@ -217,13 +242,18 @@ class EventCard extends StatelessWidget {
                           padding: const EdgeInsets.all(10),
                           child: Text(
                             buttonString[0],
-                            style: customTextStyle.size4BoldPrimeColor(),
+                            style: TextStyle(
+                              color: customTextStyle.primeColor,
+                              fontWeight: FontWeight.bold
+                            ),
+                            // style: customTextStyle.size4BoldPrimeColor(),
                           ),
                         ),
                         onTap: () => clickedOnButton(context, stateProvider),
                       ),
-                    ),
+                    )
                   )
+
                 ],
               )
           )

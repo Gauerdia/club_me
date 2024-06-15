@@ -80,37 +80,6 @@ class SupabaseService{
 
   }
 
-  void updateCompleteEvent(StateProvider stateProvider) async{
-
-    try{
-      var data = await supabase
-          .from("club_me_events")
-          .update({
-        "event_id": stateProvider.clubMeEvent.getEventId(),
-        "event_title" : stateProvider.clubMeEvent.getEventTitle(),
-
-        "club_name" : stateProvider.clubMeEvent.getClubName(),
-        "club_id" : stateProvider.clubMeEvent.getClubId(),
-        "dj_name" : stateProvider.clubMeEvent.getDjName(),
-
-        "event_date" : stateProvider.clubMeEvent.getEventDate().toString(),
-        "event_starting_hour": stateProvider.clubMeEvent.getEventStartingHours(),
-        "event_description" : stateProvider.clubMeEvent.getEventDescription(),
-        "event_price" : stateProvider.clubMeEvent.getEventPrice(),
-
-        "banner_id" : stateProvider.clubMeEvent.getBannerId(),
-        "music_genres" : stateProvider.clubMeEvent.getMusicGenres(),
-
-      }).match({
-        'event_id' : stateProvider.clubMeEvent.getEventId()
-      });
-      log.d("updateCompleteEvent: Finished successfully. Response: $data");
-    }catch(e){
-      log.d("Error in updateCompleteEvent: $e");
-      createErrorLog(e.toString());
-    }
-  }
-
   void updateEvent(String eventId,int elementId, var newValue) async{
 
     String fieldName = "";
@@ -136,6 +105,46 @@ class SupabaseService{
     }catch(e){
       log.d("Error in updateEvent: $e");
       createErrorLog(e.toString());
+    }
+  }
+
+  Future<int> updateCompleteEvent(ClubMeEvent updatedEvent) async{
+    try{
+      var data = await supabase
+        .from('club_me_events')
+        .update({
+          'event_title': updatedEvent.getEventTitle(),
+          'dj_name': updatedEvent.getDjName(),
+          'event_date': updatedEvent.getEventDate().toString(),
+          'event_starting_hour': "${updatedEvent.getEventDate().hour}:${updatedEvent.getEventDate().minute}",
+          'music_genres': updatedEvent.getMusicGenres(),
+          'event_price': updatedEvent.getEventPrice(),
+          'event_description': updatedEvent.getEventDescription()
+        }).match({
+        'event_id' : updatedEvent.getEventId()
+      });
+      log.d("updateCompleteEvent: Finished successfully. Response: $data");
+      return 0;
+    }catch(e){
+      log.d("Error in updateCompleteEvent: $e");
+      createErrorLog(e.toString());
+      return 1;
+    }
+  }
+
+  Future<int> deleteEvent(String eventId) async {
+    try{
+      var data = await supabase
+        .from('club_me_events')
+        .delete().match(({
+          'event_id': eventId
+      }));
+      log.d("deleteEvent: Finished successfully. Response: $data");
+      return 0;
+    }catch(e){
+      log.d("Error in deleteEvent: $e");
+      createErrorLog(e.toString());
+      return 1;
     }
   }
 
@@ -309,6 +318,22 @@ class SupabaseService{
 
   // DISCOUNTS
 
+  Future<int> deleteDiscount(String discountId) async {
+    try{
+      var data = await supabase
+          .from('club_me_discounts')
+          .delete().match(({
+        'discount_id': discountId
+      }));
+      log.d("deleteDiscount: Finished successfully. Response: $data");
+      return 0;
+    }catch(e){
+      log.d("Error in deleteDiscount: $e");
+      createErrorLog(e.toString());
+      return 1;
+    }
+  }
+
   Future<PostgrestList> getAllDiscounts() async{
     try{
       var data = await supabase
@@ -383,30 +408,32 @@ class SupabaseService{
     }
   }
 
-  void updateCompleteDiscount(StateProvider stateProvider) async{
+  Future<int> updateCompleteDiscount(ClubMeDiscount clubMeDiscount) async{
 
     try{
       var data = await supabase
           .from("club_me_discounts")
           .update({
-        "discount_id": stateProvider.clubMeDiscount.getDiscountId(),
-        "club_name" : stateProvider.clubMeDiscount.getClubName(),
-        "discount_date" : stateProvider.clubMeDiscount.getDiscountDate().toString(),
-        "number_of_usages": stateProvider.clubMeDiscount.getNumberOfUsages(),
-        "discount_title" : stateProvider.clubMeDiscount.getDiscountTitle(),
-        "how_often_redeemed": stateProvider.clubMeDiscount.getHowOftenRedeemed(),
-        "club_id" : stateProvider.clubMeDiscount.getClubId(),
-        "has_usage_limit": stateProvider.clubMeDiscount.getHasUsageLimit(),
-        "has_time_limit": stateProvider.clubMeDiscount.getHasTimeLimit(),
-        "discount_description" : stateProvider.clubMeDiscount.getDiscountDescription(),
-        "banner_id" : stateProvider.clubMeDiscount.getBannerId(),
+        "discount_id": clubMeDiscount.getDiscountId(),
+        "club_name" : clubMeDiscount.getClubName(),
+        "discount_date" : clubMeDiscount.getDiscountDate().toString(),
+        "number_of_usages":clubMeDiscount.getNumberOfUsages(),
+        "discount_title" : clubMeDiscount.getDiscountTitle(),
+        "how_often_redeemed": clubMeDiscount.getHowOftenRedeemed(),
+        "club_id" : clubMeDiscount.getClubId(),
+        "has_usage_limit":clubMeDiscount.getHasUsageLimit(),
+        "has_time_limit": clubMeDiscount.getHasTimeLimit(),
+        "discount_description" : clubMeDiscount.getDiscountDescription(),
+        "banner_id" : clubMeDiscount.getBannerId(),
       }).match({
-        'discount_id' : stateProvider.clubMeDiscount.getDiscountId()
+        'discount_id' : clubMeDiscount.getDiscountId()
       });
       log.d("updateCompleteDiscount: Finished successfully. Response: $data");
+      return 0;
     }catch(e){
       log.d("Error in updateCompleteDiscount: $e");
       createErrorLog(e.toString());
+      return 1;
     }
   }
 

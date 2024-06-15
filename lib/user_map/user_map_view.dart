@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:club_me/models/club.dart';
 import 'package:club_me/models/event.dart';
 import 'package:club_me/shared/custom_bottom_navigation_bar.dart';
@@ -28,26 +26,25 @@ class _UserMapViewState extends State<UserMapView> {
 
   String headline = "Finde deinen Club";
 
+  late Future getClubs;
   late StateProvider stateProvider;
+  late CustomTextStyle customTextStyle;
+  late ClubMeEvent clubMeEventToDisplay;
+  late double screenWidth, screenHeight;
 
+  final MapController _mapController = MapController();
+  final SupabaseService _supabaseService = SupabaseService();
+
+  bool isClubsFetched = false;
   bool showBottomSheet = false;
   bool showListIsActive = false;
-  bool isClubsFetched = false;
   bool noEventAvailable = false;
 
-  late CustomTextStyle customTextStyle;
 
-  late Future getClubs;
-
-  late ClubMeEvent clubMeEventToDisplay;
-
-  final SupabaseService _supabaseService = SupabaseService();
   List<ClubMeClub> clubsToDisplay = [];
-
   List<Widget> listWidgetsToDisplay = [];
 
-  var _rotation;
-  MapController _mapController = MapController();
+
 
   @override
   void initState() {
@@ -58,83 +55,7 @@ class _UserMapViewState extends State<UserMapView> {
     }
   }
 
-
-  Widget _buildFlutterMap(){
-
-    return FlutterMap(
-      mapController: _mapController,
-        options: MapOptions(
-          initialCenter: LatLng(48.773809, 9.182959),
-          initialZoom: 15,
-          onPositionChanged: (mapPosition, _){
-            setState(() {
-              _rotation = _mapController.camera.rotation;
-            });
-          }
-        ),
-        children: [
-          TileLayer(
-            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-            userAgentPackageName: 'com.szymendera.club_me',
-            tileBuilder: _darkModeTileBuilder,
-          ),
-
-          MarkerLayer(
-              markers: [
-
-                stateProvider.getUserLatCoord() != 0 ?
-                    Marker(
-                        point: LatLng(stateProvider.getUserLatCoord(), stateProvider.getUserLongCoord()),
-                        child: const Icon(Icons.pin_drop_outlined, color: Colors.orangeAccent,)
-                    ): const Marker(point: LatLng(0,0), child: Icon(Icons.pin_drop_outlined, color: Colors.orangeAccent,)),
-
-                for(ClubMeClub club in clubsToDisplay)
-                  Marker(
-                      point: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng()),
-                      width: 50,
-                      rotate: true,
-                      height: 50,
-                      child: GestureDetector(
-                        child: const Image(
-                          image: AssetImage("assets/images/pin1.png"),
-                        ),
-                        onTap: (){
-
-                          // Check if there is any event for the club
-                          if(stateProvider.fetchedEvents.where((event) => event.getClubId() == club.getClubId()).isEmpty){
-                            print("noevent=true");
-                            noEventAvailable = true;
-                          }else{
-                            print("noevent=false");
-                            clubMeEventToDisplay = stateProvider.fetchedEvents.firstWhere(
-                                    (event) => event.getClubId() == club.getClubId()
-                            );
-                            noEventAvailable = false;
-                          }
-
-                          stateProvider.setCurrentClub(club);
-                          toggleShowBottomSheet();
-                        },
-                      )
-                  )
-              ]
-          )
-        ]
-    );
-  }
-
-  void toggleShowBottomSheet(){
-    setState(() {
-      showBottomSheet = !showBottomSheet;
-    });
-  }
-
-  void toggleShowListIsActive(){
-    setState(() {
-      showListIsActive = !showListIsActive;
-    });
-  }
-
+  // COLOR SCHEME
   Widget _darkModeTileBuilder(
       BuildContext context,
       Widget tileWidget,
@@ -151,6 +72,19 @@ class _UserMapViewState extends State<UserMapView> {
     );
   }
 
+  // TOGGLE
+  void toggleShowBottomSheet(){
+    setState(() {
+      showBottomSheet = !showBottomSheet;
+    });
+  }
+  void toggleShowListIsActive(){
+    setState(() {
+      showListIsActive = !showListIsActive;
+    });
+  }
+
+  // BUILD
   Widget fetchClubsFromDbAndBuildWidget(double screenHeight, double screenWidth){
     if(stateProvider.getFetchedClubs().isEmpty ){
 
@@ -201,6 +135,107 @@ class _UserMapViewState extends State<UserMapView> {
       return Container();
     }
   }
+  Widget _buildFlutterMap(){
+
+    return FlutterMap(
+        mapController: _mapController,
+        options: const MapOptions(
+          initialCenter: LatLng(48.773809, 9.182959),
+          initialZoom: 15,
+        ),
+        children: [
+          TileLayer(
+            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+            userAgentPackageName: 'com.szymendera.club_me',
+            tileBuilder: _darkModeTileBuilder,
+          ),
+
+          MarkerLayer(
+              markers: [
+
+                stateProvider.getUserLatCoord() != 0 ?
+                Marker(
+                    point: LatLng(stateProvider.getUserLatCoord(), stateProvider.getUserLongCoord()),
+                    child: const Icon(Icons.pin_drop_outlined, color: Colors.orangeAccent,)
+                ): const Marker(point: LatLng(0,0), child: Icon(Icons.pin_drop_outlined, color: Colors.orangeAccent,)),
+
+                for(ClubMeClub club in clubsToDisplay)
+                  Marker(
+                      point: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng()),
+                      width: 50,
+                      rotate: true,
+                      height: 50,
+                      child: GestureDetector(
+                        child: const Image(
+                          image: AssetImage("assets/images/pin1.png"),
+                        ),
+                        onTap: (){
+
+                          // Check if there is any event for the club
+                          if(stateProvider.fetchedEvents.where((event) => event.getClubId() == club.getClubId()).isEmpty){
+                            noEventAvailable = true;
+                          }else{
+                            clubMeEventToDisplay = stateProvider.fetchedEvents.firstWhere(
+                                    (event) => event.getClubId() == club.getClubId()
+                            );
+                            noEventAvailable = false;
+                          }
+
+                          stateProvider.setCurrentClub(club);
+                          toggleShowBottomSheet();
+                        },
+                      )
+                  )
+              ]
+          )
+        ]
+    );
+  }
+  Widget _buildAppBar(){
+    return SizedBox(
+      width: screenWidth,
+      child: Stack(
+        children: [
+          SizedBox(
+            width: screenWidth,
+            child: Text(headline,
+                textAlign: TextAlign.center,
+                style: customTextStyle.size2()
+            ),
+          ),
+
+          Container(
+            alignment: Alignment.centerRight,
+            child: GestureDetector(
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  // right: 10
+                ),
+                child: Container(
+                  padding: const EdgeInsets.all(7),
+                  decoration: const BoxDecoration(
+                      color: Color(0xff11181f),
+                      borderRadius: BorderRadius.all(
+                          Radius.circular(45)
+                      )
+                  ),
+
+                  child:  Icon(
+                    Icons.list_alt,
+                    color: showListIsActive ? stateProvider.getPrimeColor() : Colors.grey,
+                  ),
+                ),
+              ),
+              onTap: (){
+                toggleShowListIsActive();
+              },
+            ),
+          )
+
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -209,61 +244,19 @@ class _UserMapViewState extends State<UserMapView> {
 
     customTextStyle = CustomTextStyle(context: context);
 
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
+    screenWidth = MediaQuery.of(context).size.width;
+    screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
 
-        extendBodyBehindAppBar: true,
-        extendBody: true,
+      extendBodyBehindAppBar: true,
+      extendBody: true,
 
       bottomNavigationBar: CustomBottomNavigationBar(),
 
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        title: SizedBox(
-          width: screenWidth,
-          child: Stack(
-            children: [
-              SizedBox(
-                width: screenWidth,
-                child: Text(headline,
-                    textAlign: TextAlign.center,
-                    style: customTextStyle.size2()
-                ),
-              ),
-
-              Container(
-                alignment: Alignment.centerRight,
-                child: GestureDetector(
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                        // right: 10
-                    ),
-                    child: Container(
-                      padding: const EdgeInsets.all(7),
-                      decoration: const BoxDecoration(
-                          color: Color(0xff11181f),
-                          borderRadius: BorderRadius.all(
-                              Radius.circular(45)
-                          )
-                      ),
-
-                      child:  Icon(
-                        Icons.list_alt,
-                        color: showListIsActive ? stateProvider.getPrimeColor() : Colors.grey,
-                      ),
-                    ),
-                  ),
-                  onTap: (){
-                    toggleShowListIsActive();
-                  },
-                ),
-              )
-
-            ],
-          ),
-        ),
+        title: _buildAppBar(),
       ),
 
       body: Container(
@@ -274,7 +267,6 @@ class _UserMapViewState extends State<UserMapView> {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                // Color(0xff11181f),
                 Color(0xff2b353d),
                 Color(0xff11181f)
               ],
@@ -294,16 +286,18 @@ class _UserMapViewState extends State<UserMapView> {
                 child: Stack(
                   children: [
 
-                    fetchClubsFromDbAndBuildWidget(screenHeight, screenWidth),
+                    isClubsFetched ?
+                      Container() :
+                      fetchClubsFromDbAndBuildWidget(screenHeight, screenWidth),
 
                     // build map
                     isClubsFetched ?
-                    _buildFlutterMap()
-                        : const CircularProgressIndicator(),
+                      _buildFlutterMap() :
+                      const CircularProgressIndicator(),
 
                     // transparent layer to click out of bottom sheet
                     showBottomSheet?
-                        GestureDetector(
+                      GestureDetector(
                           child: Container(
                             width: screenWidth,
                             height: screenHeight*0.83,
@@ -312,8 +306,8 @@ class _UserMapViewState extends State<UserMapView> {
                           onTap: (){
                             toggleShowBottomSheet();
                           },
-                        )
-                        :Container(),
+                        ) :
+                      Container(),
 
                     // The bottom info container
                     GestureDetector(
@@ -341,7 +335,7 @@ class _UserMapViewState extends State<UserMapView> {
 
                     // Grey background when list active
                     showListIsActive?
-                        GestureDetector(
+                      GestureDetector(
                           child: Container(
                             width: screenWidth,
                             height: screenHeight,
@@ -352,12 +346,12 @@ class _UserMapViewState extends State<UserMapView> {
                               showListIsActive = false;
                             });
                           },
-                        )
-                        : Container(),
+                        ) :
+                      Container(),
 
                     // List view of clubs
                     showListIsActive ?
-                        Padding(
+                      Padding(
                             padding: const EdgeInsets.only(
                                 // top: screenWidth*0.1
                             ),
@@ -365,8 +359,9 @@ class _UserMapViewState extends State<UserMapView> {
 
                             // Whole list background
                             child: Container(
-                              padding: EdgeInsets.only(
-                                top: 20
+                              padding: const EdgeInsets.only(
+                                top: 20,
+                                bottom: 20
                               ),
                               // width: screenWidth*0.9,
                               // height: screenHeight*0.7,
@@ -376,9 +371,6 @@ class _UserMapViewState extends State<UserMapView> {
                                     for( ClubMeClub club in clubsToDisplay)
                                       ClubListItem(
                                           currentClub: club,
-                                          NOfPeople: "5",
-                                          distance: "5",
-                                          price: "5"
                                       )
                                   ],
                                 ),
@@ -386,13 +378,10 @@ class _UserMapViewState extends State<UserMapView> {
                               
                             ),
                           )
-                        )
-                        :Container()
-                        
-
+                        ) :
+                      Container()
                   ],
                 )
-
               )
             ],
           )

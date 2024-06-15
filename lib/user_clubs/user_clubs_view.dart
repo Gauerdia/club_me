@@ -24,29 +24,27 @@ class _UserClubsViewState extends State<UserClubsView>
 
   late Future getClubs;
   late String dropdownValue;
-  late TabController _tabController;
-  late PageController _pageViewController;
-  final SupabaseService _supabaseService = SupabaseService();
-
-  late CustomTextStyle customTextStyle;
-
-  late double screenHeight, screenWidth;
-
-  final TextEditingController _textEditingController = TextEditingController();
-
   late StateProvider stateProvider;
+  late TabController _tabController;
+  late CustomTextStyle customTextStyle;
+  late double screenHeight, screenWidth;
+  late PageController _pageViewController;
 
-  bool onlyFavoritesIsActive = false;
+  final SupabaseService _supabaseService = SupabaseService();
+  final TextEditingController _textEditingController = TextEditingController();
 
   String searchValue = "";
   int _currentPageIndex = 0;
+
   bool isSearchbarActive = false;
   bool isAnyFilterActive = false;
   bool isFilterMenuActive = false;
+  bool onlyFavoritesIsActive = false;
+
   Color navigationBackgroundColor = const Color(0xff11181f);
 
   List<String> genresDropdownList = [
-    "All", "Techno", "90s", "Latin"
+    "Alle", "Techno", "90s", "Latin"
   ];
   List<ClubMeClub> clubsToDisplay = [];
 
@@ -66,7 +64,6 @@ class _UserClubsViewState extends State<UserClubsView>
 
     super.initState();
   }
-
   @override
   void dispose() {
     super.dispose();
@@ -74,6 +71,8 @@ class _UserClubsViewState extends State<UserClubsView>
     _tabController.dispose();
   }
 
+
+  // CLICKED
   void clickedOnShare(){
     showDialog<String>(
         context: context,
@@ -84,48 +83,44 @@ class _UserClubsViewState extends State<UserClubsView>
         )
     );
   }
-
   void triggerSetState(){
     setState(() {});
   }
-
   void toggleIsSearchbarActive(){
     setState(() {
       isSearchbarActive = !isSearchbarActive;
     });
   }
-
   void toggleIsFilterMenuActive(){
     setState(() {
       isFilterMenuActive = !isFilterMenuActive;
     });
   }
 
-  void _updateCurrentPageIndex(int index) {
-    _tabController.index = index;
-    _pageViewController.animateToPage(
-      index,
-      duration: const Duration(milliseconds: 400),
-      curve: Curves.easeInOut,
-    );
-  }
 
+  // FILTER
   void filterClubs(){
 
-    if(searchValue != "" || dropdownValue != "All" || onlyFavoritesIsActive){
+    if(searchValue != "" || dropdownValue != genresDropdownList[0] || onlyFavoritesIsActive){
 
       // set for coloring
-      isAnyFilterActive = true;
+      if(dropdownValue != genresDropdownList[0] || onlyFavoritesIsActive){
+        isAnyFilterActive = true;
+      }else{
+        isAnyFilterActive = false;
+      }
 
       // reset array
       clubsToDisplay = [];
 
       for(ClubMeClub club in stateProvider.getFetchedClubs()){
-        // when one criterium doesnt match, set to false
+
+        // when one criterion doesn't match, set to false
         bool fitsCriteria = true;
 
         // Search bar used? Then filter
         if(searchValue != "") {
+          print("Search: ${club.getClubName().toLowerCase()}, Term: ${searchValue.toLowerCase()}");
           if (club.getClubName().toLowerCase().contains(
               searchValue.toLowerCase())) {
           } else {
@@ -134,7 +129,7 @@ class _UserClubsViewState extends State<UserClubsView>
         }
 
         // music genre doenst match? filter
-        if(dropdownValue != "All" ){
+        if(dropdownValue != genresDropdownList[0] ){
           if(!club.getMusicGenres().toLowerCase().contains(dropdownValue.toLowerCase())){
             fitsCriteria = false;
           }
@@ -156,14 +151,215 @@ class _UserClubsViewState extends State<UserClubsView>
       clubsToDisplay = stateProvider.getFetchedClubs();
     }
   }
+  void filterForFavorites(){
+    setState(() {
+      onlyFavoritesIsActive = !onlyFavoritesIsActive;
+      filterClubs();
+    });
+  }
 
+
+  // MISC FUNCTS
+  void _updateCurrentPageIndex(int index) {
+    _tabController.index = index;
+    _pageViewController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOut,
+    );
+  }
   void _handlePageViewChanged(int currentPageIndex) {
     _tabController.index = currentPageIndex;
     setState(() {
       _currentPageIndex = currentPageIndex;
     });
   }
+  bool checkIfIsEventIsAfterToday(ClubMeEvent event){
+    final berlin = tz.getLocation('Europe/Berlin');
+    final todayTimestampGermany = tz.TZDateTime.from(DateTime.now(), berlin);
 
+    if(event.getEventDate().isBefore(todayTimestampGermany)){
+      return false;
+    }else{
+      return true;
+    }
+
+  }
+
+
+  // BUILD
+  Widget _buildAppBarShowSearch(){
+    return SizedBox(
+      width: screenWidth,
+      child: Stack(
+        children: [
+          // Headline
+          Container(
+              alignment: Alignment.bottomCenter,
+              height: 50,
+              width: screenWidth,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: screenWidth*0.4,
+                    child: TextField(
+                      autofocus: true,
+                      controller: _textEditingController,
+                      onChanged: (text){
+                        _textEditingController.text = text;
+                        searchValue = text;
+                        setState(() {
+                          filterClubs();
+                        });
+                      },
+                    ),
+                  ),
+                ],
+              )
+          ),
+
+          // Search icon
+          Container(
+              width: screenWidth,
+              alignment: Alignment.centerLeft,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                      onPressed: () => toggleIsSearchbarActive(),
+                      icon: Icon(
+                        Icons.search,
+                        color: searchValue != "" ? stateProvider.getPrimeColor() : Colors.grey,
+                        // size: 20,
+                      )
+                  )
+                ],
+              )
+          ),
+
+          // Right icons
+          Container(
+            width: screenWidth,
+            alignment: Alignment.centerRight,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                IconButton(
+                    onPressed: () => filterForFavorites(),
+                    icon: Icon(
+                      Icons.stars,
+                      color: onlyFavoritesIsActive ? stateProvider.getPrimeColor() : Colors.grey,
+                    )
+                ),
+                Padding(
+                    padding: const EdgeInsets.only(right: 0),
+                    child: GestureDetector(
+                      child: Container(
+                          padding: const EdgeInsets.all(7),
+                          decoration: BoxDecoration(
+                            color: const Color(0xff11181f),
+                            borderRadius: BorderRadius.circular(45),
+                          ),
+                          child: Icon(
+                            Icons.filter_list_sharp,
+                            color: isAnyFilterActive ? stateProvider.getPrimeColor() : Colors.grey,
+                          )
+                      ),
+                      onTap: (){
+                        toggleIsFilterMenuActive();
+                      },
+                    )
+                )
+              ],
+            ),
+          ),
+
+        ],
+      ),
+    );
+  }
+  Widget _buildAppBarShowHeadline(){
+    return SizedBox(
+      width: screenWidth,
+      child: Stack(
+        children: [
+          // Headline
+          Container(
+              alignment: Alignment.bottomCenter,
+              height: 50,
+              width: screenWidth,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(headline,
+                      textAlign: TextAlign.center,
+                      style: customTextStyle.size2()
+                  ),
+                ],
+              )
+          ),
+
+          // Search icon
+          Container(
+              width: screenWidth,
+              alignment: Alignment.centerLeft,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                      onPressed: () => toggleIsSearchbarActive(),
+                      icon: Icon(
+                        Icons.search,
+                        color: searchValue != "" ? stateProvider.getPrimeColor() : Colors.grey,
+                        // size: 20,
+                      )
+                  )
+                ],
+              )
+          ),
+
+          // Right icons
+          Container(
+            width: screenWidth,
+            alignment: Alignment.centerRight,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                IconButton(
+                    onPressed: () => filterForFavorites(),
+                    icon: Icon(
+                      Icons.stars,
+                      color: onlyFavoritesIsActive ? stateProvider.getPrimeColor() : Colors.grey,
+                    )
+                ),
+                Padding(
+                    padding: const EdgeInsets.only(right: 0),
+                    child: GestureDetector(
+                      child: Container(
+                          padding: const EdgeInsets.all(7),
+                          decoration: BoxDecoration(
+                            color: const Color(0xff11181f),
+                            borderRadius: BorderRadius.circular(45),
+                          ),
+                          child: Icon(
+                            Icons.filter_list_sharp,
+                            color: isAnyFilterActive ? stateProvider.getPrimeColor() : Colors.grey,
+                          )
+                      ),
+                      onTap: (){
+                        toggleIsFilterMenuActive();
+                      },
+                    )
+                )
+              ],
+            ),
+          ),
+
+        ],
+      ),
+    );
+  }
   Widget _buildSupabaseClubs(StateProvider stateProvider){
 
     if(stateProvider.getFetchedClubs().isEmpty ){
@@ -263,198 +459,6 @@ class _UserClubsViewState extends State<UserClubsView>
     }
   }
 
-  bool checkIfIsEventIsAfterToday(ClubMeEvent event){
-    final berlin = tz.getLocation('Europe/Berlin');
-    final todayTimestampGermany = tz.TZDateTime.from(DateTime.now(), berlin);
-
-    if(event.getEventDate().isBefore(todayTimestampGermany)){
-      return false;
-    }else{
-      return true;
-    }
-
-  }
-
-  void filterForFavorites(){
-    setState(() {
-      onlyFavoritesIsActive = !onlyFavoritesIsActive;
-      filterClubs();
-    });
-  }
-
-  Widget _buildAppBarShowHeadline(){
-    return SizedBox(
-      width: screenWidth,
-      child: Stack(
-        children: [
-          // Headline
-          Container(
-              alignment: Alignment.bottomCenter,
-              height: 50,
-              width: screenWidth,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(headline,
-                      textAlign: TextAlign.center,
-                      style: customTextStyle.size2()
-                  ),
-                ],
-              )
-          ),
-
-          // Search icon
-          Container(
-              width: screenWidth,
-              alignment: Alignment.centerLeft,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  IconButton(
-                      onPressed: () => toggleIsSearchbarActive(),
-                      icon: Icon(
-                        Icons.search,
-                        color: searchValue != "" ? stateProvider.getPrimeColor() : Colors.grey,
-                        // size: 20,
-                      )
-                  )
-                ],
-              )
-          ),
-
-          // Right icons
-          Container(
-            width: screenWidth,
-            alignment: Alignment.centerRight,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                IconButton(
-                    onPressed: () => filterForFavorites(),
-                    icon: Icon(
-                      Icons.stars,
-                      color: onlyFavoritesIsActive ? stateProvider.getPrimeColor() : Colors.grey,
-                    )
-                ),
-                Padding(
-                    padding: const EdgeInsets.only(right: 0),
-                    child: GestureDetector(
-                      child: Container(
-                          padding: const EdgeInsets.all(7),
-                          decoration: BoxDecoration(
-                            color: const Color(0xff11181f),
-                            borderRadius: BorderRadius.circular(45),
-                          ),
-                          child: Icon(
-                            Icons.filter_list_sharp,
-                            color: isAnyFilterActive ? stateProvider.getPrimeColor() : Colors.grey,
-                          )
-                      ),
-                      onTap: (){
-                        toggleIsFilterMenuActive();
-                      },
-                    )
-                )
-              ],
-            ),
-          ),
-
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAppBarShowSearch(){
-    return SizedBox(
-      width: screenWidth,
-      child: Stack(
-        children: [
-          // Headline
-          Container(
-              alignment: Alignment.bottomCenter,
-              height: 50,
-              width: screenWidth,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: screenWidth*0.4,
-                    child: TextField(
-                      autofocus: true,
-                      controller: _textEditingController,
-                      onChanged: (text){
-                        _textEditingController.text = text;
-                        searchValue = text;
-                        setState(() {
-                          filterClubs();
-                        });
-                      },
-                    ),
-                  ),
-                ],
-              )
-          ),
-
-          // Search icon
-          Container(
-              width: screenWidth,
-              alignment: Alignment.centerLeft,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  IconButton(
-                      onPressed: () => toggleIsSearchbarActive(),
-                      icon: Icon(
-                        Icons.search,
-                        color: searchValue != "" ? stateProvider.getPrimeColor() : Colors.grey,
-                        // size: 20,
-                      )
-                  )
-                ],
-              )
-          ),
-
-          // Right icons
-          Container(
-            width: screenWidth,
-            alignment: Alignment.centerRight,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                IconButton(
-                    onPressed: () => filterForFavorites(),
-                    icon: Icon(
-                      Icons.stars,
-                      color: onlyFavoritesIsActive ? stateProvider.getPrimeColor() : Colors.grey,
-                    )
-                ),
-                Padding(
-                    padding: const EdgeInsets.only(right: 0),
-                    child: GestureDetector(
-                      child: Container(
-                          padding: const EdgeInsets.all(7),
-                          decoration: BoxDecoration(
-                            color: const Color(0xff11181f),
-                            borderRadius: BorderRadius.circular(45),
-                          ),
-                          child: Icon(
-                            Icons.filter_list_sharp,
-                            color: isAnyFilterActive ? stateProvider.getPrimeColor() : Colors.grey,
-                          )
-                      ),
-                      onTap: (){
-                        toggleIsFilterMenuActive();
-                      },
-                    )
-                )
-              ],
-            ),
-          ),
-
-        ],
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -470,21 +474,18 @@ class _UserClubsViewState extends State<UserClubsView>
 
     return Scaffold(
 
-        // extendBodyBehindAppBar: true,
-        extendBody: true,
+      extendBody: true,
+      resizeToAvoidBottomInset: false,
 
-        resizeToAvoidBottomInset: false,
-
-        bottomNavigationBar: CustomBottomNavigationBar(),
-        appBar: isSearchbarActive?
+      appBar: isSearchbarActive ?
             AppBar(
               title: _buildAppBarShowSearch(),
-            ):
+            ) :
             AppBar(
               title: _buildAppBarShowHeadline(),
             ),
 
-        body: Container(
+      body: Container(
             width: screenWidth,
             height: screenHeight,
             decoration: const BoxDecoration(
@@ -502,25 +503,12 @@ class _UserClubsViewState extends State<UserClubsView>
             child: Stack(
               children: [
 
-                // // Spacer
-                // SizedBox(height: screenHeight*0.07,),
-
                 // Pageview of the club cards
                 SizedBox(
                     height: screenHeight*1.2,
                     // color: Colors.red,
                     child: _buildSupabaseClubs(stateProvider)
                 ),
-
-                // PageIndicator
-                // SizedBox(
-                //   height: screenHeight*0.07,
-                //   child: PageIndicator(
-                //     tabController: _tabController,
-                //     currentPageIndex: _currentPageIndex,
-                //     onUpdateCurrentPageIndex: _updateCurrentPageIndex,
-                //   ),
-                // )
 
                 // Filter menu
                 isFilterMenuActive?Container(
@@ -537,14 +525,12 @@ class _UserClubsViewState extends State<UserClubsView>
                         child: Column(
                           children: [
 
-                            // SizedBox(
-                            //   height: screenHeight*0.01,
-                            // ),
-
+                            // Genre text
                             const Text(
                                 "Musikrichtung"
                             ),
 
+                            // Dropdown
                             DropdownButton(
                                 value: dropdownValue,
                                 items: genresDropdownList.map<DropdownMenuItem<String>>(
@@ -570,7 +556,9 @@ class _UserClubsViewState extends State<UserClubsView>
                 ):Container()
               ],
             )
-        )
+        ),
+
+      bottomNavigationBar: CustomBottomNavigationBar(),
     );
   }
 

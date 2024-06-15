@@ -18,28 +18,164 @@ class _UpdateNewsViewState extends State<UpdateNewsView> {
 
   String headLine = "News anpassen";
 
+  bool initDone = false;
   bool sendClicked = false;
 
   late StateProvider stateProvider;
-
   late CustomTextStyle customTextStyle;
-
-  final SupabaseService _supabaseService = SupabaseService();
-
-  bool initDone = false;
+  late double screenHeight, screenWidth;
 
   TextEditingController controller = TextEditingController();
+  final SupabaseService _supabaseService = SupabaseService();
 
-  void initController(){
-    setState(() {
-      controller = TextEditingController(
-          text:stateProvider.getUserClubNews()
-      );
-      initDone = true;
-    });
+
+  // BUILD
+  AppBar _buildAppBar(){
+    return AppBar(
+      backgroundColor: Colors.transparent,
+      title: SizedBox(
+        width: screenWidth,
+        child: Text(headLine,
+            style: customTextStyle.size1Bold()
+        ),
+      ),
+      leading: IconButton(
+        icon: const Icon(
+            Icons.arrow_back_ios_new_outlined
+        ),
+        onPressed: (){
+          context.go('/club_frontpage');
+        },
+      ),
+    );
+  }
+  Widget _buildMainColumn(){
+    return Column(
+        children: [
+
+          // Spacer
+          SizedBox(
+            height: screenHeight*0.2,
+          ),
+
+          // ProgressIndicator / Textfield
+          sendClicked ? const Center(
+            child: CircularProgressIndicator(),
+          )
+              : SizedBox(
+            width: screenWidth*0.8,
+            child: TextField(
+              controller: controller,
+              keyboardType: TextInputType.multiline,
+              maxLines: null,
+              decoration: const InputDecoration(
+                  border: OutlineInputBorder()
+              ),
+              maxLength: 300,
+            ),
+          ),
+
+          // Spacer
+          SizedBox(
+            height: screenHeight*0.01,
+          ),
+
+          // Unfocus - Button
+          // Container(
+          //   width: screenWidth*0.8,
+          //   alignment: Alignment.bottomRight,
+          //   child: Padding(
+          //     padding: EdgeInsets.symmetric(
+          //         vertical: screenHeight*0.01,
+          //         horizontal: screenWidth*0.01
+          //     ),
+          //     child: GestureDetector(
+          //       child: Container(
+          //         padding: EdgeInsets.symmetric(
+          //             horizontal: screenWidth*0.035,
+          //             vertical: screenHeight*0.02
+          //         ),
+          //         decoration: BoxDecoration(
+          //           borderRadius: const BorderRadius.all(
+          //               Radius.circular(10)
+          //           ),
+          //           gradient: LinearGradient(
+          //               colors: [
+          //                 stateProvider.getPrimeColorDark(),
+          //                 stateProvider.getPrimeColor(),
+          //               ],
+          //               begin: Alignment.topLeft,
+          //               end: Alignment.bottomRight,
+          //               stops: const [0.2, 0.9]
+          //           ),
+          //           boxShadow: const [
+          //             BoxShadow(
+          //               color: Colors.black54,
+          //               spreadRadius: 1,
+          //               blurRadius: 7,
+          //               offset: Offset(3, 3),
+          //             ),
+          //           ],
+          //         ),
+          //         child: Text(
+          //           "Fertig",
+          //           style: TextStyle(
+          //               fontSize: screenHeight*0.015,
+          //               fontWeight: FontWeight.bold
+          //           ),
+          //         ),
+          //       ),
+          //       onTap: ()=> FocusScope.of(context).unfocus(),
+          //     ),
+          //   ),
+          // ),
+
+          // Spacer
+          SizedBox(
+            height: screenHeight*0.05,
+          ),
+
+          sendClicked ? const Padding(
+            padding: EdgeInsets.only(top: 5),
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
+          ) :
+
+          Container(
+              width: screenWidth*0.9,
+              // color: Colors.red,
+              alignment: Alignment.bottomRight,
+              child: GestureDetector(
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                      vertical: screenHeight*0.015,
+                      horizontal: screenWidth*0.03
+                  ),
+                  decoration: const BoxDecoration(
+                      color: Colors.black54,
+                      borderRadius: BorderRadius.all(Radius.circular(10))
+                  ),
+                  child: Text(
+                    "News anpassen!",
+                    textAlign: TextAlign.center,
+                    style: customTextStyle.size4BoldPrimeColor(),
+                  ),
+                ),
+                onTap: () => clickOnUpdateButton(stateProvider, controller),
+              )
+          ),
+
+          SizedBox(
+            height: screenHeight*0.4,
+          )
+
+        ]
+    );
   }
 
 
+  // CLICK
   void clickOnUpdateButton(StateProvider stateProvider, TextEditingController controller) async{
 
     setState(() {
@@ -73,6 +209,18 @@ class _UpdateNewsViewState extends State<UpdateNewsView> {
     });
   }
 
+
+  // MISC
+  void initController(){
+    setState(() {
+      controller = TextEditingController(
+          text:stateProvider.getUserClubNews()
+      );
+      initDone = true;
+    });
+  }
+
+
   @override
   Widget build(BuildContext context) {
 
@@ -80,8 +228,8 @@ class _UpdateNewsViewState extends State<UpdateNewsView> {
 
     customTextStyle = CustomTextStyle(context: context);
 
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
+    screenWidth = MediaQuery.of(context).size.width;
+    screenHeight = MediaQuery.of(context).size.height;
 
     if(!initDone){
       initController();
@@ -94,23 +242,7 @@ class _UpdateNewsViewState extends State<UpdateNewsView> {
         resizeToAvoidBottomInset: true,
 
         bottomNavigationBar: CustomBottomNavigationBarClubs(),
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          title: SizedBox(
-            width: screenWidth,
-            child: Text(headLine,
-              style: customTextStyle.size1Bold()
-            ),
-          ),
-          leading: IconButton(
-            icon: const Icon(
-                Icons.arrow_back_ios_new_outlined
-            ),
-            onPressed: (){
-              context.go('/club_frontpage');
-            },
-          ),
-        ),
+        appBar: _buildAppBar(),
         body: Container(
             width: screenWidth,
             height: screenHeight,
@@ -128,128 +260,7 @@ class _UpdateNewsViewState extends State<UpdateNewsView> {
 
             child: SingleChildScrollView(
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              child: Column(
-                  children: [
-
-                    // Spacer
-                    SizedBox(
-                      height: screenHeight*0.2,
-                    ),
-
-                    // ProgressIndicator / Textfield
-                    sendClicked ? const Center(
-                      child: CircularProgressIndicator(),
-                    )
-                        : SizedBox(
-                      width: screenWidth*0.8,
-                      child: TextField(
-                        controller: controller,
-                        keyboardType: TextInputType.multiline,
-                        maxLines: null,
-                        decoration: const InputDecoration(
-                            border: OutlineInputBorder()
-                        ),
-                        maxLength: 300,
-                      ),
-                    ),
-
-                    // Spacer
-                    SizedBox(
-                      height: screenHeight*0.01,
-                    ),
-
-                    // Unfocus - Button
-                    // Container(
-                    //   width: screenWidth*0.8,
-                    //   alignment: Alignment.bottomRight,
-                    //   child: Padding(
-                    //     padding: EdgeInsets.symmetric(
-                    //         vertical: screenHeight*0.01,
-                    //         horizontal: screenWidth*0.01
-                    //     ),
-                    //     child: GestureDetector(
-                    //       child: Container(
-                    //         padding: EdgeInsets.symmetric(
-                    //             horizontal: screenWidth*0.035,
-                    //             vertical: screenHeight*0.02
-                    //         ),
-                    //         decoration: BoxDecoration(
-                    //           borderRadius: const BorderRadius.all(
-                    //               Radius.circular(10)
-                    //           ),
-                    //           gradient: LinearGradient(
-                    //               colors: [
-                    //                 stateProvider.getPrimeColorDark(),
-                    //                 stateProvider.getPrimeColor(),
-                    //               ],
-                    //               begin: Alignment.topLeft,
-                    //               end: Alignment.bottomRight,
-                    //               stops: const [0.2, 0.9]
-                    //           ),
-                    //           boxShadow: const [
-                    //             BoxShadow(
-                    //               color: Colors.black54,
-                    //               spreadRadius: 1,
-                    //               blurRadius: 7,
-                    //               offset: Offset(3, 3),
-                    //             ),
-                    //           ],
-                    //         ),
-                    //         child: Text(
-                    //           "Fertig",
-                    //           style: TextStyle(
-                    //               fontSize: screenHeight*0.015,
-                    //               fontWeight: FontWeight.bold
-                    //           ),
-                    //         ),
-                    //       ),
-                    //       onTap: ()=> FocusScope.of(context).unfocus(),
-                    //     ),
-                    //   ),
-                    // ),
-
-                    // Spacer
-                    SizedBox(
-                      height: screenHeight*0.05,
-                    ),
-
-                    sendClicked ? const Padding(
-                      padding: EdgeInsets.only(top: 5),
-                      child: Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    ) :
-
-                    Container(
-                        width: screenWidth*0.9,
-                        // color: Colors.red,
-                        alignment: Alignment.bottomRight,
-                        child: GestureDetector(
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                                vertical: screenHeight*0.015,
-                                horizontal: screenWidth*0.03
-                            ),
-                            decoration: const BoxDecoration(
-                                color: Colors.black54,
-                                borderRadius: BorderRadius.all(Radius.circular(10))
-                            ),
-                            child: Text(
-                              "News anpassen!",
-                              textAlign: TextAlign.center,
-                              style: customTextStyle.size4BoldPrimeColor(),
-                            ),
-                          ),
-                          onTap: () => clickOnUpdateButton(stateProvider, controller),
-                        )
-                    ),
-
-                    SizedBox(
-                      height: screenHeight*0.4,
-                    )
-
-                  ]
-              ),
+              child: _buildMainColumn(),
             )
         )
     );

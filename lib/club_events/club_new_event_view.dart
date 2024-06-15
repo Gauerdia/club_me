@@ -7,8 +7,6 @@ import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import '../provider/state_provider.dart';
 import '../services/supabase_service.dart';
-
-
 import '../shared/custom_text_style.dart';
 import 'archive/club_new_event_view.dart';
 
@@ -19,107 +17,47 @@ class ClubNewEventView extends StatefulWidget {
   State<ClubNewEventView> createState() => _ClubNewEventViewState();
 }
 
-class _ClubNewEventViewState extends State<ClubNewEventView>
-  with RestorationMixin{
+class _ClubNewEventViewState extends State<ClubNewEventView>{
 
   String headLine = "Neues Event";
 
+  late DateTime newSelectedDate;
   late StateProvider stateProvider;
-
   late CustomTextStyle customTextStyle;
+  late double screenHeight, screenWidth;
 
   final SupabaseService _supabaseService = SupabaseService();
 
-  final TextEditingController _eventMusicGenresController = TextEditingController();
   final TextEditingController _eventDJController = TextEditingController();
   final TextEditingController _eventTitleController = TextEditingController();
   final TextEditingController _eventPriceController = TextEditingController();
+  final TextEditingController _eventMusicGenresController = TextEditingController();
   final TextEditingController _eventDescriptionController = TextEditingController();
-
-  bool isUploading = false;
-
-  bool isDateSelected = false;
-
-  double newDiscountContainerHeightFactor = 0.2;
-  double discountContainerHeightFactor = 0.52;
-
-  late double screenHeight, screenWidth;
-
-  int creationIndex = 0;
-
-  String eventMusicGenresString = "";
-
-  int selectedHour = TimeOfDay.now().hour;
-  int selectedMinute = TimeOfDay.now().minute;
-
-  int selectedFirstElement = 0;
-  int selectedSecondElement = 0;
-
   FixedExtentScrollController _fixedExtentScrollController1 = FixedExtentScrollController();
   FixedExtentScrollController _fixedExtentScrollController2 = FixedExtentScrollController();
 
-  Color primeColorDark = Colors.teal;
-  Color primeColor = Colors.tealAccent;
+  bool isUploading = false;
+  bool isDateSelected = false;
 
-  late DateTime newSelectedDate;
+  double discountContainerHeightFactor = 0.52;
+  double newDiscountContainerHeightFactor = 0.2;
 
-  List<String> musicGenresToCompare = [
-    "90s", "Techno", "Rock", "EDM", "80s", "Metal", "Pop"
-  ];
+  String eventMusicGenresString = "";
+
+  int creationIndex = 0;
+  int selectedFirstElement = 0;
+  int selectedSecondElement = 0;
+  int selectedHour = TimeOfDay.now().hour;
+  int selectedMinute = TimeOfDay.now().minute;
+
+  List<String> musicGenresChosen = [];
   List<String> musicGenresOffer = [
     "90s", "Techno", "Rock", "EDM", "80s", "Metal", "Pop"
   ];
-  List<String> musicGenresChosen = [];
+  List<String> musicGenresToCompare = [
+    "90s", "Techno", "Rock", "EDM", "80s", "Metal", "Pop"
+  ];
 
-  final RestorableDateTime _selectedDate =
-  RestorableDateTime(DateTime.now());
-  late final RestorableRouteFuture<DateTime?> _restorableDatePickerRouteFuture =
-  RestorableRouteFuture<DateTime?>(
-    onComplete: _selectDate,
-    onPresent: (NavigatorState navigator, Object? arguments) {
-      isDateSelected = true;
-      return navigator.restorablePush(
-        _datePickerRoute,
-        arguments: _selectedDate.value.millisecondsSinceEpoch,
-      );
-    },
-  );
-
-  @pragma('vm:entry-point')
-  static Route<DateTime> _datePickerRoute(
-      BuildContext context,
-      Object? arguments,
-      ) {
-    return DialogRoute<DateTime>(
-      context: context,
-      builder: (BuildContext context) {
-
-        return DatePickerDialog(
-          restorationId: 'date_picker_dialog',
-          initialEntryMode: DatePickerEntryMode.calendarOnly,
-          initialDate: DateTime.fromMillisecondsSinceEpoch(arguments! as int),
-          firstDate: DateTime(2024),
-          lastDate: DateTime(2026),
-        );
-
-      },
-    );
-  }
-
-  @override
-  void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
-    registerForRestoration(_selectedDate, 'selected_date');
-    registerForRestoration(
-        _restorableDatePickerRouteFuture, 'date_picker_route_future');
-  }
-
-  void _selectDate(DateTime? newSelectedDate) {
-    if (newSelectedDate != null) {
-      setState(() {
-        _selectedDate.value = newSelectedDate;
-      });
-    }
-  }
 
   String formatSelectedDate(){
 
@@ -148,6 +86,208 @@ class _ClubNewEventViewState extends State<ClubNewEventView>
     return "$tempDay.$tempMonth.$tempYear";
   }
 
+
+  // BUILD
+  AppBar _buildAppBar(){
+    return AppBar(
+      automaticallyImplyLeading: false,
+      backgroundColor: Colors.transparent,
+      title: SizedBox(
+        width: screenWidth,
+        child: Stack(
+          children: [
+
+            Container(
+              alignment: Alignment.centerLeft,
+              height: 50,
+              child: IconButton(
+                icon: const Icon(
+                    Icons.clear_rounded
+                ),
+                onPressed: (){
+                  switch(stateProvider.pageIndex){
+                    case(0): context.go('/club_events');
+                    case(3): context.go('/club_frontpage');
+                    default: context.go('/club_frontpage');
+                  }
+                },
+              ),
+            ),
+
+            SizedBox(
+              width: screenWidth,
+              height: 50,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    headLine,
+                    textAlign: TextAlign.center,
+                    style: customTextStyle.size2(),
+                  )
+                ],
+              ),
+            )
+
+          ],
+        ),
+      ),
+    );
+  }
+  Widget _buildNavigationBar(){
+    return SizedBox(
+      height: screenHeight*0.12,
+      child: Stack(
+        children: [
+
+          // Top accent
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              height: screenHeight*0.105,
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.topRight,
+                      colors: [Colors.grey[600]!, Colors.grey[900]!],
+                      stops: const [0.1, 0.9]
+                  ),
+                  borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30)
+                  )
+              ),
+            ),
+          ),
+
+          // Main Background
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              height: screenHeight*0.1,
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Colors.grey[800]!.withOpacity(0.7),
+                        Colors.grey[900]!
+                      ],
+                      stops: const [0.1,0.9]
+                  ),
+                  borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30)
+                  )
+              ),
+            ),
+          ),
+
+          // Left button
+          creationIndex != 0 ? Padding(
+            padding: EdgeInsets.only(
+                left: screenWidth*0.04,
+                bottom: screenHeight*0.015
+            ),
+            child: Align(
+                alignment: AlignmentDirectional.bottomStart,
+                child: GestureDetector(
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: screenWidth*0.035,
+                        vertical: screenHeight*0.02
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.all(
+                          Radius.circular(10)
+                      ),
+                      gradient: LinearGradient(
+                          colors: [
+                            customTextStyle.primeColorDark,
+                            customTextStyle.primeColor,
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          stops: const [0.2, 0.9]
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black54,
+                          spreadRadius: 1,
+                          blurRadius: 7,
+                          offset: Offset(3, 3), // changes position of shadow
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      "Zurück!",
+                      style: customTextStyle.size4Bold(),
+                    ),
+                  ),
+                  onTap: () => deiterateScreen(),
+                )
+            ),
+          ): Container(),
+
+          // Right button
+          isUploading ? Padding(
+            padding: EdgeInsets.only(
+                right: screenWidth*0.05,
+                bottom: screenHeight*0.03
+            ),
+            child: const Align(
+              alignment: AlignmentDirectional.bottomEnd,
+              child: CircularProgressIndicator(),
+            ),
+          ):Padding(
+            padding: EdgeInsets.only(
+                right: screenWidth*0.04,
+                bottom: screenHeight*0.015
+            ),
+            child: Align(
+                alignment: AlignmentDirectional.bottomEnd,
+                child: GestureDetector(
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: screenWidth*0.035,
+                        vertical: screenHeight*0.02
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.all(
+                          Radius.circular(10)
+                      ),
+                      gradient: LinearGradient(
+                          colors: [
+                            customTextStyle.primeColorDark,
+                            customTextStyle.primeColor,
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          stops: [0.2, 0.9]
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black54,
+                          spreadRadius: 1,
+                          blurRadius: 7,
+                          offset: Offset(3, 3), // changes position of shadow
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      creationIndex == 7 ? "Abschicken!":"Weiter!",
+                      style: customTextStyle.size4Bold(),
+                    ),
+                  ),
+                  onTap: () => iterateScreen(),
+                )
+            ),
+          )
+        ],
+
+      ),
+    );
+  }
   Widget _buildCreationStep(double screenHeight, double screenWidth){
 
     switch(creationIndex){
@@ -303,7 +443,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>
                       ),
                       Icon(
                         Icons.calendar_month_outlined,
-                        color: primeColor,
+                        color: customTextStyle.primeColor,
                         size: screenHeight*stateProvider.getIconSizeFactor(),
                       )
                     ],
@@ -548,8 +688,8 @@ class _ClubNewEventViewState extends State<ClubNewEventView>
                               ),
                               gradient: LinearGradient(
                                   colors: [
-                                    primeColorDark,
-                                    primeColor,
+                                    customTextStyle.primeColorDark,
+                                    customTextStyle.primeColor,
                                   ],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
@@ -647,8 +787,8 @@ class _ClubNewEventViewState extends State<ClubNewEventView>
                               ),
                               gradient: LinearGradient(
                                   colors: [
-                                    primeColorDark,
-                                    primeColor,
+                                    customTextStyle.primeColorDark,
+                                    customTextStyle.primeColor,
                                   ],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
@@ -743,7 +883,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>
                         icon: Icon(
                           Icons.send,
                           size: screenHeight*stateProvider.getIconSizeFactor(),
-                          color: primeColor,
+                          color: customTextStyle.primeColor,
                         )
                     ),
                   )
@@ -1031,7 +1171,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>
                       ),
                       Icon(
                         Icons.calendar_month_outlined,
-                        color: primeColor,
+                        color: customTextStyle.primeColor,
                       )
                     ],
                   )
@@ -1169,8 +1309,8 @@ class _ClubNewEventViewState extends State<ClubNewEventView>
                               ),
                               gradient: LinearGradient(
                                   colors: [
-                                    primeColorDark,
-                                    primeColor,
+                                    customTextStyle.primeColorDark,
+                                    customTextStyle.primeColor,
                                   ],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
@@ -1321,6 +1461,38 @@ class _ClubNewEventViewState extends State<ClubNewEventView>
     );
   }
 
+
+  // MISC
+  void iterateScreen(){
+
+    if(
+    (creationIndex == 0 && _eventTitleController.text == "") ||
+        (creationIndex == 3 && _eventDJController.text == "") ||
+        (creationIndex == 4 && musicGenresChosen.isEmpty) ||
+        (creationIndex == 5 && _eventPriceController.text == "") ||
+        (creationIndex == 6 && _eventDescriptionController.text == "")
+    ){
+      showDialogOfMissingValue();
+    }else{
+      if(creationIndex != 7){
+        setState(() {
+          creationIndex++;
+        });
+      }else{
+        setState(() {
+          isUploading = true;
+        });
+        createNewEvent();
+      }
+    }
+  }
+  void deiterateScreen(){
+    if(creationIndex != 0){
+      setState(() {
+        creationIndex--;
+      });
+    }
+  }
   void createNewEvent(){
 
     var uuid = const Uuid();
@@ -1328,12 +1500,17 @@ class _ClubNewEventViewState extends State<ClubNewEventView>
 
     String musicGenresString = "";
 
+    // Add the genres to a string
     for(String item in musicGenresChosen){
       if(musicGenresString == ""){
         musicGenresString = "$item,";
       }else{
         musicGenresString = "$musicGenresString$item,";
       }
+    }
+    // Cut the last comma
+    if (musicGenresString != null && musicGenresString.isNotEmpty) {
+      musicGenresString = musicGenresString.substring(0, musicGenresString.length - 1);
     }
 
     DateTime concatenatedDate = DateTime(
@@ -1375,16 +1552,6 @@ class _ClubNewEventViewState extends State<ClubNewEventView>
     });
 
   }
-
-  void showDialogOfMissingValue(){
-    showDialog(context: context,
-        builder: (BuildContext context){
-          return const AlertDialog(
-              title: Text("Fehlende Werte"),
-              content: Text("Bitte füllen Sie die leeren Felder aus, bevor Sie weitergehen.")
-          );
-        });
-  }
   void showErrorBottomSheet(){
     showModalBottomSheet(
         context: context,
@@ -1398,38 +1565,16 @@ class _ClubNewEventViewState extends State<ClubNewEventView>
         }
     );
   }
-
-  void iterateScreen(){
-
-    if(
-        (creationIndex == 0 && _eventTitleController.text == "") ||
-        (creationIndex == 3 && _eventDJController.text == "") ||
-        (creationIndex == 4 && musicGenresChosen.isEmpty) ||
-        (creationIndex == 5 && _eventPriceController.text == "") ||
-        (creationIndex == 6 && _eventDescriptionController.text == "")
-    ){
-      showDialogOfMissingValue();
-    }else{
-      if(creationIndex != 7){
-        setState(() {
-          creationIndex++;
+  void showDialogOfMissingValue(){
+    showDialog(context: context,
+        builder: (BuildContext context){
+          return const AlertDialog(
+              title: Text("Fehlende Werte"),
+              content: Text("Bitte füllen Sie die leeren Felder aus, bevor Sie weitergehen.")
+          );
         });
-      }else{
-        setState(() {
-          isUploading = true;
-        });
-        createNewEvent();
-      }
-    }
   }
 
-  void deiterateScreen(){
-    if(creationIndex != 0){
-      setState(() {
-        creationIndex--;
-      });
-    }
-  }
 
   @override
   void initState() {
@@ -1437,9 +1582,6 @@ class _ClubNewEventViewState extends State<ClubNewEventView>
     newSelectedDate = DateTime.now();
   }
 
-  @override
-  // TODO: implement restorationId
-  String? get restorationId => "test";
 
   @override
   Widget build(BuildContext context) {
@@ -1455,201 +1597,8 @@ class _ClubNewEventViewState extends State<ClubNewEventView>
 
       extendBody: true,
 
-      bottomNavigationBar: SizedBox(
-        height: screenHeight*0.12,
-        child: Stack(
-          children: [
-
-            // Top accent
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                height: screenHeight*0.105,
-                decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.topRight,
-                        colors: [Colors.grey[600]!, Colors.grey[900]!],
-                        stops: const [0.1, 0.9]
-                    ),
-                    borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(30),
-                        topRight: Radius.circular(30)
-                    )
-                ),
-              ),
-            ),
-
-            // Main Background
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                height: screenHeight*0.1,
-                decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Colors.grey[800]!.withOpacity(0.7),
-                          Colors.grey[900]!
-                        ],
-                        stops: const [0.1,0.9]
-                    ),
-                    borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(30),
-                        topRight: Radius.circular(30)
-                    )
-                ),
-              ),
-            ),
-
-            // Left button
-            creationIndex != 0 ? Padding(
-              padding: EdgeInsets.only(
-                  left: screenWidth*0.04,
-                  bottom: screenHeight*0.015
-              ),
-              child: Align(
-                  alignment: AlignmentDirectional.bottomStart,
-                  child: GestureDetector(
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: screenWidth*0.035,
-                          vertical: screenHeight*0.02
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.all(
-                            Radius.circular(10)
-                        ),
-                        gradient: LinearGradient(
-                            colors: [
-                              primeColorDark,
-                              primeColor,
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            stops: const [0.2, 0.9]
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black54,
-                            spreadRadius: 1,
-                            blurRadius: 7,
-                            offset: Offset(3, 3), // changes position of shadow
-                          ),
-                        ],
-                      ),
-                      child: Text(
-                        "Zurück!",
-                        style: customTextStyle.size4Bold(),
-                      ),
-                    ),
-                    onTap: () => deiterateScreen(),
-                  )
-              ),
-            ): Container(),
-
-            // Right button
-            isUploading ? Padding(
-              padding: EdgeInsets.only(
-                  right: screenWidth*0.05,
-                  bottom: screenHeight*0.03
-              ),
-              child: const Align(
-                alignment: AlignmentDirectional.bottomEnd,
-                child: CircularProgressIndicator(),
-              ),
-            ):Padding(
-              padding: EdgeInsets.only(
-                  right: screenWidth*0.04,
-                  bottom: screenHeight*0.015
-              ),
-              child: Align(
-                  alignment: AlignmentDirectional.bottomEnd,
-                  child: GestureDetector(
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: screenWidth*0.035,
-                          vertical: screenHeight*0.02
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.all(
-                            Radius.circular(10)
-                        ),
-                        gradient: LinearGradient(
-                            colors: [
-                              primeColorDark,
-                              primeColor,
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            stops: [0.2, 0.9]
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black54,
-                            spreadRadius: 1,
-                            blurRadius: 7,
-                            offset: Offset(3, 3), // changes position of shadow
-                          ),
-                        ],
-                      ),
-                      child: Text(
-                        creationIndex == 7 ? "Abschicken!":"Weiter!",
-                        style: customTextStyle.size4Bold(),
-                      ),
-                    ),
-                    onTap: () => iterateScreen(),
-                  )
-              ),
-            )
-          ],
-
-        ),
-      ),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        title: SizedBox(
-          width: screenWidth,
-          child: Stack(
-            children: [
-
-              Container(
-                alignment: Alignment.centerLeft,
-                height: 50,
-                child: IconButton(
-                  icon: const Icon(
-                      Icons.clear_rounded
-                  ),
-                  onPressed: (){
-                    switch(stateProvider.pageIndex){
-                      case(0): context.go('/club_events');
-                      case(3): context.go('/club_frontpage');
-                      default: context.go('/club_frontpage');
-                    }
-                  },
-                ),
-              ),
-
-              SizedBox(
-                width: screenWidth,
-                height: 50,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      headLine,
-                      textAlign: TextAlign.center,
-                      style: customTextStyle.size2(),
-                    )
-                  ],
-                ),
-              )
-
-            ],
-          ),
-        ),
-      ),
+      bottomNavigationBar: _buildNavigationBar(),
+      appBar: _buildAppBar(),
       body: Container(
           width: screenWidth,
           height: screenHeight,

@@ -10,29 +10,28 @@ import 'package:timezone/standalone.dart' as tz;
 class CouponCard extends StatelessWidget {
   CouponCard({
     Key? key,
-    required this.clubMeDiscount,
     required this.isLiked,
+    required this.clickedOnLike,
+    required this.clubMeDiscount,
     required this.clickedOnShare,
-    required this.clickedOnLike
+
   }) : super(key: key);
 
   ClubMeDiscount clubMeDiscount;
 
   late StateProvider stateProvider;
   late CustomTextStyle customTextStyle;
-
-  bool isLiked;
-
-  Color primeColorDark = Colors.teal;
-  Color primeColor = Colors.tealAccent;
-  
   late double screenWidth, screenHeight;
-  
-  Function () clickedOnShare;
-  Function (String) clickedOnLike;
-  
   late String weekDayToDisplay, titleToDisplay;
 
+  Function () clickedOnShare;
+  Function (String) clickedOnLike;
+
+  bool isLiked;
+  String timeLimitToDisplay = "";
+
+
+ // CLICK
   void clickOnInfo(BuildContext context){
 
     Widget okButton = TextButton(
@@ -58,326 +57,12 @@ class CouponCard extends StatelessWidget {
     );
   }
 
-  void showRedeemDialog(BuildContext context, StateProvider stateProvider, ClubMeDiscount clubMeDiscount){
-    showDialog(context: context,
-        builder: (BuildContext context){
-          return AlertDialog(
-            title: Text("Coupon einlösen"),
-            content: Text("Bist du sicher, dass du den Coupon einlösen möchtest? Du kannst ihn danach womöglich nicht noch einmal einlösen"),
-            actions: [
-              TextButton(
-                  onPressed: () {
-                    stateProvider.setCurrentDiscount(clubMeDiscount);
-                    context.go('/coupon_active');
-                  },
-                  child: Text("Einlösen")
-              )
-            ],
-          );
-        }
-    );
-  }
 
-  String formatDateToDisplay(){
-
-    String weekDayToDisplay = "";
-
-    // Get current time for germany
-    final berlin = tz.getLocation('Europe/Berlin');
-    final oneWeekFromNowGermanTZ = tz.TZDateTime.from(DateTime.now(), berlin).add(const Duration(days: 7));
-    // var exactOneWeekFromNow = DateTime.now().add(const Duration(days: 7));
-
-    if(clubMeDiscount.getDiscountDate().isAfter(oneWeekFromNowGermanTZ)){
-      weekDayToDisplay = DateFormat('dd.MM.yyyy').format(clubMeDiscount.getDiscountDate());
-    }else{
-      var eventDateWeekday = clubMeDiscount.getDiscountDate().weekday;
-      switch(eventDateWeekday){
-        case(1): weekDayToDisplay = "Montag";
-        case(2): weekDayToDisplay = "Dienstag";
-        case(3): weekDayToDisplay = "Mittwoch";
-        case(4): weekDayToDisplay = "Donnerstag";
-        case(5): weekDayToDisplay = "Freitag";
-        case(6): weekDayToDisplay = "Samstag";
-        case(7): weekDayToDisplay = "Sonntag";
-      }
-    }
-    return weekDayToDisplay;
-  }
-  
-  Widget _buildCardView(BuildContext context){
-    return Card(
-      child: Column(
-        children: [
-          // Image container
-          Container(
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(12),
-                    topLeft: Radius.circular(12)
-                ),
-                border: Border(
-                  left: BorderSide(
-                      width: 1, color: Colors.white60
-                  ),
-                  right: BorderSide(
-                      width: 1, color: Colors.white60
-                  ),
-                ),
-              ),
-              child: SizedBox(
-                  height: screenHeight*0.4,
-                  child: Stack(
-                    children: [
-
-                      // Image
-                      SizedBox(
-                        height: screenHeight*0.4,
-                        child: ClipRRect(
-                          borderRadius: const BorderRadius.only(
-                              topRight: Radius.circular(12),
-                              topLeft: Radius.circular(12)
-                          ),
-                          child: Image.asset(
-                            "assets/images/${clubMeDiscount.getBannerId()}",
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-
-                      // Shadow to highlight icons
-                      Container(
-                        height: screenHeight*0.15,
-                        decoration: const BoxDecoration(
-                          gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [Colors.black, Colors.transparent]
-                          ),
-                          borderRadius: BorderRadius.only(
-                              topRight: Radius.circular(12),
-                              topLeft: Radius.circular(12)
-                          ),
-                        ),
-                      ),
-                      // Icons
-                      Container(
-                        height: screenHeight*0.4,
-                        alignment: Alignment.topRight,
-                        padding: EdgeInsets.only(
-                            top: screenHeight*0.02,
-                            right: screenWidth*0.02
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                GestureDetector(
-                                  child: Column(
-                                    children: [
-                                      Icon(
-                                        Icons.info_outline,
-                                        color: stateProvider.getPrimeColor(),
-                                      ),
-                                      Text(
-                                        "Info",
-                                        style: customTextStyle.size5(),
-                                      ),
-                                    ],
-                                  ),
-                                  onTap: () => clickOnInfo(context),
-                                ),
-                                SizedBox(
-                                  width: screenWidth*0.02,
-                                ),
-                                GestureDetector(
-                                  child: Column(
-                                    children: [
-                                      Icon(
-                                        isLiked ? Icons.star_outlined : Icons.star_border,
-                                        color: stateProvider.getPrimeColor(),
-                                      ),
-                                      Text(
-                                        "Like",
-                                        style: customTextStyle.size5(),
-                                      ),
-                                    ],
-                                  ),
-                                  onTap: () => clickedOnLike(clubMeDiscount.getDiscountId()),
-                                ),
-                                SizedBox(
-                                  width: screenWidth*0.02,
-                                ),
-                                GestureDetector(
-                                  child: Column(
-                                    children: [
-                                      Icon(
-                                        Icons.share,
-                                        color: stateProvider.getPrimeColor(),
-                                      ),
-                                      Text(
-                                        "Share",
-                                        style: customTextStyle.size5(),
-                                      ),
-                                    ],
-                                  ),
-                                  onTap: () => clickedOnShare(),
-                                )
-                              ],
-                            )
-                          ],
-                        ),
-                      ),
-                    ],
-                  )
-              )
-          ),
-
-          // Content container
-          Container(
-              height: screenHeight*0.2,
-              width: screenWidth,
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.only(
-                    bottomRight: Radius.circular(12),
-                    bottomLeft: Radius.circular(12)
-                ),
-                border: const Border(
-                  left: BorderSide(
-                      width: 1, color: Colors.white60
-                  ),
-                  right: BorderSide(
-                      width: 1, color: Colors.white60
-                  ),
-                ),
-                gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Colors.grey[700]!,
-                      Colors.grey[850]!
-                    ],
-                    stops: const [0.3, 0.8]
-                ),
-              ),
-              child: Stack(
-                children: [
-
-                  Column(
-                    children: [
-
-                      // Title
-                      Padding(
-                        padding: const EdgeInsets.only(
-                            top: 10,
-                            left: 10
-                        ),
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            titleToDisplay,
-                            style: customTextStyle.size2Bold(),
-                          ),
-                        ),
-                      ),
-
-                      // Location
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          // top: 5,
-                            left: 10
-                        ),
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            clubMeDiscount.getClubName(),
-                            style: customTextStyle.size4(),
-                          ),
-                        ),
-                      ),
-
-                      // When
-                      Padding(
-                        padding: const EdgeInsets.only(
-                            top: 3,
-                            left: 10
-                        ),
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            weekDayToDisplay,
-                            style: customTextStyle.size5BoldGrey(),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-
-                  clubMeDiscount.hasTimeLimit?
-                  Padding(
-                    padding: const EdgeInsets.only(left: 7, bottom: 7),
-                    child: Align(
-                      alignment: Alignment.bottomLeft,
-                      child: GestureDetector(
-                        child: Container(
-                          decoration: const BoxDecoration(
-                              color: Color(0xff11181f),
-                              borderRadius: BorderRadius.all(
-                                  Radius.circular(10)
-                              )
-                          ),
-                          padding: const EdgeInsets.all(10),
-                          child: Text(
-                            "Bis ${clubMeDiscount.getDiscountDate().hour}:${clubMeDiscount.getDiscountDate().minute}",
-                            style: customTextStyle.size4BoldGrey(),
-                          ),
-                        ),
-                        onTap: (){
-
-                        },
-                      ),
-                    ),
-                  ):Container(),
-
-                  // Button
-                  Padding(
-                    padding: const EdgeInsets.only(right: 7, bottom: 7),
-                    child: Align(
-                      alignment: Alignment.bottomRight,
-                      child: GestureDetector(
-                        child: Container(
-                          decoration: const BoxDecoration(
-                              color: Color(0xff11181f),
-                              borderRadius: BorderRadius.all(
-                                  Radius.circular(10)
-                              )
-                          ),
-                          padding: const EdgeInsets.all(10),
-                          child: Text(
-                            "Einlösen!",
-                            style: customTextStyle.size3BoldPrimeColor(),
-                          ),
-                        ),
-                        onTap: (){
-                          showRedeemDialog(context, stateProvider, clubMeDiscount);
-                        },
-                      ),
-                    ),
-                  )
-                ],
-              )
-          )
-        ],
-      ),
-    );
-  }
-  
+  // BUILD
   Widget _buildStackView(BuildContext context){
 
     double newDiscountContainerHeightFactor = 0.6;
-    
+
     return Stack(
       children: [
 
@@ -391,7 +76,7 @@ class CouponCard extends StatelessWidget {
                   end: Alignment.bottomRight,
                   colors: [
                     Colors.grey[900]!,
-                    primeColorDark.withOpacity(0.4)
+                    customTextStyle.primeColorDark.withOpacity(0.4)
                   ],
                   stops: const [0.6, 0.9]
               ),
@@ -409,7 +94,7 @@ class CouponCard extends StatelessWidget {
                   end: Alignment.bottomRight,
                   colors: [
                     Colors.grey[900]!,
-                    primeColorDark.withOpacity(0.2)
+                    customTextStyle.primeColorDark.withOpacity(0.2)
                   ],
                   stops: const [0.6, 0.9]
               ),
@@ -488,120 +173,119 @@ class CouponCard extends StatelessWidget {
       ],
     );
   }
-
   Widget _buildStackViewContent(BuildContext context){
     return Column(
       children: [
 
         // Image container
         SizedBox(
-          height: screenHeight*0.3,
-          child: Stack(
-            children: [
+            height: screenHeight*0.3,
+            child: Stack(
+              children: [
 
-              SizedBox(
-                height: screenHeight*0.3,
-                width: screenWidth,
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                      topRight: Radius.circular(15),
-                      topLeft: Radius.circular(15)
-                  ),
-                  child: Image.asset(
-                    "assets/images/${clubMeDiscount.getBannerId()}",
-                    fit: BoxFit.cover,
+                SizedBox(
+                  height: screenHeight*0.3,
+                  width: screenWidth,
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                        topRight: Radius.circular(15),
+                        topLeft: Radius.circular(15)
+                    ),
+                    child: Image.asset(
+                      "assets/images/${clubMeDiscount.getBannerId()}",
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
-              ),
 
-              // Shadow to highlight icons
-              Container(
-                height: screenHeight*0.15,
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [Colors.black, Colors.transparent]
-                  ),
-                  borderRadius: BorderRadius.only(
-                      topRight: Radius.circular(12),
-                      topLeft: Radius.circular(12)
+                // Shadow to highlight icons
+                Container(
+                  height: screenHeight*0.15,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [Colors.black, Colors.transparent]
+                    ),
+                    borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(12),
+                        topLeft: Radius.circular(12)
+                    ),
                   ),
                 ),
-              ),
 
-              // Icons
-              Container(
-                height: screenHeight*0.2,
-                alignment: Alignment.topRight,
-                padding: EdgeInsets.only(
-                    top: screenHeight*0.02,
-                    right: screenWidth*0.02
+                // Icons
+                Container(
+                  height: screenHeight*0.2,
+                  alignment: Alignment.topRight,
+                  padding: EdgeInsets.only(
+                      top: screenHeight*0.02,
+                      right: screenWidth*0.02
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          GestureDetector(
+                            child: Column(
+                              children: [
+                                Icon(
+                                  Icons.info_outline,
+                                  color: stateProvider.getPrimeColor(),
+                                ),
+                                Text(
+                                  "Info",
+                                  style: customTextStyle.size5(),
+                                ),
+                              ],
+                            ),
+                            onTap: () => clickOnInfo(context),
+                          ),
+                          SizedBox(
+                            width: screenWidth*0.02,
+                          ),
+                          GestureDetector(
+                            child: Column(
+                              children: [
+                                Icon(
+                                  isLiked ? Icons.star_outlined : Icons.star_border,
+                                  color: stateProvider.getPrimeColor(),
+                                ),
+                                Text(
+                                  "Like",
+                                  style: customTextStyle.size5(),
+                                ),
+                              ],
+                            ),
+                            onTap: () => clickedOnLike(clubMeDiscount.getDiscountId()),
+                          ),
+                          SizedBox(
+                            width: screenWidth*0.02,
+                          ),
+                          GestureDetector(
+                            child: Column(
+                              children: [
+                                Icon(
+                                  Icons.share,
+                                  color: stateProvider.getPrimeColor(),
+                                ),
+                                Text(
+                                  "Share",
+                                  style: customTextStyle.size5(),
+                                ),
+                              ],
+                            ),
+                            onTap: () => clickedOnShare(),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        GestureDetector(
-                          child: Column(
-                            children: [
-                              Icon(
-                                Icons.info_outline,
-                                color: stateProvider.getPrimeColor(),
-                              ),
-                              Text(
-                                "Info",
-                                style: customTextStyle.size5(),
-                              ),
-                            ],
-                          ),
-                          onTap: () => clickOnInfo(context),
-                        ),
-                        SizedBox(
-                          width: screenWidth*0.02,
-                        ),
-                        GestureDetector(
-                          child: Column(
-                            children: [
-                              Icon(
-                                isLiked ? Icons.star_outlined : Icons.star_border,
-                                color: stateProvider.getPrimeColor(),
-                              ),
-                              Text(
-                                "Like",
-                                style: customTextStyle.size5(),
-                              ),
-                            ],
-                          ),
-                          onTap: () => clickedOnLike(clubMeDiscount.getDiscountId()),
-                        ),
-                        SizedBox(
-                          width: screenWidth*0.02,
-                        ),
-                        GestureDetector(
-                          child: Column(
-                            children: [
-                              Icon(
-                                Icons.share,
-                                color: stateProvider.getPrimeColor(),
-                              ),
-                              Text(
-                                "Share",
-                                style: customTextStyle.size5(),
-                              ),
-                            ],
-                          ),
-                          onTap: () => clickedOnShare(),
-                        )
-                      ],
-                    )
-                  ],
-                ),
-              ),
-            ],
-          )
+              ],
+            )
         ),
 
         // Content container
@@ -681,9 +365,9 @@ class CouponCard extends StatelessWidget {
                         height: screenHeight*0.03,
                         child: Padding(
                           padding: EdgeInsets.only(
-                            left: screenWidth*0.02
-                              // top: 3,
-                              // left: 10
+                              left: screenWidth*0.02
+                            // top: 3,
+                            // left: 10
                           ),
                           child: Align(
                             alignment: Alignment.centerLeft,
@@ -713,7 +397,7 @@ class CouponCard extends StatelessWidget {
                           ),
                           padding: const EdgeInsets.all(10),
                           child: Text(
-                            "Bis ${clubMeDiscount.getDiscountDate().hour}:${clubMeDiscount.getDiscountDate().minute}",
+                            "Bis $timeLimitToDisplay",
                             style: customTextStyle.size4BoldGrey(),
                           ),
                         ),
@@ -759,9 +443,79 @@ class CouponCard extends StatelessWidget {
   }
 
 
+  // FORMAT
+  void formatTimeLimit(){
+
+    if(clubMeDiscount.getDiscountDate().minute < 10){
+      if(clubMeDiscount.getDiscountDate().hour < 10){
+        timeLimitToDisplay = "0${clubMeDiscount.getDiscountDate().hour}:0${clubMeDiscount.getDiscountDate().minute}";
+      }else{
+        timeLimitToDisplay = "${clubMeDiscount.getDiscountDate().hour}:0${clubMeDiscount.getDiscountDate().minute}";
+      }
+    }else{
+      if(clubMeDiscount.getDiscountDate().hour < 10){
+        timeLimitToDisplay = "0${clubMeDiscount.getDiscountDate().hour}:${clubMeDiscount.getDiscountDate().minute}";
+      }else{
+        timeLimitToDisplay = "${clubMeDiscount.getDiscountDate().hour}:${clubMeDiscount.getDiscountDate().minute}";
+      }
+    }
+
+  }
+  void formatDiscountTitle(){
+    if(clubMeDiscount.getDiscountTitle().length > 26){
+      titleToDisplay = "${clubMeDiscount.getDiscountTitle().substring(0,25)}...";
+    }else{
+      titleToDisplay = clubMeDiscount.getDiscountTitle();
+    }
+  }
+  void formatDateToDisplay(){
+
+    // Get current time for germany
+    final berlin = tz.getLocation('Europe/Berlin');
+    final oneWeekFromNowGermanTZ = tz.TZDateTime.from(DateTime.now(), berlin).add(const Duration(days: 7));
+    // var exactOneWeekFromNow = DateTime.now().add(const Duration(days: 7));
+
+    if(clubMeDiscount.getDiscountDate().isAfter(oneWeekFromNowGermanTZ)){
+      weekDayToDisplay = DateFormat('dd.MM.yyyy').format(clubMeDiscount.getDiscountDate());
+    }else{
+      var eventDateWeekday = clubMeDiscount.getDiscountDate().weekday;
+      switch(eventDateWeekday){
+        case(1): weekDayToDisplay = "Montag";
+        case(2): weekDayToDisplay = "Dienstag";
+        case(3): weekDayToDisplay = "Mittwoch";
+        case(4): weekDayToDisplay = "Donnerstag";
+        case(5): weekDayToDisplay = "Freitag";
+        case(6): weekDayToDisplay = "Samstag";
+        case(7): weekDayToDisplay = "Sonntag";
+      }
+    }
+  }
+
+
+  // DIALOGS
   void showInformationDialog(){
 
   }
+  void showRedeemDialog(BuildContext context, StateProvider stateProvider, ClubMeDiscount clubMeDiscount){
+    showDialog(context: context,
+        builder: (BuildContext context){
+          return AlertDialog(
+            title: Text("Coupon einlösen"),
+            content: Text("Bist du sicher, dass du den Coupon einlösen möchtest? Du kannst ihn danach womöglich nicht noch einmal einlösen"),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    stateProvider.setCurrentDiscount(clubMeDiscount);
+                    context.go('/coupon_active');
+                  },
+                  child: Text("Einlösen")
+              )
+            ],
+          );
+        }
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -773,21 +527,11 @@ class CouponCard extends StatelessWidget {
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
 
-    String validText = "${clubMeDiscount.getNumberOfUsages()} Mal";
+    formatTimeLimit();
+    formatDiscountTitle();
+    formatDateToDisplay();
 
-    weekDayToDisplay = formatDateToDisplay();
-
-    titleToDisplay = "";
-
-    if(clubMeDiscount.getDiscountTitle().length > 26){
-      titleToDisplay = "${clubMeDiscount.getDiscountTitle().substring(0,25)}...";
-    }else{
-      titleToDisplay = clubMeDiscount.getDiscountTitle();
-    }
-
-    return
-      // _buildCardView(context);
-      _buildStackView(context);
+    return _buildStackView(context);
   }
 
 }

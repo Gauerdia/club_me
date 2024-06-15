@@ -1,7 +1,6 @@
 import 'package:club_me/club_coupons/components/discount_card.dart';
-import 'package:club_me/club_coupons/components/small_discount_tile.dart';
+import 'package:club_me/club_coupons/components/discount_tile_2.dart';
 import 'package:club_me/provider/state_provider.dart';
-import 'package:club_me/user_coupons/components/coupon_card.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -24,14 +23,62 @@ class _ClubUpcomingDiscountsViewState extends State<ClubUpcomingDiscountsView> {
 
   String headline = "Kommende Coupons";
 
-  late CustomTextStyle customTextStyle;
-
-  late double screenHeight, screenWidth;
   late StateProvider stateProvider;
+  late CustomTextStyle customTextStyle;
+  late double screenHeight, screenWidth;
 
   List<ClubMeDiscount> upcomingDbDiscounts = [];
   List<ClubMeDiscount> discountsToDisplay = [];
 
+  // CLICKED
+  void clickedOnTile(){
+    // TODO: Implement click event
+  }
+
+  // BUILD
+  Widget _buildAppBarShowTitle(){
+    return SizedBox(
+      width: screenWidth,
+      child: Stack(
+        children: [
+          // Headline
+          Container(
+              alignment: Alignment.bottomCenter,
+              height: 50,
+              width: screenWidth,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(headline,
+                      textAlign: TextAlign.center,
+                      style: customTextStyle.size2()
+                  ),
+                ],
+              )
+          ),
+
+          // back icon
+          Container(
+              width: screenWidth,
+              alignment: Alignment.centerLeft,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                    onPressed: () => context.go("/club_discounts"),
+                    icon: const Icon(
+                      Icons.arrow_back_ios_new_outlined,
+                      color: Colors.grey,
+                    ),
+                  )
+                ],
+              )
+          ),
+
+        ],
+      ),
+    );
+  }
   Widget _buildMainView(StateProvider stateProvider, double screenHeight){
 
     // get today in correct format to check which events are upcoming
@@ -51,6 +98,9 @@ class _ClubUpcomingDiscountsViewState extends State<ClubUpcomingDiscountsView> {
 
     return ListView.builder(
         shrinkWrap: true,
+        padding: EdgeInsets.symmetric(
+          vertical: screenHeight*0.02
+        ),
         physics: const NeverScrollableScrollPhysics(),
         itemCount: upcomingDbDiscounts.length,
         itemBuilder: ((context, index){
@@ -58,11 +108,11 @@ class _ClubUpcomingDiscountsViewState extends State<ClubUpcomingDiscountsView> {
           ClubMeDiscount currentDiscount = upcomingDbDiscounts[index];
 
           return GestureDetector(
-            child: DiscountCard(
+            child:
+            DiscountTile2(
               clubMeDiscount: currentDiscount,
             ),
-            onTap: (){
-            },
+            onTap: () => clickedOnTile(),
           );
         })
     );
@@ -71,39 +121,22 @@ class _ClubUpcomingDiscountsViewState extends State<ClubUpcomingDiscountsView> {
   @override
   Widget build(BuildContext context) {
 
-    stateProvider = Provider.of<StateProvider>(context);
-
-    customTextStyle = CustomTextStyle(context: context);
-
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
 
+    stateProvider = Provider.of<StateProvider>(context);
+    customTextStyle = CustomTextStyle(context: context);
+
     return Scaffold(
 
-        extendBody: true,
+      extendBody: true,
 
-        bottomNavigationBar: CustomBottomNavigationBar(),
-        appBar:
-
-        AppBar(
-
-            backgroundColor: Colors.transparent,
-
-            title: Text(headline,
-              style: customTextStyle.size1Bold()
-            ),
-
-            leading: GestureDetector(
-              child: const Icon(
-                Icons.arrow_back_ios_new_outlined,
-                color: Colors.grey,
-                // size: 20,
-              ),
-              onTap: () => context.go("/club_discounts"),
-            )
-
-        ),
-        body: Container(
+      appBar: AppBar(
+          automaticallyImplyLeading: false,
+          backgroundColor: Colors.transparent,
+          title: _buildAppBarShowTitle()
+      ),
+      body: Container(
             width: screenWidth,
             height: screenHeight,
             decoration: const BoxDecoration(
@@ -133,7 +166,8 @@ class _ClubUpcomingDiscountsViewState extends State<ClubUpcomingDiscountsView> {
                 ),
               ],
             )
-        )
+        ),
+      bottomNavigationBar: CustomBottomNavigationBar(),
     );
   }
 }

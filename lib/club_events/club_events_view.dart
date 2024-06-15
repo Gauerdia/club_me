@@ -1,3 +1,4 @@
+import 'package:club_me/club_events/club_edit_event_view.dart';
 import 'package:club_me/models/event.dart';
 import 'package:club_me/shared/custom_bottom_navigation_bar_clubs.dart';
 import 'package:flutter/material.dart';
@@ -24,11 +25,12 @@ class _ClubEventsViewState extends State<ClubEventsView> {
   String headLine = "Deine Events";
 
   late Future getEvents;
+  late StateProvider stateProvider;
+  late CustomTextStyle customTextStyle;
+  late double screenHeight, screenWidth;
 
   final HiveService _hiveService = HiveService();
   final SupabaseService _supabaseService = SupabaseService();
-
-  late CustomTextStyle customTextStyle;
 
   List<ClubMeEvent> pastEvents = [];
   List<ClubMeEvent> upcomingEvents = [];
@@ -36,8 +38,7 @@ class _ClubEventsViewState extends State<ClubEventsView> {
   double discountContainerHeightFactor = 0.52;
   double newDiscountContainerHeightFactor = 0.2;
 
-  Color primeColorDark = Colors.teal;
-  Color primeColor = Colors.tealAccent;
+  bool isDeleting = false;
 
 
   @override
@@ -45,59 +46,11 @@ class _ClubEventsViewState extends State<ClubEventsView> {
     super.initState();
     final stateProvider = Provider.of<StateProvider>(context, listen:  false);
     if(stateProvider.getFetchedEvents().isEmpty){
-
       getEvents = _supabaseService.getEventsOfSpecificClub(stateProvider.getUserData().getUserId());
     }
   }
 
-  void toggleNewIsActive(){
-
-  }
-
-  void filterEventsFromProvider(StateProvider stateProvider){
-    for(var currentEvent in stateProvider.getFetchedEvents()){
-
-      // add 23 so that we can still find it as upcoming even though it's the same day
-      DateTime eventTimestamp = currentEvent.getEventDate();
-
-
-      // Get current time for germany
-      final berlin = tz.getLocation('Europe/Berlin');
-      final todayTimestamp = tz.TZDateTime.from(DateTime.now(), berlin).subtract(const Duration(hours:5));
-
-      // Filter the events
-      if(eventTimestamp.isAfter(todayTimestamp)){
-        upcomingEvents.add(currentEvent);
-      }else{
-        pastEvents.add(currentEvent);
-      }
-    }
-  }
-
-  void filterEventsFromQuery(var data, StateProvider stateProvider){
-    for(var element in data){
-      ClubMeEvent currentEvent = parseClubMeEvent(element);
-
-      // add 23 so that we can still find it as upcoming even though it's the same day
-      DateTime eventTimestamp = currentEvent.getEventDate();
-
-      // Get current time for germany
-      final berlin = tz.getLocation('Europe/Berlin');
-      final todayTimestamp = tz.TZDateTime.from(DateTime.now(), berlin).subtract(const Duration(hours:5));
-
-      // Filter the events
-      if(eventTimestamp.isAfter(todayTimestamp)){
-        upcomingEvents.add(currentEvent);
-      }else{
-        pastEvents.add(currentEvent);
-      }
-
-      // Add to provider so that we dont need to call them from the db again
-      stateProvider.addEventToFetchedEvents(currentEvent);
-    }
-  }
-
-
+  // BUILD
   Widget fetchEventsFromDbAndBuildWidget(
       StateProvider stateProvider,
       double screenHeight, double screenWidth
@@ -134,7 +87,6 @@ class _ClubEventsViewState extends State<ClubEventsView> {
         }
     ): _buildMainView(stateProvider, screenHeight, screenWidth);
   }
-
   Widget _buildMainView(
       StateProvider stateProvider,
       double screenHeight,
@@ -184,7 +136,6 @@ class _ClubEventsViewState extends State<ClubEventsView> {
       ],
     );
   }
-
   Widget buildNewEventWidget(
       BuildContext context, StateProvider stateProvider,
       double screenHeight, double screenWidth
@@ -204,7 +155,7 @@ class _ClubEventsViewState extends State<ClubEventsView> {
                       end: Alignment.bottomRight,
                       colors: [
                         Colors.grey[900]!,
-                        primeColorDark.withOpacity(0.4)
+                        customTextStyle.primeColorDark.withOpacity(0.4)
                       ],
                       stops: const [0.6, 0.9]
                   ),
@@ -224,7 +175,7 @@ class _ClubEventsViewState extends State<ClubEventsView> {
                       end: Alignment.bottomRight,
                       colors: [
                         Colors.grey[900]!,
-                        primeColorDark.withOpacity(0.2)
+                        customTextStyle.primeColorDark.withOpacity(0.2)
                       ],
                       stops: const [0.6, 0.9]
                   ),
@@ -328,8 +279,8 @@ class _ClubEventsViewState extends State<ClubEventsView> {
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
                                     colors: [
-                                      primeColorDark,
-                                      primeColor,
+                                      customTextStyle.primeColorDark,
+                                      customTextStyle.primeColor,
                                     ],
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
@@ -356,7 +307,7 @@ class _ClubEventsViewState extends State<ClubEventsView> {
                               )
                           ),
                           onTap: (){
-                            context.go("/club_new_event");
+                            context.push("/club_new_event");
                           },
                         ),
                       ),
@@ -370,7 +321,6 @@ class _ClubEventsViewState extends State<ClubEventsView> {
       ),
     );
   }
-
   Widget buildCurrentEventsWidget(
       StateProvider stateProvider,double screenHeight, double screenWidth){
 
@@ -393,7 +343,7 @@ class _ClubEventsViewState extends State<ClubEventsView> {
                   end: Alignment.bottomRight,
                   colors: [
                     Colors.grey[900]!,
-                    primeColorDark.withOpacity(0.4)
+                    customTextStyle.primeColorDark.withOpacity(0.4)
                   ],
                   stops: const [0.6, 0.9]
               ),
@@ -413,7 +363,7 @@ class _ClubEventsViewState extends State<ClubEventsView> {
                   end: Alignment.bottomRight,
                   colors: [
                     Colors.grey[900]!,
-                    primeColorDark.withOpacity(0.2)
+                    customTextStyle.primeColorDark.withOpacity(0.2)
                   ],
                   stops: const [0.6, 0.9]
               ),
@@ -522,21 +472,54 @@ class _ClubEventsViewState extends State<ClubEventsView> {
                             onTap: () => clickedOnCurrentEvent(stateProvider),
                           ),
 
+                          // Shadow to highlight icons
+                          Center(
+                            child: Padding(
+                              padding: EdgeInsets.only(
+                                top: screenHeight*0.005
+                              ),
+                              child: Container(
+                                height: screenHeight*0.07,
+                                width: screenWidth*0.8,
+                                decoration: const BoxDecoration(
+                                  gradient: LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      colors: [Colors.black, Colors.transparent],
+                                  ),
+                                  borderRadius: BorderRadius.only(
+                                      topRight: Radius.circular(12),
+                                      topLeft: Radius.circular(12)
+                                  ),
+                                ),
+                              ),
+                            )
+                          ),
+
                           // Edit button
                           Padding(
                             padding: EdgeInsets.only(
                               right: screenWidth*0.05,
-                              // top: screenHeight*0.01
                             ),
                             child: Align(
                               alignment: Alignment.topRight,
-                              child: IconButton(
-                                icon: Icon(Icons.edit, size: screenWidth*0.08),
-                                color: primeColor,
-                                onPressed: () => editEvent(stateProvider),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  IconButton(
+                                    icon: Icon(Icons.edit, size: screenWidth*0.08),
+                                    color: customTextStyle.primeColor,
+                                    onPressed: () => clickOnEditEvent(),
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.clear_rounded, size: screenWidth*0.08),
+                                    color: customTextStyle.primeColor,
+                                    onPressed: () => clickOnDeleteEvent(),
+                                  ),
+                                ],
                               ),
                             ),
-                          )
+                          ),
                         ],
                       )
                     :Text(
@@ -544,6 +527,7 @@ class _ClubEventsViewState extends State<ClubEventsView> {
                         style: customTextStyle.size3(),
                 ),
 
+                // Spacer
                 stateProvider.getFetchedDiscounts().isEmpty ? SizedBox(
                   height: screenHeight*0.03,
                 ):Container(),
@@ -567,12 +551,12 @@ class _ClubEventsViewState extends State<ClubEventsView> {
                 decoration: BoxDecoration(
                   gradient:LinearGradient(
                       colors: [
-                        primeColorDark,
-                        primeColor,
+                        customTextStyle.primeColorDark,
+                        customTextStyle.primeColor,
                       ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
-                      stops: [0.2, 0.9]
+                      stops: const [0.2, 0.9]
                   ),
                   boxShadow: const [
                     BoxShadow(
@@ -599,7 +583,6 @@ class _ClubEventsViewState extends State<ClubEventsView> {
       ],
     );
   }
-
   Widget buildPastEventsWidget(
       StateProvider stateProvider, double screenHeight, double screenWidth){
 
@@ -622,7 +605,7 @@ class _ClubEventsViewState extends State<ClubEventsView> {
                   end: Alignment.bottomRight,
                   colors: [
                     Colors.grey[900]!,
-                    primeColorDark.withOpacity(0.4)
+                    customTextStyle.primeColorDark.withOpacity(0.4)
                   ],
                   stops: const [0.6, 0.9]
               ),
@@ -642,7 +625,7 @@ class _ClubEventsViewState extends State<ClubEventsView> {
                   end: Alignment.bottomRight,
                   colors: [
                     Colors.grey[900]!,
-                    primeColorDark.withOpacity(0.2)
+                    customTextStyle.primeColorDark.withOpacity(0.2)
                   ],
                   stops: const [0.6, 0.9]
               ),
@@ -772,8 +755,8 @@ class _ClubEventsViewState extends State<ClubEventsView> {
                 decoration: BoxDecoration(
                   gradient:LinearGradient(
                       colors: [
-                       primeColorDark,
-                       primeColor,
+                        customTextStyle.primeColorDark,
+                        customTextStyle.primeColor,
                       ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
@@ -804,51 +787,143 @@ class _ClubEventsViewState extends State<ClubEventsView> {
       ],
     );
   }
+  AppBar _buildAppBar(){
+    return AppBar(
+        backgroundColor: Colors.transparent,
+        title: SizedBox(
+          width: screenWidth,
+          child: Text(headLine,
+            textAlign: TextAlign.center,
+            style: customTextStyle.size2(),
+          ),
+        )
+    );
+  }
+
+  // FILTER
+  void filterEventsFromProvider(StateProvider stateProvider){
+
+    upcomingEvents = [];
+    pastEvents = [];
+
+    for(var currentEvent in stateProvider.getFetchedEvents()){
+
+      // add 23 so that we can still find it as upcoming even though it's the same day
+      DateTime eventTimestamp = currentEvent.getEventDate();
 
 
+      // Get current time for germany
+      final berlin = tz.getLocation('Europe/Berlin');
+      final todayTimestamp = tz.TZDateTime.from(DateTime.now(), berlin).subtract(const Duration(hours:5));
+
+      // Filter the events
+      if(eventTimestamp.isAfter(todayTimestamp)){
+        upcomingEvents.add(currentEvent);
+      }else{
+        pastEvents.add(currentEvent);
+      }
+    }
+  }
+  void filterEventsFromQuery(var data, StateProvider stateProvider){
+    for(var element in data){
+      ClubMeEvent currentEvent = parseClubMeEvent(element);
+
+      // add 23 so that we can still find it as upcoming even though it's the same day
+      DateTime eventTimestamp = currentEvent.getEventDate();
+
+      // Get current time for germany
+      final berlin = tz.getLocation('Europe/Berlin');
+      final todayTimestamp = tz.TZDateTime.from(DateTime.now(), berlin).subtract(const Duration(hours:5));
+
+      // Filter the events
+      if(eventTimestamp.isAfter(todayTimestamp)){
+        upcomingEvents.add(currentEvent);
+      }else{
+        pastEvents.add(currentEvent);
+      }
+
+      if(upcomingEvents.isNotEmpty){
+        upcomingEvents.sort((a,b) =>
+            a.getEventDate().millisecondsSinceEpoch.compareTo(b.getEventDate().millisecondsSinceEpoch)
+        );
+      }
+
+      if(pastEvents.isNotEmpty){
+        pastEvents.sort((a,b) =>
+            a.getEventDate().millisecondsSinceEpoch.compareTo(b.getEventDate().millisecondsSinceEpoch)
+        );
+      }
+
+      // Add to provider so that we dont need to call them from the db again
+      stateProvider.addEventToFetchedEvents(currentEvent);
+    }
+  }
+
+  // CLICK
+  void clickOnEditEvent(){
+    stateProvider.setCurrentEvent(upcomingEvents[0]);
+    Navigator.push(context, MaterialPageRoute(builder: (context){
+      return const ClubEditEventView();
+    }));
+  }
+  void clickOnDeleteEvent(){
+    showDialog(context: context, builder: (BuildContext context){
+      return AlertDialog(
+        title: const Text("Achtung!"),
+        content: const Text(
+          "Bist du sicher, dass du dieses Event löschen möchtest?",
+          textAlign: TextAlign.left,
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => _supabaseService.deleteEvent(upcomingEvents[0].getEventId()).then((value){
+                if(value == 0){
+                  setState(() {
+                    stateProvider.fetchedEvents.removeWhere((element) => element.getEventId() == upcomingEvents[0].getEventId());
+                    upcomingEvents.removeAt(0);
+                  });
+                  Navigator.pop(context);
+                }else{
+                  Navigator.pop(context);
+                }
+              }),
+              child: const Text("Löschen")
+          )
+        ],
+      );
+    });
+  }
   void clickedOnCurrentEvent(StateProvider stateProvider){
     stateProvider.setCurrentEvent(upcomingEvents[0]);
     context.go("/event_details");
   }
 
-  void editEvent(StateProvider stateProvider){
-    stateProvider.activateIsCurrentlyOnlyUpdatingAnEvent();
-    stateProvider.activateEventEditable();
-    stateProvider.setCurrentEvent(upcomingEvents[0]);
-    context.go("/event_details");
-  }
+
 
   @override
   Widget build(BuildContext context) {
 
 
-    final stateProvider = Provider.of<StateProvider>(context);
+    stateProvider = Provider.of<StateProvider>(context);
 
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
+    screenWidth = MediaQuery.of(context).size.width;
+    screenHeight = MediaQuery.of(context).size.height;
 
     customTextStyle = CustomTextStyle(context: context);
 
     if(upcomingEvents.isEmpty && pastEvents.isEmpty){
       filterEventsFromProvider(stateProvider);
     }
+    if(upcomingEvents.isNotEmpty && !identical(upcomingEvents[0], stateProvider.getFetchedEvents().where((element) => element.getEventId() == upcomingEvents[0].getEventId()))){
+      filterEventsFromProvider(stateProvider);
+    }
 
     return Scaffold(
 
-        // extendBodyBehindAppBar: true,
         extendBody: true,
 
         bottomNavigationBar: CustomBottomNavigationBarClubs(),
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          title: SizedBox(
-            width: screenWidth,
-            child: Text(headLine,
-              textAlign: TextAlign.center,
-              style: customTextStyle.size2(),
-            ),
-          )
-        ),
+        appBar: _buildAppBar(),
         body: Container(
             width: screenWidth,
             height: screenHeight,

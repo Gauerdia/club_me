@@ -26,8 +26,6 @@ class CustomBottomNavigationBarClubs extends StatelessWidget {
     return Container(
         decoration: BoxDecoration(
             borderRadius: const BorderRadius.only(
-                // topRight: Radius.circular(30),
-                // topLeft: Radius.circular(30)
             ),
             color: navigationBackgroundColor
         ),
@@ -36,8 +34,6 @@ class CustomBottomNavigationBarClubs extends StatelessWidget {
             Container(
               decoration: const BoxDecoration(
                 borderRadius: BorderRadius.only(
-                    // topRight: Radius.circular(30),
-                    // topLeft: Radius.circular(30)
                 ),
               ),
               height: 70,

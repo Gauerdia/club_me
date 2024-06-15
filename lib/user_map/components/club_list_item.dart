@@ -15,27 +15,43 @@ import '../../shared/show_story_chewie.dart';
 class ClubListItem extends StatelessWidget {
   ClubListItem({
     Key? key,
-    required this.NOfPeople,
-    required this.distance,
-    required this.price,
     required this.currentClub
-
   }) : super(key: key);
 
   ClubMeClub currentClub;
 
-  late double screenWidth, screenHeight;
-
   late StateProvider stateProvider;
   late CustomTextStyle customTextStyle;
+  late double screenWidth, screenHeight;
 
-  Color primeColorDark = Colors.teal;
-  Color primeColor = Colors.tealAccent;
+  // FORMAT
+  String getAndFormatMusicGenre() {
 
-  String price;
-  String distance;
-  String NOfPeople;
+    String genreToReturn = "";
 
+    if (currentClub.getMusicGenres().contains(",")) {
+      var index = currentClub.getMusicGenres().indexOf(",");
+      genreToReturn = currentClub.getMusicGenres().substring(0, index);
+    } else {
+      genreToReturn = currentClub.getMusicGenres();
+    }
+
+    if(genreToReturn.length>8){
+      genreToReturn = "${genreToReturn.substring(0, 7)}...";
+    }
+    return genreToReturn;
+
+  }
+
+  // CALCULATE
+  String getRandomNumber(){
+
+    final random = Random();
+    int next(int min, int max) => min + random.nextInt(max - min);
+
+    return next(20, 50).toString();
+
+  }
   double calculateDistanceToClub(){
 
     if(stateProvider.getUserLatCoord() != 0){
@@ -57,30 +73,13 @@ class ClubListItem extends StatelessWidget {
     }
   }
 
-  String getAndFormatMusicGenre() {
+  // BUILD
+  Widget _buildStackView(
+      BuildContext context
+      ){
 
-    String genreToReturn = "";
-
-    if (currentClub.getMusicGenres().contains(",")) {
-      var index = currentClub.getMusicGenres().indexOf(",");
-      genreToReturn = currentClub.getMusicGenres().substring(0, index);
-    } else {
-      genreToReturn = currentClub.getMusicGenres();
-    }
-
-    if(genreToReturn.length>8){
-      genreToReturn = "${genreToReturn.substring(0, 7)}...";
-    }
-    return genreToReturn;
-
-  }
-
-  Widget _buildStackView(BuildContext context){
-
-    // double newDiscountContainerHeightFactor = 0.3;
-
-    double topHeight = 60;
-    double bottomHeight = 60;
+    double topHeight = 55;
+    double bottomHeight = 55;
 
     return Stack(
       children: [
@@ -88,14 +87,14 @@ class ClubListItem extends StatelessWidget {
         // Colorful accent
         Container(
           width: screenWidth*0.91,
-          height:  topHeight+bottomHeight+4, //screenHeight*(newDiscountContainerHeightFactor+0.004),
+          height:  topHeight+bottomHeight+4,
           decoration: BoxDecoration(
               gradient: LinearGradient(
                   begin: Alignment.bottomLeft,
                   end: Alignment.bottomRight,
                   colors: [
                     Colors.grey[900]!,
-                    primeColorDark.withOpacity(0.4)
+                    customTextStyle.primeColorDark.withOpacity(0.4)
                   ],
                   stops: const [0.6, 0.9]
               ),
@@ -106,14 +105,14 @@ class ClubListItem extends StatelessWidget {
         // Colorful accent
         Container(
           width: screenWidth*0.91,
-          height: topHeight+bottomHeight, //screenHeight*newDiscountContainerHeightFactor,
+          height: topHeight+bottomHeight,
           decoration: BoxDecoration(
               gradient: LinearGradient(
                   begin: Alignment.topRight,
                   end: Alignment.bottomRight,
                   colors: [
                     Colors.grey[900]!,
-                    primeColorDark.withOpacity(0.2)
+                    customTextStyle.primeColorDark.withOpacity(0.2)
                   ],
                   stops: const [0.6, 0.9]
               ),
@@ -126,7 +125,7 @@ class ClubListItem extends StatelessWidget {
         // light grey highlight
         Container(
           width: screenWidth*0.89,
-          height: topHeight+bottomHeight,  //screenHeight*newDiscountContainerHeightFactor,
+          height: topHeight+bottomHeight,
           decoration: BoxDecoration(
               gradient: LinearGradient(
                   begin: Alignment.topCenter,
@@ -147,7 +146,7 @@ class ClubListItem extends StatelessWidget {
             ),
             child: Container(
               width: screenWidth*0.9,
-              height: topHeight+bottomHeight, //screenHeight*newDiscountContainerHeightFactor,
+              height: topHeight+bottomHeight,
               decoration: BoxDecoration(
                   gradient: LinearGradient(
                       begin: Alignment.topLeft,
@@ -170,7 +169,7 @@ class ClubListItem extends StatelessWidget {
           ),
           child: Container(
             width: screenWidth*0.9,
-            height: topHeight+bottomHeight, //screenHeight*newDiscountContainerHeightFactor,
+            height: topHeight+bottomHeight,
             decoration: BoxDecoration(
                 gradient: LinearGradient(
                     begin: Alignment.topLeft,
@@ -192,7 +191,6 @@ class ClubListItem extends StatelessWidget {
       ],
     );
   }
-
   Widget _buildStackViewContent(
       BuildContext context,
       double topHeight,
@@ -205,7 +203,6 @@ class ClubListItem extends StatelessWidget {
 
             // Top container
             Container(
-                // color: Colors.red,
                 height: topHeight,
                 width: screenWidth,
                 child: Row(
@@ -233,7 +230,6 @@ class ClubListItem extends StatelessWidget {
 
             // Bottom container
             Container(
-                // color: Colors.green,
               width: screenWidth,
                 height: bottomHeight,
                 child: Row(
@@ -306,12 +302,10 @@ class ClubListItem extends StatelessWidget {
 
         // Circleavatar
         Container(
-          // color: Colors.yellowAccent,
           width: screenWidth*0.3,
           height: topHeight+bottomHeight,
           child: Padding(
             padding: const EdgeInsets.only(
-              // left: screenHeight*0.01
             ),
             child: Align(
                 alignment: Alignment.center,
@@ -374,7 +368,7 @@ class ClubListItem extends StatelessWidget {
                             image: DecorationImage(
                               fit: BoxFit.cover,
                               image: AssetImage(
-                                "assets/images/" + currentClub.getBannerId(),
+                                "assets/images/${currentClub.getBannerId()}",
                               ),
                             ),
                           ),
@@ -385,7 +379,7 @@ class ClubListItem extends StatelessWidget {
                       if(currentClub.getStoryId().isNotEmpty){
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) => ShowStoryChewie(storyUUID: currentClub.getStoryId()),
+                            builder: (context) => ShowStoryChewie(storyUUID: currentClub.getStoryId(), clubName: currentClub.getClubName(),),
                           ),
                         );
                       }
@@ -394,220 +388,8 @@ class ClubListItem extends StatelessWidget {
             ),
           ),
         )
-
       ],
     );
-  }
-
-  Widget _buildOriginalView(BuildContext context){
-    return Container(
-      width: screenWidth*0.86,
-      height: screenHeight*0.14,
-      // color: Colors.grey,
-      decoration: BoxDecoration(
-          gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Colors.grey[800]!,
-                Colors.grey[700]!,
-              ],
-              stops: const [0.3, 0.9]
-          ),
-          border: Border.all(
-              color: Colors.white60
-          ),
-          borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(20),
-              bottomRight: Radius.circular(20)
-          )
-      ),
-      child: Row(
-        children: [
-
-          // Left Column with story button
-          SizedBox(
-            // color: Colors.red,
-            width: screenWidth*0.3,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-
-                Padding(
-                  padding: const EdgeInsets.only(
-                    // left: screenHeight*0.01
-                  ),
-                  child: Align(
-                      alignment: Alignment.center,
-                      child: GestureDetector(
-                          child: Container(
-                            decoration: BoxDecoration(
-                                border: Border(
-                                    left: BorderSide(color: stateProvider.getPrimeColor()),
-                                    right: BorderSide(color: stateProvider.getPrimeColor()),
-                                    top: BorderSide(color: stateProvider.getPrimeColor())
-                                ),
-                                borderRadius: const BorderRadius.all(Radius.circular(45))
-                            ),
-                            child: CircleAvatar(
-                              radius: 45,
-                              backgroundColor: Colors.black,
-                              child: currentClub.getStoryId().isNotEmpty?
-                              Stack(
-                                children: [
-                                  Container(
-                                    width: screenWidth*0.4,
-                                    height: screenWidth*0.4,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.white,
-                                      image: DecorationImage(
-                                        fit: BoxFit.cover,
-                                        opacity: 0.5,
-                                        image: AssetImage(
-                                          "assets/images/${currentClub.getBannerId()}",
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Center(
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                          color: Colors.black,
-                                          borderRadius: const BorderRadius.all(
-                                              Radius.circular(45)
-                                          ),
-                                          border: Border.all(
-                                              color: Colors.white
-                                          )
-                                      ),
-                                      child: Icon(
-                                        Icons.play_arrow,
-                                        size: customTextStyle.getIconSize1(),
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              ):
-                              Container(
-                                width: screenWidth*0.4,
-                                height: screenWidth*0.4,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.white,
-                                  image: DecorationImage(
-                                    fit: BoxFit.cover,
-                                    image: AssetImage(
-                                      "assets/images/" + currentClub.getBannerId(),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          onTap: (){
-                            if(currentClub.getStoryId().isNotEmpty){
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => ShowStory(storyUUID: currentClub.getStoryId()),
-                                ),
-                              );
-                            }
-                          }
-                      )
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Right column with content
-          Column(
-            children: [
-              SizedBox(
-                  width: screenWidth*0.5,
-                  height: screenHeight*0.065,
-                  // color: Colors.green,
-                  child: Center(
-                      child: GestureDetector(
-                        child: Text(
-                          currentClub.getClubName(),
-                          textAlign: TextAlign.left,
-                          style: customTextStyle.size2(),
-                        ),
-                        onTap: (){
-                          stateProvider.setCurrentClub(currentClub);
-                          context.push("/club_details");
-                        },
-                      )
-                  )
-              ),
-              SizedBox(
-                  width: screenWidth*0.55,
-                  height: screenHeight*0.065,
-                  // color: Colors.purpleAccent,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: screenWidth*0.5,
-                        height: screenHeight*0.05,
-                        // color: Colors.blue,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[900],
-                          borderRadius: const BorderRadius.all(
-                              Radius.circular(15)
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.route_outlined,
-                                  color: stateProvider.getPrimeColor(),
-                                  size: customTextStyle.getIconSize2(),
-                                ),
-                                Text(
-                                  calculateDistanceToClub().toStringAsFixed(2),
-                                  style: customTextStyle.size5BoldGrey(),
-                                )
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.library_music_outlined,
-                                  color: stateProvider.getPrimeColor(),
-                                  size: customTextStyle.getIconSize2(),
-                                ),
-                                Text(
-                                  getAndFormatMusicGenre(),
-                                  style:customTextStyle.size5BoldGrey(),
-                                )
-                              ],
-                            )
-                          ],
-                        ),
-                      ),
-                    ],
-                  )
-              )
-            ],
-          )
-        ],
-      ),
-    );
-  }
-
-  String getRandomNumber(){
-
-    final _random = new Random();
-    int next(int min, int max) => min + _random.nextInt(max - min);
-
-    return next(20, 50).toString();
-
   }
 
   @override
@@ -624,9 +406,7 @@ class ClubListItem extends StatelessWidget {
       padding: EdgeInsets.only(
           bottom: screenHeight*0.03
       ),
-      child: 
-      _buildStackView(context)
-      // _buildOriginalView(context),
+      child: _buildStackView(context)
     );
   }
 }

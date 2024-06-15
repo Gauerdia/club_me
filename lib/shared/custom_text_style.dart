@@ -25,9 +25,54 @@ class CustomTextStyle{
   Color primeColorDark = Colors.teal;
   Color primeColor = Colors.tealAccent;
 
+
+  TextStyle getFontStyle1(){
+    return GoogleFonts.yaldevi(
+        textStyle:const TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+        )
+    );
+  }
+  TextStyle getFontStyle1Bold(){
+    return GoogleFonts.yaldevi(
+        textStyle:const TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold
+        )
+    );
+  }
+
+  TextStyle getFontStyle2BoldLightGrey(){
+    return GoogleFonts.yaldevi(
+        textStyle:const TextStyle(
+            color: Colors.white70,
+            fontSize: 18,
+            fontWeight: FontWeight.bold
+        )
+    );
+  }
+
+  TextStyle getFontStyle3(){
+    return GoogleFonts.yaldevi(
+        textStyle:const TextStyle(
+            fontSize: 16,
+        )
+    );
+  }
+  TextStyle getFontStyle3Bold(){
+    return GoogleFonts.yaldevi(
+        textStyle:const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold
+        )
+    );
+  }
+
+
   // Größe 14
   double fontSizeFactorMapHeadline = 0.035;
-
   // Größe 14
   double fontSizeFactor1 = 0.03;
   // 12

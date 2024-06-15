@@ -25,22 +25,7 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
 
   String headLine = "Kommende Events";
 
-  late double screenHeight, screenWidth;
-  late StateProvider stateProvider;
-
-  late CustomTextStyle customTextStyle;
-
   var logger = Logger();
-
-  bool temp = false;
-
-  final HiveService _hiveService = HiveService();
-  final SupabaseService _supabaseService = SupabaseService();
-
-  final TextEditingController _textEditingController = TextEditingController();
-
-  List<ClubMeEvent> upcomingDbEvents = [];
-  List<ClubMeEvent> eventsToDisplay = [];
 
   String searchValue = "";
   bool isSearchActive = false;
@@ -48,13 +33,23 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
   bool isAnyFilterActive = false;
   bool isFilterMenuActive = false;
 
+  late String dropdownValue;
+  late StateProvider stateProvider;
+  late CustomTextStyle customTextStyle;
+  late double screenHeight, screenWidth;
+
+  List<ClubMeEvent> eventsToDisplay = [];
+  List<String> genresDropdownList = [
+    "Alle", "Techno", "90s", "Latin"
+  ];
+  List<ClubMeEvent> upcomingDbEvents = [];
+
   RangeValues _currentRangeValues = const RangeValues(0, 30);
 
-  List<String> genresDropdownList = [
-    "All", "Techno", "90s", "Latin"
-  ];
+  final HiveService _hiveService = HiveService();
+  final SupabaseService _supabaseService = SupabaseService();
+  final TextEditingController _textEditingController = TextEditingController();
 
-  late String dropdownValue;
 
   @override
   void initState(){
@@ -62,123 +57,56 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
     dropdownValue = genresDropdownList.first;
   }
 
-  void clickedOnLike(StateProvider stateProvider, String eventId){
-    setState(() {
-      if(stateProvider.getLikedEvents().contains(eventId)){
-        stateProvider.deleteLikedEvent(eventId);
-        _hiveService.deleteFavoriteEvent(eventId);
-      }else{
-        stateProvider.addLikedEvent(eventId);
-        _hiveService.insertFavoriteEvent(eventId);
-      }
-    });
-  }
 
-  void clickedOnShare(){
-    showDialog<String>(
-        context: context,
-        builder: (BuildContext context) => const AlertDialog(
-            title: Text("Teilen noch nicht möglich!"),
-            content: Text("Die Funktion, ein Event zu teilen, ist derzeit noch"
-                "nicht implementiert. Wir bitten um Verständnis.")
-        )
+  // BUILD
+  Widget _buildAppBarShowTitle(){
+    return SizedBox(
+      width: screenWidth,
+      child: Stack(
+        children: [
+          // Headline
+          Container(
+              alignment: Alignment.bottomCenter,
+              height: 50,
+              width: screenWidth,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(headLine,
+                      textAlign: TextAlign.center,
+                      style: customTextStyle.size2()
+                  ),
+                ],
+              )
+          ),
+
+          // back icon
+          Container(
+              width: screenWidth,
+              alignment: Alignment.centerLeft,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                    onPressed: () => context.go("/club_events"),
+                    icon: const Icon(
+                      Icons.arrow_back_ios_new_outlined,
+                      color: Colors.grey,
+                      // size: 20,
+                    ),
+                  )
+                ],
+              )
+          ),
+
+        ],
+      ),
     );
   }
-
-  void sortUpcomingEvents(){
-    for(var e in upcomingDbEvents){
-      var date = e.getEventDate();
-      // print("Vorher: $date");
-    }
-    upcomingDbEvents.sort((a,b) =>
-        a.getEventDate().millisecondsSinceEpoch.compareTo(b.getEventDate().millisecondsSinceEpoch)
-    );
-    for(var e in upcomingDbEvents){
-      var date = e.getEventDate();
-      // print("Nachher: $date");
-    }
-  }
-
-  void filterEvents(){
-
-    // Check if any filter is applied
-    if(
-    _currentRangeValues.end != 30 ||
-        _currentRangeValues.start != 0 ||
-        dropdownValue != "All" ||
-        searchValue != ""
-    ){
-
-      // set for coloring
-      isAnyFilterActive = true;
-
-      // reset array
-      eventsToDisplay = [];
-
-      // Iterate through all available events
-      for(var event in upcomingDbEvents){
-
-        // when one criterium doesnt match, set to false
-        bool fitsCriteria = true;
-
-        // Search bar used? Then filter
-        if(searchValue != "") {
-          String allInformationLowerCase = "${event.getEventTitle()} ${event
-              .getClubName()} ${event.getDjName()} ${event.getEventDate()}"
-              .toLowerCase();
-          if (allInformationLowerCase.contains(
-              searchValue.toLowerCase())) {} else {
-            fitsCriteria = false;
-          }
-        }
-
-        // Price range changed? Filter
-        if((_currentRangeValues.start != 0 || _currentRangeValues.end != 30)
-            && (event.getEventPrice() < _currentRangeValues.start || event.getEventPrice() > _currentRangeValues.end)
-        ) fitsCriteria = false;
-
-        // music genre doenst match? filter
-        if(dropdownValue != "All" ){
-          if(!event.getMusicGenres().toLowerCase().contains(dropdownValue.toLowerCase())){
-            fitsCriteria = false;
-          }
-        }
-
-        // All filter passed? evaluate
-        if(fitsCriteria){
-          eventsToDisplay.add(event);
-        }
-      }
-    }else{
-      isAnyFilterActive = false;
-      eventsToDisplay = upcomingDbEvents;
-    }
-
-  }
-
-  void toggleIsSearchActive(){
-    setState(() {
-      isSearchActive = !isSearchActive;
-    });
-  }
-
-  void toggleIsAnyFilterActive(){
-    setState(() {
-      isAnyFilterActive = !isAnyFilterActive;
-    });
-  }
-
-  void toggleIsFilterMenuActive(){
-    setState(() {
-      isFilterMenuActive = !isFilterMenuActive;
-    });
-  }
-
   void getAllLikedEvents(StateProvider stateProvider) async{
     var likedEvents = await _hiveService.getFavoriteEvents();
     stateProvider.setLikedEvents(likedEvents);
   }
-
   Widget _buildView(StateProvider stateProvider, double screenHeight){
 
     // get today in correct format to check which events are upcoming
@@ -189,8 +117,8 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
     if(upcomingDbEvents.isEmpty){
       for(var currentEvent in stateProvider.getFetchedEvents()){
         if( currentEvent.getClubId() == stateProvider.userClub.getClubId() &&
-        (currentEvent.getEventDate().isAfter(todayFormatted)
-            || currentEvent.getEventDate().isAtSameMomentAs(todayFormatted))){
+            (currentEvent.getEventDate().isAfter(todayFormatted)
+                || currentEvent.getEventDate().isAtSameMomentAs(todayFormatted))){
           upcomingDbEvents.add(currentEvent);
         }
       }
@@ -227,45 +155,136 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
     );
   }
 
+
+  // FILTER
+  void filterEvents(){
+
+    // Check if any filter is applied
+    if(
+    _currentRangeValues.end != 30 ||
+        _currentRangeValues.start != 0 ||
+        dropdownValue != genresDropdownList[0] ||
+        searchValue != ""
+    ){
+
+      // set for coloring
+      isAnyFilterActive = true;
+
+      // reset array
+      eventsToDisplay = [];
+
+      // Iterate through all available events
+      for(var event in upcomingDbEvents){
+
+        // when one criterium doesnt match, set to false
+        bool fitsCriteria = true;
+
+        // Search bar used? Then filter
+        if(searchValue != "") {
+          String allInformationLowerCase = "${event.getEventTitle()} ${event
+              .getClubName()} ${event.getDjName()} ${event.getEventDate()}"
+              .toLowerCase();
+          if (allInformationLowerCase.contains(
+              searchValue.toLowerCase())) {} else {
+            fitsCriteria = false;
+          }
+        }
+
+        // Price range changed? Filter
+        if((_currentRangeValues.start != 0 || _currentRangeValues.end != 30)
+            && (event.getEventPrice() < _currentRangeValues.start || event.getEventPrice() > _currentRangeValues.end)
+        ) fitsCriteria = false;
+
+        // music genre doenst match? filter
+        if(dropdownValue != genresDropdownList[0] ){
+          if(!event.getMusicGenres().toLowerCase().contains(dropdownValue.toLowerCase())){
+            fitsCriteria = false;
+          }
+        }
+
+        // All filter passed? evaluate
+        if(fitsCriteria){
+          eventsToDisplay.add(event);
+        }
+      }
+    }else{
+      isAnyFilterActive = false;
+      eventsToDisplay = upcomingDbEvents;
+    }
+
+  }
+  void sortUpcomingEvents(){
+    for(var e in upcomingDbEvents){
+      var date = e.getEventDate();
+      // print("Vorher: $date");
+    }
+    upcomingDbEvents.sort((a,b) =>
+        a.getEventDate().millisecondsSinceEpoch.compareTo(b.getEventDate().millisecondsSinceEpoch)
+    );
+    for(var e in upcomingDbEvents){
+      var date = e.getEventDate();
+      // print("Nachher: $date");
+    }
+  }
+
+
+  // CLICKED
+  void clickedOnShare(){
+    showDialog<String>(
+        context: context,
+        builder: (BuildContext context) => const AlertDialog(
+            title: Text("Teilen noch nicht möglich!"),
+            content: Text("Die Funktion, ein Event zu teilen, ist derzeit noch"
+                "nicht implementiert. Wir bitten um Verständnis.")
+        )
+    );
+  }
+  void toggleIsSearchActive(){
+    setState(() {
+      isSearchActive = !isSearchActive;
+    });
+  }
+  void toggleIsAnyFilterActive(){
+    setState(() {
+      isAnyFilterActive = !isAnyFilterActive;
+    });
+  }
+  void toggleIsFilterMenuActive(){
+    setState(() {
+      isFilterMenuActive = !isFilterMenuActive;
+    });
+  }
+  void clickedOnLike(StateProvider stateProvider, String eventId){
+    setState(() {
+      if(stateProvider.getLikedEvents().contains(eventId)){
+        stateProvider.deleteLikedEvent(eventId);
+        _hiveService.deleteFavoriteEvent(eventId);
+      }else{
+        stateProvider.addLikedEvent(eventId);
+        _hiveService.insertFavoriteEvent(eventId);
+      }
+    });
+  }
+
+
   @override
   Widget build(BuildContext context) {
-    stateProvider = Provider.of<StateProvider>(context);
-
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
-
+    stateProvider = Provider.of<StateProvider>(context);
     customTextStyle = CustomTextStyle(context: context);
 
     return Scaffold(
 
         extendBody: true,
 
-        bottomNavigationBar: CustomBottomNavigationBar(),
-        appBar:
 
-        AppBar(
-
+      appBar: AppBar(
+            automaticallyImplyLeading: false,
             backgroundColor: Colors.transparent,
-
-            title: SizedBox(
-              width: screenWidth,
-              child: Text(
-                headLine,
-                style: customTextStyle.size1Bold(),
-              ),
-            ),
-
-            leading: GestureDetector(
-              child: const Icon(
-                Icons.arrow_back_ios_new_outlined,
-                color: Colors.grey,
-                // size: 20,
-              ),
-              onTap: () => context.go("/club_events"),
-            )
-
+            title: _buildAppBarShowTitle()
         ),
-        body: Container(
+      body: Container(
             width: screenWidth,
             height: screenHeight,
             decoration: const BoxDecoration(
@@ -282,6 +301,8 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
             ),
             child: Stack(
               children: [
+
+                // main view
                 SingleChildScrollView(
                     physics: const ScrollPhysics(),
                     child: Column(
@@ -295,6 +316,7 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
                     )
                 ),
 
+                // Filter
                 isFilterMenuActive?Container(
                   height: screenHeight*0.14,
                   width: screenWidth,
@@ -368,7 +390,8 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
                 ):Container()
               ],
             )
-        )
+        ),
+      bottomNavigationBar: CustomBottomNavigationBar(),
     );
   }
 }

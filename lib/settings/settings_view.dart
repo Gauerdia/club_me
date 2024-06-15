@@ -49,12 +49,46 @@ class _SettingsViewState extends State<SettingsView> {
 
         bottomNavigationBar: CustomBottomNavigationBarClubs(),
         appBar: AppBar(
+            automaticallyImplyLeading: false,
             backgroundColor: Colors.transparent,
             title: SizedBox(
               width: screenWidth,
-              child: Text(headLine,
-                textAlign: TextAlign.center,
-                style: customTextStyle.size2(),
+              child: Stack(
+                children: [
+                  Container(
+                    width: screenWidth,
+                    height: 50,
+                    // color: Colors.red,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(headLine,
+                          textAlign: TextAlign.center,
+                          style: customTextStyle.size2(),
+                        ),
+                      ],
+                    )
+                  ),
+
+                  // Search icon
+                  Container(
+                      width: screenWidth,
+                      alignment: Alignment.centerLeft,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          IconButton(
+                              onPressed: () => Navigator.pop(context),
+                              icon: const Icon(
+                                Icons.arrow_back_ios,
+                                // size: 20,
+                              )
+                          )
+                        ],
+                      )
+                  ),
+
+                ],
               ),
             )
         ),

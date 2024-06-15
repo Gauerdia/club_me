@@ -17,56 +17,26 @@ class EventTile extends StatelessWidget {
     required this.clickedOnShare
   }) : super(key: key);
 
+  bool isLiked;
+  ClubMeEvent clubMeEvent;
+
   late StateProvider stateProvider;
   late CustomTextStyle customTextStyle;
   late double screenHeight, screenWidth;
 
-  bool isLiked;
-  ClubMeEvent clubMeEvent;
-
   Function () clickedOnShare;
   Function (StateProvider, String) clickedOnLike;
 
-  Color primeColorDark = Colors.teal;
-  Color primeColor = Colors.tealAccent;
-
-  String eventTitleCut = "";
   String eventDjCut = "";
+  String eventTitleCut = "";
   String priceFormatted = "";
   String weekDayToDisplay = "";
 
   double topHeight = 170;
   double bottomHeight = 170;
 
-  String formatDateToDisplay(){
 
-    String weekDayToDisplay = "";
-
-    var exactOneWeekFromNow = DateTime.now().add(const Duration(days: 7));
-
-    // Get current time for germany
-    final berlin = tz.getLocation('Europe/Berlin');
-    final todayGermanTZ = tz.TZDateTime.from(DateTime.now(), berlin);
-
-    final exactlyOneWeekFromNowGermanTZ = todayGermanTZ.add(Duration(days: 7));
-
-    if(clubMeEvent.getEventDate().isAfter(exactlyOneWeekFromNowGermanTZ)){
-      weekDayToDisplay = DateFormat('dd.MM.yyyy').format(clubMeEvent.getEventDate());
-    }else{
-      var eventDateWeekday = clubMeEvent.getEventDate().weekday;
-      switch(eventDateWeekday){
-        case(1): weekDayToDisplay = "Montag";
-        case(2): weekDayToDisplay = "Dienstag";
-        case(3): weekDayToDisplay = "Mittwoch";
-        case(4): weekDayToDisplay = "Donnerstag";
-        case(5): weekDayToDisplay = "Freitag";
-        case(6): weekDayToDisplay = "Samstag";
-        case(7): weekDayToDisplay = "Sonntag";
-      }
-    }
-    return weekDayToDisplay;
-  }
-
+  // CLICK
   void clickOnInfo(BuildContext context){
     Widget okButton = TextButton(
       child: Text("OK"),
@@ -91,9 +61,59 @@ class EventTile extends StatelessWidget {
     );
   }
 
-  Widget _buildStackView(BuildContext context){
+  // FORMAT TEXTS
+  void formatPrice(){
 
-    double newDiscountContainerHeightFactor = 0.3;
+    var priceDecimalPosition = clubMeEvent.getEventPrice().toString().indexOf(".");
+
+    if(priceDecimalPosition + 2 == clubMeEvent.getEventPrice().toString().length){
+      priceFormatted = "${clubMeEvent.getEventPrice().toString().replaceFirst(".", ",")}0 €";
+    }else{
+      priceFormatted = "${clubMeEvent.getEventPrice().toString().replaceFirst(".", ",")} €";
+    }
+  }
+  void formatDJName(){
+    if(clubMeEvent.getDjName().length >= 42){
+      eventDjCut = "${clubMeEvent.getDjName().substring(0, 45)}...";
+    }else{
+      eventDjCut = clubMeEvent.getDjName().substring(0, clubMeEvent.getDjName().length);
+    }
+  }
+  void formatEventTitle(){
+    if(clubMeEvent.getEventTitle().length >= 37){
+      eventTitleCut = "${clubMeEvent.getEventTitle().substring(0, 35)}...";
+    }else{
+      eventTitleCut = clubMeEvent.getEventTitle().substring(0, clubMeEvent.getEventTitle().length);
+    }
+  }
+  void formatDateToDisplay(){
+
+    var exactOneWeekFromNow = DateTime.now().add(const Duration(days: 7));
+
+    // Get current time for germany
+    final berlin = tz.getLocation('Europe/Berlin');
+    final todayGermanTZ = tz.TZDateTime.from(DateTime.now(), berlin);
+
+    final exactlyOneWeekFromNowGermanTZ = todayGermanTZ.add(Duration(days: 7));
+
+    if(clubMeEvent.getEventDate().isAfter(exactlyOneWeekFromNowGermanTZ)){
+      weekDayToDisplay = DateFormat('dd.MM.yyyy').format(clubMeEvent.getEventDate());
+    }else{
+      var eventDateWeekday = clubMeEvent.getEventDate().weekday;
+      switch(eventDateWeekday){
+        case(1): weekDayToDisplay = "Montag";
+        case(2): weekDayToDisplay = "Dienstag";
+        case(3): weekDayToDisplay = "Mittwoch";
+        case(4): weekDayToDisplay = "Donnerstag";
+        case(5): weekDayToDisplay = "Freitag";
+        case(6): weekDayToDisplay = "Samstag";
+        case(7): weekDayToDisplay = "Sonntag";
+      }
+    }
+  }
+
+  // BUILD
+  Widget _buildStackView(BuildContext context){
 
     return Stack(
       children: [
@@ -101,14 +121,14 @@ class EventTile extends StatelessWidget {
         // Colorful accent
         Container(
           width: screenWidth*0.91,
-          height:  topHeight+bottomHeight+6, //screenHeight*(newDiscountContainerHeightFactor+0.004),
+          height:  topHeight+bottomHeight+6,
           decoration: BoxDecoration(
               gradient: LinearGradient(
                   begin: Alignment.bottomLeft,
                   end: Alignment.bottomRight,
                   colors: [
                     Colors.grey[900]!,
-                    primeColorDark.withOpacity(0.4)
+                    customTextStyle.primeColorDark.withOpacity(0.4)
                   ],
                   stops: const [0.6, 0.9]
               ),
@@ -119,14 +139,14 @@ class EventTile extends StatelessWidget {
         // Colorful accent
         Container(
           width: screenWidth*0.91,
-          height: topHeight+bottomHeight, //screenHeight*newDiscountContainerHeightFactor,
+          height: topHeight+bottomHeight,
           decoration: BoxDecoration(
               gradient: LinearGradient(
                   begin: Alignment.topRight,
                   end: Alignment.bottomRight,
                   colors: [
                     Colors.grey[900]!,
-                    primeColorDark.withOpacity(0.2)
+                    customTextStyle.primeColorDark.withOpacity(0.2)
                   ],
                   stops: const [0.6, 0.9]
               ),
@@ -139,7 +159,7 @@ class EventTile extends StatelessWidget {
         // light grey highlight
         Container(
           width: screenWidth*0.89,
-          height: topHeight+bottomHeight,  //screenHeight*newDiscountContainerHeightFactor,
+          height: topHeight+bottomHeight,
           decoration: BoxDecoration(
               gradient: LinearGradient(
                   begin: Alignment.topCenter,
@@ -160,7 +180,7 @@ class EventTile extends StatelessWidget {
             ),
             child: Container(
               width: screenWidth*0.9,
-              height: topHeight+bottomHeight, //screenHeight*newDiscountContainerHeightFactor,
+              height: topHeight+bottomHeight,
               decoration: BoxDecoration(
                   gradient: LinearGradient(
                       begin: Alignment.topLeft,
@@ -192,7 +212,7 @@ class EventTile extends StatelessWidget {
                       Colors.grey[800]!.withOpacity(0.7),
                       Colors.grey[900]!
                     ],
-                    stops: [0.1,0.9]
+                    stops: const [0.1,0.9]
                 ),
                 borderRadius: BorderRadius.circular(
                     15
@@ -205,7 +225,6 @@ class EventTile extends StatelessWidget {
       ],
     );
   }
-
   Widget _buildStackViewContent(BuildContext context){
     return Column(
       children: [
@@ -271,25 +290,17 @@ class EventTile extends StatelessWidget {
                             padding: EdgeInsets.only(
                               top: screenHeight*0.01,
                             ),
-                            child: Container(
-                              // color: Colors.red,
-                              // height: 60,
+                            child: SizedBox(
                               width: screenWidth*0.7,
                               child: Padding(
                                 padding: EdgeInsets.only(
                                     left: screenWidth*0.02
-                                  // top: 10,
-                                  // left: 10
                                 ),
                                 child: Align(
                                   alignment: Alignment.centerLeft,
                                   child: Text(
                                     eventTitleCut,
-                                    style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold
-                                    ),
-                                    // style: customTextStyle.size2Bold(),
+                                    style: customTextStyle.getFontStyle1Bold(),
                                   ),
                                 ),
                               ),
@@ -297,27 +308,17 @@ class EventTile extends StatelessWidget {
                           ),
 
                           // Price
-                          Container(
-                            // color: Colors.green,
-                            // height: screenHeight*heightFactor*0.5,
+                          SizedBox(
                             width: screenWidth*0.2,
                             child: Padding(
                               padding: EdgeInsets.only(
-                                  // right: screenWidth*0.02,
                                   top: screenHeight*0.01
                               ),
                               child: Align(
-                                // alignment: Alignment.topRight,
                                 child: Text(
-                                  priceFormatted,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    color: Colors.white70,
-                                    fontWeight: FontWeight.bold
-                                  )
-                                  // style: customTextStyle.size4BoldGrey(),
-
+                                    priceFormatted,
+                                    textAlign: TextAlign.center,
+                                    style: customTextStyle.getFontStyle2BoldLightGrey()
                                 ),
                               ),
                             ),
@@ -328,21 +329,15 @@ class EventTile extends StatelessWidget {
 
                       // Location
                       Container(
-                        // color: Colors.red,
-                        // height: screenHeight*0.04,
                         child: Padding(
                           padding: EdgeInsets.only(
-                            // top: 5,
                               left: screenWidth*0.02
                           ),
                           child: Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                              clubMeEvent.getClubName(),
-                              style: TextStyle(
-                                fontSize: 16
-                              )
-                              // style: customTextStyle.size4(),
+                                clubMeEvent.getClubName(),
+                                style:customTextStyle.getFontStyle3Bold()
                             ),
                           ),
                         ),
@@ -352,12 +347,9 @@ class EventTile extends StatelessWidget {
                       Row(
                         children: [
                           Container(
-                            // color: Colors.red,
-                            // height: screenHeight*0.04,
                             width: screenWidth*0.6,
                             child: Padding(
                               padding: EdgeInsets.only(
-                                // top: 5,
                                   left: screenWidth*0.02
                               ),
                               child: Align(
@@ -365,10 +357,7 @@ class EventTile extends StatelessWidget {
                                 child: Text(
                                     eventDjCut,
                                     textAlign: TextAlign.left,
-                                    style: TextStyle(
-                                        fontSize: 16
-                                    )
-                                  // style: customTextStyle.size4(),
+                                    style: customTextStyle.size4BoldGrey2()
                                 ),
                               ),
                             ),
@@ -384,12 +373,11 @@ class EventTile extends StatelessWidget {
 
                   // When
                   Container(
-                    // color: Colors.red,
-                    height: bottomHeight, //screenHeight*heightFactor*0.5,
+                    height: bottomHeight,
                     child: Padding(
                       padding: EdgeInsets.only(
-                        left: screenWidth*0.02,
-                        bottom: screenHeight*0.01
+                          left: screenWidth*0.02,
+                          bottom: screenHeight*0.01
                       ),
                       child: Align(
                         alignment: Alignment.bottomLeft,
@@ -403,8 +391,7 @@ class EventTile extends StatelessWidget {
 
                   // Icons
                   Container(
-                    // color: Colors.red,
-                    height: bottomHeight,//screenHeight*0.2,
+                    height: bottomHeight,
                     alignment: Alignment.bottomRight,
                     padding: EdgeInsets.only(
                         bottom: screenHeight*0.01,
@@ -487,32 +474,6 @@ class EventTile extends StatelessWidget {
     );
   }
 
-  void cropEventTitle(){
-    if(clubMeEvent.getEventTitle().length >= 37){
-      eventTitleCut = "${clubMeEvent.getEventTitle().substring(0, 35)}...";
-    }else{
-      eventTitleCut = clubMeEvent.getEventTitle().substring(0, clubMeEvent.getEventTitle().length);
-    }
-  }
-  void cropDjName(){
-    if(clubMeEvent.getDjName().length >= 42){
-      eventDjCut = "${clubMeEvent.getDjName().substring(0, 45)}...";
-    }else{
-      eventDjCut = clubMeEvent.getDjName().substring(0, clubMeEvent.getDjName().length);
-    }
-  }
-
-  void cropPrice(){
-
-    var priceDecimalPosition = clubMeEvent.getEventPrice().toString().indexOf(".");
-
-    if(priceDecimalPosition + 2 == clubMeEvent.getEventPrice().toString().length){
-      priceFormatted = "${clubMeEvent.getEventPrice().toString().replaceFirst(".", ",")}0 €";
-    }else{
-      priceFormatted = "${clubMeEvent.getEventPrice().toString().replaceFirst(".", ",")} €";
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
 
@@ -523,21 +484,19 @@ class EventTile extends StatelessWidget {
 
     customTextStyle = CustomTextStyle(context: context);
 
-    weekDayToDisplay = formatDateToDisplay();
-
-    cropEventTitle();
-    cropDjName();
-    cropPrice();
+    formatPrice();
+    formatDJName();
+    formatEventTitle();
+    formatDateToDisplay();
 
     return Container(
-      padding: EdgeInsets.only(bottom: screenHeight*0.02),
+      padding: EdgeInsets.only(
+          bottom: screenHeight*0.02
+      ),
       child: Center(
         child:
-        // _buildCardView()
         _buildStackView(context),
       )
     );
   }
-
-
 }

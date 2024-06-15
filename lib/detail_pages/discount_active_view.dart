@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
-import '../../provider/state_provider.dart';
 import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
+import '../provider/state_provider.dart';
 import 'package:timezone/standalone.dart' as tz;
 
-import '../custom_text_style.dart';
+import '../shared/custom_text_style.dart';
 
 class DiscountActiveView extends StatefulWidget {
   const DiscountActiveView({Key? key}) : super(key: key);
@@ -20,15 +20,33 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
 
   /// TODO: 30 min before expiration, display timer
 
-  late StateProvider stateProvider;
-
-  late CustomTextStyle customTextStyle;
-
-  late Timer _timer;
   int _start = 10;
 
+  late Timer _timer;
+  late StateProvider stateProvider;
   late AnimationController _controller;
+  late CustomTextStyle customTextStyle;
+  late double screenHeight, screenWidth;
 
+
+  @override
+  void initState() {
+    // TODO: Block the coupon directly so that the user cant avoid the block by closing the app
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      lowerBound: 0.3,
+      duration: const Duration(seconds: 5),
+    )..repeat();
+    startTimer();
+  }
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  // MISC
   void startTimer() async{
 
     const oneSec = Duration(seconds: 1);
@@ -44,7 +62,7 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
             // Todo: lock the code
           });
         } else {
-          print("$_start");
+          // print("$_start");
           setState(() {
             _start--;
           });
@@ -52,29 +70,9 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
       },
     );
   }
-
-  void markDiscountAsRedeemed(){}
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      lowerBound: 0.3,
-      duration: const Duration(seconds: 5),
-    )..repeat();
-    startTimer();
+  void markDiscountAsRedeemed(){
+    /// TODO: IMPLEMENT FOR LAUNCH
   }
-
-  @override
-  void dispose() {
-
-    // TODO: Block the coupon so that the user cant avoid the block by closing the app
-    _timer.cancel();
-    super.dispose();
-  }
-
-
   String formatClock(tz.TZDateTime timeStamp){
 
     String hour = timeStamp.hour.toString();
@@ -94,9 +92,31 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
     return "$hour:$minute:$second";
   }
 
-
-
-
+  // BUILD
+  AppBar _buildAppBar(){
+    return AppBar(
+      automaticallyImplyLeading: false,
+      backgroundColor: Colors.transparent,
+      title: SizedBox(
+        width: screenWidth,
+        child: Text(
+          textAlign: TextAlign.center,
+          stateProvider.clubMeDiscount.getDiscountTitle(),
+          style: customTextStyle.size2(),
+        ),
+      ),
+    );
+  }
+  Widget _buildContainer(double radius) {
+    return Container(
+      width: radius,
+      height: radius,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: stateProvider.getPrimeColor().withOpacity(1 - _controller.value),
+      ),
+    );
+  }
   Widget _buildBody(double screenWidth, double screenHeight) {
 
     final berlin = tz.getLocation('Europe/Berlin');
@@ -139,15 +159,6 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
               ],
             ),
 
-            // Padding(
-            //   child: Text(
-            //     "$_start",
-            //     style: customTextStyle.activeDiscountTimer(),
-            //   ),
-            //   padding: EdgeInsets.only(
-            //     bottom: screenHeight*0.6
-            //   ),
-            // ),
             Padding(
               padding: EdgeInsets.only(top: screenHeight*0.15),
               child: Container(
@@ -176,7 +187,7 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
 
             Padding(
               padding: EdgeInsets.only(
-                bottom: screenHeight*0.02
+                bottom: screenHeight*0.06
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -277,58 +288,27 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
                 ],
               ),
             ),
-
           ],
         );
       },
     );
   }
 
-  Widget _buildContainer(double radius) {
-    return Container(
-      width: radius,
-      height: radius,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: stateProvider.getPrimeColor().withOpacity(1 - _controller.value),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
 
+    screenWidth = MediaQuery.of(context).size.width;
+    screenHeight = MediaQuery.of(context).size.height;
+    customTextStyle = CustomTextStyle(context: context);
     stateProvider = Provider.of<StateProvider>(context);
 
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
-
-    customTextStyle = CustomTextStyle(context: context);
-
     return Scaffold(
-
-      // extendBodyBehindAppBar: true,
         extendBody: true,
-
-        appBar: AppBar(
-          // automaticallyImplyLeading: false,
-          backgroundColor: Colors.transparent,
-          title: SizedBox(
-            width: screenWidth,
-            child: Text(
-              textAlign: TextAlign.center,
-              stateProvider.clubMeDiscount.getDiscountTitle(),
-              style: customTextStyle.size2(),
-            ),
-          ),
-        ),
-
+        appBar: _buildAppBar(),
         body: _buildBody(screenWidth, screenHeight)
-
-
     );
   }
-
 }
 
 

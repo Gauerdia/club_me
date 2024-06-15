@@ -1,6 +1,6 @@
 import 'package:club_me/models/parser/club_me_club_parser.dart';
 import 'package:club_me/shared/map_utils.dart';
-import 'package:club_me/shared/show_story.dart';
+import 'package:club_me/shared/show_story_chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
@@ -25,7 +25,7 @@ class ClubFrontPageView extends StatefulWidget {
 
 class _ClubFrontPageViewState extends State<ClubFrontPageView> {
 
-  String headLine = "Deine Frontpage";
+  String headLine = "Deine Startseite";
 
   List<ClubMeEvent> pastEvents = [];
   List<ClubMeEvent> upcomingEvents = [];
@@ -61,368 +61,13 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
       getEvents = _supabaseService.getEventsOfSpecificClub(stateProvider.getUserData().getUserId());
     }
   }
-
   @override
   void dispose() {
     super.dispose();
   }
 
-  void addPhotoOrVideo(double screenHeight, double screenWidth){
-    showDialog(context: context, builder: (BuildContext context){
-      return AlertDialog(
-        title: const Text("Hinzufügen von Photos und Videos"),
-        content: SizedBox(
-          height: screenHeight*0.12,
-          child: Center(
-            child: Text(
-                "Diese Funktion steht zurzeit noch nicht zur Verfügung! Wir bitten um Verständnis!",
-              textAlign: TextAlign.left,
-              style: customTextStyle.size4(),
-            ),
-          )
-        ),
-      );
-    });
-  }
 
-  void toggleShowVideoIsActive(){
-    setState(() {
-      showVideoIsActive = !showVideoIsActive;
-      if(showVideoIsActive){
-        _videoPlayerController.play();
-      }else{
-        _videoPlayerController.pause();
-      }
-    });
-  }
-
-  void clickOnAddEvent(double screenHeight, double screenWidth){
-    showDialog(context: context, builder: (BuildContext context){
-      return AlertDialog(
-        title: const Text("Neues Event"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-
-            // Question text
-            const Text(
-              "Möchtest du ein neues Event anlegen?",
-              textAlign: TextAlign.left,
-            ),
-
-            // Spacer
-            SizedBox(
-              height: screenHeight*0.03,
-            ),
-
-            // "New event" button
-            Container(
-                width: screenWidth*0.9,
-                // color: Colors.red,
-                alignment: Alignment.bottomRight,
-                child: GestureDetector(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                        vertical: screenHeight*0.015,
-                        horizontal: screenWidth*0.03
-                    ),
-                    decoration: const BoxDecoration(
-                        color: Colors.black54,
-                        borderRadius: BorderRadius.all(Radius.circular(10))
-                    ),
-                    child: Text(
-                      "Neues Event!",
-                      textAlign: TextAlign.center,
-                      style: customTextStyle.size4BoldPrimeColor(),
-                    ),
-                  ),
-                  onTap: () => context.go("/club_new_event"),
-                )
-            ),
-
-          ],
-        ),
-      );
-    });
-  }
-
-  void clickOnDiscoverMoreEvents(double screenHeight, double screenWidth){
-    showDialog(context: context, builder: (BuildContext context){
-      return AlertDialog(
-        title: const Text("Ausführliche Eventliste"),
-        content: Text(
-          "Diese Funktion steht zurzeit noch nicht zur Verfügung! Wir bitten um Verständnis!",
-          textAlign: TextAlign.left,
-          style: customTextStyle.size4(),
-        )
-      );
-    });
-  }
-
-  void clickOnDiscoverMorePhotos(double screenHeight, double screenWidth){
-    showDialog(context: context, builder: (BuildContext context){
-      return AlertDialog(
-        title: const Text("Ausführliche Photoliste"),
-        content: Text(
-          "Diese Funktion steht zurzeit noch nicht zur Verfügung! Wir bitten um Verständnis!",
-          textAlign: TextAlign.left,
-          style: customTextStyle.size4(),
-        ),
-      );
-    });
-  }
-
-  void clickOnPriceList(double screenHeight, double screenWidth){
-    showDialog(context: context, builder: (BuildContext context){
-      return AlertDialog(
-        title: const Text("Preisliste"),
-        content: Text(
-          "Diese Funktion steht zurzeit noch nicht zur Verfügung! Wir bitten um Verständnis!",
-          textAlign: TextAlign.left,
-          style: customTextStyle.size4(),
-        ),
-      );
-    });
-  }
-
-  void clickOnStoryButton(BuildContext context, double screenHeight, double screenWidth, StateProvider stateProvider){
-
-    showDialog(context: context, builder: (BuildContext context){
-      return AlertDialog(
-        title: const Text("Story"),
-        content: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-
-            // Question text
-            Text(
-              "Möchtest du eine Story hochladen?",
-              textAlign: TextAlign.left,
-              style: customTextStyle.size4(),
-            ),
-
-            // Spacer
-            SizedBox(
-              height: screenHeight*0.03,
-            ),
-
-
-            // "New event" button
-            Container(
-                width: screenWidth*0.9,
-                // color: Colors.red,
-                alignment: Alignment.bottomRight,
-                child: GestureDetector(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                        vertical: screenHeight*0.015,
-                        horizontal: screenWidth*0.03
-                    ),
-                    decoration: const BoxDecoration(
-                        color: Colors.black54,
-                        borderRadius: BorderRadius.all(Radius.circular(10))
-                    ),
-                    child: Text(
-                      "Neue Story!",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          color: stateProvider.getPrimeColor(),
-                          fontWeight: FontWeight.bold,
-                          fontSize: screenWidth*moreButtonWidthFactor
-                      ),
-                    ),
-                  ),
-                  onTap: () =>  context.go("/video_recording"),
-                )
-            ),
-
-            // Spacer
-            SizedBox(
-              height: screenHeight*0.01,
-            ),
-
-            // Does a story exist? Then show a button to play it
-            stateProvider.getClubStoryId().isNotEmpty ?
-
-            Container(
-                width: screenWidth*0.9,
-                // color: Colors.red,
-                alignment: Alignment.bottomRight,
-                child: GestureDetector(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                        vertical: screenHeight*0.015,
-                        horizontal: screenWidth*0.03
-                    ),
-                    decoration: const BoxDecoration(
-                        color: Colors.black54,
-                        borderRadius: BorderRadius.all(Radius.circular(10))
-                    ),
-                    child: Text(
-                      "Story anschauen!",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          color: stateProvider.getPrimeColor(),
-                          fontWeight: FontWeight.bold,
-                          fontSize: screenWidth*moreButtonWidthFactor
-                      ),
-                    ),
-                  ),
-                  onTap: () =>  {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => ShowStory(storyUUID: stateProvider.getClubStoryId()),
-                      ),
-                    )
-                  },
-                )
-            ): Container(),
-
-          ],
-        ),
-      );
-    });
-  }
-
-  void clickOnEditNews(double screenHeight, double screenWidth, ){
-    showDialog(context: context, builder: (BuildContext context){
-      return AlertDialog(
-          title: const Text("News"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-
-              // Question text
-              Text("Willst du die News anpassen?"),
-
-              // Spacer
-              SizedBox(
-                height: screenHeight*0.02,
-              ),
-
-              // "News anpassen" button
-              Container(
-                  width: screenWidth*0.9,
-                  // color: Colors.red,
-                  alignment: Alignment.bottomRight,
-                  child: GestureDetector(
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                          vertical: screenHeight*0.015,
-                          horizontal: screenWidth*0.03
-                      ),
-                      decoration: const BoxDecoration(
-                          color: Colors.black54,
-                          borderRadius: BorderRadius.all(Radius.circular(10))
-                      ),
-                      child: Text(
-                        "News anpassen!",
-                        textAlign: TextAlign.center,
-                        style: customTextStyle.size4BoldPrimeColor(),
-                      ),
-                    ),
-                    onTap: () => context.go('/club_update_news'),
-                  )
-              ),
-            ],
-          )
-      );
-    });
-  }
-
-  void clickOnEditContact(double screenHeight, double screenWidth){
-    showDialog(context: context, builder: (BuildContext context){
-      return AlertDialog(
-          title: const Text("Kontakt"),
-          content:Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-
-              // Question text
-              Text("Willst du deine Adresse anpassen?"),
-
-              // Spacer
-              SizedBox(
-                height: screenHeight*0.02,
-              ),
-
-              Container(
-                  width: screenWidth*0.9,
-                  alignment: Alignment.bottomRight,
-                  child: GestureDetector(
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                          vertical: screenHeight*0.015,
-                          horizontal: screenWidth*0.03
-                      ),
-                      decoration: const BoxDecoration(
-                          color: Colors.black54,
-                          borderRadius: BorderRadius.all(Radius.circular(10))
-                      ),
-                      child: Text(
-                        "Adresse anpassen!",
-                        textAlign: TextAlign.center,
-                        style: customTextStyle.size4BoldPrimeColor(),
-                      ),
-                    ),
-                    onTap: () => context.go('/club_update_contact'),
-                  )
-              ),
-
-            ],
-          )
-      );
-    });
-  }
-
-  void filterEventsFromProvider(StateProvider stateProvider){
-    for(var currentEvent in stateProvider.getFetchedEvents()){
-      // add 23 so that we can still find it as upcoming even though it's the same day
-      DateTime eventTimestamp = currentEvent.getEventDate();
-
-      // subtract 7 so that time zones and late at night queries work well
-      // DateTime todayTimestamp = DateTime.now().subtract(Duration(hours: 7));
-
-      // Get current time for germany
-      final berlin = tz.getLocation('Europe/Berlin');
-      final todayTimestamp = tz.TZDateTime.from(DateTime.now(), berlin).subtract(const Duration(hours:5));
-
-      // Filter the events
-      if(eventTimestamp.isAfter(todayTimestamp)){
-        upcomingEvents.add(currentEvent);
-      }else{
-        pastEvents.add(currentEvent);
-      }
-    }
-  }
-
-  void filterEventsFromQuery(var data, StateProvider stateProvider){
-    for(var element in data){
-      ClubMeEvent currentEvent = parseClubMeEvent(element);
-
-      // add 23 so that we can still find it as upcoming even though it's the same day
-      DateTime eventTimestamp = currentEvent.getEventDate();
-
-      // subtract 7 so that time zones and late at night queries work well
-      // DateTime todayTimestamp = DateTime.now().subtract(Duration(hours: 7));
-
-      // Get current time for germany
-      final berlin = tz.getLocation('Europe/Berlin');
-      final todayTimestamp = tz.TZDateTime.from(DateTime.now(), berlin).subtract(const Duration(hours:5));
-
-      // Filter the events
-      if(eventTimestamp.isAfter(todayTimestamp)){
-        upcomingEvents.add(currentEvent);
-      }else{
-        pastEvents.add(currentEvent);
-      }
-
-      // Add to provider so that we dont need to call them from the db again
-      stateProvider.addEventToFetchedEvents(currentEvent);
-    }
-  }
-
+  // BUILD
   Widget fetchEventsFromDbAndBuildWidget(
       StateProvider stateProvider,
       double screenHeight, double screenWidth
@@ -459,8 +104,180 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
         }
     ): _buildMainView(stateProvider, screenHeight, screenWidth);
   }
+  Widget _buildMainView(
+      StateProvider stateProvider,
+      double screenHeight,
+      double screenWidth){
+    return Column(
+      children: [
+        // Container for the bg gradient
+        Container(
+
+          // background
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color(0xff11181f),
+                  Color(0xff2b353d),
+                ],
+                stops: [0.15, 0.6]
+            ),
+          ),
+
+          child: Column(
+            children: [
+
+              _buildMapAndPricelistIcons(),
+
+              // White line
+              const Divider(
+                height:10,
+                thickness: 1,
+                color: Colors.white,
+                indent: 20,
+                endIndent: 20,
+              ),
+
+              _buildEventSection(),
+
+              // White line
+              const Divider(
+                height:10,
+                thickness: 1,
+                color: Colors.white,
+                indent: 20,
+                endIndent: 20,
+              ),
+
+              _buildNewsSection(),
+
+              // White line
+              const Divider(
+                height:10,
+                thickness: 1,
+                color: Colors.white,
+                indent: 20,
+                endIndent: 20,
+              ),
+
+              _buildPhotosAndVideosSection(),
+
+              // White line
+              const Divider(
+                height:10,
+                thickness: 1,
+                color: Colors.white,
+                indent: 20,
+                endIndent: 20,
+              ),
+
+              _buildSocialMediaSection(),
+
+              // Spacer
+              SizedBox(
+                height: screenHeight*0.02,
+              ),
+
+              // White line
+              const Divider(
+                height:10,
+                thickness: 1,
+                color: Colors.white,
+                indent: 20,
+                endIndent: 20,
+              ),
+
+              _buildMusicGenresSection(),
+
+              // White line
+              const Divider(
+                height:10,
+                thickness: 1,
+                color: Colors.white,
+                indent: 20,
+                endIndent: 20,
+              ),
+
+              _buildContactSection(),
+
+              SizedBox(
+                height: screenHeight*0.1,
+              )
 
 
+            ],
+          ),
+        ),
+
+      ],
+    );
+  }
+  Widget _buildLogoIcon(){
+    return stateProvider.getUserClub().getStoryId().isNotEmpty?
+    Stack(
+      children: [
+        Container(
+          // alignment: Alignment.center,
+          width: screenWidth*0.25,
+          height: screenWidth*0.25,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white,
+            border: Border.all(
+                color: Colors.black
+            ),
+            image: DecorationImage(
+              fit: BoxFit.cover,
+              opacity: 0.5,
+              image: AssetImage(
+                "assets/images/${stateProvider.getUserClub().getBannerId()}",
+              ),
+            ),
+          ),
+        ),
+        Container(
+          width: screenWidth*0.25,
+          height: screenWidth*0.25,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: const BorderRadius.all(
+                        Radius.circular(45)
+                    ),
+                    border: Border.all(
+                        color: Colors.white
+                    )
+                ),
+                child: Icon(
+                  Icons.play_arrow,
+                  size: customTextStyle.getIconSize1(),
+                ),
+              )
+            ],
+          ),
+        )
+      ],
+    ):
+    Container(
+      width: screenWidth*0.25,
+      height: screenWidth*0.25,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.white,
+        image: DecorationImage(
+          fit: BoxFit.cover,
+          image: AssetImage(
+            "assets/images/${stateProvider.getUserClub().getBannerId()}",
+          ),
+        ),
+      ),
+    );
+  }
   Widget _buildMapAndPricelistIcons(){
     return Column(
       children: [
@@ -515,7 +332,6 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
       ],
     );
   }
-
   Widget _buildEventSection(){
     return Column(
       children: [
@@ -581,7 +397,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
         // Text, when no event available
         upcomingEvents.isEmpty ?
         Text(
-            "Keine neuen Events.",
+          "Keine neuen Events.",
           style: customTextStyle.size3(),
         )
             : Container(),
@@ -618,7 +434,6 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
       ],
     );
   }
-
   Widget _buildNewsSection(){
     return Column(
       children: [
@@ -675,14 +490,13 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
         Padding(
           padding: EdgeInsets.all(18),
           child: Text(
-              stateProvider.getUserClubNews(),
+            stateProvider.getUserClubNews(),
             style: customTextStyle.size4(),
           ),
         ),
       ],
     );
   }
-
   Widget _buildPhotosAndVideosSection(){
     return Column(
       children: [
@@ -723,7 +537,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                             color: stateProvider.getPrimeColor(),
                           )
                       ),
-                      onTap: () => addPhotoOrVideo(screenHeight, screenWidth),
+                      onTap: () => clickOnAddPhotoOrVideo(screenHeight, screenWidth),
                     )
                 ),
 
@@ -847,7 +661,6 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
       ],
     );
   }
-
   Widget _buildSocialMediaSection(){
     return Column(
       children: [
@@ -879,7 +692,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
               child: IconButton(
                   onPressed: () => goToSocialMedia(stateProvider.getUserClubInstaLink()),
                   icon: Icon(
-                      FontAwesomeIcons.instagram,
+                    FontAwesomeIcons.instagram,
                     color: stateProvider.getPrimeColor(),
                   )
               ),
@@ -905,7 +718,6 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
       ],
     );
   }
-
   Widget _buildMusicGenresSection(){
     return Column(
       children: [
@@ -952,7 +764,6 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
       ],
     );
   }
-
   Widget _buildContactSection(){
     return Column(
       children: [
@@ -1053,7 +864,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                       stateProvider.getUserContact()[2],
                       textAlign: TextAlign.left,
                       style: customTextStyle.size4(),
-                  ),
+                    ),
                   )
                 ],
               ),
@@ -1104,118 +915,396 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
       ],
     );
   }
-
-  Widget _buildMainView(
-      StateProvider stateProvider,
-      double screenHeight,
-      double screenWidth){
-    return Column(
-      children: [
-        // Container for the bg gradient
-        Container(
-
-          // background
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Color(0xff11181f),
-                  Color(0xff2b353d),
-                ],
-                stops: [0.15, 0.6]
-            ),
+  AppBar _buildAppBar(){
+    return AppBar(
+        backgroundColor: Colors.transparent,
+        title: SizedBox(
+          width: screenWidth,
+          child: Stack(
+            children: [
+              Container(
+                width: screenWidth,
+                padding: EdgeInsets.only(
+                    top: screenHeight*0.01
+                ),
+                child: Center(
+                  child: Text(headLine,
+                      textAlign: TextAlign.center,
+                      style: customTextStyle.size2()
+                  ),
+                ),
+              ),
+              Container(
+                width: screenWidth,
+                alignment: Alignment.centerRight,
+                child: IconButton(
+                  icon: Icon(
+                      Icons.settings
+                  ),
+                  onPressed: () => context.push("/settings"),
+                ),
+              )
+            ],
           ),
+        )
+    );
+  }
 
-          child: Column(
+  // FILTER
+  void filterEventsFromProvider(StateProvider stateProvider){
+    for(var currentEvent in stateProvider.getFetchedEvents()){
+      // add 23 so that we can still find it as upcoming even though it's the same day
+      DateTime eventTimestamp = currentEvent.getEventDate();
+
+      // subtract 7 so that time zones and late at night queries work well
+      // DateTime todayTimestamp = DateTime.now().subtract(Duration(hours: 7));
+
+      // Get current time for germany
+      final berlin = tz.getLocation('Europe/Berlin');
+      final todayTimestamp = tz.TZDateTime.from(DateTime.now(), berlin).subtract(const Duration(hours:5));
+
+      // Filter the events
+      if(eventTimestamp.isAfter(todayTimestamp)){
+        upcomingEvents.add(currentEvent);
+      }else{
+        pastEvents.add(currentEvent);
+      }
+    }
+  }
+  void filterEventsFromQuery(var data, StateProvider stateProvider){
+    for(var element in data){
+      ClubMeEvent currentEvent = parseClubMeEvent(element);
+
+      // add 23 so that we can still find it as upcoming even though it's the same day
+      DateTime eventTimestamp = currentEvent.getEventDate();
+
+      // subtract 7 so that time zones and late at night queries work well
+      // DateTime todayTimestamp = DateTime.now().subtract(Duration(hours: 7));
+
+      // Get current time for germany
+      final berlin = tz.getLocation('Europe/Berlin');
+      final todayTimestamp = tz.TZDateTime.from(DateTime.now(), berlin).subtract(const Duration(hours:5));
+
+      // Filter the events
+      if(eventTimestamp.isAfter(todayTimestamp)){
+        upcomingEvents.add(currentEvent);
+      }else{
+        pastEvents.add(currentEvent);
+      }
+
+      // Add to provider so that we dont need to call them from the db again
+      stateProvider.addEventToFetchedEvents(currentEvent);
+    }
+  }
+
+
+  // CLICK
+  void toggleShowVideoIsActive(){
+    setState(() {
+      showVideoIsActive = !showVideoIsActive;
+      if(showVideoIsActive){
+        _videoPlayerController.play();
+      }else{
+        _videoPlayerController.pause();
+      }
+    });
+  }
+  void clickOnAddEvent(double screenHeight, double screenWidth){
+    showDialog(context: context, builder: (BuildContext context){
+      return AlertDialog(
+        title: const Text("Neues Event"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+
+            // Question text
+            const Text(
+              "Möchtest du ein neues Event anlegen?",
+              textAlign: TextAlign.left,
+            ),
+
+            // Spacer
+            SizedBox(
+              height: screenHeight*0.03,
+            ),
+
+            // "New event" button
+            Container(
+                width: screenWidth*0.9,
+                // color: Colors.red,
+                alignment: Alignment.bottomRight,
+                child: GestureDetector(
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                        vertical: screenHeight*0.015,
+                        horizontal: screenWidth*0.03
+                    ),
+                    decoration: const BoxDecoration(
+                        color: Colors.black54,
+                        borderRadius: BorderRadius.all(Radius.circular(10))
+                    ),
+                    child: Text(
+                      "Neues Event!",
+                      textAlign: TextAlign.center,
+                      style: customTextStyle.size4BoldPrimeColor(),
+                    ),
+                  ),
+                  onTap: () => context.go("/club_new_event"),
+                )
+            ),
+
+          ],
+        ),
+      );
+    });
+  }
+  void clickOnPriceList(double screenHeight, double screenWidth){
+    showDialog(context: context, builder: (BuildContext context){
+      return AlertDialog(
+        title: const Text("Preisliste"),
+        content: Text(
+          "Diese Funktion steht zurzeit noch nicht zur Verfügung! Wir bitten um Verständnis!",
+          textAlign: TextAlign.left,
+          style: customTextStyle.size4(),
+        ),
+      );
+    });
+  }
+  void clickOnEditNews(double screenHeight, double screenWidth, ){
+    showDialog(context: context, builder: (BuildContext context){
+      return AlertDialog(
+          title: const Text("News"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
 
-              _buildMapAndPricelistIcons(),
-
-              // White line
-              const Divider(
-                height:10,
-                thickness: 1,
-                color: Colors.white,
-                indent: 20,
-                endIndent: 20,
-              ),
-
-              _buildEventSection(),
-
-              // White line
-              const Divider(
-                height:10,
-                thickness: 1,
-                color: Colors.white,
-                indent: 20,
-                endIndent: 20,
-              ),
-
-              _buildNewsSection(),
-
-              // White line
-              const Divider(
-                height:10,
-                thickness: 1,
-                color: Colors.white,
-                indent: 20,
-                endIndent: 20,
-              ),
-
-              _buildPhotosAndVideosSection(),
-
-              // White line
-              const Divider(
-                height:10,
-                thickness: 1,
-                color: Colors.white,
-                indent: 20,
-                endIndent: 20,
-              ),
-
-              _buildSocialMediaSection(),
+              // Question text
+              Text("Willst du die News anpassen?"),
 
               // Spacer
               SizedBox(
                 height: screenHeight*0.02,
               ),
 
-              // White line
-              const Divider(
-                height:10,
-                thickness: 1,
-                color: Colors.white,
-                indent: 20,
-                endIndent: 20,
+              // "News anpassen" button
+              Container(
+                  width: screenWidth*0.9,
+                  // color: Colors.red,
+                  alignment: Alignment.bottomRight,
+                  child: GestureDetector(
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                          vertical: screenHeight*0.015,
+                          horizontal: screenWidth*0.03
+                      ),
+                      decoration: const BoxDecoration(
+                          color: Colors.black54,
+                          borderRadius: BorderRadius.all(Radius.circular(10))
+                      ),
+                      child: Text(
+                        "News anpassen!",
+                        textAlign: TextAlign.center,
+                        style: customTextStyle.size4BoldPrimeColor(),
+                      ),
+                    ),
+                    onTap: () => context.go('/club_update_news'),
+                  )
               ),
+            ],
+          )
+      );
+    });
+  }
+  void clickOnEditContact(double screenHeight, double screenWidth){
+    showDialog(context: context, builder: (BuildContext context){
+      return AlertDialog(
+          title: const Text("Kontakt"),
+          content:Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
 
-              _buildMusicGenresSection(),
+              // Question text
+              Text("Willst du deine Adresse anpassen?"),
 
-              // White line
-              const Divider(
-                height:10,
-                thickness: 1,
-                color: Colors.white,
-                indent: 20,
-                endIndent: 20,
-              ),
-
-              _buildContactSection(),
-
+              // Spacer
               SizedBox(
-                height: screenHeight*0.1,
-              )
+                height: screenHeight*0.02,
+              ),
 
+              Container(
+                  width: screenWidth*0.9,
+                  alignment: Alignment.bottomRight,
+                  child: GestureDetector(
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                          vertical: screenHeight*0.015,
+                          horizontal: screenWidth*0.03
+                      ),
+                      decoration: const BoxDecoration(
+                          color: Colors.black54,
+                          borderRadius: BorderRadius.all(Radius.circular(10))
+                      ),
+                      child: Text(
+                        "Adresse anpassen!",
+                        textAlign: TextAlign.center,
+                        style: customTextStyle.size4BoldPrimeColor(),
+                      ),
+                    ),
+                    onTap: () => context.go('/club_update_contact'),
+                  )
+              ),
 
             ],
-          ),
+          )
+      );
+    });
+  }
+  void clickOnAddPhotoOrVideo(double screenHeight, double screenWidth){
+    showDialog(context: context, builder: (BuildContext context){
+      return AlertDialog(
+        title: const Text("Hinzufügen von Photos und Videos"),
+        content: SizedBox(
+            height: screenHeight*0.12,
+            child: Center(
+              child: Text(
+                "Diese Funktion steht zurzeit noch nicht zur Verfügung! Wir bitten um Verständnis!",
+                textAlign: TextAlign.left,
+                style: customTextStyle.size4(),
+              ),
+            )
         ),
+      );
+    });
+  }
+  void clickOnDiscoverMoreEvents(double screenHeight, double screenWidth){
+    showDialog(context: context, builder: (BuildContext context){
+      return AlertDialog(
+        title: const Text("Ausführliche Eventliste"),
+        content: Text(
+          "Diese Funktion steht zurzeit noch nicht zur Verfügung! Wir bitten um Verständnis!",
+          textAlign: TextAlign.left,
+          style: customTextStyle.size4(),
+        )
+      );
+    });
+  }
+  void clickOnDiscoverMorePhotos(double screenHeight, double screenWidth){
+    showDialog(context: context, builder: (BuildContext context){
+      return AlertDialog(
+        title: const Text("Ausführliche Photoliste"),
+        content: Text(
+          "Diese Funktion steht zurzeit noch nicht zur Verfügung! Wir bitten um Verständnis!",
+          textAlign: TextAlign.left,
+          style: customTextStyle.size4(),
+        ),
+      );
+    });
+  }
+  void clickOnStoryButton(BuildContext context, double screenHeight, double screenWidth, StateProvider stateProvider){
 
-      ],
-    );
+    showDialog(context: context, builder: (BuildContext context){
+      return AlertDialog(
+        title: const Text("Story"),
+        content: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+
+            // Question text
+            Text(
+              "Möchtest du eine Story hochladen?",
+              textAlign: TextAlign.left,
+              style: customTextStyle.size4(),
+            ),
+
+            // Spacer
+            SizedBox(
+              height: screenHeight*0.03,
+            ),
+
+
+            // "New event" button
+            Container(
+                width: screenWidth*0.9,
+                // color: Colors.red,
+                alignment: Alignment.bottomRight,
+                child: GestureDetector(
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                        vertical: screenHeight*0.015,
+                        horizontal: screenWidth*0.03
+                    ),
+                    decoration: const BoxDecoration(
+                        color: Colors.black54,
+                        borderRadius: BorderRadius.all(Radius.circular(10))
+                    ),
+                    child: Text(
+                      "Neue Story!",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: stateProvider.getPrimeColor(),
+                          fontWeight: FontWeight.bold,
+                          fontSize: screenWidth*moreButtonWidthFactor
+                      ),
+                    ),
+                  ),
+                  onTap: () =>  context.go("/video_recording"),
+                )
+            ),
+
+            // Spacer
+            SizedBox(
+              height: screenHeight*0.01,
+            ),
+
+            // Does a story exist? Then show a button to play it
+            stateProvider.getClubStoryId().isNotEmpty ?
+
+            Container(
+                width: screenWidth*0.9,
+                // color: Colors.red,
+                alignment: Alignment.bottomRight,
+                child: GestureDetector(
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                        vertical: screenHeight*0.015,
+                        horizontal: screenWidth*0.03
+                    ),
+                    decoration: const BoxDecoration(
+                        color: Colors.black54,
+                        borderRadius: BorderRadius.all(Radius.circular(10))
+                    ),
+                    child: Text(
+                      "Story anschauen!",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: stateProvider.getPrimeColor(),
+                          fontWeight: FontWeight.bold,
+                          fontSize: screenWidth*moreButtonWidthFactor
+                      ),
+                    ),
+                  ),
+                  onTap: () =>  {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => ShowStoryChewie(
+                            storyUUID: stateProvider.getClubStoryId(),
+                            clubName:  stateProvider.getClubName(),
+                        ),
+                      ),
+                    )
+                  },
+                )
+            ): Container(),
+
+          ],
+        ),
+      );
+    });
   }
 
+
+  // MISC
   static Future<void> goToSocialMedia(String socialMediaLink) async{
 
     print("Link: $socialMediaLink");
@@ -1230,57 +1319,25 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
   @override
   Widget build(BuildContext context) {
 
-    stateProvider = Provider.of<StateProvider>(context);
-
-    customTextStyle = CustomTextStyle(context: context);
-
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
+    stateProvider = Provider.of<StateProvider>(context);
+    customTextStyle = CustomTextStyle(context: context);
 
+    // Check if filter necessary
     if(upcomingEvents.isEmpty && pastEvents.isEmpty){
       filterEventsFromProvider(stateProvider);
     }
 
     return Scaffold(
 
-        extendBodyBehindAppBar: true,
-        extendBody: true,
-        resizeToAvoidBottomInset: true,
+      // extendBodyBehindAppBar: true,
+      extendBody: true,
+      resizeToAvoidBottomInset: true,
 
-        bottomNavigationBar: CustomBottomNavigationBarClubs(),
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          title: SizedBox(
-            width: screenWidth,
-            child: Stack(
-              children: [
-                Container(
-                  width: screenWidth,
-                  padding: EdgeInsets.only(
-                    top: screenHeight*0.01
-                  ),
-                  child: Center(
-                    child: Text(headLine,
-                        textAlign: TextAlign.center,
-                        style: customTextStyle.size2()
-                    ),
-                  ),
-                ),
-                Container(
-                  width: screenWidth,
-                  alignment: Alignment.centerRight,
-                  child: IconButton(
-                    icon: Icon(
-                        Icons.settings
-                    ),
-                    onPressed: () => context.push("/settings"),
-                  ),
-                )
-              ],
-            ),
-          )
-        ),
-        body: Container(
+
+      appBar: _buildAppBar(),
+      body: Container(
           width: screenWidth,
           height: screenHeight,
           decoration: const BoxDecoration(
@@ -1298,10 +1355,10 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
           child: Column(
             children: [
 
-              // Spacer
-              SizedBox(
-                height: screenHeight*0.12,
-              ),
+              // // Spacer
+              // SizedBox(
+              //   height: screenHeight*0.12,
+              // ),
 
               // Content
               Stack(
@@ -1348,22 +1405,13 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                         top: screenHeight*0.185
                     ),
                     child: Align(
-                        alignment: Alignment.center,
+                        // alignment: Alignment.center,
                         child: GestureDetector(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  border: Border(
-                                      left: BorderSide(color: stateProvider.getPrimeColor()),
-                                      right: BorderSide(color: stateProvider.getPrimeColor()),
-                                      top: BorderSide(color: stateProvider.getPrimeColor())
-                                  ),
-                                  borderRadius: BorderRadius.all(Radius.circular(45))
-                              ),
-                              child: CircleAvatar(
-                                radius: 45,
-                                backgroundColor: Colors.black,
-                                child: stateProvider.getClubStoryId().isNotEmpty ? Icon(Icons.play_arrow) :Text("ClubMe"),
-                              ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                _buildLogoIcon()
+                              ],
                             ),
                             onTap: () => clickOnStoryButton(context, screenHeight, screenWidth, stateProvider)
                         )
@@ -1420,7 +1468,8 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
 
             ],
           ),
-        )
+      ),
+      bottomNavigationBar: CustomBottomNavigationBarClubs(),
     );
   }
 

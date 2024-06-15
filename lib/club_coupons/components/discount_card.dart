@@ -15,26 +15,26 @@ class DiscountCard extends StatelessWidget {
   }) : super(key: key);
 
   ClubMeDiscount clubMeDiscount;
-
+  late StateProvider stateProvider;
   late CustomTextStyle customTextStyle;
+  late String formattedDiscountTitle, formattedWeekday;
 
-  String formatDateToDisplay(){
+  void formatDateToDisplay(){
 
     final berlin = tz.getLocation('Europe/Berlin');
     final localizedDt = tz.TZDateTime.from(DateTime.now(), berlin);
-    String currentTime = DateFormat.jm().format(DateTime.now());
     DateTime normalizedCurrentTime = DateTime.parse(localizedDt.toString());
 
     String weekDayToDisplay = "";
+
     // Check if past discount
     if (normalizedCurrentTime.isAfter(clubMeDiscount.getDiscountDate())){
-      weekDayToDisplay = DateFormat('dd/MM/yyyy').format(clubMeDiscount.getDiscountDate());
-      return weekDayToDisplay;
+      weekDayToDisplay = DateFormat('dd.MM.yyyy').format(clubMeDiscount.getDiscountDate());
+      formattedWeekday = weekDayToDisplay;
     }else{
       var exactOneWeekFromNow = DateTime.now().add(const Duration(days: 7));
       if(clubMeDiscount.getDiscountDate().isAfter(exactOneWeekFromNow)){
-        print("Dates: ${clubMeDiscount.getDiscountTitle()}, ${clubMeDiscount.getDiscountDate()}, $exactOneWeekFromNow");
-        weekDayToDisplay = DateFormat('dd/MM/yyyy').format(clubMeDiscount.getDiscountDate());
+        weekDayToDisplay = DateFormat('dd.MM.yyyy').format(clubMeDiscount.getDiscountDate());
       }else{
         var eventDateWeekday = clubMeDiscount.getDiscountDate().weekday;
         switch(eventDateWeekday){
@@ -47,22 +47,10 @@ class DiscountCard extends StatelessWidget {
           case(7): weekDayToDisplay = "Sonntag";
         }
       }
-      return weekDayToDisplay;
+      formattedWeekday = weekDayToDisplay;
     }
-    }
-
-  @override
-  Widget build(BuildContext context) {
-
-    final stateProvider = Provider.of<StateProvider>(context);
-
-    customTextStyle = CustomTextStyle(context: context);
-
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
-
-    String weekDayToDisplay = formatDateToDisplay();
-
+  }
+  void formatDiscountTitle(){
     String eventTitleCut = "";
 
     if(clubMeDiscount.getDiscountTitle().length >= 22){
@@ -70,6 +58,20 @@ class DiscountCard extends StatelessWidget {
     }else{
       eventTitleCut = clubMeDiscount.getDiscountTitle().substring(0, clubMeDiscount.getDiscountTitle().length);
     }
+    formattedDiscountTitle = eventTitleCut;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    stateProvider = Provider.of<StateProvider>(context);
+    customTextStyle = CustomTextStyle(context: context);
+
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
+    formatDateToDisplay();
+    formatDiscountTitle();
 
 
     return Container(
@@ -150,7 +152,7 @@ class DiscountCard extends StatelessWidget {
                           child: Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                              eventTitleCut,
+                              formattedDiscountTitle,
                               style: customTextStyle.size1Bold()
                             ),
                           ),
@@ -179,7 +181,7 @@ class DiscountCard extends StatelessWidget {
                           child: Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                              weekDayToDisplay,
+                              formattedWeekday,
                               style: customTextStyle.size5BoldDarkGrey()
                             ),
                           ),

@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
 import '../provider/state_provider.dart';
 import '../services/hive_service.dart';
 import '../services/supabase_service.dart';
@@ -40,10 +41,12 @@ class _LogInViewState extends State<LogInView> {
     "55c3f95b-cb67-4e38-bce7-d6e4ab45e607",
     "cf49bc92-909b-41a8-8ec5-2013cde1ef0a",
     "42db0a81-ef59-4972-9a61-cc29b20084f2",
-    "2733b675-d574-4580-90c8-5fe371007b70"
+    "2733b675-d574-4580-90c8-5fe371007b70",
+    "0e69bc02-bb59-4031-82a6-ec6abb1d5494",
+    "a6186222-d5ba-460b-8e40-03bfa58286f0"
   ];
   List<String> clubNames = [
-    "LKA", "Climax", "Boa", "7grad", "HiLife"
+    "LKA", "Climax", "Boa", "7grad", "HiLife", "Kiki", "Vivally"
   ];
 
   String selectedClubId = "e6c9bfb4-a8a0-490c-be9e-1cad0c29d864";
@@ -254,6 +257,10 @@ class _LogInViewState extends State<LogInView> {
     screenHeight = MediaQuery.of(context).size.height;
 
     customTextStyle = CustomTextStyle(context: context);
+
+    var uuid = const Uuid();
+    print(uuid.v4());
+    print(uuid.v4());
 
     return Scaffold(
       appBar:

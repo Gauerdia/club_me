@@ -1,3 +1,4 @@
+import 'package:club_me/club_coupons/components/discount_tile_2.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -8,7 +9,6 @@ import 'package:intl/intl.dart';
 
 import '../shared/custom_bottom_navigation_bar.dart';
 import '../shared/custom_text_style.dart';
-import 'components/discount_card.dart';
 import 'package:timezone/standalone.dart' as tz;
 
 
@@ -23,14 +23,64 @@ class _ClubPastDiscountsViewState extends State<ClubPastDiscountsView> {
 
   String headline = "Vergangene Coupons";
 
-  late CustomTextStyle customTextStyle;
-
-  late double screenHeight, screenWidth;
   late StateProvider stateProvider;
+  late CustomTextStyle customTextStyle;
+  late double screenHeight, screenWidth;
 
   List<ClubMeDiscount> pastDbDiscounts = [];
   List<ClubMeDiscount> discountsToDisplay = [];
 
+  // CLICKED
+  void clickedOnTile(){
+    // TODO: Implement click event
+  }
+
+  // BUILD
+  Widget _buildAppBarShowTitle(){
+    return SizedBox(
+      width: screenWidth,
+      child: Stack(
+        children: [
+          // Headline
+          Container(
+              alignment: Alignment.bottomCenter,
+              height: 50,
+              // color: Colors.red,
+              width: screenWidth,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(headline,
+                      textAlign: TextAlign.center,
+                      style: customTextStyle.size2()
+                  ),
+                ],
+              )
+          ),
+
+          // back icon
+          Container(
+              width: screenWidth,
+              alignment: Alignment.centerLeft,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                    onPressed: () => context.go("/club_discounts"),
+                    icon: const Icon(
+                      Icons.arrow_back_ios_new_outlined,
+                      color: Colors.grey,
+                      // size: 20,
+                    ),
+                  )
+                ],
+              )
+          ),
+
+        ],
+      ),
+    );
+  }
   Widget _buildMainView(StateProvider stateProvider, double screenHeight){
 
     // get today in correct format to check which events are upcoming
@@ -60,52 +110,34 @@ class _ClubPastDiscountsViewState extends State<ClubPastDiscountsView> {
           ClubMeDiscount currentDiscount = pastDbDiscounts[index];
 
           return GestureDetector(
-            child: DiscountCard(
+            child: DiscountTile2(
               clubMeDiscount: currentDiscount,
             ),
-            onTap: (){
-            },
+            onTap: () => clickedOnTile(),
           );
         })
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
+
+    customTextStyle = CustomTextStyle(context: context);
     stateProvider = Provider.of<StateProvider>(context);
 
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
 
-    customTextStyle = CustomTextStyle(context: context);
-
     return Scaffold(
 
-        extendBody: true,
+      extendBody: true,
 
-        bottomNavigationBar: CustomBottomNavigationBar(),
-        appBar:
-
-        AppBar(
-
-            backgroundColor: Colors.transparent,
-
-            title: Text(headline,
-              style: customTextStyle.size1Bold()
-            ),
-
-            leading: GestureDetector(
-              child: const Icon(
-                Icons.arrow_back_ios_new_outlined,
-                color: Colors.grey,
-                // size: 20,
-              ),
-              onTap: () => context.go("/club_discounts"),
-            )
-
+      appBar: AppBar(
+          automaticallyImplyLeading: false,
+          backgroundColor: Colors.transparent,
+          title: _buildAppBarShowTitle(),
         ),
-        body: Container(
+      body: Container(
             width: screenWidth,
             height: screenHeight,
             decoration: const BoxDecoration(
@@ -136,7 +168,8 @@ class _ClubPastDiscountsViewState extends State<ClubPastDiscountsView> {
                 ),
               ],
             )
-        )
+        ),
+      bottomNavigationBar: CustomBottomNavigationBar(),
     );
   }
 }

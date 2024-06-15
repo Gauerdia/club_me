@@ -1,4 +1,3 @@
-import 'package:club_me/utils/date_time_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/event.dart';
@@ -7,26 +6,29 @@ import 'package:intl/intl.dart';
 import '../../provider/state_provider.dart';
 import '../../shared/custom_text_style.dart';
 
+import 'package:timezone/standalone.dart' as tz;
+
 class SmallEventTile extends StatelessWidget {
   SmallEventTile({Key? key, required this.clubMeEvent}) : super(key: key);
 
   ClubMeEvent clubMeEvent;
-
+  late StateProvider stateProvider;
   late CustomTextStyle customTextStyle;
+  late String formattedWeekday, formattedEventTitle, formattedDjName;
 
-  @override
-  Widget build(BuildContext context) {
-
-    final stateProvider = Provider.of<StateProvider>(context);
-
-    customTextStyle = CustomTextStyle(context: context);
-
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
+  void formatWeekday(){
 
     String weekDayToDisplay = "";
 
-    var eventDateWeekday = clubMeEvent.getEventDate().weekday;
+    // Get current time for germany
+    final berlin = tz.getLocation('Europe/Berlin');
+    final todayGermanTZ = tz.TZDateTime.from(DateTime.now(), berlin);
+    final exactlyOneWeekFromNowGermanTZ = todayGermanTZ.add(const Duration(days: 7));
+
+    if(clubMeEvent.getEventDate().isAfter(exactlyOneWeekFromNowGermanTZ)){
+      weekDayToDisplay = DateFormat('dd.MM.yyyy').format(clubMeEvent.getEventDate());
+    }else{
+      var eventDateWeekday = clubMeEvent.getEventDate().weekday;
       switch(eventDateWeekday){
         case(1): weekDayToDisplay = "Montag";
         case(2): weekDayToDisplay = "Dienstag";
@@ -36,32 +38,46 @@ class SmallEventTile extends StatelessWidget {
         case(6): weekDayToDisplay = "Samstag";
         case(7): weekDayToDisplay = "Sonntag";
       }
+    }
+    formattedWeekday = weekDayToDisplay;
+  }
 
-    String eventTitleCut = "";
-    String eventDjCut = "";
-
-
+  void formatEventTitle(){
     if(clubMeEvent.getEventTitle().length >= 22){
-      eventTitleCut = "${clubMeEvent.getEventTitle().substring(0, 21)}...";
+      formattedEventTitle = "${clubMeEvent.getEventTitle().substring(0, 21)}...";
     }else{
-      eventTitleCut = clubMeEvent.getEventTitle().substring(0, clubMeEvent.getEventTitle().length);
+      formattedEventTitle = clubMeEvent.getEventTitle().substring(0, clubMeEvent.getEventTitle().length);
     }
-
+  }
+  void formatDjName(){
     if(clubMeEvent.getDjName().length >= 22){
-      eventDjCut = "${clubMeEvent.getDjName().substring(0, 21)}...";
+      formattedDjName = "${clubMeEvent.getDjName().substring(0, 21)}...";
     }else{
-      eventDjCut = clubMeEvent.getDjName().substring(0, clubMeEvent.getDjName().length);
+      formattedDjName = clubMeEvent.getDjName().substring(0, clubMeEvent.getDjName().length);
     }
+  }
 
-    // var howOftenRedeemed = clubMeDiscount.getHowOftenRedeemed();
+  @override
+  Widget build(BuildContext context) {
 
-    return Container
-      (
+    stateProvider = Provider.of<StateProvider>(context);
+
+    customTextStyle = CustomTextStyle(context: context);
+
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
+    formatWeekday();
+    formatEventTitle();
+    formatDjName();
+    formatWeekday();
+
+
+    return Container(
       padding: EdgeInsets.only(bottom: screenHeight*0.02),
       child: Card(
         child: Column(
           children: [
-
 
             // Image container
             Container(
@@ -142,7 +158,7 @@ class SmallEventTile extends StatelessWidget {
                           child: Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                              eventTitleCut,
+                              formattedEventTitle,
                               style: customTextStyle.size2Bold()
                             ),
                           ),
@@ -151,13 +167,12 @@ class SmallEventTile extends StatelessWidget {
                         // Date
                         Padding(
                           padding: const EdgeInsets.only(
-                            // top: 5,
                               left: 10
                           ),
                           child: Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                              weekDayToDisplay,
+                              formattedWeekday,
                               style: customTextStyle.size5Bold()
                             ),
                           ),
@@ -172,12 +187,11 @@ class SmallEventTile extends StatelessWidget {
                           child: Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                              eventDjCut,
+                              formattedDjName,
                               style: customTextStyle.size6BoldGrey(),
                             ),
                           ),
                         ),
-
                       ],
                     ),
                   ],

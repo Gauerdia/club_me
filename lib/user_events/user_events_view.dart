@@ -69,163 +69,29 @@ class _UserEventsViewState extends State<UserEventsView> {
 
   }
 
-  void clickedOnLike(StateProvider stateProvider, String eventId){
-    setState(() {
-      if(stateProvider.getLikedEvents().contains(eventId)){
-        stateProvider.deleteLikedEvent(eventId);
-        _hiveService.deleteFavoriteEvent(eventId);
-      }else{
-        stateProvider.addLikedEvent(eventId);
-        _hiveService.insertFavoriteEvent(eventId);
-      }
-    });
-  }
 
-  void clickedOnShare(){
-    showDialog<String>(
-      context: context,
-      builder: (BuildContext context) => const AlertDialog(
-        title: Text("Teilen noch nicht möglich!"),
-        content: Text("Die Funktion, ein Event zu teilen, ist derzeit noch"
-            "nicht implementiert. Wir bitten um Verständnis.")
-      )
-    );
-  }
 
-  void sortUpcomingEvents(){
-    for(var e in upcomingDbEvents){
-      var date = e.getEventDate();
-      // print("Vorher: $date");
-    }
-    upcomingDbEvents.sort((a,b) =>
-        a.getEventDate().millisecondsSinceEpoch.compareTo(b.getEventDate().millisecondsSinceEpoch)
-    );
-    for(var e in upcomingDbEvents){
-      var date = e.getEventDate();
-      // print("Nachher: $date");
-    }
-  }
-
-  void filterEvents(){
-
-    // Just set max at the very beginning
-    if(maxValueRangeSlider == 0){
-      for(var element in upcomingDbEvents){
-        if(maxValueRangeSlider == 0){
-          maxValueRangeSlider = element.getEventPrice();
-        }else{
-          if(element.getEventPrice() > maxValueRangeSlider){
-            maxValueRangeSlider = element.getEventPrice();
-          }
-        }
-      }
-      _currentRangeValues = RangeValues(0, maxValueRangeSlider);
-    }
-
-    // Check if any filter is applied
-    if(
-        _currentRangeValues.end != maxValueRangeSlider ||
-        _currentRangeValues.start != 0 ||
-        dropdownValue != "All" ||
-        searchValue != "" ||
-        onlyFavoritesIsActive
-    ){
-
-      // set for coloring
-      isAnyFilterActive = true;
-
-      // reset array
-      eventsToDisplay = [];
-
-      // Iterate through all available events
-      for(var event in upcomingDbEvents){
-
-          // when one criterium doesnt match, set to false
-          bool fitsCriteria = true;
-
-          // Search bar used? Then filter
-          if(searchValue != "") {
-            String allInformationLowerCase = "${event.getEventTitle()} ${event
-                .getClubName()} ${event.getDjName()} ${event.getEventDate()}"
-                .toLowerCase();
-            if (allInformationLowerCase.contains(
-                searchValue.toLowerCase())) {} else {
-              fitsCriteria = false;
-            }
-          }
-
-          // Price range changed? Filter
-          if((_currentRangeValues.start != 0 || _currentRangeValues.end != 30)
-            && (event.getEventPrice() < _currentRangeValues.start || event.getEventPrice() > _currentRangeValues.end)
-          ) fitsCriteria = false;
-
-          // music genre doenst match? filter
-          if(dropdownValue != genresDropdownList[0] ){
-            if(!event.getMusicGenres().toLowerCase().contains(dropdownValue.toLowerCase())){
-              fitsCriteria = false;
-            }
-          }
-
-          if(onlyFavoritesIsActive){
-            if(!checkIfIsLiked(event)){
-              fitsCriteria = false;
-            }
-          }
-
-          // All filter passed? evaluate
-          if(fitsCriteria){
-            eventsToDisplay.add(event);
-          }
+  // FETCH
+  void requestStoragePermission() async {
+    // Check if the platform is not web, as web has no permissions
+    if (!kIsWeb) {
+      // Request storage permission
+      var status = await Permission.storage.status;
+      if (!status.isGranted) {
+        await Permission.storage.request();
       }
 
-      for(var element in eventsToDisplay){
-        if(maxValueRangeSliderToDisplay == 0){
-          maxValueRangeSliderToDisplay = element.getEventPrice();
-        }else{
-          if(element.getEventPrice() > maxValueRangeSliderToDisplay){
-            maxValueRangeSliderToDisplay = element.getEventPrice();
-          }
-        }
+      // Request camera permission
+      var cameraStatus = await Permission.camera.status;
+      if (!cameraStatus.isGranted) {
+        await Permission.camera.request();
       }
-
-    }else{
-      isAnyFilterActive = false;
-      eventsToDisplay = upcomingDbEvents;
     }
   }
-
-  bool checkIfIsLiked(ClubMeEvent currentEvent) {
-    var isLiked = false;
-    if (stateProvider.getLikedEvents().contains(
-        currentEvent.getEventId())) {
-      isLiked = true;
-    }
-    return isLiked;
-  }
-
-  void toggleIsSearchActive(){
-    setState(() {
-      isSearchActive = !isSearchActive;
-    });
-  }
-
-  void toggleIsAnyFilterActive(){
-    setState(() {
-      isAnyFilterActive = !isAnyFilterActive;
-    });
-  }
-
-  void toggleIsFilterMenuActive(){
-    setState(() {
-      isFilterMenuActive = !isFilterMenuActive;
-    });
-  }
-
   void getAllLikedEvents(StateProvider stateProvider) async{
     var likedEvents = await _hiveService.getFavoriteEvents();
     stateProvider.setLikedEvents(likedEvents);
   }
-
   Widget _buildSupabaseEvents(StateProvider stateProvider, double screenHeight){
 
     // get today in correct format to check which events are upcoming
@@ -358,30 +224,168 @@ class _UserEventsViewState extends State<UserEventsView> {
     }
   }
 
-  void requestStoragePermission() async {
-    // Check if the platform is not web, as web has no permissions
-    if (!kIsWeb) {
-      // Request storage permission
-      var status = await Permission.storage.status;
-      if (!status.isGranted) {
-        await Permission.storage.request();
+  // FILTER
+  void filterEvents(){
+
+    // Just set max at the very beginning
+    if(maxValueRangeSlider == 0){
+      for(var element in upcomingDbEvents){
+        if(maxValueRangeSlider == 0){
+          maxValueRangeSlider = element.getEventPrice();
+        }else{
+          if(element.getEventPrice() > maxValueRangeSlider){
+            maxValueRangeSlider = element.getEventPrice();
+          }
+        }
+      }
+      _currentRangeValues = RangeValues(0, maxValueRangeSlider);
+    }
+
+    // Check if any filter is applied
+    if(
+    _currentRangeValues.end != maxValueRangeSlider ||
+        _currentRangeValues.start != 0 ||
+        dropdownValue != genresDropdownList[0] ||
+        searchValue != "" ||
+        onlyFavoritesIsActive
+    ){
+
+      // set for coloring
+      if(_currentRangeValues.end != maxValueRangeSlider ||
+          _currentRangeValues.start != 0 ||
+          dropdownValue != genresDropdownList[0] ||
+          onlyFavoritesIsActive){
+        isAnyFilterActive = true;
+      }else{
+        isAnyFilterActive = false;
       }
 
-      // Request camera permission
-      var cameraStatus = await Permission.camera.status;
-      if (!cameraStatus.isGranted) {
-        await Permission.camera.request();
+      // reset array
+      eventsToDisplay = [];
+
+      // Iterate through all available events
+      for(var event in upcomingDbEvents){
+
+        // when one criterium doesnt match, set to false
+        bool fitsCriteria = true;
+
+        // Search bar used? Then filter
+        if(searchValue != "") {
+          String allInformationLowerCase = "${event.getEventTitle()} ${event
+              .getClubName()} ${event.getDjName()} ${event.getEventDate()}"
+              .toLowerCase();
+          if (allInformationLowerCase.contains(
+              searchValue.toLowerCase())) {} else {
+            fitsCriteria = false;
+          }
+        }
+
+        // Price range changed? Filter
+        if((_currentRangeValues.start != 0 || _currentRangeValues.end != 30)
+            && (event.getEventPrice() < _currentRangeValues.start || event.getEventPrice() > _currentRangeValues.end)
+        ) fitsCriteria = false;
+
+        // music genre doenst match? filter
+        if(dropdownValue != genresDropdownList[0] ){
+          if(!event.getMusicGenres().toLowerCase().contains(dropdownValue.toLowerCase())){
+            fitsCriteria = false;
+          }
+        }
+
+        if(onlyFavoritesIsActive){
+          if(!checkIfIsLiked(event)){
+            fitsCriteria = false;
+          }
+        }
+
+        // All filter passed? evaluate
+        if(fitsCriteria){
+          eventsToDisplay.add(event);
+        }
       }
+
+      for(var element in eventsToDisplay){
+        if(maxValueRangeSliderToDisplay == 0){
+          maxValueRangeSliderToDisplay = element.getEventPrice();
+        }else{
+          if(element.getEventPrice() > maxValueRangeSliderToDisplay){
+            maxValueRangeSliderToDisplay = element.getEventPrice();
+          }
+        }
+      }
+
+    }else{
+      isAnyFilterActive = false;
+      eventsToDisplay = upcomingDbEvents;
     }
   }
-
+  void sortUpcomingEvents(){
+    for(var e in upcomingDbEvents){
+      var date = e.getEventDate();
+      // print("Vorher: $date");
+    }
+    upcomingDbEvents.sort((a,b) =>
+        a.getEventDate().millisecondsSinceEpoch.compareTo(b.getEventDate().millisecondsSinceEpoch)
+    );
+    for(var e in upcomingDbEvents){
+      var date = e.getEventDate();
+      // print("Nachher: $date");
+    }
+  }
   void filterForFavorites(){
     setState(() {
       onlyFavoritesIsActive = !onlyFavoritesIsActive;
       filterEvents();
     });
   }
+  bool checkIfIsLiked(ClubMeEvent currentEvent) {
+    var isLiked = false;
+    if (stateProvider.getLikedEvents().contains(
+        currentEvent.getEventId())) {
+      isLiked = true;
+    }
+    return isLiked;
+  }
 
+  // Click/TOGGLE
+  void clickedOnLike(StateProvider stateProvider, String eventId){
+    setState(() {
+      if(stateProvider.getLikedEvents().contains(eventId)){
+        stateProvider.deleteLikedEvent(eventId);
+        _hiveService.deleteFavoriteEvent(eventId);
+      }else{
+        stateProvider.addLikedEvent(eventId);
+        _hiveService.insertFavoriteEvent(eventId);
+      }
+    });
+  }
+  void clickedOnShare(){
+    showDialog<String>(
+        context: context,
+        builder: (BuildContext context) => const AlertDialog(
+            title: Text("Teilen noch nicht möglich!"),
+            content: Text("Die Funktion, ein Event zu teilen, ist derzeit noch"
+                "nicht implementiert. Wir bitten um Verständnis.")
+        )
+    );
+  }
+  void toggleIsSearchActive(){
+    setState(() {
+      isSearchActive = !isSearchActive;
+    });
+  }
+  void toggleIsAnyFilterActive(){
+    setState(() {
+      isAnyFilterActive = !isAnyFilterActive;
+    });
+  }
+  void toggleIsFilterMenuActive(){
+    setState(() {
+      isFilterMenuActive = !isFilterMenuActive;
+    });
+  }
+
+  // BUILD
   Widget _buildAppBarShowTitle(){
     return SizedBox(
       width: screenWidth,
@@ -560,12 +564,12 @@ class _UserEventsViewState extends State<UserEventsView> {
 
     stateProvider = Provider.of<StateProvider>(context);
 
-    getAllLikedEvents(stateProvider);
-
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
 
     customTextStyle = CustomTextStyle(context: context);
+
+    getAllLikedEvents(stateProvider);
 
     return Scaffold(
 
@@ -599,6 +603,8 @@ class _UserEventsViewState extends State<UserEventsView> {
             ),
             child: Stack(
               children: [
+
+                // Build Supabase events
                 SingleChildScrollView(
                     keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                     physics: const ScrollPhysics(),
@@ -616,13 +622,16 @@ class _UserEventsViewState extends State<UserEventsView> {
                     )
                 ),
 
+                // Filter menu
                 isFilterMenuActive?Container(
                   height: screenHeight*0.14,
                   width: screenWidth,
-                  color: Color(0xff2b353d),
+                  color: const Color(0xff2b353d),
                   child: Row(
                     children: [
-                      Container(
+
+                      // Preis
+                      SizedBox(
                         width: screenWidth*0.5,
                         child: Column(
                           children: [
@@ -633,7 +642,7 @@ class _UserEventsViewState extends State<UserEventsView> {
                             ),
 
                             // Price
-                            Text(
+                            const Text(
                                 "Preis"
                             ),
 
@@ -654,19 +663,24 @@ class _UserEventsViewState extends State<UserEventsView> {
                           ],
                         ),
                       ),
-                      Container(
+
+                      // Genre filter
+                      SizedBox(
                         width: screenWidth*0.5,
                         child: Column(
                           children: [
 
+                            // Spacer
                             SizedBox(
                               height: screenHeight*0.01,
                             ),
 
+                            // Genre
                             Text(
-                                "Genre"
+                                "Musikrichtung"
                             ),
 
+                            // Dropdown
                             DropdownButton(
                                 value: dropdownValue,
                                 items: genresDropdownList.map<DropdownMenuItem<String>>(
@@ -694,7 +708,4 @@ class _UserEventsViewState extends State<UserEventsView> {
         )
     );
   }
-
-
-
 }

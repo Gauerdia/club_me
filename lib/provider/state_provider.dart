@@ -203,6 +203,12 @@ class StateProvider extends ChangeNotifier{
     sortFetchedEvents();
   }
 
+  void updateSpecificEvent(String eventId, ClubMeEvent updatedClubMeEvent){
+    int index = fetchedEvents.indexWhere((element) => element.getEventId() == eventId);
+    fetchedEvents[index] = updatedClubMeEvent;
+    notifyListeners();
+  }
+
   void updateCurrentEvent(int index, String newValue){
     switch(index){
       case 0: clubMeEvent.setEventTitle(newValue);
@@ -244,17 +250,15 @@ class StateProvider extends ChangeNotifier{
   }
 
   void sortFetchedEvents(){
-    for(var e in fetchedEvents){
-      var date = e.getEventDate();
-      // print("Vorher: $date");
-    }
+    // for(var e in fetchedEvents){
+    //   var date = e.getEventDate();
+    // }
     fetchedEvents.sort((a,b) =>
         a.getEventDate().millisecondsSinceEpoch.compareTo(b.getEventDate().millisecondsSinceEpoch)
     );
-    for(var e in fetchedEvents){
-      var date = e.getEventDate();
-      // print("Nachher: $date");
-    }
+    // for(var e in fetchedEvents){
+    //   var date = e.getEventDate();
+    // }
   }
 
   void toggleReviewingANewEvent(){
@@ -303,6 +307,10 @@ class StateProvider extends ChangeNotifier{
   }
 
   // Club
+
+  ClubMeClub getUserClub(){
+    return userClub;
+  }
 
   setCurrentClub(ClubMeClub clubMeClub){
     _currentClub = clubMeClub;
@@ -491,7 +499,11 @@ class StateProvider extends ChangeNotifier{
     notifyListeners();
   }
 
-
+  void updateSpecificDiscount(String discountId, ClubMeDiscount updatedClubMeDiscount){
+    int index = fetchedDiscounts.indexWhere((element) => element.getDiscountId() == discountId);
+    fetchedDiscounts[index] = updatedClubMeDiscount;
+    notifyListeners();
+  }
 
   // MISC
 

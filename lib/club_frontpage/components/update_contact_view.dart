@@ -16,229 +16,179 @@ class UpdateContactView extends StatefulWidget {
 
 class _UpdateContactViewState extends State<UpdateContactView> {
 
-  late StateProvider stateProvider;
+
 
   String headLine = "Kontakt anpassen";
-  late CustomTextStyle customTextStyle;
-  bool sendClicked = false;
-
-  final SupabaseService _supabaseService = SupabaseService();
 
   bool initDone = false;
-  TextEditingController streetController = TextEditingController();
+  bool sendClicked = false;
+
+  late StateProvider stateProvider;
+  late CustomTextStyle customTextStyle;
+  late double screenWidth, screenHeight;
+
+  final SupabaseService _supabaseService = SupabaseService();
+  TextEditingController zipController = TextEditingController();
   TextEditingController nameController = TextEditingController();
   TextEditingController cityController = TextEditingController();
-  TextEditingController zipController = TextEditingController();
+  TextEditingController streetController = TextEditingController();
 
 
-  void initController(){
-    streetController = TextEditingController(
-        text:stateProvider.getUserContact()[1]
+  // BUILD
+  AppBar _buildAppBar(){
+    return AppBar(
+      backgroundColor: Colors.transparent,
+      title: SizedBox(
+        width: screenWidth,
+        child: Text(
+          headLine,
+          style: customTextStyle.size1Bold(),
+        ),
+      ),
+      leading: IconButton(
+        icon: const Icon(
+            Icons.arrow_back_ios_new_outlined
+        ),
+        onPressed: (){
+          context.go('/club_frontpage');
+        },
+      ),
     );
-    nameController = TextEditingController(
-        text:stateProvider.getUserContact()[0]
-    );
-    cityController = TextEditingController(
-        text:stateProvider.getUserContact()[3]
-    );
-    zipController = TextEditingController(
-        text:stateProvider.getUserContact()[2]
-    );
-    setState(() {
-      initDone = true;
-    });
   }
+  Widget _buildMainColumn(){
+    return  Column(
+      children: [
 
-  @override
-  Widget build(BuildContext context) {
+        // Spacer
+        SizedBox(
+          height: screenHeight*0.2,
+        ),
 
-    stateProvider = Provider.of<StateProvider>(context);
-
-    customTextStyle = CustomTextStyle(context: context);
-
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
-
-    if(!initDone){
-      initController();
-    }
-
-    return Scaffold(
-
-        // extendBodyBehindAppBar: true,
-        extendBody: true,
-        resizeToAvoidBottomInset: true,
-
-        bottomNavigationBar: CustomBottomNavigationBarClubs(),
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          title: SizedBox(
-            width: screenWidth,
-            child: Text(
-              headLine,
-              style: customTextStyle.size1Bold(),
+        // Textfield, name
+        SizedBox(
+          width: screenWidth*0.8,
+          child: TextFormField(
+            controller: nameController,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              label: Text("Name"),
             ),
-          ),
-          leading: IconButton(
-            icon: const Icon(
-                Icons.arrow_back_ios_new_outlined
-            ),
-            onPressed: (){
-              context.go('/club_frontpage');
-            },
+            maxLength: 30,
           ),
         ),
-        body: Container(
-          width: screenWidth,
-          height: screenHeight,
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color(0xff2b353d),
-                  Color(0xff11181f)
-                ],
-                stops: [0.15, 0.6]
+
+        // Spacer
+        SizedBox(
+          height: screenHeight*0.03,
+        ),
+
+        // Textfield Straße
+        SizedBox(
+          width: screenWidth*0.8,
+          child: TextFormField(
+            controller: streetController,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              label: Text("Straße"),
             ),
+            maxLength: 30,
           ),
-          child: SingleChildScrollView(
-            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-            child: Column(
+        ),
+
+        // Spacer
+        SizedBox(
+          height: screenHeight*0.03,
+        ),
+
+        // Textfield PLZ
+        SizedBox(
+            width: screenWidth*0.82,
+            child: Row(
               children: [
-
-                // Spacer
                 SizedBox(
-                  height: screenHeight*0.2,
-                ),
-
-                // Textfield, name
-                SizedBox(
-                  width: screenWidth*0.8,
+                  width: screenWidth*0.3,
                   child: TextFormField(
-                    controller: nameController,
+                    controller: zipController,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
-                      label: Text("Name"),
+                      label: Text("PLZ"),
                     ),
-                    maxLength: 30,
+                    maxLength: 6,
                   ),
                 ),
 
                 // Spacer
                 SizedBox(
-                  height: screenHeight*0.03,
+                  width: screenHeight*0.01,
                 ),
 
-                // Textfield Straße
+                // Textfield city
                 SizedBox(
-                  width: screenWidth*0.8,
+                  width: screenWidth*0.48,
                   child: TextFormField(
-                    controller: streetController,
+                    controller: cityController,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
-                      label: Text("Straße"),
+                      label: Text("Stadt"),
                     ),
-                    maxLength: 30,
+                    maxLength: 15,
                   ),
-                ),
-
-                // Spacer
-                SizedBox(
-                  height: screenHeight*0.03,
-                ),
-
-                // Textfield PLZ
-                SizedBox(
-                    width: screenWidth*0.82,
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: screenWidth*0.3,
-                          child: TextFormField(
-                            controller: zipController,
-                            decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
-                              label: Text("PLZ"),
-                            ),
-                            maxLength: 6,
-                          ),
-                        ),
-
-                        // Spacer
-                        SizedBox(
-                          width: screenHeight*0.01,
-                        ),
-
-                        // Textfield city
-                        SizedBox(
-                          width: screenWidth*0.48,
-                          child: TextFormField(
-                            controller: cityController,
-                            decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
-                              label: Text("Stadt"),
-                            ),
-                            maxLength: 15,
-                          ),
-                        )
-                      ],
-                    )
-                ),
-
-                // Spacer
-                SizedBox(
-                  height: screenHeight*0.05,
-                ),
-
-                sendClicked ? const Padding(
-                  padding: EdgeInsets.only(top: 5),
-                  child: Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                ):
-
-                Container(
-                    width: screenWidth*0.9,
-                    // color: Colors.red,
-                    alignment: Alignment.bottomRight,
-                    child: GestureDetector(
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                            vertical: screenHeight*0.015,
-                            horizontal: screenWidth*0.03
-                        ),
-                        decoration: const BoxDecoration(
-                            color: Colors.black54,
-                            borderRadius: BorderRadius.all(Radius.circular(10))
-                        ),
-                        child: Text(
-                          "Kontakt anpassen!",
-                          textAlign: TextAlign.center,
-                          style: customTextStyle.size4BoldPrimeColor(),
-                        ),
-                      ),
-                      onTap: () => clickOnUpdateButton(
-                          stateProvider,
-                          nameController,
-                          streetController,
-                          zipController,
-                          cityController
-                      ),
-                    )
-                ),
-
-                SizedBox(
-                  height: screenHeight*0.4,
                 )
-
               ],
-            ),
-          )
+            )
+        ),
+
+        // Spacer
+        SizedBox(
+          height: screenHeight*0.05,
+        ),
+
+        sendClicked ? const Padding(
+          padding: EdgeInsets.only(top: 5),
+          child: Center(
+            child: CircularProgressIndicator(),
+          ),
+        ):
+
+        Container(
+            width: screenWidth*0.9,
+            // color: Colors.red,
+            alignment: Alignment.bottomRight,
+            child: GestureDetector(
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                    vertical: screenHeight*0.015,
+                    horizontal: screenWidth*0.03
+                ),
+                decoration: const BoxDecoration(
+                    color: Colors.black54,
+                    borderRadius: BorderRadius.all(Radius.circular(10))
+                ),
+                child: Text(
+                  "Kontakt anpassen!",
+                  textAlign: TextAlign.center,
+                  style: customTextStyle.size4BoldPrimeColor(),
+                ),
+              ),
+              onTap: () => clickOnUpdateButton(
+                  stateProvider,
+                  nameController,
+                  streetController,
+                  zipController,
+                  cityController
+              ),
+            )
+        ),
+
+        SizedBox(
+          height: screenHeight*0.4,
         )
+
+      ],
     );
   }
 
+  // CLICK
   void clickOnUpdateButton(
       StateProvider stateProvider,
       TextEditingController nameController,
@@ -283,5 +233,70 @@ class _UpdateContactViewState extends State<UpdateContactView> {
       }
     });
   }
+
+  // MISC
+  void initController(){
+    streetController = TextEditingController(
+        text:stateProvider.getUserContact()[1]
+    );
+    nameController = TextEditingController(
+        text:stateProvider.getUserContact()[0]
+    );
+    cityController = TextEditingController(
+        text:stateProvider.getUserContact()[3]
+    );
+    zipController = TextEditingController(
+        text:stateProvider.getUserContact()[2]
+    );
+    setState(() {
+      initDone = true;
+    });
+  }
+
+
+
+  @override
+  Widget build(BuildContext context) {
+
+    screenWidth = MediaQuery.of(context).size.width;
+    screenHeight = MediaQuery.of(context).size.height;
+    stateProvider = Provider.of<StateProvider>(context);
+    customTextStyle = CustomTextStyle(context: context);
+
+
+    if(!initDone){
+      initController();
+    }
+
+    return Scaffold(
+
+        extendBody: true,
+        resizeToAvoidBottomInset: true,
+
+        bottomNavigationBar: CustomBottomNavigationBarClubs(),
+        appBar: _buildAppBar(),
+        body: Container(
+          width: screenWidth,
+          height: screenHeight,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xff2b353d),
+                  Color(0xff11181f)
+                ],
+                stops: [0.15, 0.6]
+            ),
+          ),
+          child: SingleChildScrollView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            child:_buildMainColumn(),
+          )
+        )
+    );
+  }
+
+
 
 }

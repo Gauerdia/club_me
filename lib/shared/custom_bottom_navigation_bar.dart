@@ -25,8 +25,6 @@ class CustomBottomNavigationBar extends StatelessWidget {
     return Container(
         decoration: BoxDecoration(
             borderRadius: const BorderRadius.only(
-                // topRight: Radius.circular(30),
-                // topLeft: Radius.circular(30)
             ),
             color: navigationBackgroundColor
         ),
@@ -35,11 +33,9 @@ class CustomBottomNavigationBar extends StatelessWidget {
             Container(
               decoration: const BoxDecoration(
                 borderRadius: BorderRadius.only(
-                    // topRight: Radius.circular(30),
-                    // topLeft: Radius.circular(30)
                 ),
               ),
-              height: 70,
+              height: 90,
               child: Center(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -145,7 +141,6 @@ class CustomBottomNavigationBar extends StatelessWidget {
                         context.go('/user_profile');
                       },
                     ),
-
                   ],
                 ),
               ),
