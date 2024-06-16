@@ -232,19 +232,32 @@ class _ProfileViewState extends State<ProfileView> {
                                       ),
                                     ),
 
-                                    SizedBox(
+                                    Container(
+                                      // color: Colors.red,
                                       height: screenHeight*0.05,
                                       child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
 
-                                          const Text(
-                                              "Vorname"
+                                          Padding(
+                                              padding: EdgeInsets.only(
+                                                left: screenWidth*0.05
+                                              ),
+                                            child: const Text(
+                                                "Vorname",
+                                                textAlign: TextAlign.left
+                                            ),
                                           ),
 
-                                          Text(
-                                              stateProvider.getUserData().getFirstName()
+                                          Padding(
+                                            padding: EdgeInsets.only(
+                                                right: screenWidth*0.05
+                                            ),
+                                            child: Text(
+                                                stateProvider.getUserData().getFirstName()
+                                            ),
                                           ),
+
                                         ],
                                       )
                                     ),
@@ -252,16 +265,28 @@ class _ProfileViewState extends State<ProfileView> {
                                     SizedBox(
                                       height: screenHeight*0.05,
                                       child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
 
-                                          const Text(
-                                              "Nachname"
+                                          Padding(
+                                            padding: EdgeInsets.only(
+                                                left: screenWidth*0.05
+                                            ),
+                                            child: const Text(
+                                                "Nachname",
+                                                textAlign: TextAlign.left
+                                            ),
                                           ),
 
-                                          Text(
-                                              stateProvider.getUserData().getLastName()
+                                          Padding(
+                                            padding: EdgeInsets.only(
+                                                right: screenWidth*0.05
+                                            ),
+                                            child: Text(
+                                                stateProvider.getUserData().getLastName()
+                                            ),
                                           ),
+
                                         ],
                                       )
                                     ),
@@ -269,16 +294,28 @@ class _ProfileViewState extends State<ProfileView> {
                                     SizedBox(
                                         height: screenHeight*0.05,
                                         child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
 
-                                            const Text(
-                                                "E-Mail-Adresse"
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                  left: screenWidth*0.05
+                                              ),
+                                              child: const Text(
+                                                  "E-Mail-Adresse",
+                                                  textAlign: TextAlign.left
+                                              ),
                                             ),
 
-                                            Text(
-                                                stateProvider.getUserData().getEMail()
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                  right: screenWidth*0.05
+                                              ),
+                                              child: Text(
+                                                  stateProvider.getUserData().getEMail()
+                                              ),
                                             ),
+
                                           ],
                                         )
                                     ),
