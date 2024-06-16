@@ -358,7 +358,7 @@ class _ClubInfoBottomSheetState extends State<ClubInfoBottomSheet> {
                           children: [
 
                             // Spacer
-                            const SizedBox(width: 5,),
+                            // const SizedBox(width: 5,),
 
                             // Icon distance
                             Container(
@@ -379,7 +379,7 @@ class _ClubInfoBottomSheetState extends State<ClubInfoBottomSheet> {
                             ),
 
                             // Spacer
-                            const SizedBox(width: 7,),
+                            // const SizedBox(width: 7,),
 
                             // Text distance
                             Text(
@@ -388,7 +388,7 @@ class _ClubInfoBottomSheetState extends State<ClubInfoBottomSheet> {
                             ),
 
                             // Spacer
-                            const SizedBox(width: 7,),
+                            const SizedBox(width: 2,),
 
                             Container(
                               padding: const EdgeInsets.all(
@@ -408,7 +408,7 @@ class _ClubInfoBottomSheetState extends State<ClubInfoBottomSheet> {
                             ),
 
                             // Spacer
-                            const SizedBox(width: 7,),
+                            // const SizedBox(width: 2,),
 
                             Text(
                               getRandomNumber(),
@@ -416,7 +416,7 @@ class _ClubInfoBottomSheetState extends State<ClubInfoBottomSheet> {
                             ),
 
                             // Spacer
-                            const SizedBox(width: 7,),
+                            const SizedBox(width: 2,),
 
                             // Icon genre
                             Container(
@@ -437,7 +437,7 @@ class _ClubInfoBottomSheetState extends State<ClubInfoBottomSheet> {
                             ),
 
                             // Spacer
-                            const SizedBox(width: 7,),
+                            // const SizedBox(width: 7,),
 
                             // Text Genre
                             Text(

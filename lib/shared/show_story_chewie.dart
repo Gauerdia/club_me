@@ -110,7 +110,7 @@ class _ShowStoryChewieState extends State<ShowStoryChewie> {
 
           // Video screen
           SizedBox(
-              width: screenWidth,
+              width: screenWidth*1.2,
               child: ClipRRect(
                   child: FittedBox(
                       fit: BoxFit.cover,
@@ -120,7 +120,7 @@ class _ShowStoryChewieState extends State<ShowStoryChewie> {
                               .videoPlayerController.value.isInitialized
                           ? SizedBox(
                         width: screenWidth,
-                        height: screenHeight,
+                        height: screenHeight*0.97,
                         child: Chewie(
                           controller: _chewieController!,
                         ),
@@ -133,7 +133,7 @@ class _ShowStoryChewieState extends State<ShowStoryChewie> {
                         ),
                       )
                   )
-              )
+              ),
           ),
 
           // Club name

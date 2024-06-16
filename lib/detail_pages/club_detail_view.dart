@@ -857,7 +857,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
               child: Column(
                 children: [
                   Icon(
-                    Icons.route_outlined,
+                    Icons.location_on_outlined,
                     color: stateProvider.getPrimeColor(),
                     size: screenHeight*stateProvider.getIconSizeFactor(),
                   ),

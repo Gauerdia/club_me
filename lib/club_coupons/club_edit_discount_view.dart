@@ -548,57 +548,52 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView> {
           const Center(
             child: CircularProgressIndicator(),
           ):
-          Container(
-              width: screenWidth*0.9,
-              height: screenHeight*newDiscountContainerHeightFactor,
-              alignment: Alignment.center,
-              child: Padding(
-                padding: const EdgeInsets.only(
-                  // right: screenWidth*0.01,
-                  // bottom: screenHeight*0.01
+
+          Padding(
+            padding: EdgeInsets.symmetric(
+                vertical: screenHeight*0.01,
+                horizontal: screenWidth*0.01
+            ),
+            child: GestureDetector(
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                    horizontal: screenWidth*0.035,
+                    vertical: screenHeight*0.02
                 ),
-                child: GestureDetector(
-                  child: Container(
-                      width: screenWidth*0.35,
-                      height: screenHeight*0.07,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                            colors: [
-                              stateProvider.getPrimeColorDark(),
-                              stateProvider.getPrimeColor(),
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            stops: const [0.2, 0.9]
-                        ),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black54,
-                            spreadRadius: 1,
-                            blurRadius: 7,
-                            offset: Offset(3, 3), // changes position of shadow
-                          ),
-                        ],
-                        borderRadius: const BorderRadius.all(
-                            Radius.circular(10)
-                        ),
-                      ),
-                      padding: const EdgeInsets.all(18),
-                      child: const Center(
-                        child: Text(
-                          "Abschließen!",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold
-                          ),
-                        ),
-                      )
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.all(
+                      Radius.circular(10)
                   ),
-                  onTap: () => finishUpdateDiscount(),
+                  gradient: LinearGradient(
+                      colors: [
+                        customTextStyle.primeColorDark,
+                        customTextStyle.primeColor,
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      stops: const [0.2, 0.9]
+                  ),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black54,
+                      spreadRadius: 1,
+                      blurRadius: 7,
+                      offset: Offset(3, 3), // changes position of shadow
+                    ),
+                  ],
                 ),
-              )
-          ),
+                child: const Text(
+                  "Abschließen!",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold
+                  ),
+                ),
+              ),
+              onTap: () => finishUpdateDiscount(),
+            ),
+          )
         )
     );
   }

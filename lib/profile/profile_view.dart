@@ -56,6 +56,7 @@ class _ProfileViewState extends State<ProfileView> {
   }
 
   void clickedOnLogOut(){
+    stateProvider.setPageIndex(0);
     _hiveService.resetUserData().then((value) => context.go("/log_in"));
   }
 

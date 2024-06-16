@@ -378,7 +378,7 @@ class _EventDetailViewState extends State<EventDetailView>{
                       children: [
                         Container(
                           alignment: Alignment.centerLeft,
-                          width: screenWidth*0.8,
+                          width: screenWidth*0.75,
                           child: Padding(
                             padding: const EdgeInsets.only(
                                 top: 10,
@@ -400,7 +400,7 @@ class _EventDetailViewState extends State<EventDetailView>{
 
                         // Price
                         SizedBox(
-                          width: screenWidth*0.2,
+                          width: screenWidth*0.25,
                           child:Align(
                             alignment: Alignment.topRight,
                             child: Padding(

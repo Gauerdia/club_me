@@ -32,6 +32,13 @@ class ClubCard extends StatelessWidget {
   late CustomTextStyle customTextStyle;
   late double screenHeight, screenWidth;
 
+  double widthFactor = 0.95;
+
+  double contentHeightFactor = 0.52;
+  double headerContainerFactor = 0.07;
+  double eventsContainerFactor = 0.33;
+  double bottomContainerFactor = 0.08;
+
   final HiveService _hiveService = HiveService();
 
   bool tempLiked = false;
@@ -44,8 +51,8 @@ class ClubCard extends StatelessWidget {
   // CALCULATE
   String getRandomNumber(){
 
-    final _random = new Random();
-    int next(int min, int max) => min + _random.nextInt(max - min);
+    final random = Random();
+    int next(int min, int max) => min + random.nextInt(max - min);
 
     return next(20, 50).toString();
 
@@ -80,7 +87,7 @@ class ClubCard extends StatelessWidget {
 
         // Colorful accent
         Container(
-          width: screenWidth*0.95,
+          width: screenWidth*widthFactor,
           height:  topHeight+bottomHeight+6,
           decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -98,7 +105,7 @@ class ClubCard extends StatelessWidget {
 
         // Colorful accent
         Container(
-          width: screenWidth*0.95,
+          width: screenWidth*widthFactor,
           height: topHeight+bottomHeight,
           decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -118,7 +125,7 @@ class ClubCard extends StatelessWidget {
 
         // light grey highlight
         Container(
-          width: screenWidth*0.94,
+          width: screenWidth*(widthFactor-0.01),
           height: topHeight+bottomHeight,
           decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -139,7 +146,7 @@ class ClubCard extends StatelessWidget {
                 left:2
             ),
             child: Container(
-              width: screenWidth*0.94,
+              width: screenWidth*(widthFactor-0.01),
               height: topHeight+bottomHeight,
               decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -162,7 +169,7 @@ class ClubCard extends StatelessWidget {
               top: 2
           ),
           child: Container(
-            width: screenWidth*0.94,
+            width: screenWidth*(widthFactor-0.01),
             height: topHeight+bottomHeight,
             decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -242,8 +249,9 @@ class ClubCard extends StatelessWidget {
 
         // Content
         Container(
-          height: screenHeight*0.55,
+          height: screenHeight*contentHeightFactor,
           width: screenWidth*0.95,
+          // color: Colors.red,
           child: Column(
             children: [
 
@@ -254,7 +262,7 @@ class ClubCard extends StatelessWidget {
 
               // Header: name, icons
               SizedBox(
-                height: screenHeight*0.08,
+                height: screenHeight*headerContainerFactor,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -391,7 +399,7 @@ class ClubCard extends StatelessWidget {
 
               // Middle part: next two events
               SizedBox(
-                  height: screenHeight*0.33,
+                  height: screenHeight*eventsContainerFactor,
                   // color: Colors.red,
                   child: SingleChildScrollView(
                     child:Column(
@@ -452,7 +460,7 @@ class ClubCard extends StatelessWidget {
 
               // Bottom part
               SizedBox(
-                  height: screenHeight*0.1,
+                  height: screenHeight*bottomContainerFactor,
                   width: screenWidth*0.85,
                   child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -556,8 +564,6 @@ class ClubCard extends StatelessWidget {
                         // Music Genre
                         Align(
                           child: Container(
-                            // width: screenWidth*0.5,
-                            // height: screenHeight*0.05,
                             padding: EdgeInsets.symmetric(
                                 vertical: screenHeight*0.01,
                                 horizontal: screenWidth*0.03
@@ -643,7 +649,7 @@ class ClubCard extends StatelessWidget {
     screenHeight = MediaQuery.of(context).size.height;
 
     topHeight = screenHeight*0.2;
-    bottomHeight = screenHeight*0.552;
+    bottomHeight = screenHeight*0.52;
 
     customTextStyle = CustomTextStyle(context: context);
 

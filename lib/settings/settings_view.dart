@@ -29,13 +29,15 @@ class _SettingsViewState extends State<SettingsView> {
   Color primeColor = Colors.tealAccent;
 
   void logOutClicked(){
+    stateProvider.setClubUiActive(false);
+    stateProvider.setPageIndex(0);
     _hiveService.resetUserData().then((value) => context.go("/log_in"));
   }
 
   @override
   Widget build(BuildContext context) {
 
-    final stateProvider = Provider.of<StateProvider>(context);
+    stateProvider = Provider.of<StateProvider>(context);
 
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;

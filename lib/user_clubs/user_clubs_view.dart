@@ -392,7 +392,7 @@ class _UserClubsViewState extends State<UserClubsView>
                 child: Column(
                   children: [
                     SizedBox(
-                      height: screenHeight*0.8,
+                      height: screenHeight*0.75,
                       child: PageView(
                         controller: _pageViewController,
                         onPageChanged: _handlePageViewChanged,
@@ -505,7 +505,7 @@ class _UserClubsViewState extends State<UserClubsView>
 
                 // Pageview of the club cards
                 SizedBox(
-                    height: screenHeight*1.2,
+                    height: screenHeight*1,
                     // color: Colors.red,
                     child: _buildSupabaseClubs(stateProvider)
                 ),

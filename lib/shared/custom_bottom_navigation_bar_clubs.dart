@@ -36,7 +36,7 @@ class CustomBottomNavigationBarClubs extends StatelessWidget {
                 borderRadius: BorderRadius.only(
                 ),
               ),
-              height: 70,
+              height: 90,
               child: Center(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,

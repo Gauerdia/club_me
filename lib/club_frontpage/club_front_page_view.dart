@@ -295,7 +295,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                 children: [
 
                   Icon(
-                    Icons.route_outlined,
+                    Icons.location_on_outlined,
                     color: stateProvider.getPrimeColor(),
                   ),
 
