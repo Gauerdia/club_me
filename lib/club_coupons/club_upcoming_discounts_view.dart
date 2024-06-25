@@ -1,6 +1,7 @@
 import 'package:club_me/club_coupons/components/discount_card.dart';
 import 'package:club_me/club_coupons/components/discount_tile_2.dart';
 import 'package:club_me/provider/state_provider.dart';
+import 'package:club_me/shared/custom_bottom_navigation_bar_clubs.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -167,7 +168,7 @@ class _ClubUpcomingDiscountsViewState extends State<ClubUpcomingDiscountsView> {
               ],
             )
         ),
-      bottomNavigationBar: CustomBottomNavigationBar(),
+      bottomNavigationBar: CustomBottomNavigationBarClubs(),
     );
   }
 }

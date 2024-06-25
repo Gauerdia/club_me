@@ -956,16 +956,16 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
             ),
 
             // "Bitte mit Punkt" in red
-            SizedBox(
-              width: screenWidth*0.8,
-              child: Center(
-                child: Text(
-                  "Bitte Cent-Beträge mit Punkt statt mit Komma eintragen.",
-                  textAlign: TextAlign.center,
-                  style: customTextStyle.size6Red()
-                ),
-              ),
-            ),
+            // SizedBox(
+            //   width: screenWidth*0.8,
+            //   child: Center(
+            //     child: Text(
+            //       "Bitte Cent-Beträge mit Punkt statt mit Komma eintragen.",
+            //       textAlign: TextAlign.center,
+            //       style: customTextStyle.size6Red()
+            //     ),
+            //   ),
+            // ),
 
             // Spacer
             SizedBox(
@@ -1163,7 +1163,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        newSelectedDate.toString().substring(0,10),
+                        formatSelectedDate(),
                         style: customTextStyle.size3(),
                       ),
                       SizedBox(
@@ -1202,6 +1202,8 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                         children: List<Widget>.generate(60, (index){
                           return Center(
                             child: Text(
+                              index < 10 ?
+                              "0${index.toString()}" :
                               index.toString(),
                               style: const TextStyle(
                                   fontSize: 24
@@ -1230,7 +1232,9 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                         children: List<Widget>.generate(4, (index){
                           return Center(
                             child: Text(
-                              (index*15).toString(),
+                              index == 0
+                                  ? "00"
+                                  :(index*15).toString(),
                               style: const TextStyle(
                                   fontSize: 24
                               ),

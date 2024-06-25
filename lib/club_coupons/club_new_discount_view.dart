@@ -757,7 +757,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                     children: [
                       // Date as Text
                       Text(
-                        newSelectedDate.toString().substring(0,10),
+                        formatSelectedDate(),
                         style: customTextStyle.size3(),
                       ),
                       // Spacer

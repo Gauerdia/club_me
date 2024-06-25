@@ -8,6 +8,7 @@ import '../provider/state_provider.dart';
 import '../services/hive_service.dart';
 import '../services/supabase_service.dart';
 import '../shared/custom_bottom_navigation_bar.dart';
+import '../shared/custom_bottom_navigation_bar_clubs.dart';
 import '../shared/custom_text_style.dart';
 import '../user_events/components/event_tile.dart';
 
@@ -247,7 +248,7 @@ class _ClubPastEventsViewState extends State<ClubPastEventsView> {
 
         extendBody: true,
 
-        bottomNavigationBar: CustomBottomNavigationBar(),
+        bottomNavigationBar: CustomBottomNavigationBarClubs(),
         appBar: AppBar(
             automaticallyImplyLeading: false,
             backgroundColor: Colors.transparent,

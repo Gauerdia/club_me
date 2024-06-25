@@ -1,4 +1,5 @@
 import 'package:club_me/shared/custom_bottom_navigation_bar.dart';
+import 'package:club_me/shared/custom_bottom_navigation_bar_clubs.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logger/logger.dart';
@@ -391,7 +392,7 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
               ],
             )
         ),
-      bottomNavigationBar: CustomBottomNavigationBar(),
+      bottomNavigationBar: CustomBottomNavigationBarClubs(),
     );
   }
 }

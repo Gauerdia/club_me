@@ -321,8 +321,8 @@ class _ClubDetailViewState extends State<ClubDetailView> {
           ),
         ),
         Container(
-          width: screenWidth*0.3,
-          height: screenWidth*0.3,
+          width: screenWidth*0.25,
+          height: screenWidth*0.25,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
