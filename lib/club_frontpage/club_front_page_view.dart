@@ -40,6 +40,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
 
   late Future getClub;
   late Future getEvents;
+  late String zipAndCity;
   late StateProvider stateProvider;
   late CustomTextStyle customTextStyle;
   late double screenHeight, screenWidth;
@@ -835,8 +836,8 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                   SizedBox(
                     width: screenWidth*0.5,
                     child: Text(
-                      stateProvider.getUserContact()[0].length > 15 ?
-                      stateProvider.getUserContact()[0].substring(0,15) :
+                      stateProvider.getUserContact()[0].length > 17 ?
+                      stateProvider.getUserContact()[0].substring(0,17) :
                       stateProvider.getUserContact()[0],
                       textAlign: TextAlign.left,
                       style: customTextStyle.size4Bold(),
@@ -847,8 +848,8 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                   SizedBox(
                     width: screenWidth*0.5,
                     child: Text(
-                      stateProvider.getUserContact()[1].length > 15 ?
-                      stateProvider.getUserContact()[1].substring(0,15):
+                      stateProvider.getUserContact()[1].length > 19 ?
+                      stateProvider.getUserContact()[1].substring(0,19):
                       stateProvider.getUserContact()[1],
                       textAlign: TextAlign.left,
                       style:customTextStyle.size4(),
@@ -859,9 +860,9 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                   SizedBox(
                     width: screenWidth*0.5,
                     child: Text(
-                      stateProvider.getUserContact()[2].length > 15 ?
-                      stateProvider.getUserContact()[2].substring(0,15):
-                      stateProvider.getUserContact()[2],
+                      zipAndCity.length > 25 ?
+                      zipAndCity.substring(0,25):
+                      zipAndCity,
                       textAlign: TextAlign.left,
                       style: customTextStyle.size4(),
                     ),
@@ -965,9 +966,13 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
 
       // Filter the events
       if(eventTimestamp.isAfter(todayTimestamp)){
-        upcomingEvents.add(currentEvent);
+        if(currentEvent.getClubId() == stateProvider.userClub.getClubId()){
+          upcomingEvents.add(currentEvent);
+        }
       }else{
-        pastEvents.add(currentEvent);
+        if(currentEvent.getClubId() == stateProvider.userClub.getClubId()){
+          pastEvents.add(currentEvent);
+        }
       }
     }
   }
@@ -987,9 +992,13 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
 
       // Filter the events
       if(eventTimestamp.isAfter(todayTimestamp)){
-        upcomingEvents.add(currentEvent);
+        if(currentEvent.getClubId() == stateProvider.userClub.getClubId()){
+          upcomingEvents.add(currentEvent);
+        }
       }else{
-        pastEvents.add(currentEvent);
+        if(currentEvent.getClubId() == stateProvider.userClub.getClubId()){
+          pastEvents.add(currentEvent);
+        }
       }
 
       // Add to provider so that we dont need to call them from the db again
@@ -1323,6 +1332,8 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
     screenHeight = MediaQuery.of(context).size.height;
     stateProvider = Provider.of<StateProvider>(context);
     customTextStyle = CustomTextStyle(context: context);
+
+    zipAndCity = "${stateProvider.getUserContact()[2]} ${stateProvider.getUserContact()[3]}";
 
     // Check if filter necessary
     if(upcomingEvents.isEmpty && pastEvents.isEmpty){
