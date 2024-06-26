@@ -76,9 +76,13 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
 
       // Filter the events
       if(discountTimestamp.isAfter(todayTimestamp) || discountTimestamp.isAtSameMomentAs(todayTimestamp)){
-        upcomingDiscounts.add(currentDiscount);
+        if(currentDiscount.getClubId() == stateProvider.userClub.getClubId()){
+          upcomingDiscounts.add(currentDiscount);
+        }
       }else{
-        pastDiscounts.add(currentDiscount);
+        if(currentDiscount.getClubId() == stateProvider.userClub.getClubId()){
+          pastDiscounts.add(currentDiscount);
+        }
       }
     }
   }
@@ -99,9 +103,13 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
 
       // Filter the events
       if(discountTimestamp.isAfter(todayTimestamp) || discountTimestamp.isAtSameMomentAs(todayTimestamp)){
-        upcomingDiscounts.add(currentDiscount);
+        if(currentDiscount.getClubId() == stateProvider.userClub.getClubId()){
+          upcomingDiscounts.add(currentDiscount);
+        }
       }else{
-        pastDiscounts.add(currentDiscount);
+        if(currentDiscount.getClubId() == stateProvider.userClub.getClubId()){
+          pastDiscounts.add(currentDiscount);
+        }
       }
 
       if(upcomingDiscounts.isNotEmpty){

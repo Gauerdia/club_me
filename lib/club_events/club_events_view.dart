@@ -818,9 +818,13 @@ class _ClubEventsViewState extends State<ClubEventsView> {
 
       // Filter the events
       if(eventTimestamp.isAfter(todayTimestamp)){
-        upcomingEvents.add(currentEvent);
+        if(currentEvent.getClubId() == stateProvider.userClub.getClubId()){
+          upcomingEvents.add(currentEvent);
+        }
       }else{
-        pastEvents.add(currentEvent);
+        if(currentEvent.getClubId() == stateProvider.userClub.getClubId()){
+          pastEvents.add(currentEvent);
+        }
       }
     }
   }
@@ -837,9 +841,13 @@ class _ClubEventsViewState extends State<ClubEventsView> {
 
       // Filter the events
       if(eventTimestamp.isAfter(todayTimestamp)){
-        upcomingEvents.add(currentEvent);
+        if(currentEvent.getClubId() == stateProvider.userClub.getClubId()){
+          upcomingEvents.add(currentEvent);
+        }
       }else{
-        pastEvents.add(currentEvent);
+        if(currentEvent.getClubId() == stateProvider.userClub.getClubId()){
+          pastEvents.add(currentEvent);
+        }
       }
 
       if(upcomingEvents.isNotEmpty){
