@@ -1,3 +1,4 @@
+/*
 import 'package:club_me/models/event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -2872,7 +2873,6 @@ class _ClubNewEventViewState extends State<ClubNewEventView>
       djName: _eventDJController.text,
       musicGenres: musicGenresString,
       eventTitle: _eventTitleController.text,
-      eventStartingHour: "$selectedHourAsString:$selectedMinuteAsString",
       eventPrice: double.parse(_eventPriceController.text.replaceAll(",", ".")),
       eventDescription: _eventDescriptionController.text,
 
@@ -3212,4 +3212,4 @@ class DecimalTextInputFormatter extends TextInputFormatter {
     }
     return newValue;
   }
-}
+}*/

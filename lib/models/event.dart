@@ -12,8 +12,9 @@ class ClubMeEvent{
     required this.bannerId,
     required this.eventDescription,
     required this.musicGenres,
-    required this.eventStartingHour,
-    required this.clubId
+    required this.clubId,
+    required this.storyId,
+    required this.storyCreatedAt
   });
 
   String eventId;
@@ -26,11 +27,13 @@ class ClubMeEvent{
   double eventPrice;
 
   DateTime eventDate;
-  String eventStartingHour;
   String eventDescription;
 
   String bannerId;
   String musicGenres;
+
+  String storyId;
+  DateTime? storyCreatedAt;
 
   // howManyAreIn
 
@@ -61,9 +64,6 @@ class ClubMeEvent{
 
   String getMusicGenres(){
     return musicGenres;
-  }
-  String getEventStartingHours(){
-    return eventStartingHour;
   }
 
   String getClubId(){

@@ -832,7 +832,6 @@ class _ClubEventsViewState extends State<ClubEventsView> {
     for(var element in data){
       ClubMeEvent currentEvent = parseClubMeEvent(element);
 
-      // add 23 so that we can still find it as upcoming even though it's the same day
       DateTime eventTimestamp = currentEvent.getEventDate();
 
       // Get current time for germany
@@ -940,7 +939,6 @@ class _ClubEventsViewState extends State<ClubEventsView> {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    // Color(0xff11181f),
                     Color(0xff2b353d),
                     Color(0xff11181f)
                   ],
@@ -948,11 +946,11 @@ class _ClubEventsViewState extends State<ClubEventsView> {
               ),
             ),
             child: SingleChildScrollView(
-
                 child: fetchEventsFromDbAndBuildWidget(
                     stateProvider,
                     screenHeight,
-                    screenWidth)
+                    screenWidth
+                )
             )
         )
     );

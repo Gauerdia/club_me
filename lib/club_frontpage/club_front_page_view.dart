@@ -1366,11 +1366,6 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
           child: Column(
             children: [
 
-              // // Spacer
-              // SizedBox(
-              //   height: screenHeight*0.12,
-              // ),
-
               // Content
               Stack(
                 children: [
@@ -1429,50 +1424,50 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                     ),
                   ),
 
-                  showVideoIsActive ? GestureDetector(
-                      child: Container(
-                        width: screenWidth,
-                        height: screenHeight*0.85,
-                        color: Colors.black.withOpacity(0.5),
-                      ),
-                      onTap: () => toggleShowVideoIsActive()
-                  ): Container(),
-
-                  showVideoIsActive ? FutureBuilder(
-                    future: _initializeVideoPlayerFuture,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done) {
-                        // If the VideoPlayerController has finished initialization, use
-                        // the data it provides to limit the aspect ratio of the video.
-                        return Padding(
-                          padding: EdgeInsets.only(
-                              top: screenHeight*0.1
-                          ),
-                          child: Center(
-                            child: Container(
-                                width: screenWidth*0.9,
-                                height: screenHeight*0.5,
-                                color: Colors.grey,
-                                child: Column(
-                                  children: [
-                                    SizedBox(
-                                      width: screenWidth*0.9,
-                                      height: screenHeight*0.48,
-                                      child: VideoPlayer(_videoPlayerController),
-                                    ),
-                                    VideoProgressIndicator(_videoPlayerController, allowScrubbing: true)
-                                  ],
-                                )
-                            ),
-                          ),
-                        );
-                      } else {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      }
-                    },
-                  ): Container(),
+                  // showVideoIsActive ? GestureDetector(
+                  //     child: Container(
+                  //       width: screenWidth,
+                  //       height: screenHeight*0.85,
+                  //       color: Colors.black.withOpacity(0.5),
+                  //     ),
+                  //     onTap: () => toggleShowVideoIsActive()
+                  // ): Container(),
+                  //
+                  // showVideoIsActive ? FutureBuilder(
+                  //   future: _initializeVideoPlayerFuture,
+                  //   builder: (context, snapshot) {
+                  //     if (snapshot.connectionState == ConnectionState.done) {
+                  //       // If the VideoPlayerController has finished initialization, use
+                  //       // the data it provides to limit the aspect ratio of the video.
+                  //       return Padding(
+                  //         padding: EdgeInsets.only(
+                  //             top: screenHeight*0.1
+                  //         ),
+                  //         child: Center(
+                  //           child: Container(
+                  //               width: screenWidth*0.9,
+                  //               height: screenHeight*0.5,
+                  //               color: Colors.grey,
+                  //               child: Column(
+                  //                 children: [
+                  //                   SizedBox(
+                  //                     width: screenWidth*0.9,
+                  //                     height: screenHeight*0.48,
+                  //                     child: VideoPlayer(_videoPlayerController),
+                  //                   ),
+                  //                   VideoProgressIndicator(_videoPlayerController, allowScrubbing: true)
+                  //                 ],
+                  //               )
+                  //           ),
+                  //         ),
+                  //       );
+                  //     } else {
+                  //       return const Center(
+                  //         child: CircularProgressIndicator(),
+                  //       );
+                  //     }
+                  //   },
+                  // ): Container(),
 
                 ],
               )

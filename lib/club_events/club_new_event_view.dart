@@ -1,3 +1,4 @@
+import 'package:club_me/club_events/util/decimal_text_input_formatter.dart';
 import 'package:club_me/models/event.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -1531,13 +1532,16 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
       djName: _eventDJController.text,
       musicGenres: musicGenresString,
       eventTitle: _eventTitleController.text,
-      eventStartingHour: "$selectedFirstElement:$selectedSecondElement",
       eventPrice: double.parse(_eventPriceController.text.replaceAll(",", ".")),
       eventDescription: _eventDescriptionController.text,
 
       clubId: stateProvider.getClubId(),
       clubName: stateProvider.getClubName(),
       bannerId: stateProvider.getUserClubEventBannerId(),
+
+      storyId: "",
+      storyCreatedAt: null
+
     );
 
     _supabaseService.insertEvent(newEvent, stateProvider).then((value) => {

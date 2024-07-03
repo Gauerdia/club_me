@@ -16,22 +16,22 @@ class StateProvider extends ChangeNotifier{
   ClubMeClub userClub = ClubMeClub(
       clubId: "....",
       clubName: "MyClub",
-      news: "ewfwfew fwef wefwf wefefw",
-      priceList: {"" : ""},
-      musicGenres: "musicGenres",
-      storyId: "",
-      bannerId: "img_2.png",
-      eventBannerId: "img_2.png",
-      photoPaths: {"" : ""},
-      geoCoordLat: 10,
-      geoCoordLng: 10,
-      contactCity: "Bochum",
-      contactName: "MyClub",
-      contactStreet: "Kortumstraße 101",
-      contactZip: "44787",
-      instagramLink: "https://www.instagram.com/hilife.stuttgart",
-      websiteLink: "https://google.de",
-      backgroundColorId: 0
+      clubNews: "ewfwfew fwef wefwf wefefw",
+      clubPriceList: {"" : ""},
+      clubMusicGenres: "musicGenres",
+      clubStoryId: "",
+      clubBannerId: "img_2.png",
+      clubEventBannerId: "img_2.png",
+      clubPhotoPaths: {"" : ""},
+      clubGeoCoordLat: 10,
+      clubGeoCoordLng: 10,
+      clubContactCity: "Bochum",
+      clubContactName: "MyClub",
+      clubContactStreet: "Kortumstraße 101",
+      clubContactZip: "44787",
+      clubInstagramLink: "https://www.instagram.com/hilife.stuttgart",
+      clubWebsiteLink: "https://google.de",
+      clubFrontpageBackgroundColorId: 0
   );
 
   ClubMeUserData userData = ClubMeUserData(

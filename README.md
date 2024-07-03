@@ -1,6 +1,18 @@
 # club_me
 
 
+To-Dos:
+
+- Bilder nicht mehr mitgeben, sondern am Anfang runterladen lassen. Am besten per versionsnummer im
+club-eintrag.
+
+
+
+
+
+
+
+
 // Internet permission for Iphone?
 
 Icon

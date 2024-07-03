@@ -62,7 +62,6 @@ class SupabaseService{
         "dj_name" : clubMeEvent.getDjName(),
 
         "event_date" : clubMeEvent.getEventDate().toString(),
-        "event_starting_hour": clubMeEvent.getEventStartingHours(),
         "event_description" : clubMeEvent.getEventDescription(),
         "event_price" : clubMeEvent.getEventPrice(),
 
@@ -90,7 +89,6 @@ class SupabaseService{
       case(2): fieldName = "dj_name";break;
       case(3): fieldName = "music_genres";break;
       case(4): fieldName = "event_price";break;
-      case(5): fieldName = "event_starting_hour"; break;
     }
 
     try{
@@ -116,7 +114,6 @@ class SupabaseService{
           'event_title': updatedEvent.getEventTitle(),
           'dj_name': updatedEvent.getDjName(),
           'event_date': updatedEvent.getEventDate().toString(),
-          'event_starting_hour': "${updatedEvent.getEventDate().hour}:${updatedEvent.getEventDate().minute}",
           'music_genres': updatedEvent.getMusicGenres(),
           'event_price': updatedEvent.getEventPrice(),
           'event_description': updatedEvent.getEventDescription()

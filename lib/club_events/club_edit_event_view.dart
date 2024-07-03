@@ -805,8 +805,10 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
         bannerId: stateProvider.clubMeEvent.getBannerId(),
         eventDescription: _eventDescriptionController.text,
         musicGenres: musicGenresString,
-        eventStartingHour: "$firstElementToSave:$secondElementToSave",
-        clubId: stateProvider.clubMeEvent.getClubId()
+        clubId: stateProvider.clubMeEvent.getClubId(),
+
+      storyId: "",
+      storyCreatedAt: null
     );
 
     setState(() {

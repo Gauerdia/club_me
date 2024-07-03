@@ -4,69 +4,70 @@ class ClubMeClub{
     required this.clubId,
     required this.clubName,
 
-    required this.news,
-    required this.priceList,
-    required this.musicGenres,
-    required this.storyId,
+    required this.clubNews,
+    required this.clubPriceList,
+    required this.clubMusicGenres,
+    required this.clubStoryId,
 
-    required this.bannerId,
-    required this.photoPaths,
+    required this.clubBannerId,
+    required this.clubPhotoPaths,
 
-    required this.geoCoordLat,
-    required this.geoCoordLng,
+    required this.clubGeoCoordLat,
+    required this.clubGeoCoordLng,
 
-    required this.contactCity,
-    required this.contactName,
-    required this.contactStreet,
-    required this.contactZip,
-    required this.eventBannerId,
+    required this.clubContactCity,
+    required this.clubContactName,
+    required this.clubContactStreet,
+    required this.clubContactZip,
+    required this.clubEventBannerId,
 
-    required this.instagramLink,
-    required this.backgroundColorId,
-    required this.websiteLink
+    required this.clubWebsiteLink,
+    required this.clubInstagramLink,
+    required this.clubFrontpageBackgroundColorId,
+
 
   });
 
   String clubId;
   String clubName;
 
-  String storyId;
+  String clubStoryId;
 
-  double geoCoordLat;
-  double geoCoordLng;
+  double clubGeoCoordLat;
+  double clubGeoCoordLng;
 
-  String bannerId;
-  String eventBannerId;
-  String musicGenres;
+  String clubBannerId;
+  String clubEventBannerId;
+  String clubMusicGenres;
 
-  String news;
-  Map<String, dynamic> priceList;
-  Map<String, dynamic> photoPaths;
+  String clubNews;
+  Map<String, dynamic> clubPriceList;
+  Map<String, dynamic> clubPhotoPaths;
 
-  String contactName;
-  String contactStreet;
-  String contactCity;
-  String contactZip;
+  String clubContactName;
+  String clubContactStreet;
+  String clubContactCity;
+  String clubContactZip;
 
-  String instagramLink;
-  String websiteLink;
+  String clubInstagramLink;
+  String clubWebsiteLink;
 
-  int backgroundColorId;
+  int clubFrontpageBackgroundColorId;
 
   String getWebsiteLink(){
-    return websiteLink;
+    return clubWebsiteLink;
   }
 
   int getBackgroundColorId(){
-    return backgroundColorId;
+    return clubFrontpageBackgroundColorId;
   }
 
   String getInstagramLink(){
-    return instagramLink;
+    return clubInstagramLink;
   }
 
   String getEventBannerId(){
-    return eventBannerId;
+    return clubEventBannerId;
   }
 
   String getClubId(){
@@ -84,87 +85,87 @@ class ClubMeClub{
   }
 
   String getStoryId(){
-    return storyId;
+    return clubStoryId;
   }
   void setStoryId(String newStoryId){
-    storyId = newStoryId;
+    clubStoryId = newStoryId;
   }
 
   double getGeoCoordLat(){
-    return geoCoordLat;
+    return clubGeoCoordLat;
   }
   void setGeoCoordLat(double newCoord){
-    geoCoordLat = newCoord;
+    clubGeoCoordLat = newCoord;
   }
 
   double getGeoCoordLng(){
-    return geoCoordLng;
+    return clubGeoCoordLng;
   }
   void setGeoCoordLng(double newCoord){
-    geoCoordLng = newCoord;
+    clubGeoCoordLng = newCoord;
   }
 
   String getBannerId(){
-    return bannerId;
+    return clubBannerId;
   }
   void setBannerId(String newId){
-    bannerId = newId;
+    clubBannerId = newId;
   }
 
   String getMusicGenres(){
-    return musicGenres;
+    return clubMusicGenres;
   }
   void setMusicGenres(String newGenres){
-    musicGenres = newGenres;
+    clubMusicGenres = newGenres;
   }
 
   String getNews(){
-    return news;
+    return clubNews;
   }
   void setNews(String newNews){
-    news = newNews;
+    clubNews = newNews;
   }
 
   Map<String, dynamic> getPriceList(){
-    return priceList;
+    return clubPriceList;
   }
   void setPriceList(Map<String, dynamic> newPriceList){
-    priceList = newPriceList;
+    clubPriceList = newPriceList;
   }
 
   Map<String, dynamic> getPhotoPaths(){
-    return photoPaths;
+    return clubPhotoPaths;
   }
   void setPhotoPaths(Map<String, dynamic> newPhotoPaths){
-    photoPaths = newPhotoPaths;
+    clubPhotoPaths = newPhotoPaths;
   }
 
   String getContactName(){
-    return contactName;
+    return clubContactName;
   }
   void setContactName(String newName){
-    contactName = newName;
+    clubContactName = newName;
   }
 
   String getContactStreet(){
-    return contactStreet;
+    return clubContactStreet;
   }
   void setContactStreet(String newStreet){
-    contactStreet = newStreet;
+    clubContactStreet = newStreet;
   }
 
   String getContactCity(){
-    return contactCity;
+    return clubContactCity;
   }
   void setContactCity(String newCity){
-    contactCity = newCity;
+    clubContactCity = newCity;
   }
 
   String getContactZip(){
-    return contactZip;
+    return clubContactZip;
   }
   void setContactZip(String newZip){
-    contactZip = newZip;
+    clubContactZip = newZip;
   }
 
 }

@@ -591,7 +591,8 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                   style: customTextStyle.size4BoldPrimeColor(),
                 ),
               ),
-              onTap: ()=> MapUtils.openMap(stateProvider.clubMeClub.geoCoordLat, stateProvider.clubMeClub.geoCoordLng),
+              onTap: ()=> MapUtils.openMap(
+                  stateProvider.clubMeClub.getGeoCoordLat(), stateProvider.clubMeClub.getGeoCoordLng()),
             )
         ),
 
@@ -867,7 +868,8 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                   ),
                 ],
               ),
-              onTap: () => MapUtils.openMap(stateProvider.clubMeClub.geoCoordLat, stateProvider.clubMeClub.geoCoordLng),
+              onTap: () => MapUtils.openMap(
+                  stateProvider.clubMeClub.getGeoCoordLat(), stateProvider.clubMeClub.getGeoCoordLng()),
             ),
             // Price list
             GestureDetector(

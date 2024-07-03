@@ -97,12 +97,18 @@ class EventCard extends StatelessWidget {
   }
   void formatStartingHour(){
 
-    var colonPosition = clubMeEvent.getEventStartingHours().indexOf(":");
-
-    if(colonPosition + 2 == clubMeEvent.getEventStartingHours().length){
-      startingHoursFormatted = "${clubMeEvent.getEventStartingHours()}0";
+    if(clubMeEvent.getEventDate().hour < 10){
+      if(clubMeEvent.getEventDate().minute < 10){
+        startingHoursFormatted = "0${clubMeEvent.getEventDate().hour}:0${clubMeEvent.getEventDate().minute}";
+      }else{
+        startingHoursFormatted = "0${clubMeEvent.getEventDate().hour}:${clubMeEvent.getEventDate().minute}";
+      }
     }else{
-      startingHoursFormatted = clubMeEvent.getEventStartingHours();
+      if(clubMeEvent.getEventDate().minute < 10){
+        startingHoursFormatted = "${clubMeEvent.getEventDate().hour}:0${clubMeEvent.getEventDate().minute}";
+      }else{
+        startingHoursFormatted = "${clubMeEvent.getEventDate().hour}:${clubMeEvent.getEventDate().minute}";
+      }
     }
   }
 
