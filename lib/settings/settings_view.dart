@@ -29,6 +29,9 @@ class _SettingsViewState extends State<SettingsView> {
   Color primeColor = Colors.tealAccent;
 
   void logOutClicked(){
+    stateProvider.setFetchedEvents([]);
+    stateProvider.setFetchedDiscounts([]);
+    stateProvider.setFetchedClubs([]);
     stateProvider.setClubUiActive(false);
     stateProvider.setPageIndex(0);
     _hiveService.resetUserData().then((value) => context.go("/log_in"));

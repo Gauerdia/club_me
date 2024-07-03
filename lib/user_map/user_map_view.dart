@@ -44,7 +44,7 @@ class _UserMapViewState extends State<UserMapView> {
   List<ClubMeClub> clubsToDisplay = [];
   List<Widget> listWidgetsToDisplay = [];
 
-
+  /// TODO: isClubsFetched is not updated properly.
 
   @override
   void initState() {
@@ -247,6 +247,10 @@ class _UserMapViewState extends State<UserMapView> {
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
 
+    if(isClubsFetched! && stateProvider.getFetchedClubs().isNotEmpty) {
+      isClubsFetched = true;
+    }
+
     return Scaffold(
 
       extendBodyBehindAppBar: true,
@@ -291,6 +295,7 @@ class _UserMapViewState extends State<UserMapView> {
                       fetchClubsFromDbAndBuildWidget(screenHeight, screenWidth),
 
                     // build map
+                    /// The loading icon that doesnt stop
                     isClubsFetched ?
                       _buildFlutterMap() :
                       const CircularProgressIndicator(),
