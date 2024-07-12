@@ -12,7 +12,8 @@ class ClubMeDiscount{
     required this.howOftenRedeemed,
     required this.hasTimeLimit,
     required this.hasUsageLimit,
-    required this.discountDescription
+    required this.discountDescription,
+    required this.targetGender
   });
 
   String clubId;
@@ -31,6 +32,12 @@ class ClubMeDiscount{
   int numberOfUsages;
   String bannerId;
   int howOftenRedeemed;
+
+  int targetGender;
+
+  int getTargetGender(){
+    return targetGender;
+  }
 
   String getDiscountDescription(){
     return discountDescription;

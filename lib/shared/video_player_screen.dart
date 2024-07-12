@@ -160,7 +160,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
       showLoading = true;
     });
 
-    await _supabaseService.insertVideo(video, uuidV4, stateProvider.getClubId(), stateProvider)
+    await _supabaseService.insertClubVideo(video, uuidV4, stateProvider.getClubId(), stateProvider)
         .then((value){
       if(value == 0){
         stateProvider.setClubStoryId(uuidV4);

@@ -475,20 +475,34 @@ class CouponCard extends StatelessWidget {
     final oneWeekFromNowGermanTZ = tz.TZDateTime.from(DateTime.now(), berlin).add(const Duration(days: 7));
     // var exactOneWeekFromNow = DateTime.now().add(const Duration(days: 7));
 
-    if(clubMeDiscount.getDiscountDate().isAfter(oneWeekFromNowGermanTZ)){
-      weekDayToDisplay = DateFormat('dd.MM.yyyy').format(clubMeDiscount.getDiscountDate());
-    }else{
-      var eventDateWeekday = clubMeDiscount.getDiscountDate().weekday;
-      switch(eventDateWeekday){
-        case(1): weekDayToDisplay = "Montag";
-        case(2): weekDayToDisplay = "Dienstag";
-        case(3): weekDayToDisplay = "Mittwoch";
-        case(4): weekDayToDisplay = "Donnerstag";
-        case(5): weekDayToDisplay = "Freitag";
-        case(6): weekDayToDisplay = "Samstag";
-        case(7): weekDayToDisplay = "Sonntag";
-      }
+    weekDayToDisplay = DateFormat('dd.MM.yyyy').format(clubMeDiscount.getDiscountDate());
+
+    var eventDateWeekday = clubMeDiscount.getDiscountDate().weekday;
+    switch(eventDateWeekday){
+      case(1): weekDayToDisplay = "Montag, $weekDayToDisplay";
+      case(2): weekDayToDisplay = "Dienstag, $weekDayToDisplay";
+      case(3): weekDayToDisplay = "Mittwoch, $weekDayToDisplay";
+      case(4): weekDayToDisplay = "Donnerstag, $weekDayToDisplay";
+      case(5): weekDayToDisplay = "Freitag, $weekDayToDisplay";
+      case(6): weekDayToDisplay = "Samstag, $weekDayToDisplay";
+      case(7): weekDayToDisplay = "Sonntag, $weekDayToDisplay";
     }
+
+
+    // if(clubMeDiscount.getDiscountDate().isAfter(oneWeekFromNowGermanTZ)){
+    //   weekDayToDisplay = DateFormat('dd.MM.yyyy').format(clubMeDiscount.getDiscountDate());
+    // }else{
+    //   var eventDateWeekday = clubMeDiscount.getDiscountDate().weekday;
+    //   switch(eventDateWeekday){
+    //     case(1): weekDayToDisplay = "Montag";
+    //     case(2): weekDayToDisplay = "Dienstag";
+    //     case(3): weekDayToDisplay = "Mittwoch";
+    //     case(4): weekDayToDisplay = "Donnerstag";
+    //     case(5): weekDayToDisplay = "Freitag";
+    //     case(6): weekDayToDisplay = "Samstag";
+    //     case(7): weekDayToDisplay = "Sonntag";
+    //   }
+    // }
   }
 
 

@@ -12,6 +12,7 @@ ClubMeDiscount parseClubMeDiscount(var data){
       clubId: data['club_id'],
       hasUsageLimit: data['has_usage_limit'],
       hasTimeLimit: data['has_time_limit'],
-      discountDescription: data['discount_description']
+      discountDescription: data['discount_description'],
+      targetGender: data['target_gender']
   );
 }

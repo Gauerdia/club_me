@@ -13,8 +13,8 @@ class ClubMeEvent{
     required this.eventDescription,
     required this.musicGenres,
     required this.clubId,
-    required this.storyId,
-    required this.storyCreatedAt
+    required this.eventMarketingFileName,
+    required this.eventMarketingCreatedAt
   });
 
   String eventId;
@@ -32,8 +32,8 @@ class ClubMeEvent{
   String bannerId;
   String musicGenres;
 
-  String storyId;
-  DateTime? storyCreatedAt;
+  String eventMarketingFileName;
+  DateTime? eventMarketingCreatedAt;
 
   // howManyAreIn
 

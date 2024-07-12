@@ -1,3 +1,4 @@
+/*
 import 'dart:io' as io;
 import 'dart:typed_data';
 
@@ -47,7 +48,7 @@ class _ShowStoryState extends State<ShowStory> {
   void fetchVideo() async {
 
     try{
-      Uint8List? videoFile = await _supabaseService.getVideo(widget.storyUUID);
+      Uint8List? videoFile = await _supabaseService.getClubVideo(widget.storyUUID);
 
       io.Directory tempDir = await getTemporaryDirectory();
       String tempPath = tempDir.path;
@@ -139,3 +140,4 @@ class _ShowStoryState extends State<ShowStory> {
     );
   }
 }
+*/

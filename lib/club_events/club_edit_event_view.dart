@@ -807,8 +807,8 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
         musicGenres: musicGenresString,
         clubId: stateProvider.clubMeEvent.getClubId(),
 
-      storyId: "",
-      storyCreatedAt: null
+      eventMarketingFileName: "",
+      eventMarketingCreatedAt: null
     );
 
     setState(() {

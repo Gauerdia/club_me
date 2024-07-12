@@ -274,7 +274,8 @@ class SupabaseService{
       var data = await supabase
           .from('club_me_clubs')
           .update({
-        'story_id' : uuid
+        'story_id' : uuid,
+        'story_created_at' : DateTime.now().toString()
       }).match({
         'club_id': clubId
       });
@@ -284,6 +285,25 @@ class SupabaseService{
       log.d("Error in addVideoPathToClub: $e");
       createErrorLog(e.toString());
     }
+  }
+
+  void addEventMarketingToEvent(String eventId, String fileName, StateProvider stateProvider) async {
+
+    try{
+      var data = await supabase
+          .from('club_me_events')
+          .update({
+            'event_marketing_file_name' : fileName,
+            'event_marketing_created_at': DateTime.now().toString()
+          }).match({
+            'event_id': eventId
+          });
+      log.d("addEventMarketingToEvent: Finished successfully. Response: $data");
+    }catch(e){
+      log.d("Error in addEventMarketingToEvent: $e");
+      createErrorLog(e.toString());
+    }
+
   }
 
   Future<int> updateClubContactInfo(
@@ -460,9 +480,25 @@ class SupabaseService{
 
   // VIDEOS
 
-  Future<Uint8List> getVideo(String uuid) async {
+  Future<Uint8List> getEventContent(String fileName) async {
 
-    String path = 'stories/$uuid.mp4';
+    String path = 'event_content/$fileName';
+
+    try{
+      var data = await supabase.storage.from('club_me_stories').download(path);
+      log.d("getVideo: Finished successfully. Response: $data");
+      return data;
+    }catch(e){
+      log.d("Error in getVideo: $e");
+      createErrorLog(e.toString());
+      return Uint8List(0);
+    }
+
+  }
+
+  Future<Uint8List> getClubVideo(String uuid) async {
+
+    String path = 'club_stories/$uuid.mp4';
 
     try{
       var data = await supabase.storage.from('club_me_stories').download(path);
@@ -475,18 +511,37 @@ class SupabaseService{
     }
   }
 
-  Future<int> insertVideo(var video, String fileName, String clubId, StateProvider stateProvider) async {
+  Future<int> insertClubVideo(var video, String uuid, String clubId, StateProvider stateProvider) async {
     try{
       var data = await supabase.storage.from('club_me_stories').upload(
-        'stories/$fileName.mp4',
+        'club_stories/$uuid.mp4',
         video,
         fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
       );
-      addVideoPathToClub(clubId, fileName, stateProvider);
+      addVideoPathToClub(clubId, uuid, stateProvider);
       log.d("insertVideo: Finished successfully. Response: $data");
       return 0;
     }catch(e){
       log.d("Error in insertVideo: $e");
+      createErrorLog(e.toString());
+      return 1;
+    }
+  }
+
+  Future<int> insertEventContent(
+      var content, String fileName, String eventId, StateProvider stateProvider
+      ) async {
+    try{
+      var data = await supabase.storage.from('club_me_stories').upload(
+        'event_content/$fileName',
+        content,
+        fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
+      );
+      addEventMarketingToEvent(eventId, fileName, stateProvider);
+      log.d("insertEventContent: Finished successfully. Response: $data");
+      return 0;
+    }catch(e){
+      log.d("Error in insertEventContent: $e");
       createErrorLog(e.toString());
       return 1;
     }

@@ -1,13 +1,10 @@
-import 'dart:io' as io;
 import 'dart:io';
-import 'dart:typed_data';
-
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:video_player/video_player.dart';
-import '../services/supabase_service.dart';
+import 'package:file_picker/file_picker.dart';
 
+import 'package:no_screenshot/no_screenshot.dart';
+
+import 'package:mime/mime.dart';
 
 class Test extends StatefulWidget {
   const Test({Key? key}) : super(key: key);
@@ -18,76 +15,92 @@ class Test extends StatefulWidget {
 
 class _TestState extends State<Test> {
 
-  late VideoPlayerController _controller;
-  late Future<void> _initializeControllerFuture;
+  final _noScreenshot = NoScreenshot.instance;
 
-  final SupabaseService _supabaseService = SupabaseService();
+  late String _path;
 
-  late Future getVideo;
+  bool isImage = false;
+  bool isVideo = false;
 
-  bool readyToDisplay = false;
+  var videoFormats = ['mp4', 'mov', 'm4v', 'avi'];
+  var imageFormats = ['jpg', 'jpeg', 'png', 'avif', 'webp'];
+
+  File? file;
 
   @override
   void initState() {
+    _noScreenshot.screenshotOff();
     super.initState();
-    fetchVideo();
   }
 
-  void fetchVideo() async {
+  void test() async{
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      allowMultiple: false
+      // type: FileType.image
+      // type: FileType.custom,
+      // allowedExtensions: imageFormats
+    );
+    if (result != null) {
+      setState(() {
+        file = File(result.files.single.path!);
+        PlatformFile pFile = result.files.first;
 
-    Uint8List? videoFile = await _supabaseService.getVideo("fewfwef");
+        String mimeStr = lookupMimeType(file!.path)!;
 
-    Directory tempDir = await getTemporaryDirectory();
-    String tempPath = tempDir.path;
-    var filePath = tempPath + '/file_01.tmp';
+        var fileType = mimeStr.split("/");
+        print('file type $fileType');
 
-    io.File test = await io.File(filePath).writeAsBytes(videoFile!);
+        if(fileType.contains('image')){
+          print("is image");
+          isImage = true;
+        }else if(fileType.contains('video')){
+          print("is video");
+          isVideo = true;
+        }
 
-    _controller = VideoPlayerController.file(test);
-
-    _initializeControllerFuture = _controller.initialize();
-    _controller.setLooping(true);
-
-    setState(() {
-      readyToDisplay = true;
-    });
+        print(file.runtimeType);
+        print(pFile.extension);
+      });
+    } else {
+      // User canceled the picker
+    }
   }
-
 
   @override
   Widget build(BuildContext context) {
+
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Video player screen')),
-      body: readyToDisplay?
-      FutureBuilder(
-        future: _initializeControllerFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return AspectRatio(
-              aspectRatio: _controller.value.aspectRatio,
-              child: VideoPlayer(_controller),
-            );
-          } else {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-        },
-      ):Container(),
-      floatingActionButton: readyToDisplay ?FloatingActionButton(
-        onPressed: () {
-          setState(() {
-            if (_controller.value.isPlaying) {
-              _controller.pause();
-            } else {
-              _controller.play();
-            }
-          });
-        },
-        child: Icon(
-          _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+      appBar: AppBar(
+          title: const Text('Test')
+      ),
+      body: Container(
+        height: screenHeight,
+        width: screenWidth,
+        decoration: BoxDecoration(
+          color: Colors.green,
+          border: Border.all(
+            color: Colors.red
+          )
         ),
-      ): FloatingActionButton(onPressed: (){}),
+        // child: file != null ? Center(
+        //   child: Image.file(
+        //     file!,
+        //     fit: BoxFit.contain,
+        //     width: double.infinity,
+        //   ),
+        // ): Container(),
+      ),
+      floatingActionButton:FloatingActionButton(
+        onPressed: () {
+          test();
+        },
+        child: const Icon(
+          Icons.add
+        )
+      )
     );
   }
 }

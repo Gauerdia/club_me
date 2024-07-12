@@ -12,7 +12,8 @@ ClubMeEvent parseClubMeEvent(var data){
       eventDescription: data["event_description"],
       musicGenres: data["music_genres"],
       clubId: data["club_id"],
-      storyId: data['story_id'],
-      storyCreatedAt: data['story_created_at'] != null ? DateTime.tryParse(data['story_created_at']): null
+      eventMarketingFileName: data['event_marketing_file_name'],
+      eventMarketingCreatedAt: data['event_marketing_created_at'] != null ?
+        DateTime.tryParse(data['event_marketing_created_at']): null
   );
 }

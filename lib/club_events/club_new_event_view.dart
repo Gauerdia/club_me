@@ -1539,8 +1539,8 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
       clubName: stateProvider.getClubName(),
       bannerId: stateProvider.getUserClubEventBannerId(),
 
-      storyId: "",
-      storyCreatedAt: null
+      eventMarketingFileName: "",
+      eventMarketingCreatedAt: null
 
     );
 

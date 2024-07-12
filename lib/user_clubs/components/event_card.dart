@@ -7,6 +7,7 @@ import '../../provider/state_provider.dart';
 import 'package:timezone/standalone.dart' as tz;
 
 import '../../shared/custom_text_style.dart';
+import 'package:intl/intl.dart';
 
 class EventCard extends StatelessWidget {
 
@@ -28,51 +29,64 @@ class EventCard extends StatelessWidget {
   // FORMAT
   void formatWeekday(){
 
-    String weekdayToDisplay = "";
+    String weekDayToDisplay = "";
 
     final berlin = tz.getLocation('Europe/Berlin');
     final todayTimestampGermany = tz.TZDateTime.from(DateTime.now(), berlin);
     final exactlyOneWeekFromNow = todayTimestampGermany.add(const Duration(days: 7));
 
-    if(clubMeEvent.getEventDate().isBefore(exactlyOneWeekFromNow)){
-      switch(clubMeEvent.getEventDate().weekday){
-        case(1): weekdayToDisplay = "Montag";
-        case(2): weekdayToDisplay = "Dienstag";
-        case(3): weekdayToDisplay = "Mittwoch";
-        case(4): weekdayToDisplay = "Donnerstag";
-        case(5): weekdayToDisplay = "Freitag";
-        case(6): weekdayToDisplay = "Samstag";
-        case(7): weekdayToDisplay = "Sonntag";
-        default: weekdayToDisplay = "Montag";
-      }
-    }else{
+    weekDayToDisplay = DateFormat('dd.MM.yyyy').format(clubMeEvent.getEventDate());
 
-      String dayToDisplay = "";
-      String monthToDisplay = "";
-
-      if(clubMeEvent.getEventDate().day < 10){
-        dayToDisplay = "0${clubMeEvent.getEventDate().day}";
-      }else{
-        dayToDisplay = clubMeEvent.getEventDate().day.toString();
-      }
-
-      if(clubMeEvent.getEventDate().month < 10){
-        monthToDisplay = "0${clubMeEvent.getEventDate().month}";
-      }else{
-        monthToDisplay = clubMeEvent.getEventDate().month.toString();
-      }
-
-      weekdayToDisplay = "$dayToDisplay.$monthToDisplay.${clubMeEvent.getEventDate().year}";
+    var eventDateWeekday = clubMeEvent.getEventDate().weekday;
+    switch(eventDateWeekday){
+      case(1): weekDayToDisplay = "Montag, $weekDayToDisplay";
+      case(2): weekDayToDisplay = "Dienstag, $weekDayToDisplay";
+      case(3): weekDayToDisplay = "Mittwoch, $weekDayToDisplay";
+      case(4): weekDayToDisplay = "Donnerstag, $weekDayToDisplay";
+      case(5): weekDayToDisplay = "Freitag, $weekDayToDisplay";
+      case(6): weekDayToDisplay = "Samstag, $weekDayToDisplay";
+      case(7): weekDayToDisplay = "Sonntag, $weekDayToDisplay";
     }
 
-    formattedWeekDay = weekdayToDisplay;
+    // if(clubMeEvent.getEventDate().isBefore(exactlyOneWeekFromNow)){
+    //   switch(clubMeEvent.getEventDate().weekday){
+    //     case(1): weekdayToDisplay = "Montag";
+    //     case(2): weekdayToDisplay = "Dienstag";
+    //     case(3): weekdayToDisplay = "Mittwoch";
+    //     case(4): weekdayToDisplay = "Donnerstag";
+    //     case(5): weekdayToDisplay = "Freitag";
+    //     case(6): weekdayToDisplay = "Samstag";
+    //     case(7): weekdayToDisplay = "Sonntag";
+    //     default: weekdayToDisplay = "Montag";
+    //   }
+    // }else{
+    //
+    //   String dayToDisplay = "";
+    //   String monthToDisplay = "";
+    //
+    //   if(clubMeEvent.getEventDate().day < 10){
+    //     dayToDisplay = "0${clubMeEvent.getEventDate().day}";
+    //   }else{
+    //     dayToDisplay = clubMeEvent.getEventDate().day.toString();
+    //   }
+    //
+    //   if(clubMeEvent.getEventDate().month < 10){
+    //     monthToDisplay = "0${clubMeEvent.getEventDate().month}";
+    //   }else{
+    //     monthToDisplay = clubMeEvent.getEventDate().month.toString();
+    //   }
+    //
+    //   weekdayToDisplay = "$dayToDisplay.$monthToDisplay.${clubMeEvent.getEventDate().year}";
+    // }
+
+    formattedWeekDay = weekDayToDisplay;
   }
   void formatEventTitle(){
     String eventTitleCut = "";
 
     // Check and crop the title
-    if(clubMeEvent.getEventTitle().length >= 22){
-      eventTitleCut = "${clubMeEvent.getEventTitle().substring(0, 21)}...";
+    if(clubMeEvent.getEventTitle().length >= 32){
+      eventTitleCut = "${clubMeEvent.getEventTitle().substring(0, 31)}...";
     }else{
       eventTitleCut = clubMeEvent.getEventTitle().substring(0, clubMeEvent.getEventTitle().length);
     }

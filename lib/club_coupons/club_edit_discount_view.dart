@@ -691,7 +691,8 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView> {
         howOftenRedeemed: stateProvider.clubMeDiscount.getHowOftenRedeemed(),
         hasTimeLimit: hasTimeLimit == 0 ? false : true,
         hasUsageLimit: hasUsageLimit == 0 ? false : true,
-        discountDescription: _discountDescriptionController.text
+        discountDescription: _discountDescriptionController.text,
+        targetGender: stateProvider.clubMeDiscount.getTargetGender()
     );
 
     // print(

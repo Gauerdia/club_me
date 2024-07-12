@@ -3,10 +3,13 @@ import 'dart:io' as io;
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:no_screenshot/no_screenshot.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:video_player/video_player.dart';
 import '../services/supabase_service.dart';
 import 'custom_text_style.dart';
+
+import 'package:no_screenshot/no_screenshot.dart';
 
 class ShowStoryChewie extends StatefulWidget {
   ShowStoryChewie({Key? key, required this.storyUUID, required this.clubName}) : super(key: key);
@@ -18,53 +21,55 @@ class ShowStoryChewie extends StatefulWidget {
   State<ShowStoryChewie> createState() => _ShowStoryChewieState();
 }
 
-class _ShowStoryChewieState extends State<ShowStoryChewie> {
-
-  ChewieController? _chewieController;
-  late VideoPlayerController _controller;
-
-  late CustomTextStyle customTextStyle;
-
-  final SupabaseService _supabaseService = SupabaseService();
+class _ShowStoryChewieState extends State<ShowStoryChewie>
+    with WidgetsBindingObserver {
 
   String? VIDEO_ON;
+  ChewieController? _chewieController;
+  late CustomTextStyle customTextStyle;
+  late VideoPlayerController _controller;
+  final _noScreenshot = NoScreenshot.instance;
+  final SupabaseService _supabaseService = SupabaseService();
 
   @override
   void initState() {
-    // VIDEO_ON = widget.thumbnail;
+    _noScreenshot.screenshotOff();
     initializePlayer();
     super.initState();
   }
+
   @override
   void dispose() {
-    // widget.videoPlayerController.dispose();
     _controller.dispose();
     _chewieController!.dispose();
-    super.dispose();
     _chewieController!.setVolume(0.0);
+
+    super.dispose();
   }
 
   void goBackClicked(){
     Navigator.pop(context);
   }
+
   _createChewieController() {
     _chewieController = ChewieController(
       videoPlayerController: _controller,
-      autoPlay: true,
       looping: true,
-      allowFullScreen: true,
+      autoPlay: true,
       showOptions: true,
       autoInitialize: true,
+      allowFullScreen: true,
     );
   }
+
   Future<void> initializePlayer() async {
 
     late io.File file;
-    late Uint8List? videoFile;
     late String filePath;
+    late Uint8List? videoFile;
 
     try{
-      videoFile = await _supabaseService.getVideo(widget.storyUUID);
+      videoFile = await _supabaseService.getClubVideo(widget.storyUUID);
 
       io.Directory tempDir = await getTemporaryDirectory();
       String tempPath = tempDir.path;
@@ -94,7 +99,6 @@ class _ShowStoryChewieState extends State<ShowStoryChewie> {
       }
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -163,7 +167,6 @@ class _ShowStoryChewieState extends State<ShowStoryChewie> {
                 )
             ),
           ),
-
 
         ],
       ),

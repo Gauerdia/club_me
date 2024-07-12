@@ -172,11 +172,15 @@ class _UserMapViewState extends State<UserMapView> {
                         onTap: (){
 
                           // Check if there is any event for the club
-                          if(stateProvider.fetchedEvents.where((event) => event.getClubId() == club.getClubId()).isEmpty){
+                          if(stateProvider.fetchedEvents
+                              .where(
+                                  (event) => (event.getClubId() == club.getClubId() && event.getEventDate().isAfter(DateTime.now()))
+                          ).isEmpty
+                          ){
                             noEventAvailable = true;
                           }else{
                             clubMeEventToDisplay = stateProvider.fetchedEvents.firstWhere(
-                                    (event) => event.getClubId() == club.getClubId()
+                                    (event) => (event.getClubId() == club.getClubId() && event.getEventDate().isAfter(DateTime.now()))
                             );
                             noEventAvailable = false;
                           }

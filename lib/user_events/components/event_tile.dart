@@ -80,8 +80,8 @@ class EventTile extends StatelessWidget {
     }
   }
   void formatEventTitle(){
-    if(clubMeEvent.getEventTitle().length >= 37){
-      eventTitleCut = "${clubMeEvent.getEventTitle().substring(0, 35)}...";
+    if(clubMeEvent.getEventTitle().length >= 49){
+      eventTitleCut = "${clubMeEvent.getEventTitle().substring(0, 47)}...";
     }else{
       eventTitleCut = clubMeEvent.getEventTitle().substring(0, clubMeEvent.getEventTitle().length);
     }
@@ -96,20 +96,33 @@ class EventTile extends StatelessWidget {
 
     final exactlyOneWeekFromNowGermanTZ = todayGermanTZ.add(Duration(days: 7));
 
-    if(clubMeEvent.getEventDate().isAfter(exactlyOneWeekFromNowGermanTZ)){
-      weekDayToDisplay = DateFormat('dd.MM.yyyy').format(clubMeEvent.getEventDate());
-    }else{
-      var eventDateWeekday = clubMeEvent.getEventDate().weekday;
-      switch(eventDateWeekday){
-        case(1): weekDayToDisplay = "Montag";
-        case(2): weekDayToDisplay = "Dienstag";
-        case(3): weekDayToDisplay = "Mittwoch";
-        case(4): weekDayToDisplay = "Donnerstag";
-        case(5): weekDayToDisplay = "Freitag";
-        case(6): weekDayToDisplay = "Samstag";
-        case(7): weekDayToDisplay = "Sonntag";
-      }
+    weekDayToDisplay = DateFormat('dd.MM.yyyy').format(clubMeEvent.getEventDate());
+
+    var eventDateWeekday = clubMeEvent.getEventDate().weekday;
+    switch(eventDateWeekday){
+      case(1): weekDayToDisplay = "Montag, $weekDayToDisplay";
+      case(2): weekDayToDisplay = "Dienstag, $weekDayToDisplay";
+      case(3): weekDayToDisplay = "Mittwoch, $weekDayToDisplay";
+      case(4): weekDayToDisplay = "Donnerstag, $weekDayToDisplay";
+      case(5): weekDayToDisplay = "Freitag, $weekDayToDisplay";
+      case(6): weekDayToDisplay = "Samstag, $weekDayToDisplay";
+      case(7): weekDayToDisplay = "Sonntag, $weekDayToDisplay";
     }
+
+    // if(clubMeEvent.getEventDate().isAfter(exactlyOneWeekFromNowGermanTZ)){
+    //   weekDayToDisplay = DateFormat('dd.MM.yyyy').format(clubMeEvent.getEventDate());
+    // }else{
+    //   var eventDateWeekday = clubMeEvent.getEventDate().weekday;
+    //   switch(eventDateWeekday){
+    //     case(1): weekDayToDisplay = "Montag";
+    //     case(2): weekDayToDisplay = "Dienstag";
+    //     case(3): weekDayToDisplay = "Mittwoch";
+    //     case(4): weekDayToDisplay = "Donnerstag";
+    //     case(5): weekDayToDisplay = "Freitag";
+    //     case(6): weekDayToDisplay = "Samstag";
+    //     case(7): weekDayToDisplay = "Sonntag";
+    //   }
+    // }
   }
 
   // BUILD

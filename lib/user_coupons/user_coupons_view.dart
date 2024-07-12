@@ -131,16 +131,25 @@ class _UserCouponsViewState extends State<UserCouponsView>
             // The function will be called twice after the response. Here, we avoid to fill the array twice as well.
             if(upcomingDbDiscounts.isEmpty){
               for(var element in data){
+
                 ClubMeDiscount currentDiscount = parseClubMeDiscount(element);
 
                 // Show only events that are not yet in the past.
                 if(
                 currentDiscount.getDiscountDate().isAfter(todayFormatted)
                     || currentDiscount.getDiscountDate().isAtSameMomentAs(todayFormatted)){
-                  upcomingDbDiscounts.add(currentDiscount);
+
+                  // Check if any gender has been specified
+                  if(currentDiscount.getTargetGender() != 0){
+                   if(currentDiscount.getTargetGender() == stateProvider.getUserData().getGender()){
+                     upcomingDbDiscounts.add(currentDiscount);
+                   }
+                  }else{
+                    upcomingDbDiscounts.add(currentDiscount);
+                  }
                 }
 
-                // We collect all events so we dont have to reload them everytime
+                // We collect all events so we don't have to reload them every time
                 stateProvider.addDiscountToFetchedDiscounts(currentDiscount);
               }
 
@@ -150,10 +159,11 @@ class _UserCouponsViewState extends State<UserCouponsView>
             }
 
             discountsToDisplay = upcomingDbDiscounts;
-            stateProvider.setFetchedDiscounts(discountsToDisplay);
+            // stateProvider.setFetchedDiscounts(discountsToDisplay);
 
 
-            return Container(
+            return discountsToDisplay.isNotEmpty ?
+            Container(
                 height: screenHeight*0.615,
                 color: Colors.transparent,
                 child: SingleChildScrollView(
@@ -182,11 +192,18 @@ class _UserCouponsViewState extends State<UserCouponsView>
                       ],
                     )
                 )
+            ) : Container(
+              width: screenWidth,
+              height: screenHeight,
+              child: const Center(
+                child: Text("Derzeit sind leider keine Coupons verfügbar.")
+              ),
             );
           }
         }
     )
-        : Container(
+        : discountsToDisplay.isNotEmpty ?
+    Container(
         height: screenHeight*0.615,
         color: Colors.transparent,
         child:SingleChildScrollView(
@@ -218,6 +235,12 @@ class _UserCouponsViewState extends State<UserCouponsView>
             ],
           ),
         )
+    ): SizedBox(
+      width: screenWidth,
+      height: screenHeight*0.7,
+      child: const Center(
+        child: Text("Derzeit sind leider keine Coupons verfügbar."),
+      ),
     );
   }
   AppBar _buildAppBarWithSearch(){
@@ -338,14 +361,24 @@ class _UserCouponsViewState extends State<UserCouponsView>
     var today = DateFormat('yyyy-MM-dd').format(todayRaw);
     var todayFormatted = DateTime.parse(today);
 
+    // print("sort: " + stateProvider.getFetchedDiscounts().toString());
+
     for(var currentDiscount in stateProvider.getFetchedDiscounts()){
-      // Show only events that are not yet in the past.
+
+      // Show only events that are yet to come
       if(
       currentDiscount.getDiscountDate().isAfter(todayFormatted)
           || currentDiscount.getDiscountDate().isAtSameMomentAs(todayFormatted)){
-        upcomingDbDiscounts.add(currentDiscount);
-      }
 
+        // Check if any gender has been specified
+        if(currentDiscount.getTargetGender() != 0){
+          if(currentDiscount.getTargetGender() == stateProvider.getUserData().getGender()){
+            upcomingDbDiscounts.add(currentDiscount);
+          }
+        }else{
+          upcomingDbDiscounts.add(currentDiscount);
+        }
+      }
     }
   }
 
@@ -384,6 +417,8 @@ class _UserCouponsViewState extends State<UserCouponsView>
     screenHeight = MediaQuery.of(context).size.height;
 
     customTextStyle = CustomTextStyle(context: context);
+
+    // print("upcoming: " + upcomingDbDiscounts.toString());
 
     // Fetch from db or from provider
     getAllLikedDiscounts();
@@ -430,11 +465,11 @@ class _UserCouponsViewState extends State<UserCouponsView>
 
               _buildSupabaseDiscounts(stateProvider, screenHeight),
 
-              PageIndicator(
+              discountsToDisplay.isNotEmpty ? PageIndicator(
                 tabController: _tabController,
                 currentPageIndex: _currentPageIndex,
                 onUpdateCurrentPageIndex: _updateCurrentPageIndex,
-              ),
+              ): Container(),
             ],
           )
         )

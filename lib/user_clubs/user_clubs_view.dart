@@ -160,14 +160,14 @@ class _UserClubsViewState extends State<UserClubsView>
 
 
   // MISC FUNCTS
-  void _updateCurrentPageIndex(int index) {
-    _tabController.index = index;
-    _pageViewController.animateToPage(
-      index,
-      duration: const Duration(milliseconds: 400),
-      curve: Curves.easeInOut,
-    );
-  }
+  // void _updateCurrentPageIndex(int index) {
+  //   _tabController.index = index;
+  //   _pageViewController.animateToPage(
+  //     index,
+  //     duration: const Duration(milliseconds: 400),
+  //     curve: Curves.easeInOut,
+  //   );
+  // }
   void _handlePageViewChanged(int currentPageIndex) {
     _tabController.index = currentPageIndex;
     setState(() {

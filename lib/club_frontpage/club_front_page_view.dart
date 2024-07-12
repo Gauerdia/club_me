@@ -1231,8 +1231,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
               height: screenHeight*0.03,
             ),
 
-
-            // "New event" button
+            // "New Story" button
             Container(
                 width: screenWidth*0.9,
                 // color: Colors.red,
@@ -1269,6 +1268,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
             // Does a story exist? Then show a button to play it
             stateProvider.getClubStoryId().isNotEmpty ?
 
+            // Watch story
             Container(
                 width: screenWidth*0.9,
                 // color: Colors.red,

@@ -42,6 +42,7 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
   }
   @override
   void dispose() {
+    _controller.dispose();
     _timer.cancel();
     super.dispose();
   }

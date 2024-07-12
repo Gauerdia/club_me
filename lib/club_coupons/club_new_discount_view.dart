@@ -39,6 +39,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
   int hasTimeLimit = 0;
   int hasUsageLimit = 0;
   int creationIndex = 0;
+  int targetGender = 0;
   int selectedFirstElement = 0;
   int selectedSecondElement = 0;
   int selectedHour = TimeOfDay.now().hour;
@@ -75,7 +76,8 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
         howOftenRedeemed: 0,
         hasTimeLimit: hasTimeLimit == 0? false : true,
         hasUsageLimit: hasUsageLimit == 0? false:true,
-        discountDescription: _discountDescriptionController.text
+        discountDescription: _discountDescriptionController.text,
+        targetGender: targetGender
     );
 
     try{
@@ -97,29 +99,31 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
       print("Error in buildNewDiscount: $e");
     }
   }
-  Widget _buildCreationStep(double screenHeight, double screenWidth){
+  Widget _buildCreationStep(){
 
     switch(creationIndex){
 
     // Title
       case(0):
-        return _buildCheckForName2(screenHeight, screenWidth);
+        return _buildCheckForName2();
       case(1):
-        return _buildCheckForDate2(screenHeight, screenWidth);
+        return _buildCheckForDate2();
       case(2):
-        return _buildCheckForTimeLimit2(screenHeight, screenWidth);
+        return _buildCheckForTimeLimit2();
       case(3):
-        return _buildCheckForUsageLimit2(screenHeight, screenWidth);
+        return _buildCheckForUsageLimit2();
       case(4):
-        return _buildCheckForDescription2(screenHeight, screenWidth);
+        return _buildCheckForTargetGender();
       case(5):
-        return _buildFinalOverview2(screenHeight, screenWidth);
+        return _buildCheckForDescription2();
+      case(6):
+        return  _buildFinalOverview2();
       default:
         return Container();
 
     }
   }
-  Widget _buildCheckForName2(double screenHeight, double screenWidth){
+  Widget _buildCheckForName2(){
     return SizedBox(
       height: screenHeight,
       child: SingleChildScrollView(
@@ -172,7 +176,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
       ),
     );
   }
-  Widget _buildCheckForDate2(double screenHeight, double screenWidth){
+  Widget _buildCheckForDate2(){
     return SizedBox(
       height: screenHeight,
       child: SingleChildScrollView(
@@ -258,7 +262,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
       ),
     );
   }
-  Widget _buildCheckForTimeLimit2(double screenHeight, double screenWidth){
+  Widget _buildCheckForTimeLimit2(){
     return SizedBox(
       height: screenHeight,
       child: SingleChildScrollView(
@@ -413,7 +417,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
       ),
     );
   }
-  Widget _buildCheckForUsageLimit2(double screenHeight, double screenWidth){
+  Widget _buildCheckForUsageLimit2(){
     return SizedBox(
       height: screenHeight,
       child: SingleChildScrollView(
@@ -522,7 +526,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
       ),
     );
   }
-  Widget _buildCheckForDescription2(double screenHeight, double screenWidth){
+  Widget _buildCheckForDescription2(){
     return SizedBox(
       height: screenHeight,
       child: SingleChildScrollView(
@@ -627,7 +631,71 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
       ),
     );
   }
-  Widget _buildFinalOverview2(double screenHeight, double screenWidth){
+  Widget _buildCheckForTargetGender(){
+    return SizedBox(
+      height: screenHeight,
+      child: SingleChildScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        child: Column(
+          children: [
+
+            // Question headline
+            Container(
+              width: screenWidth,
+              padding: EdgeInsets.symmetric(
+                  vertical: screenHeight*0.04,
+                  horizontal: screenWidth*0.02
+              ),
+              child: Text(
+                  "Welchem Geschlecht soll dieser Coupon angezeigt werden?",
+                  textAlign: TextAlign.center,
+                  style: customTextStyle.size1Bold()
+              ),
+            ),
+
+            // Spacer
+            SizedBox(
+              height: screenHeight*0.05,
+            ),
+
+            // toggle yes,no
+            SizedBox(
+              width: screenWidth*0.8,
+              child:  Center(
+                child: ToggleSwitch(
+                  initialLabelIndex: targetGender,
+                  totalSwitches: 3,
+                  activeBgColor: [customTextStyle.primeColor],
+                  activeFgColor: Colors.white,
+                  inactiveBgColor: const Color(0xff11181f),
+                  labels: const [
+                    'Allen',
+                    'Männern',
+                    'Frauen',
+                  ],
+                  fontSize: screenHeight*stateProvider.getFontSizeFactor6(),
+                  minWidth: screenWidth*0.25,
+                  onToggle: (index) {
+                    setState(() {
+                      targetGender = index!;
+                      print('switched taget gender to: $index');
+                    });
+                  },
+                ),
+              ),
+            ),
+
+            // Spacer
+            SizedBox(
+              height: screenHeight*0.5,
+            )
+
+          ],
+        ),
+      ),
+    );
+  }
+  Widget _buildFinalOverview2(){
 
     _fixedExtentScrollController1 = FixedExtentScrollController(initialItem: selectedFirstElement);
     _fixedExtentScrollController2 = FixedExtentScrollController(initialItem: selectedSecondElement);
@@ -1419,7 +1487,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
             ),
           ),
           child: Center(
-              child: _buildCreationStep(screenHeight, screenWidth)
+              child: _buildCreationStep()
           )
 
       ),
