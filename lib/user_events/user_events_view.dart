@@ -89,8 +89,12 @@ class _UserEventsViewState extends State<UserEventsView> {
     }
   }
   void getAllLikedEvents(StateProvider stateProvider) async{
-    var likedEvents = await _hiveService.getFavoriteEvents();
-    stateProvider.setLikedEvents(likedEvents);
+    try{
+      var likedEvents = await _hiveService.getFavoriteEvents();
+      stateProvider.setLikedEvents(likedEvents);
+    }catch(e){
+      _supabaseService.createErrorLog("user_events, getAllLikedEvents: " + e.toString());
+    }
   }
   Widget _buildSupabaseEvents(StateProvider stateProvider, double screenHeight){
 
@@ -125,30 +129,34 @@ class _UserEventsViewState extends State<UserEventsView> {
               // Process response
             }else{
 
-              final data = snapshot.data!;
+              try{
+                final data = snapshot.data!;
 
-              // The function will be called twice after the response. Here, we avoid to fill the array twice as well.
-              if(upcomingDbEvents.isEmpty){
-                for(var element in data){
-                  ClubMeEvent currentEvent = parseClubMeEvent(element);
+                // The function will be called twice after the response. Here, we avoid to fill the array twice as well.
+                if(upcomingDbEvents.isEmpty){
+                  for(var element in data){
+                    ClubMeEvent currentEvent = parseClubMeEvent(element);
 
-                  // Show only events that are not yet in the past.
-                  if(
-                  currentEvent.getEventDate().isAfter(todayGermanTZ)
-                      || currentEvent.getEventDate().isAtSameMomentAs(todayGermanTZ)){
-                    upcomingDbEvents.add(currentEvent);
+                    // Show only events that are not yet in the past.
+                    if(
+                    currentEvent.getEventDate().isAfter(todayGermanTZ)
+                        || currentEvent.getEventDate().isAtSameMomentAs(todayGermanTZ)){
+                      upcomingDbEvents.add(currentEvent);
+                    }
+
+                    // We collect all events so we dont have to reload them everytime
+                    stateProvider.addEventToFetchedEvents(currentEvent);
                   }
 
-                  // We collect all events so we dont have to reload them everytime
-                  stateProvider.addEventToFetchedEvents(currentEvent);
+                  // Sort so that the next events come up earliest
+                  sortUpcomingEvents();
+                  stateProvider.sortFetchedEvents();
                 }
 
-                // Sort so that the next events come up earliest
-                sortUpcomingEvents();
-                stateProvider.sortFetchedEvents();
+                filterEvents();
+              }catch(e){
+                _supabaseService.createErrorLog("user_events, _buildSupabaseEvents: " + e.toString());
               }
-
-              filterEvents();
 
               return ListView.builder(
                   shrinkWrap: true,

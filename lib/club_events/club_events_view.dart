@@ -77,9 +77,12 @@ class _ClubEventsViewState extends State<ClubEventsView> {
             );
           }else{
 
-            final data = snapshot.data!;
-
-            filterEventsFromQuery(data, stateProvider);
+            try{
+              final data = snapshot.data!;
+              filterEventsFromQuery(data, stateProvider);
+            }catch(e){
+              _supabaseService.createErrorLog("club_events, fetchAndBuild: " + e.toString());
+            }
 
             return _buildMainView(stateProvider, screenHeight, screenWidth);
 

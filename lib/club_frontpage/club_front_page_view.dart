@@ -95,11 +95,16 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
             );
           }else{
 
-            final data = snapshot.data!;
+            try{
+              final data = snapshot.data!;
 
-            filterEventsFromQuery(data, stateProvider);
+              filterEventsFromQuery(data, stateProvider);
 
-            return _buildMainView(stateProvider, screenHeight, screenWidth);
+              return _buildMainView(stateProvider, screenHeight, screenWidth);
+            }catch(e){
+              _supabaseService.createErrorLog("club_frontpage, fetchEventsFromDbAndBuildWidget: " + e.toString());
+              return Container();
+            }
 
           }
         }
