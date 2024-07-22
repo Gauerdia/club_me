@@ -11,6 +11,7 @@ import 'package:club_me/club_frontpage/club_front_page_view.dart';
 import 'package:club_me/club_frontpage/components/update_contact_view.dart';
 import 'package:club_me/club_frontpage/components/update_news_view.dart';
 import 'package:club_me/club_statistics/club_statistics_view.dart';
+import 'package:club_me/coming_soon/coming_son_view.dart';
 import 'package:club_me/log_in/log_in_view.dart';
 import 'package:club_me/models/club_me_user_data.dart';
 import 'package:club_me/profile/profile_view.dart';
@@ -88,7 +89,7 @@ final GoRouter _router = GoRouter(
     GoRoute(
       path: '/',
       builder: (BuildContext context, GoRouterState state) {
-        return LogInView(); //Test();
+        return ComingSoonView();//LogInView(); //Test();
       },
     ),
 
