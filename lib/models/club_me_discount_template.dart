@@ -1,15 +1,13 @@
-class ClubMeDiscount{
+import 'package:hive/hive.dart';
+part 'club_me_discount_template.g.dart';
 
+@HiveType(typeId:  3)
+class ClubMeDiscountTemplate{
 
-  ClubMeDiscount({
-    required this.discountId,
-    required this.clubId,
-    required this.clubName,
+  ClubMeDiscountTemplate({
     required this.discountTitle,
     required this.numberOfUsages,
     required this.discountDate,
-    required this.bannerId,
-    required this.howOftenRedeemed,
     required this.hasTimeLimit,
     required this.hasUsageLimit,
     required this.discountDescription,
@@ -18,25 +16,23 @@ class ClubMeDiscount{
     required this.targetAgeIsUpperLimit
   });
 
-  String clubId;
-  String clubName;
-
-  String discountId;
+  @HiveField(0)
   String discountTitle;
-
+  @HiveField(1)
   DateTime discountDate;
-
+  @HiveField(2)
   String discountDescription;
-
+  @HiveField(3)
   bool hasTimeLimit;
+  @HiveField(4)
   bool hasUsageLimit;
-
+  @HiveField(5)
   int numberOfUsages;
-  String bannerId;
-  int howOftenRedeemed;
-
+  @HiveField(6)
   int targetGender;
+  @HiveField(7)
   int targetAge;
+  @HiveField(8)
   bool targetAgeIsUpperLimit;
 
   int getTargetAge(){
@@ -45,86 +41,43 @@ class ClubMeDiscount{
   bool getTargetAgeIsUpperLimit(){
     return targetAgeIsUpperLimit;
   }
-
   int getTargetGender(){
     return targetGender;
   }
-
   String getDiscountDescription(){
     return discountDescription;
   }
   void setDiscountDescription(String newValue){
     discountDescription = newValue;
   }
-
   bool getHasUsageLimit(){
     return hasUsageLimit;
   }
   void setHasUsageLimit(bool newValue){
     hasUsageLimit = newValue;
   }
-
   bool getHasTimeLimit(){
     return hasTimeLimit;
   }
   void setHasTimeLimit(bool newValue){
     hasTimeLimit = newValue;
   }
-
-  String getClubId(){
-    return clubId;
-  }
-  void setClubId(String newValue){
-    clubName = newValue;
-  }
-
-  int getHowOftenRedeemed(){
-    return howOftenRedeemed;
-  }
-  void setHowOftenRedeemed(int newValue){
-    howOftenRedeemed = newValue;
-  }
-
-  String getDiscountId(){
-    return discountId;
-  }
-  void setDiscountId(String newValue){
-    discountId = newValue;
-  }
-
   String getDiscountTitle(){
     return discountTitle;
   }
   void setDiscountTitle(String newValue){
     discountTitle = newValue;
   }
-
-  String getClubName(){
-    return clubName;
-  }
-  void setClubName(String newValue){
-    clubName = newValue;
-  }
-
   int getNumberOfUsages(){
     return numberOfUsages;
   }
   void setNumberOfUsages(int newValue){
     numberOfUsages = newValue;
   }
-
   DateTime getDiscountDate(){
     return discountDate;
   }
   void setDiscountDate(DateTime newValue){
     discountDate = newValue;
   }
-
-  String getBannerId(){
-    return bannerId;
-  }
-  void setBannerId(String newValue){
-    bannerId = newValue;
-  }
-
 }

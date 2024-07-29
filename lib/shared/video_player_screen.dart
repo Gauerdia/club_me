@@ -29,6 +29,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
   bool showLoading = false;
 
+  late StateProvider stateProvider;
+
   final SupabaseService _supabaseService = SupabaseService();
 
   @override
@@ -50,10 +52,26 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     super.dispose();
   }
 
+  void pressedBack(){
+    context.go("/club_frontpage");
+  }
+  void pressedPlay(){
+    setState(() {
+      if (_controller.value.isPlaying) {
+        _controller.pause();
+      } else {
+        _controller.play();
+      }
+    });
+  }
+  void pressedSave(){
+    saveStoryToSupabase(stateProvider, video);
+  }
+
   @override
   Widget build(BuildContext context) {
 
-    final stateProvider = Provider.of<StateProvider>(context);
+    stateProvider = Provider.of<StateProvider>(context);
 
     customTextStyle = CustomTextStyle(context: context);
 
@@ -61,16 +79,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     double screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      appBar: AppBar(
-          title: SizedBox(
-            width: screenWidth,
-            child: Text(
-                'Video player screen',
-                textAlign: TextAlign.center,
-                style: customTextStyle.size1Bold(),
-            ),
-          )
-      ),
+
       body: Stack(
         children: [
           showLoading ? Container()
@@ -89,65 +98,207 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
               }
             },
           ),
-          showLoading?
-          Container()
-          :Padding(
-            padding: EdgeInsets.only(
-                bottom: screenHeight*0.04
-            ),
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  GestureDetector(
-                    child: Container(
-                        padding: const EdgeInsets.all(15),
-                        decoration: BoxDecoration(
-                            color: stateProvider.getPrimeColorDark(),
-                            borderRadius: const BorderRadius.all(Radius.circular(15))
-                        ),
-                        child: Icon(
-                          _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
-                          color: Colors.white,
-                        )
-                    ),
-                    onTap: (){
-                      setState(() {
-                        if (_controller.value.isPlaying) {
-                          _controller.pause();
-                        } else {
-                          _controller.play();
-                        }
-                      });
-                    },
-                  ),
-                  GestureDetector(
-                    child: Container(
-                        padding: const EdgeInsets.all(15),
-                        decoration: BoxDecoration(
-                            color: stateProvider.getPrimeColorDark(),
-                            borderRadius: const BorderRadius.all(Radius.circular(15))
-                        ),
-                        child: const Icon(
-                          Icons.save,
-                          color: Colors.white,
-                        )
-                    ),
-                    onTap: (){
-                      saveStoryToSupabase(stateProvider, video);
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
+          // showLoading?
+          // Container()
+          // :Padding(
+          //   padding: EdgeInsets.only(
+          //       bottom: screenHeight*0.04
+          //   ),
+          //   child: Align(
+          //     alignment: Alignment.bottomCenter,
+          //     child: Row(
+          //       mainAxisAlignment: MainAxisAlignment.spaceAround,
+          //       children: [
+          //         GestureDetector(
+          //           child: Container(
+          //               padding: const EdgeInsets.all(15),
+          //               decoration: BoxDecoration(
+          //                   color: stateProvider.getPrimeColorDark(),
+          //                   borderRadius: const BorderRadius.all(Radius.circular(15))
+          //               ),
+          //               child: Icon(
+          //                 _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+          //                 color: Colors.white,
+          //               )
+          //           ),
+          //           onTap: (){
+          //             setState(() {
+          //               if (_controller.value.isPlaying) {
+          //                 _controller.pause();
+          //               } else {
+          //                 _controller.play();
+          //               }
+          //             });
+          //           },
+          //         ),
+          //         GestureDetector(
+          //           child: Container(
+          //               padding: const EdgeInsets.all(15),
+          //               decoration: BoxDecoration(
+          //                   color: stateProvider.getPrimeColorDark(),
+          //                   borderRadius: const BorderRadius.all(Radius.circular(15))
+          //               ),
+          //               child: const Icon(
+          //                 Icons.save,
+          //                 color: Colors.white,
+          //               )
+          //           ),
+          //           onTap: (){
+          //             saveStoryToSupabase(stateProvider, video);
+          //           },
+          //         ),
+          //       ],
+          //     ),
+          //   ),
+          // ),
 
           showLoading? const Center(
               child: CircularProgressIndicator(),
           ):Container()
         ],
       ),
+
+      bottomNavigationBar: Container(
+        height: screenHeight*0.1,
+        width: screenWidth,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Align(
+                alignment: AlignmentDirectional.center,
+                child: GestureDetector(
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: screenWidth*0.04,
+                        vertical: screenHeight*0.013
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.all(
+                          Radius.circular(10)
+                      ),
+                      gradient: LinearGradient(
+                          colors: [
+                            customTextStyle.primeColorDark,
+                            customTextStyle.primeColor,
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          stops: [0.2, 0.9]
+                      ),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black54,
+                          spreadRadius: 1,
+                          blurRadius: 7,
+                          offset: Offset(3, 3),
+                        ),
+                      ],
+                    ),
+                    child:
+                    const Icon(
+                      Icons.close,
+                      color: Colors.redAccent,
+                      size: 32,
+                    )
+                    // Text(
+                    //   "Zurück",
+                    //   style: customTextStyle.size4Bold(),
+                    // ),
+                  ),
+                  onTap: () => pressedBack(),
+                )
+            ),
+            Align(
+                alignment: AlignmentDirectional.center,
+                child: GestureDetector(
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: screenWidth*0.04,
+                        vertical: screenHeight*0.013
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.all(
+                          Radius.circular(10)
+                      ),
+                      gradient: LinearGradient(
+                          colors: [
+                            customTextStyle.primeColorDark,
+                            customTextStyle.primeColor,
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          stops: [0.2, 0.9]
+                      ),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black54,
+                          spreadRadius: 1,
+                          blurRadius: 7,
+                          offset: Offset(3, 3),
+                        ),
+                      ],
+                    ),
+                    child:
+                    // Text(
+                    //   _controller.value.isPlaying? "Pausieren" : "Abspielen",
+                    //   style: customTextStyle.size4Bold(),
+                    // ),
+                    Icon(
+                      _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+                      size: 32,
+                    )
+                  ),
+                  onTap: () => pressedPlay(),
+                )
+            ),
+            Align(
+                alignment: AlignmentDirectional.center,
+                child: GestureDetector(
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: screenWidth*0.04,
+                        vertical: screenHeight*0.013
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.all(
+                          Radius.circular(10)
+                      ),
+                      gradient: LinearGradient(
+                          colors: [
+                            customTextStyle.primeColorDark,
+                            customTextStyle.primeColor,
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          stops: [0.2, 0.9]
+                      ),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black54,
+                          spreadRadius: 1,
+                          blurRadius: 7,
+                          offset: Offset(3, 3),
+                        ),
+                      ],
+                    ),
+                    child:
+                    const Icon(
+                      Icons.check,
+                      color: Colors.white,
+                      size: 32,
+                    )
+                    // Text(
+                    //   "Speichern",
+                    //   style: customTextStyle.size4Bold(),
+                    // ),
+                  ),
+                  onTap: () => pressedSave(),
+                )
+            )
+          ],
+        ),
+      ),
+
     );
   }
 

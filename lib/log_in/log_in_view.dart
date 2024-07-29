@@ -12,8 +12,6 @@ import '../services/hive_service.dart';
 import '../services/supabase_service.dart';
 import 'package:geolocator/geolocator.dart';
 
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-
 import '../shared/logger.util.dart';
 
 class LogInView extends StatefulWidget {
@@ -257,10 +255,6 @@ class _LogInViewState extends State<LogInView> {
     screenHeight = MediaQuery.of(context).size.height;
 
     customTextStyle = CustomTextStyle(context: context);
-
-    var uuid = const Uuid();
-    print(uuid.v4());
-    print(uuid.v4());
 
     return Scaffold(
       appBar:

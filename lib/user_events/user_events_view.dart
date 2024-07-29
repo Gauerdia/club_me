@@ -93,7 +93,7 @@ class _UserEventsViewState extends State<UserEventsView> {
       var likedEvents = await _hiveService.getFavoriteEvents();
       stateProvider.setLikedEvents(likedEvents);
     }catch(e){
-      _supabaseService.createErrorLog("user_events, getAllLikedEvents: " + e.toString());
+      _supabaseService.createErrorLog("getAllLikedEvents, getAllLikedEvents: $e");
     }
   }
   Widget _buildSupabaseEvents(StateProvider stateProvider, double screenHeight){
@@ -155,7 +155,7 @@ class _UserEventsViewState extends State<UserEventsView> {
 
                 filterEvents();
               }catch(e){
-                _supabaseService.createErrorLog("user_events, _buildSupabaseEvents: " + e.toString());
+                _supabaseService.createErrorLog("_buildSupabaseEvents, _buildSupabaseEvents: " + e.toString());
               }
 
               return ListView.builder(
@@ -328,18 +328,23 @@ class _UserEventsViewState extends State<UserEventsView> {
     }
   }
   void sortUpcomingEvents(){
-    for(var e in upcomingDbEvents){
-      var date = e.getEventDate();
-      // print("Vorher: $date");
-    }
+
+    // First sort for date
     upcomingDbEvents.sort((a,b) =>
         a.getEventDate().millisecondsSinceEpoch.compareTo(b.getEventDate().millisecondsSinceEpoch)
     );
-    for(var e in upcomingDbEvents){
-      var date = e.getEventDate();
-      // print("Nachher: $date");
-    }
+
+    // Then go through the sorted array and sort for priority
+      upcomingDbEvents.sort((a,b){
+        var tempA = DateTime(a.getEventDate().year, a.getEventDate().month, a.getEventDate().day);
+        var tempB = DateTime(b.getEventDate().year, b.getEventDate().month, b.getEventDate().day);
+        bool cmp = tempB.isAfter(tempA);
+        if(cmp == true) return 0;
+        return b.getPriorityScore() > a.getPriorityScore() ?
+        1 :  0;
+      });
   }
+
   void filterForFavorites(){
     setState(() {
       onlyFavoritesIsActive = !onlyFavoritesIsActive;

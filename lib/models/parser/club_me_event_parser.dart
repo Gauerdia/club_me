@@ -14,6 +14,7 @@ ClubMeEvent parseClubMeEvent(var data){
       clubId: data["club_id"],
       eventMarketingFileName: data['event_marketing_file_name'],
       eventMarketingCreatedAt: data['event_marketing_created_at'] != null ?
-        DateTime.tryParse(data['event_marketing_created_at']): null
+        DateTime.tryParse(data['event_marketing_created_at']): null,
+      priorityScore: data["priority_score"].toDouble()
   );
 }

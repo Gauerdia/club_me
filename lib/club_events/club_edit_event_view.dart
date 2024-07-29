@@ -4,6 +4,7 @@ import 'package:club_me/shared/custom_text_style.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../services/supabase_service.dart';
@@ -37,8 +38,32 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
 
   var newDiscountContainerHeightFactor = 0.85;
 
+  bool genreScreenActive = false;
+
+  bool dateUnfold = false;
+  bool djUnfold = false;
+  bool titleUnfold = false;
+  bool priceUnfold = false;
+  bool genresUnfold = false;
+  bool descriptionUnfold = false;
+
+  double originalFoldHeightFactor = 0.08;
+
+  double titleTileHeightFactor = 0.08;
+  double djTileHeightFactor = 0.08;
+  double dateTileHeightFactor = 0.08;
+  double priceTileHeightFactor = 0.08;
+  double descriptionTileHeightFactor = 0.08;
+  double genreTileHeightFactor = 0.08;
+
   List<String> musicGenresChosen = [];
-  List<String> musicGenresToCompare = [];
+  List<String> musicGenresOffer = [
+    "90s", "Techno", "Rock", "EDM", "80s", "Metal", "Pop"
+  ];
+  List<String> musicGenresToCompare = [
+    "90s", "Techno", "Rock", "EDM", "80s", "Metal", "Pop"
+  ];
+
 
   late TextEditingController _eventTitleController;
   late TextEditingController _eventDJController;
@@ -67,7 +92,9 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                 icon: const Icon(
                     Icons.clear_rounded
                 ),
-                onPressed: () => leavePage(),
+                onPressed: (){
+                  leavePage();
+                },
               ),
             ),
 
@@ -92,6 +119,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
       ),
     );
   }
+
   Widget _buildNavBar(){
     return Container(
         height: screenHeight*0.1,
@@ -145,22 +173,31 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                     ),
                   ],
                 ),
-                child: const Text(
-                  "Abschließen!",
-                  style: TextStyle(
+                child: Text(
+                  genreScreenActive ? "Zurück!" : "Abschließen!",
+                  style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.bold
                   ),
                 ),
               ),
-              onTap: () => finishUpdateEvent(),
+              onTap: () => {
+                if(genreScreenActive){
+                  setState(() {
+                    genreScreenActive = false;
+                  })
+                }else{
+                  finishUpdateEvent()
+                }
+              },
             ),
           )
 
         )
     );
   }
+
   Widget _buildMainView(){
     return Container(
       height: screenHeight,
@@ -200,161 +237,1478 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
               height: screenHeight*0.05,
             ),
 
-            // 'Title'-text
-            Container(
-              width: screenWidth*0.8,
-              child:Text(
-                "Titel",
-                textAlign: TextAlign.left,
-                style: customTextStyle.size2(),
-              ),
-            ),
-
-            // White line
-            Divider(
-              height:10,
-              thickness: 1,
-              color: Colors.white,
-              indent: screenWidth*0.1,
-              endIndent: screenWidth*0.8,
-            ),
+            _buildTitleTile(),
 
             // Spacer
             SizedBox(
               height: screenHeight*0.05,
             ),
 
-            // 'EventTitle' - TextField
-            Container(
-              width: screenWidth*0.8,
-              child: TextField(
-                controller: _eventTitleController,
-                decoration: const InputDecoration(
-                    hintText: "z.B. Latino night",
-                    label: Text("Eventtitel"),
-                    border: OutlineInputBorder()
+            _buildDJTile(),
+
+            // Spacer
+            SizedBox(
+              height: screenHeight*0.05,
+            ),
+
+            _buildDateTile(),
+
+            // Spacer
+            SizedBox(
+              height: screenHeight*0.05,
+            ),
+
+            _buildPriceTile(),
+
+            // Spacer
+            SizedBox(
+              height: screenHeight*0.05,
+            ),
+
+            _buildGenresTile(),
+
+            // Spacer
+            SizedBox(
+              height: screenHeight*0.05,
+            ),
+
+            _buildDescriptionTile(),
+
+            // Spacer
+            SizedBox(
+              height: screenHeight*0.1,
+            ),
+
+
+          ],
+        ),
+      ),
+    );
+  }
+
+  AlertDialog _buildErrorDialog(){
+    return const AlertDialog(
+      title: Text("Fehler aufgetreten"),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+
+          // Question text
+          Text(
+            "Verzeihung, es ist ein Fehler aufgetreten.",
+            textAlign: TextAlign.left,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTitleTile(){
+    return Stack(
+      children: [
+
+        // Colorful accent
+        Container(
+          width: screenWidth*0.91,
+          height: screenHeight*(titleTileHeightFactor+0.004),
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.bottomLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.grey[900]!,
+                    customTextStyle.primeColorDark.withOpacity(0.4)
+                  ],
+                  stops: const [0.6, 0.9]
+              ),
+              borderRadius: BorderRadius.circular(15)
+          ),
+        ),
+
+        // Colorful accent
+        Container(
+          width: screenWidth*0.91,
+          height: screenHeight*titleTileHeightFactor,
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.grey[900]!,
+                    customTextStyle.primeColorDark.withOpacity(0.2)
+                  ],
+                  stops: const [0.6, 0.9]
+              ),
+              borderRadius: BorderRadius.circular(
+                  15
+              )
+          ),
+        ),
+
+        // light grey highlight
+        Container(
+          width: screenWidth*0.89,
+          height: screenHeight*titleTileHeightFactor,
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.grey[600]!, Colors.grey[600]!],
+                  stops: const [0.1, 0.9]
+              ),
+              borderRadius: BorderRadius.circular(
+                  15
+              )
+          ),
+        ),
+
+        // light grey highlight
+        Padding(
+            padding: const EdgeInsets.only(
+                left:2
+            ),
+            child: Container(
+              width: screenWidth*0.9,
+              height: screenHeight*titleTileHeightFactor,
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.topRight,
+                      colors: [Colors.grey[600]!, Colors.grey[900]!],
+                      stops: const [0.1, 0.9]
+                  ),
+                  borderRadius: BorderRadius.circular(
+                      15
+                  )
+              ),
+            )
+        ),
+
+        // main Div
+        Padding(
+          padding: const EdgeInsets.only(
+              left:2,
+              top: 2
+          ),
+          child: Container(
+            width: screenWidth*0.9,
+            height: screenHeight*titleTileHeightFactor,
+            decoration: BoxDecoration(
+                gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.grey[800]!.withOpacity(0.7),
+                      Colors.grey[900]!
+                    ],
+                    stops: [0.1,0.9]
                 ),
-                maxLength: 35,
-                style: customTextStyle.size4(),
-              ),
+                borderRadius: BorderRadius.circular(
+                    15
+                )
             ),
+            child: Column(
+              children: [
 
-            // Spacer
-            SizedBox(
-              height: screenHeight*0.02,
-            ),
-
-            // 'DJ'-text
-            Container(
-              width: screenWidth*0.8,
-              child:Text(
-                "DJs",
-                textAlign: TextAlign.left,
-                style: customTextStyle.size2(),
-              ),
-            ),
-
-            // White line
-            Divider(
-              height:10,
-              thickness: 1,
-              color: Colors.white,
-              indent: screenWidth*0.1,
-              endIndent: screenWidth*0.8,
-            ),
-
-            // Spacer
-            SizedBox(
-              height: screenHeight*0.05,
-            ),
-
-            // 'DJs' - TextField
-            Container(
-              width: screenWidth*0.8,
-              child: TextField(
-                controller: _eventDJController,
-                decoration: const InputDecoration(
-                    hintText: "z.B. DJ Khaleed",
-                    label: Text("DJ-Namen"),
-                    border: OutlineInputBorder()
+                // Title + icon
+                Container(
+                  width: screenWidth*0.8,
+                  padding: EdgeInsets.only(
+                      top: screenHeight*0.01
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                          "Titel",
+                          textAlign: TextAlign.left,
+                          style: customTextStyle.size1Bold()
+                      ),
+                      IconButton(
+                        icon: Icon(
+                            titleUnfold ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down
+                        ),
+                        onPressed: (){
+                          setState(() {
+                            if(titleUnfold){
+                              titleTileHeightFactor = originalFoldHeightFactor;
+                              titleUnfold = false;
+                            }else{
+                              titleTileHeightFactor = originalFoldHeightFactor*3.5;
+                              titleUnfold = true;
+                            }
+                          });
+                        },
+                      )
+                    ],
+                  ),
                 ),
-                maxLength: 35,
-                style: customTextStyle.size4(),
+
+                // Spacer
+                titleUnfold ?SizedBox(
+                  height: screenHeight*0.01,
+                ):Container(),
+
+                // White line
+                titleUnfold ?
+                const Divider(
+                  height:10,
+                  thickness: 1,
+                  color: Colors.grey,
+                  // indent: screenWidth*0.06,
+                  // endIndent: screenWidth*0.75,
+                ): Container(),
+
+                // Spacer
+                titleUnfold ?SizedBox(
+                  height: screenHeight*0.03,
+                ):Container(),
+
+                titleUnfold ? Text(
+                  "Wie soll das Event heißen?",
+                  style: customTextStyle.getFontStyle3(),
+                ):Container(),
+
+                // Spacer
+                titleUnfold ?SizedBox(
+                  height: screenHeight*0.02,
+                ):Container(),
+
+                // Textfield
+                titleUnfold ? Container(
+                  width: screenWidth*0.8,
+                  child: TextField(
+                    controller: _eventTitleController,
+                    decoration: const InputDecoration(
+                      hintText: "z.B. 2-für-1 Mojitos",
+                      label: Text("Eventtitel"),
+                      border: OutlineInputBorder(),
+                    ),
+                    style: customTextStyle.size4(),
+                    maxLength: 35,
+                  ),
+                ): Container(),
+
+              ],
+            ),
+          ),
+        )
+
+      ],
+    );
+  }
+
+  Widget _buildDJTile(){
+    return Stack(
+      children: [
+
+        // Colorful accent
+        Container(
+          width: screenWidth*0.91,
+          height: screenHeight*(djTileHeightFactor+0.004),
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.bottomLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.grey[900]!,
+                    customTextStyle.primeColorDark.withOpacity(0.4)
+                  ],
+                  stops: const [0.6, 0.9]
               ),
-            ),
+              borderRadius: BorderRadius.circular(15)
+          ),
+        ),
 
-            // Spacer
-            SizedBox(
-              height: screenHeight*0.02,
-            ),
-
-            // Date and time
-            SizedBox(
-              width: screenWidth*0.8,
-              child:Text(
-                "Datum und Uhrzeit",
-                textAlign: TextAlign.left,
-                style: customTextStyle.size2(),
+        // Colorful accent
+        Container(
+          width: screenWidth*0.91,
+          height: screenHeight*djTileHeightFactor,
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.grey[900]!,
+                    customTextStyle.primeColorDark.withOpacity(0.2)
+                  ],
+                  stops: const [0.6, 0.9]
               ),
-            ),
+              borderRadius: BorderRadius.circular(
+                  15
+              )
+          ),
+        ),
 
-            // White line
-            Divider(
-              height:10,
-              thickness: 1,
-              color: Colors.white,
-              indent: screenWidth*0.1,
-              endIndent: screenWidth*0.8,
-            ),
+        // light grey highlight
+        Container(
+          width: screenWidth*0.89,
+          height: screenHeight*djTileHeightFactor,
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.grey[600]!, Colors.grey[600]!],
+                  stops: const [0.1, 0.9]
+              ),
+              borderRadius: BorderRadius.circular(
+                  15
+              )
+          ),
+        ),
 
-            // Spacer
-            SizedBox(
-              height: screenHeight*0.05,
+        // light grey highlight
+        Padding(
+            padding: const EdgeInsets.only(
+                left:2
             ),
+            child: Container(
+              width: screenWidth*0.9,
+              height: screenHeight*djTileHeightFactor,
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.topRight,
+                      colors: [Colors.grey[600]!, Colors.grey[900]!],
+                      stops: const [0.1, 0.9]
+                  ),
+                  borderRadius: BorderRadius.circular(
+                      15
+                  )
+              ),
+            )
+        ),
 
-            // Datepicker
-            SizedBox(
-              width: screenWidth*0.6,
-              height: screenHeight*0.07,
-              child: OutlinedButton(
-                  onPressed: (){
-                    showDatePicker(
-                        context: context,
-                        locale: const Locale("de", "DE"),
-                        initialDate: newSelectedDate,
-                        firstDate: DateTime(2018),
-                        lastDate: DateTime(2030),
-                        builder: (BuildContext context, Widget? child) {
-                          return Theme(
-                            data: ThemeData.dark(),
-                            child: child!,
-                          );
-                        }).then((pickedDate){
-                      if( pickedDate == null){
-                        return;
-                      }
-                      setState(() {
-                        newSelectedDate = pickedDate;
-                      });
-                    });
-                  },
+        // main Div
+        Padding(
+          padding: const EdgeInsets.only(
+              left:2,
+              top: 2
+          ),
+          child: Container(
+            width: screenWidth*0.9,
+            height: screenHeight*djTileHeightFactor,
+            decoration: BoxDecoration(
+                gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.grey[800]!.withOpacity(0.7),
+                      Colors.grey[900]!
+                    ],
+                    stops: [0.1,0.9]
+                ),
+                borderRadius: BorderRadius.circular(
+                    15
+                )
+            ),
+            child: Column(
+              children: [
+
+                // Title + icon
+                Container(
+                  width: screenWidth*0.8,
+                  padding: EdgeInsets.only(
+                      top: screenHeight*0.01
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                          "DJ",
+                          textAlign: TextAlign.left,
+                          style: customTextStyle.size1Bold()
+                      ),
+                      IconButton(
+                        icon: Icon(
+                            djUnfold ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down
+                        ),
+                        onPressed: (){
+                          setState(() {
+                            if(djUnfold){
+                              djTileHeightFactor = originalFoldHeightFactor;
+                              djUnfold = false;
+                            }else{
+                              djTileHeightFactor = originalFoldHeightFactor*3.5;
+                              djUnfold = true;
+                            }
+                          });
+                        },
+                      )
+                    ],
+                  ),
+                ),
+
+                // Spacer
+                djUnfold ?SizedBox(
+                  height: screenHeight*0.01,
+                ):Container(),
+
+                // White line
+                djUnfold ?
+                const Divider(
+                  height:10,
+                  thickness: 1,
+                  color: Colors.grey,
+                  // indent: screenWidth*0.06,
+                  // endIndent: screenWidth*0.75,
+                ): Container(),
+
+                // Spacer
+                djUnfold ?SizedBox(
+                  height: screenHeight*0.03,
+                ):Container(),
+
+                djUnfold ? Text(
+                  "Wie heißt der DJ auf diesem Event?",
+                  style: customTextStyle.getFontStyle3(),
+                ):Container(),
+
+                // Spacer
+                djUnfold ?SizedBox(
+                  height: screenHeight*0.02,
+                ):Container(),
+
+                // Textfield
+                djUnfold ? Container(
+                  width: screenWidth*0.8,
+                  child: TextField(
+                    controller: _eventDJController,
+                    decoration: const InputDecoration(
+                      hintText: "z.B. DJ Guetta",
+                      label: Text("DJ-Name(n)"),
+                      border: OutlineInputBorder(),
+                    ),
+                    style: customTextStyle.size4(),
+                    maxLength: 35,
+                  ),
+                ): Container(),
+
+              ],
+            ),
+          ),
+        )
+
+      ],
+    );
+  }
+
+  Widget _buildDateTile(){
+    return Stack(
+      children: [
+
+        // Colorful accent
+        Container(
+          width: screenWidth*0.91,
+          height: screenHeight*(dateTileHeightFactor+0.004),
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.bottomLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.grey[900]!,
+                    customTextStyle.primeColorDark.withOpacity(0.4)
+                  ],
+                  stops: const [0.6, 0.9]
+              ),
+              borderRadius: BorderRadius.circular(15)
+          ),
+        ),
+
+        // Colorful accent
+        Container(
+          width: screenWidth*0.91,
+          height: screenHeight*dateTileHeightFactor,
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.grey[900]!,
+                    customTextStyle.primeColorDark.withOpacity(0.2)
+                  ],
+                  stops: const [0.6, 0.9]
+              ),
+              borderRadius: BorderRadius.circular(
+                  15
+              )
+          ),
+        ),
+
+        // light grey highlight
+        Container(
+          width: screenWidth*0.89,
+          height: screenHeight*dateTileHeightFactor,
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.grey[600]!, Colors.grey[600]!],
+                  stops: const [0.1, 0.9]
+              ),
+              borderRadius: BorderRadius.circular(
+                  15
+              )
+          ),
+        ),
+
+        // light grey highlight
+        Padding(
+            padding: const EdgeInsets.only(
+                left:2
+            ),
+            child: Container(
+              width: screenWidth*0.9,
+              height: screenHeight*dateTileHeightFactor,
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.topRight,
+                      colors: [Colors.grey[600]!, Colors.grey[900]!],
+                      stops: const [0.1, 0.9]
+                  ),
+                  borderRadius: BorderRadius.circular(
+                      15
+                  )
+              ),
+            )
+        ),
+
+        // main Div
+        Padding(
+          padding: const EdgeInsets.only(
+              left:2,
+              top: 2
+          ),
+          child: Container(
+            width: screenWidth*0.9,
+            height: screenHeight*dateTileHeightFactor,
+            decoration: BoxDecoration(
+                gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.grey[800]!.withOpacity(0.7),
+                      Colors.grey[900]!
+                    ],
+                    stops: [0.1,0.9]
+                ),
+                borderRadius: BorderRadius.circular(
+                    15
+                )
+            ),
+            child: Column(
+              children: [
+
+                Container(
+                  width: screenWidth*0.8,
+                  padding: EdgeInsets.only(
+                      top: screenHeight*0.01
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                          "Datum und Uhrzeit",
+                          textAlign: TextAlign.left,
+                          style: customTextStyle.size1Bold()
+                      ),
+                      IconButton(
+                        icon: Icon(
+                            dateUnfold ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down
+                        ),
+                        onPressed: (){
+                          setState(() {
+                            if(dateUnfold){
+                              dateTileHeightFactor = originalFoldHeightFactor;
+                              dateUnfold = false;
+                            }else{
+                              dateTileHeightFactor = originalFoldHeightFactor*5;
+                              dateUnfold = true;
+                            }
+                          });
+                        },
+                      )
+                    ],
+                  ),
+                ),
+
+                // Spacer
+                dateUnfold ?SizedBox(
+                  height: screenHeight*0.01,
+                ):Container(),
+
+                // White line
+                dateUnfold ?
+                const Divider(
+                  height:10,
+                  thickness: 1,
+                  color: Colors.grey,
+                  // indent: screenWidth*0.06,
+                  // endIndent: screenWidth*0.75,
+                ): Container(),
+
+                // Spacer
+                dateUnfold ?SizedBox(
+                  height: screenHeight*0.03,
+                ):Container(),
+
+                dateUnfold ? Text(
+                  "Wann soll das Event stattfinden?",
+                  style: customTextStyle.getFontStyle3(),
+                ):Container(),
+
+                // Spacer
+                dateUnfold ?SizedBox(
+                  height: screenHeight*0.02,
+                ):Container(),
+
+
+                dateUnfold ?SizedBox(
+                  width: screenWidth*0.6,
+                  height: screenHeight*0.07,
+                  child: OutlinedButton(
+                      onPressed: (){
+                        showDatePicker(
+                            context: context,
+                            locale: const Locale("de", "DE"),
+                            initialDate: newSelectedDate,
+                            firstDate: DateTime(2018),
+                            lastDate: DateTime(2030),
+                            builder: (BuildContext context, Widget? child) {
+                              return Theme(
+                                data: ThemeData.dark(),
+                                child: child!,
+                              );
+                            }).then((pickedDate){
+                          if( pickedDate == null){
+                            return;
+                          }
+                          setState(() {
+                            newSelectedDate = pickedDate;
+                          });
+                        });
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Date as Text
+                          Text(
+                            formatSelectedDate(),
+                            style: customTextStyle.size3(),
+                          ),
+                          // Spacer
+                          SizedBox(
+                            width: screenWidth*0.02,
+                          ),
+                          // Calendar icon
+                          Icon(
+                            Icons.calendar_month_outlined,
+                            color: customTextStyle.primeColor,
+                          )
+                        ],
+                      )
+                  ),
+                ):Container(),
+
+                // Spacer
+                dateUnfold ?SizedBox(
+                  height: screenHeight*0.02,
+                ):Container(),
+
+                dateUnfold ? Text(
+                  "Um wie viel Uhr beginnt das Event?",
+                  style: customTextStyle.getFontStyle3(),
+                ):Container(),
+
+                // Spacer
+                dateUnfold ?SizedBox(
+                  height: screenHeight*0.02,
+                ):Container(),
+
+                // Starting hour
+                dateUnfold ?SizedBox(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
-                        formatSelectedDate(),
-                        style: customTextStyle.size3(),
+
+                      SizedBox(
+                        width: screenWidth*0.2,
+                        child: CupertinoPicker(
+                            scrollController: _fixedExtentScrollController1,
+                            itemExtent: 50,
+                            onSelectedItemChanged: (int index){
+                              setState(() {
+                                selectedFirstElement = index;
+                              });
+                            },
+                            children: List<Widget>.generate(24, (index){
+                              return Center(
+                                child: Text(
+                                  index < 10 ?
+                                  "0${index.toString()}" :
+                                  index.toString(),
+                                  style: const TextStyle(
+                                      fontSize: 24
+                                  ),
+                                ),
+                              );
+                            })
+                        ),
+                      ),
+                      const Text(
+                        ":",
+                        style: TextStyle(
+                            fontSize: 22
+                        ),
                       ),
                       SizedBox(
-                        width: screenWidth*0.02,
+                        width: screenWidth*0.2,
+                        child: CupertinoPicker(
+                            scrollController: _fixedExtentScrollController2,
+                            itemExtent: 50,
+                            onSelectedItemChanged: (int index){
+                              setState(() {
+                                selectedSecondElement=index*15;
+                              });
+                            },
+                            children: List<Widget>.generate(4, (index){
+                              return Center(
+                                child: Text(
+                                  index == 0
+                                      ? "00"
+                                      :(index*15).toString(),
+                                  style: const TextStyle(
+                                      fontSize: 24
+                                  ),
+                                ),
+                              );
+                            })
+                        ),
                       ),
-                      Icon(
-                        Icons.calendar_month_outlined,
-                        color: customTextStyle.primeColor,
-                      )
                     ],
+                  ),
+                ):Container(),
+
+              ],
+            ),
+          ),
+        )
+
+      ],
+    );
+  }
+
+  Widget _buildPriceTile(){
+    return Stack(
+      children: [
+
+        // Colorful accent
+        Container(
+          width: screenWidth*0.91,
+          height: screenHeight*(priceTileHeightFactor+0.004),
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.bottomLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.grey[900]!,
+                    customTextStyle.primeColorDark.withOpacity(0.4)
+                  ],
+                  stops: const [0.6, 0.9]
+              ),
+              borderRadius: BorderRadius.circular(15)
+          ),
+        ),
+
+        // Colorful accent
+        Container(
+          width: screenWidth*0.91,
+          height: screenHeight*priceTileHeightFactor,
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.grey[900]!,
+                    customTextStyle.primeColorDark.withOpacity(0.2)
+                  ],
+                  stops: const [0.6, 0.9]
+              ),
+              borderRadius: BorderRadius.circular(
+                  15
+              )
+          ),
+        ),
+
+        // light grey highlight
+        Container(
+          width: screenWidth*0.89,
+          height: screenHeight*priceTileHeightFactor,
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.grey[600]!, Colors.grey[600]!],
+                  stops: const [0.1, 0.9]
+              ),
+              borderRadius: BorderRadius.circular(
+                  15
+              )
+          ),
+        ),
+
+        // light grey highlight
+        Padding(
+            padding: const EdgeInsets.only(
+                left:2
+            ),
+            child: Container(
+              width: screenWidth*0.9,
+              height: screenHeight*priceTileHeightFactor,
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.topRight,
+                      colors: [Colors.grey[600]!, Colors.grey[900]!],
+                      stops: const [0.1, 0.9]
+                  ),
+                  borderRadius: BorderRadius.circular(
+                      15
                   )
               ),
+            )
+        ),
+
+        // main Div
+        Padding(
+          padding: const EdgeInsets.only(
+              left:2,
+              top: 2
+          ),
+          child: Container(
+            width: screenWidth*0.9,
+            height: screenHeight*priceTileHeightFactor,
+            decoration: BoxDecoration(
+                gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.grey[800]!.withOpacity(0.7),
+                      Colors.grey[900]!
+                    ],
+                    stops: [0.1,0.9]
+                ),
+                borderRadius: BorderRadius.circular(
+                    15
+                )
+            ),
+            child: Column(
+              children: [
+
+                // Title + icon
+                Container(
+                  width: screenWidth*0.8,
+                  padding: EdgeInsets.only(
+                      top: screenHeight*0.01
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                          "Preis",
+                          textAlign: TextAlign.left,
+                          style: customTextStyle.size1Bold()
+                      ),
+                      IconButton(
+                        icon: Icon(
+                            priceUnfold ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down
+                        ),
+                        onPressed: (){
+                          setState(() {
+                            if(priceUnfold){
+                              priceTileHeightFactor = originalFoldHeightFactor;
+                              priceUnfold = false;
+                            }else{
+                              priceTileHeightFactor = originalFoldHeightFactor*3.5;
+                              priceUnfold = true;
+                            }
+                          });
+                        },
+                      )
+                    ],
+                  ),
+                ),
+
+                // Spacer
+                priceUnfold ?SizedBox(
+                  height: screenHeight*0.01,
+                ):Container(),
+
+                // White line
+                priceUnfold ?
+                const Divider(
+                  height:10,
+                  thickness: 1,
+                  color: Colors.grey,
+                  // indent: screenWidth*0.06,
+                  // endIndent: screenWidth*0.75,
+                ): Container(),
+
+                // Spacer
+                priceUnfold ?SizedBox(
+                  height: screenHeight*0.03,
+                ):Container(),
+
+                priceUnfold ? Text(
+                  "Wie teuer soll das Event sein?",
+                  style: customTextStyle.getFontStyle3(),
+                ):Container(),
+
+                // Spacer
+                priceUnfold ?SizedBox(
+                  height: screenHeight*0.02,
+                ):Container(),
+
+                // Textfield
+                priceUnfold ? Container(
+                  width: screenWidth*0.4,
+                  child: TextField(
+                    controller: _eventPriceController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                        border: OutlineInputBorder()
+                    ),
+                    style: customTextStyle.size4(),
+                    maxLength: 5,
+                  ),
+                ): Container(),
+
+              ],
+            ),
+          ),
+        )
+
+      ],
+    );
+  }
+
+  Widget _buildGenresTile(){
+    return Stack(
+      children: [
+
+        // Colorful accent
+        Container(
+          width: screenWidth*0.91,
+          height: screenHeight*(genreTileHeightFactor+0.004),
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.bottomLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.grey[900]!,
+                    customTextStyle.primeColorDark.withOpacity(0.4)
+                  ],
+                  stops: const [0.6, 0.9]
+              ),
+              borderRadius: BorderRadius.circular(15)
+          ),
+        ),
+
+        // Colorful accent
+        Container(
+          width: screenWidth*0.91,
+          height: screenHeight*genreTileHeightFactor,
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.grey[900]!,
+                    customTextStyle.primeColorDark.withOpacity(0.2)
+                  ],
+                  stops: const [0.6, 0.9]
+              ),
+              borderRadius: BorderRadius.circular(
+                  15
+              )
+          ),
+        ),
+
+        // light grey highlight
+        Container(
+          width: screenWidth*0.89,
+          height: screenHeight*genreTileHeightFactor,
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.grey[600]!, Colors.grey[600]!],
+                  stops: const [0.1, 0.9]
+              ),
+              borderRadius: BorderRadius.circular(
+                  15
+              )
+          ),
+        ),
+
+        // light grey highlight
+        Padding(
+            padding: const EdgeInsets.only(
+                left:2
+            ),
+            child: Container(
+              width: screenWidth*0.9,
+              height: screenHeight*genreTileHeightFactor,
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.topRight,
+                      colors: [Colors.grey[600]!, Colors.grey[900]!],
+                      stops: const [0.1, 0.9]
+                  ),
+                  borderRadius: BorderRadius.circular(
+                      15
+                  )
+              ),
+            )
+        ),
+
+        // main Div
+        Padding(
+          padding: const EdgeInsets.only(
+              left:2,
+              top: 2
+          ),
+          child: Container(
+            width: screenWidth*0.9,
+            height: screenHeight*genreTileHeightFactor,
+            decoration: BoxDecoration(
+                gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.grey[800]!.withOpacity(0.7),
+                      Colors.grey[900]!
+                    ],
+                    stops: [0.1,0.9]
+                ),
+                borderRadius: BorderRadius.circular(
+                    15
+                )
+            ),
+            child: Column(
+              children: [
+
+                // Title + icon
+                Container(
+                  width: screenWidth*0.8,
+                  padding: EdgeInsets.only(
+                      top: screenHeight*0.01
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                          "Musikrichtungen",
+                          textAlign: TextAlign.left,
+                          style: customTextStyle.size1Bold()
+                      ),
+                      IconButton(
+                        icon: Icon(
+                            genresUnfold ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down
+                        ),
+                        onPressed: (){
+                          setState(() {
+                            if(genresUnfold){
+                              genreTileHeightFactor = originalFoldHeightFactor;
+                              genresUnfold = false;
+                            }else{
+                              genreTileHeightFactor = originalFoldHeightFactor*5.5;
+                              genresUnfold = true;
+                            }
+                          });
+                        },
+                      )
+                    ],
+                  ),
+                ),
+
+                // Spacer
+                genresUnfold ?SizedBox(
+                  height: screenHeight*0.01,
+                ):Container(),
+
+                // White line
+                genresUnfold ?
+                const Divider(
+                  height:10,
+                  thickness: 1,
+                  color: Colors.grey,
+                  // indent: screenWidth*0.06,
+                  // endIndent: screenWidth*0.75,
+                ): Container(),
+
+                // Spacer
+                genresUnfold ?SizedBox(
+                  height: screenHeight*0.03,
+                ):Container(),
+
+                genresUnfold ? musicGenresChosen.isEmpty ?
+                SizedBox(
+                  height: screenHeight*0.05,
+                  child: Center(
+                    child: Text(
+                        "Noch keine Genres ausgewählt.",
+                        style: customTextStyle.size4()
+                    ),
+                  ),
+                ):Container(
+                    padding: EdgeInsets.only(
+                      // left: screenWidth*0.1
+                    ),
+                    width: screenWidth,
+                    child: Center(
+                      child:  Wrap(
+                        direction: Axis.horizontal,
+                        children: musicGenresChosen.map((item){
+                          return Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: screenHeight*0.01,
+                                    horizontal: screenWidth*0.01
+                                ),
+                                child: GestureDetector(
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: screenWidth*0.035,
+                                        vertical: screenHeight*0.02
+                                    ),
+                                    decoration: BoxDecoration(
+                                      borderRadius: const BorderRadius.all(
+                                          Radius.circular(10)
+                                      ),
+                                      gradient: LinearGradient(
+                                          colors: [
+                                            customTextStyle.primeColorDark,
+                                            customTextStyle.primeColor,
+                                          ],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                          stops: const [0.2, 0.9]
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black54,
+                                          spreadRadius: 1,
+                                          blurRadius: 7,
+                                          offset: Offset(3, 3), // changes position of shadow
+                                        ),
+                                      ],
+                                    ),
+                                    child: Text(
+                                        item,
+                                        style: customTextStyle.size6Bold()
+                                    ),
+                                  ),
+                                  onTap: (){
+                                    setState(() {
+                                      if(musicGenresToCompare.contains(item)){
+                                        musicGenresOffer.add(item);
+                                      }
+                                      musicGenresChosen.remove(item);
+                                      eventMusicGenresString.replaceFirst("$item,", "");
+                                    });
+                                  },
+                                ),
+                              )
+                            ],
+                          );
+                        }).toList(),
+                      ),
+                    )
+                ): Container(),
+
+                // Spacer
+                genresUnfold ?SizedBox(
+                  height: screenHeight*0.03,
+                ):Container(),
+
+                // Icon
+                genresUnfold ? GestureDetector(
+                  child: Container(
+                    padding: const EdgeInsets.all(
+                        5
+                    ),
+                    decoration: BoxDecoration(
+                        color: customTextStyle.primeColorDark,
+                        borderRadius: const BorderRadius.all(
+                            Radius.circular(45)
+                        ),
+                        border: Border.all(color: Colors.white)
+                    ),
+                    child: const Icon(
+                        Icons.add
+                    ),
+                  ),
+                  onTap: (){
+                    setState(() {
+                      genreScreenActive = true;
+                    });
+                  },
+                ):Container(),
+
+              ],
+            ),
+          ),
+        )
+
+      ],
+    );
+  }
+
+  Widget _buildDescriptionTile(){
+    return Stack(
+      children: [
+
+        // Colorful accent
+        Container(
+          width: screenWidth*0.91,
+          height: screenHeight*(descriptionTileHeightFactor+0.004),
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.bottomLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.grey[900]!,
+                    customTextStyle.primeColorDark.withOpacity(0.4)
+                  ],
+                  stops: const [0.6, 0.9]
+              ),
+              borderRadius: BorderRadius.circular(15)
+          ),
+        ),
+
+        // Colorful accent
+        Container(
+          width: screenWidth*0.91,
+          height: screenHeight*descriptionTileHeightFactor,
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.grey[900]!,
+                    customTextStyle.primeColorDark.withOpacity(0.2)
+                  ],
+                  stops: const [0.6, 0.9]
+              ),
+              borderRadius: BorderRadius.circular(
+                  15
+              )
+          ),
+        ),
+
+        // light grey highlight
+        Container(
+          width: screenWidth*0.89,
+          height: screenHeight*descriptionTileHeightFactor,
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.grey[600]!, Colors.grey[600]!],
+                  stops: const [0.1, 0.9]
+              ),
+              borderRadius: BorderRadius.circular(
+                  15
+              )
+          ),
+        ),
+
+        // light grey highlight
+        Padding(
+            padding: const EdgeInsets.only(
+                left:2
+            ),
+            child: Container(
+              width: screenWidth*0.9,
+              height: screenHeight*descriptionTileHeightFactor,
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.topRight,
+                      colors: [Colors.grey[600]!, Colors.grey[900]!],
+                      stops: const [0.1, 0.9]
+                  ),
+                  borderRadius: BorderRadius.circular(
+                      15
+                  )
+              ),
+            )
+        ),
+
+        // main Div
+        Padding(
+          padding: const EdgeInsets.only(
+              left:2,
+              top: 2
+          ),
+          child: Container(
+            width: screenWidth*0.9,
+            height: screenHeight*descriptionTileHeightFactor,
+            decoration: BoxDecoration(
+                gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.grey[800]!.withOpacity(0.7),
+                      Colors.grey[900]!
+                    ],
+                    stops: [0.1,0.9]
+                ),
+                borderRadius: BorderRadius.circular(
+                    15
+                )
+            ),
+            child: Column(
+              children: [
+
+                Container(
+                  width: screenWidth*0.8,
+                  padding: EdgeInsets.only(
+                      top: screenHeight*0.01
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                          "Beschreibung",
+                          textAlign: TextAlign.left,
+                          style: customTextStyle.size1Bold()
+                      ),
+                      IconButton(
+                        icon: Icon(
+                            descriptionUnfold ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down
+                        ),
+                        onPressed: (){
+                          setState(() {
+                            if(descriptionUnfold){
+                              descriptionTileHeightFactor = originalFoldHeightFactor;
+                              descriptionUnfold = false;
+                            }else{
+                              descriptionTileHeightFactor = originalFoldHeightFactor*7.5;
+                              descriptionUnfold = true;
+                            }
+                          });
+                        },
+                      )
+                    ],
+                  ),
+                ),
+
+                // Spacer
+                descriptionUnfold ?SizedBox(
+                  height: screenHeight*0.01,
+                ):Container(),
+
+                // White line
+                descriptionUnfold ?
+                const Divider(
+                  height:10,
+                  thickness: 1,
+                  color: Colors.grey,
+                  // indent: screenWidth*0.06,
+                  // endIndent: screenWidth*0.75,
+                ): Container(),
+
+                // Spacer
+                descriptionUnfold ?SizedBox(
+                  height: screenHeight*0.03,
+                ):Container(),
+
+                // Explanation
+                descriptionUnfold ? Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10
+                    ),
+                    child: Text(
+                      "Erzähl deinen Kunden ein wenig über das Event!",
+                      textAlign: TextAlign.center,
+                      style: customTextStyle.getFontStyle3(),
+                    )
+                ):Container(),
+
+                // Spacer
+                descriptionUnfold ?SizedBox(
+                  height: screenHeight*0.03,
+                ):Container(),
+
+
+                descriptionUnfold ? SizedBox(
+                  width: screenWidth*0.8,
+                  child: TextField(
+                    controller: _eventDescriptionController,
+                    keyboardType: TextInputType.multiline,
+                    maxLines: null,
+                    decoration: const InputDecoration(
+                        border: OutlineInputBorder()
+                    ),
+                    maxLength: 300,
+                    minLines: 10,
+                    style:customTextStyle.size4(),
+                  ),
+                ):Container(),
+
+
+              ],
+            ),
+          ),
+        )
+
+      ],
+    );
+  }
+
+  Widget _buildCheckForMusicGenres(){
+    return SizedBox(
+      height: screenHeight,
+      child: SingleChildScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        child: Column(
+          children: [
+
+            // 'Which genres' headline
+            Container(
+              width: screenWidth,
+              padding: EdgeInsets.symmetric(
+                  vertical: screenHeight*0.04,
+                  horizontal: screenWidth*0.02
+              ),
+              child: Text(
+                "Welche Musikgenres werden auf desem Event gespielt?",
+                textAlign: TextAlign.center,
+                style: customTextStyle.size1Bold(),
+              ),
+            ),
+
+            // Spacer
+            SizedBox(
+              height: screenHeight*0.05,
+            ),
+
+            // Propositions
+            Container(
+              width: screenWidth,
+              padding: const EdgeInsets.only(
+              ),
+              child: Text(
+                "Vorschläge",
+                textAlign: TextAlign.center,
+                style: customTextStyle.size2Bold(),
+              ),
             ),
 
             // Spacer
@@ -362,118 +1716,21 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
               height: screenHeight*0.02,
             ),
 
-            // Starting hour
-            SizedBox(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-
-                  SizedBox(
-                    width: screenWidth*0.2,
-                    child: CupertinoPicker(
-                        scrollController: _fixedExtentScrollController1,
-                        itemExtent: 50,
-                        onSelectedItemChanged: (int index){
-                          setState(() {
-                            selectedFirstElement = index;
-                            firstElementChanged = true;
-                          });
-                        },
-                        children: List<Widget>.generate(24, (index){
-                          return Center(
-                            child: Text(
-                              index < 10 ?
-                              "0${index.toString()}" :
-                              index.toString(),
-                              style: const TextStyle(
-                                  fontSize: 24
-                              ),
-                            ),
-                          );
-                        })
-                    ),
-                  ),
-                  const Text(
-                    ":",
-                    style: TextStyle(
-                        fontSize: 22
-                    ),
-                  ),
-                  SizedBox(
-                    width: screenWidth*0.2,
-                    child: CupertinoPicker(
-                        scrollController: _fixedExtentScrollController2,
-                        itemExtent: 50,
-                        onSelectedItemChanged: (int index){
-                          setState(() {
-                            selectedSecondElement=index*15;
-                            secondElementChanged = true;
-                          });
-                        },
-                        children: List<Widget>.generate(4, (index){
-                          return Center(
-                            child: Text(
-                              index == 0
-                                  ? "00"
-                                  :(index*15).toString(),
-                              style: const TextStyle(
-                                  fontSize: 24
-                              ),
-                            ),
-                          );
-                        })
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Spacer
-            SizedBox(
-              height: screenHeight*0.03,
-            ),
-
-            // Genres text
-            SizedBox(
-              width: screenWidth*0.8,
-              child:Text(
-                  "Genres",
-                  textAlign: TextAlign.left,
-                  style: customTextStyle.size2()
-              ),
-            ),
-
-            // White line
-            Divider(
-              height:10,
-              thickness: 1,
-              color: Colors.white,
-              indent: screenWidth*0.1,
-              endIndent: screenWidth*0.8,
-            ),
-
-            // Spacer
-            SizedBox(
-              height: screenHeight*0.02,
-            ),
-
-            musicGenresChosen.isEmpty?
-            SizedBox(
+            // Tags to use
+            musicGenresOffer.isEmpty?
+            Container(
               height: screenHeight*0.05,
               child: Center(
                 child: Text(
-                    "Noch keine Genres ausgewählt.",
-                    style: customTextStyle.size4()
+                  "Keine Genres mehr verfügbar.",
+                  style: customTextStyle.size4Bold(),
                 ),
               ),
-            ):Container(
-              padding: EdgeInsets.only(
-                  left: screenWidth*0.1
-              ),
-              width: screenWidth,
+            ):SizedBox(
+              width: screenWidth*0.9,
               child: Wrap(
                 direction: Axis.horizontal,
-                children: musicGenresChosen.map((item){
+                children: musicGenresOffer.map((item){
                   return Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -506,22 +1763,24 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                                   color: Colors.black54,
                                   spreadRadius: 1,
                                   blurRadius: 7,
-                                  offset: Offset(3, 3), // changes position of shadow
+                                  offset: Offset(3, 3),
                                 ),
                               ],
                             ),
                             child: Text(
-                                item,
-                                style: customTextStyle.size6Bold()
+                              item,
+                              style: customTextStyle.size6Bold(),
                             ),
                           ),
                           onTap: (){
                             setState(() {
-                              // if(musicGenresToCompare.contains(item)){
-                              //   // musicGenresOffer.add(item);
-                              // }
-                              musicGenresChosen.remove(item);
-                              // eventMusicGenresString.replaceFirst("$item,", "");
+                              musicGenresOffer.remove(item);
+                              musicGenresChosen.add(item);
+                              if(eventMusicGenresString.isEmpty){
+                                eventMusicGenresString = "$item,";
+                              }else{
+                                eventMusicGenresString = "${eventMusicGenresString},$item,";
+                              }
                             });
                           },
                         ),
@@ -532,11 +1791,127 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
               ),
             ),
 
+            // Spacer
+            SizedBox(
+              height: screenHeight*0.02,
+            ),
+
+            // Chosen
+            Container(
+              width: screenWidth,
+              padding: const EdgeInsets.only(
+                // left: screenWidth*0.05,
+                // top: screenHeight*0.03
+              ),
+              child: Text(
+                "Ausgewählt",
+                textAlign: TextAlign.center,
+                style: customTextStyle.size2Bold(),
+              ),
+            ),
+
+            // Spacer
+            SizedBox(
+              height: screenHeight*0.02,
+            ),
+
+            // Chosen tags
+            musicGenresChosen.isEmpty?
+            SizedBox(
+              height: screenHeight*0.05,
+              child: Center(
+                child: Text(
+                  "Noch keine Genres ausgewählt.",
+                  style: customTextStyle.size4Bold(),
+                ),
+              ),
+            ):SizedBox(
+              width: screenWidth*0.9,
+              child: Wrap(
+                direction: Axis.horizontal,
+                children: musicGenresChosen.map((item){
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            vertical: screenHeight*0.01,
+                            horizontal: screenWidth*0.01
+                        ),
+                        child: GestureDetector(
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: screenWidth*0.035,
+                                vertical: screenHeight*0.02
+                            ),
+                            decoration:  BoxDecoration(
+                              borderRadius: const BorderRadius.all(
+                                  Radius.circular(10)
+                              ),
+                              gradient: LinearGradient(
+                                  colors: [
+                                    customTextStyle.primeColorDark,
+                                    customTextStyle.primeColor,
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  stops: const [0.2, 0.9]
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black54,
+                                  spreadRadius: 1,
+                                  blurRadius: 7,
+                                  offset: Offset(3, 3), // changes position of shadow
+                                ),
+                              ],
+                            ),
+                            child: Text(
+                              item,
+                              style: customTextStyle.size6Bold(),
+                            ),
+                          ),
+                          onTap: (){
+                            setState(() {
+                              if(musicGenresToCompare.contains(item)){
+                                musicGenresOffer.add(item);
+                              }
+                              musicGenresChosen.remove(item);
+                              eventMusicGenresString.replaceFirst("$item,", "");
+                            });
+                          },
+                        ),
+                      )
+                    ],
+                  );
+                }).toList(),
+              ),
+            ),
+
+            // Spacer
+            SizedBox(
+              height: screenHeight*0.02,
+            ),
+
+            // Own Genre
+            Container(
+              width: screenWidth,
+              padding: EdgeInsets.only(
+                // left: screenWidth*0.05,
+                  top: screenHeight*0.01,
+                  bottom: screenHeight*0.01
+              ),
+              child: Text(
+                "Eigene Genres hinzufügen",
+                textAlign: TextAlign.center,
+                style: customTextStyle.size2Bold(),
+              ),
+            ),
+
             // Textfield + icon
             Container(
                 padding: EdgeInsets.only(
-                    bottom: screenHeight*0.025,
-                  left: screenWidth*0.02
+                    bottom: screenHeight*0.025
                 ),
                 width: screenWidth*0.85,
                 child: Row(
@@ -563,7 +1938,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                       child: IconButton(
                           onPressed: (){
                             setState(() {
-                              musicGenresChosen.add(_eventMusicGenresController.text);
+                              musicGenresChosen.add("${_eventMusicGenresController.text}");
                               _eventMusicGenresController.text = "";
                               FocusScope.of(context).unfocus();
                             });
@@ -581,110 +1956,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
 
             // Spacer
             SizedBox(
-              height: screenHeight*0.02,
-            ),
-
-            // Price text
-            SizedBox(
-              width: screenWidth*0.8,
-              child:Text(
-                  "Preis",
-                  textAlign: TextAlign.left,
-                  style:customTextStyle.size2()
-              ),
-            ),
-
-            // White line
-            Divider(
-              height:10,
-              thickness: 1,
-              color: Colors.white,
-              indent: screenWidth*0.1,
-              endIndent: screenWidth*0.8,
-            ),
-
-            // Spacer
-            SizedBox(
-              height: screenHeight*0.03,
-            ),
-
-            // Textfield price
-            SizedBox(
-              width: screenWidth*0.8,
-              child: TextField(
-                  controller: _eventPriceController,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                    signed: false,
-                  ),
-                  inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.allow(RegExp(r'[.0-9]')),
-                    TextInputFormatter.withFunction((oldValue, newValue) {
-                      final text = newValue.text;
-                      return text.isEmpty
-                          ? newValue
-                          : double.tryParse(text) == null
-                          ? oldValue
-                          : newValue;
-                    }),
-                  ], //
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    label: Text("Eintrittspreis"),
-                  ),
-                  maxLength: 6,
-                  style: customTextStyle.sizeNumberFieldItem()
-              ),
-            ),
-
-            // Spacer
-            SizedBox(
-              height: screenHeight*0.04,
-            ),
-
-            // Text description
-            SizedBox(
-              width: screenWidth*0.8,
-              child:Text(
-                  "Beschreibung",
-                  textAlign: TextAlign.left,
-                  style: customTextStyle.size2()
-              ),
-            ),
-
-            // White line
-            Divider(
-              height:10,
-              thickness: 1,
-              color: Colors.white,
-              indent: screenWidth*0.1,
-              endIndent: screenWidth*0.8,
-            ),
-
-            // Spacer
-            SizedBox(
-              height: screenHeight*0.05,
-            ),
-
-            // Textfield description
-            SizedBox(
-              width: screenWidth*0.8,
-              child: TextField(
-                  controller: _eventDescriptionController,
-                  keyboardType:  TextInputType.multiline,
-                  maxLines: null,
-                  decoration: const InputDecoration(
-                      hintText: "z.B. Latino night",
-                      border: OutlineInputBorder()
-                  ),
-                  maxLength: 300,
-                  style: customTextStyle.size4()
-              ),
-            ),
-
-            // Spacer
-            SizedBox(
-              height: screenHeight*0.2,
+              height: screenHeight*0.1,
             )
 
           ],
@@ -692,27 +1964,37 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
       ),
     );
   }
-  AlertDialog _buildErrorDialog(){
-    return const AlertDialog(
-      title: Text("Fehler aufgetreten"),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-
-          // Question text
-          Text(
-            "Verzeihung, es ist ein Fehler aufgetreten.",
-            textAlign: TextAlign.left,
-          ),
-        ],
-      ),
-    );
-  }
-
 
   // MISC
   void leavePage(){
-    Navigator.pop(context);
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context){
+          return AlertDialog(
+              title: const Text("Abbrechen"),
+              content: const Text("Bist du sicher, dass du abbrechen möchtest?"),
+              actions: [
+
+                TextButton(
+                  child: const Text("Zurück"),
+                  onPressed: (){
+                    Navigator.of(context).pop();
+                  },
+                ),
+
+                TextButton(
+                  child: const Text("Ja"),
+                  onPressed: (){
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                  },
+                ),
+
+              ]
+          );
+        }
+    );
   }
   void processGenres(){
 
@@ -808,7 +2090,9 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
         clubId: stateProvider.clubMeEvent.getClubId(),
 
       eventMarketingFileName: "",
-      eventMarketingCreatedAt: null
+      eventMarketingCreatedAt: null,
+
+      priorityScore: stateProvider.clubMeEvent.getPriorityScore()
     );
 
     setState(() {
@@ -858,7 +2142,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
 
     return Scaffold(
       appBar: _buildAppBar(),
-      body: _buildMainView(),
+      body: genreScreenActive ?  _buildCheckForMusicGenres() :_buildMainView(),
       bottomNavigationBar: _buildNavBar(),
     );
   }

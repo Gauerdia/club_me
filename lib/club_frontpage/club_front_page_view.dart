@@ -29,7 +29,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
 
   List<ClubMeEvent> pastEvents = [];
   List<ClubMeEvent> upcomingEvents = [];
-  List<String> priceListString = ["Preisliste"];
+  List<String> priceListString = ["Angebote"];
   List<String> mehrEventsString = ["Mehr Events!", "Get more events"];
   List<String> mehrPhotosButtonString = ["Mehr Fotos!", "Explore more photos"];
   List<String> findOnMapsButtonString = ["Finde uns auf Maps!", "Find us on maps!"];

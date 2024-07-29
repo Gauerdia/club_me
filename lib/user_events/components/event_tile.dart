@@ -1,3 +1,5 @@
+import 'package:club_me/models/parser/club_me_club_parser.dart';
+import 'package:club_me/models/parser/club_me_event_parser.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
@@ -262,6 +264,23 @@ class EventTile extends StatelessWidget {
                     ),
                   ),
                 ),
+
+                clubMeEvent.getEventMarketingFileName().isNotEmpty ? Container(
+                  height: topHeight, //screenHeight*0.15,
+                  width: screenWidth,
+                  alignment: Alignment.topRight,
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                        topRight: Radius.circular(15),
+                        topLeft: Radius.circular(15)
+                    ),
+                    child: Image.asset(
+                      "assets/images/club_me_icon_round.png",
+                      scale: 15,
+                      // fit: BoxFit.cover,
+                    ),
+                  ),
+                ): Container(),
 
               ],
             )

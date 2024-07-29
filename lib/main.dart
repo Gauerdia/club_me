@@ -1,8 +1,9 @@
+import 'package:club_me/club_coupons/club_choose_discount_template_view.dart';
 import 'package:club_me/club_coupons/club_coupons_view.dart';
 import 'package:club_me/club_coupons/club_new_discount_view.dart';
 import 'package:club_me/club_coupons/club_past_discounts_view.dart';
 import 'package:club_me/club_coupons/club_upcoming_discounts_view.dart';
-import 'package:club_me/club_events/club_edit_event_view.dart';
+import 'package:club_me/club_events/club_choose_event_template_view.dart';
 import 'package:club_me/club_events/club_events_view.dart';
 import 'package:club_me/club_events/club_new_event_view.dart';
 import 'package:club_me/club_events/club_past_events_view.dart';
@@ -11,9 +12,11 @@ import 'package:club_me/club_frontpage/club_front_page_view.dart';
 import 'package:club_me/club_frontpage/components/update_contact_view.dart';
 import 'package:club_me/club_frontpage/components/update_news_view.dart';
 import 'package:club_me/club_statistics/club_statistics_view.dart';
-import 'package:club_me/coming_soon/coming_son_view.dart';
 import 'package:club_me/log_in/log_in_view.dart';
+import 'package:club_me/models/club_me_discount_template.dart';
+import 'package:club_me/models/club_me_event_hive.dart';
 import 'package:club_me/models/club_me_user_data.dart';
+import 'package:club_me/models/event_template.dart';
 import 'package:club_me/profile/profile_view.dart';
 import 'package:club_me/provider/state_provider.dart';
 import 'package:club_me/register/register_view.dart';
@@ -46,6 +49,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -53,6 +57,9 @@ Future<void> main() async {
   // Set up Hive
   await Hive.initFlutter((await getApplicationDocumentsDirectory()).path);
   Hive.registerAdapter(ClubMeUserDataAdapter());
+  Hive.registerAdapter(EventTemplateAdapter());
+  Hive.registerAdapter(ClubMeEventHiveAdapter());
+  Hive.registerAdapter(ClubMeDiscountTemplateAdapter());
 
   // Used to make sure that coupons and user timezones match
   tz.initializeTimeZones();
@@ -89,7 +96,7 @@ final GoRouter _router = GoRouter(
     GoRoute(
       path: '/',
       builder: (BuildContext context, GoRouterState state) {
-        return ComingSoonView();//LogInView(); //Test();
+        return LogInView();//ComingSoonView();//LogInView(); //Test();
       },
     ),
 
@@ -236,6 +243,14 @@ final GoRouter _router = GoRouter(
         )
     ),
     GoRoute(
+        path: '/club_event_templates',
+        pageBuilder: (context, state) => buildPageWithoutTransition(
+            context: context,
+            state: state,
+            child: const ClubChooseEventTemplateView()
+        )
+    ),
+    GoRoute(
       path: '/club_upcoming_events',
       pageBuilder: (context, state) => buildPageWithoutTransition<void>(
         context: context,
@@ -259,6 +274,14 @@ final GoRouter _router = GoRouter(
             context: context,
             state: state,
             child: const ClubNewDiscountView()
+        )
+    ),
+    GoRoute(
+        path: '/club_discount_templates',
+        pageBuilder: (context, state) => buildPageWithoutTransition(
+            context: context,
+            state: state,
+            child: const ClubChooseDiscountTemplateView()
         )
     ),
     GoRoute(

@@ -46,6 +46,7 @@ dependencies:
   flutter_map: ^6.1.0
   flutter_map_marker_cluster: any
   latlong2: ^0.9.1
+  flutter_map_tile_caching: ^9.0.0
 
   qr_flutter: ^4.1.0
 
@@ -97,6 +98,10 @@ dependencies:
   no_screenshot: ^0.0.1+6
 
   mime: ^1.0.5
+
+  gradient_icon: ^2.0.9
+
+  video_thumbnail: ^0.5.3
 
   flutter_localizations:
     sdk: flutter

@@ -2,9 +2,12 @@ import 'dart:math';
 
 import 'package:camera/camera.dart';
 import 'package:club_me/models/club.dart';
+import 'package:club_me/models/club_me_discount_template.dart';
+import 'package:club_me/models/club_me_event_hive.dart';
 import 'package:club_me/models/club_me_user_data.dart';
 import 'package:club_me/models/discount.dart';
 import 'package:club_me/models/event.dart';
+import 'package:club_me/models/event_template.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -58,6 +61,9 @@ class StateProvider extends ChangeNotifier{
   List<String> likedEvents = [];
   List<String> likedDiscounts = [];
 
+  List<EventTemplate> eventTemplates = [];
+  List<ClubMeDiscountTemplate> discountTemplates = [];
+
   List<String> attendingEvents = [];
 
   int _pageIndex = 0;
@@ -66,6 +72,9 @@ class StateProvider extends ChangeNotifier{
   late ClubMeClub _currentClub;
   late ClubMeEvent _currentEvent;
   late ClubMeDiscount _currentDiscount;
+
+  ClubMeEventHive? clubMeEventHive;
+  ClubMeDiscountTemplate? currentDiscountTemplate;
 
 
   ClubMeClub get clubMeClub => _currentClub;
@@ -101,6 +110,45 @@ class StateProvider extends ChangeNotifier{
     return longCoord;
   }
 
+
+  void setDiscountTemplates(List<ClubMeDiscountTemplate> newClubMeDiscountTemplates){
+    discountTemplates = newClubMeDiscountTemplates;
+  }
+  List<ClubMeDiscountTemplate> getDiscountTemplates(){
+    return discountTemplates;
+  }
+
+  void setCurrentDiscountTemplate(ClubMeDiscountTemplate newClubMeDiscountTemplate){
+    currentDiscountTemplate = newClubMeDiscountTemplate;
+  }
+  void resetCurrentDiscountTemplate(){
+    currentDiscountTemplate = null;
+  }
+  ClubMeDiscountTemplate? getCurrentDiscountTemplate(){
+    return currentDiscountTemplate;
+  }
+
+
+  void setEventTemplates(List<EventTemplate> newEventTemplates){
+    eventTemplates = newEventTemplates;
+  }
+  List<EventTemplate> getEventTemplates(){
+    return eventTemplates;
+  }
+
+  void setClubMeEventHive(ClubMeEventHive newClubMeEventHive){
+    clubMeEventHive = newClubMeEventHive;
+  }
+  void resetClubMeEventHive(){
+    clubMeEventHive = null;
+  }
+  ClubMeEventHive? getClubMeEventHive(){
+    return clubMeEventHive;
+  }
+
+
+
+
   void setUserCoordinates(Position position){
     longCoord = position.longitude;
     latCoord = position.latitude;
@@ -108,6 +156,8 @@ class StateProvider extends ChangeNotifier{
     // print("SetPosition: $longCoord, $latCoord");
     // print("Distance:${Geolocator.distanceBetween(latCoord, longCoord, 48.7762112372841, 9.1740412843159)}");
   }
+
+
 
 
   // Unified text styles

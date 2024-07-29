@@ -1,9 +1,13 @@
-import 'package:club_me/shared/custom_bottom_navigation_bar_clubs.dart';
-import 'package:club_me/shared/map_utils.dart';
+import 'dart:io';
+import 'dart:typed_data';
+import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mime/mime.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:video_player/video_player.dart';
 import '../provider/state_provider.dart';
 import '../services/hive_service.dart';
 import '../services/supabase_service.dart';
@@ -26,8 +30,11 @@ class _EventDetailViewState extends State<EventDetailView>{
   final HiveService _hiveService = HiveService();
   final SupabaseService _supabaseService = SupabaseService();
 
+  late Future getEventContent;
+
   bool isUploading = false;
   bool isDateSelected = false;
+  bool isContentShown = false;
   String priceFormatted = "";
 
   late StateProvider stateProvider;
@@ -35,11 +42,43 @@ class _EventDetailViewState extends State<EventDetailView>{
   late double screenHeight, screenWidth;
   late String formattedEventTitle, formattedDjName, formattedEventGenres, formattedEventPrice, formattedWeekday;
 
+  late File file;
+  bool isImage = false;
+  bool isVideo = false;
+  String fileExtension = "";
+
+  String? VIDEO_ON;
+  ChewieController? _chewieController;
+  late VideoPlayerController _controller;
+
+  @override
+  void initState(){
+
+    super.initState();
+    stateProvider = Provider.of<StateProvider>(context, listen:  false);
+    prepareContent();
+    // getEventContent = _supabaseService.getEventContent(stateProvider.clubMeEvent.getEventMarketingFileName());
+  }
+
   @override
   void dispose() {
+    _controller.dispose();
+    _chewieController!.dispose();
+    _chewieController!.setVolume(0.0);
+
     super.dispose();
   }
 
+  _createChewieController() {
+    _chewieController = ChewieController(
+      videoPlayerController: _controller,
+      looping: true,
+      autoPlay: true,
+      showOptions: true,
+      autoInitialize: true,
+      allowFullScreen: true,
+    );
+  }
 
   // CLICK HANDLING
   void clickOnInfo(){
@@ -86,7 +125,11 @@ class _EventDetailViewState extends State<EventDetailView>{
       }
     }
   }
-
+  void clickedOnContent(){
+    setState(() {
+      isContentShown = !isContentShown;
+    });
+  }
 
   // ABSTRACT FUNCTIONS
   void leavePage(StateProvider stateProvider){
@@ -128,7 +171,6 @@ class _EventDetailViewState extends State<EventDetailView>{
     stateProvider.updateCurrentEvent(index, newValue);
     Navigator.pop(context);
   }
-
 
   // FORMAT AND CROP
   void formatPrice(){
@@ -515,81 +557,237 @@ class _EventDetailViewState extends State<EventDetailView>{
             padding: const EdgeInsets.all(20),
             // height: screenHeight*0.4,
             width: screenWidth,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
+            child: Stack(
+              children: [
+                SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
 
-                  // Description headline
-                  GestureDetector(
-                    child: Align(
-                      alignment: Alignment.topLeft,
-                      child: Text(
-                        "Beschreibung",
-                        style: customTextStyle.size3Bold(),
-                      ),
-                    ),
-                    onTap: (){
-                    },
-                  ),
-
-                  // Description content
-                  GestureDetector(
-                    child: Align(
-                        alignment: Alignment.topLeft,
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                              vertical: screenHeight*0.02
-                          ),
+                      // Description headline
+                      GestureDetector(
+                        child: Align(
+                          alignment: Alignment.topLeft,
                           child: Text(
-                            stateProvider.clubMeEvent.getEventDescription(),
-                            style: customTextStyle.size4(),
+                            "Beschreibung",
+                            style: customTextStyle.size3Bold(),
                           ),
-                        )
-                    ),
-                    onTap: (){
-                    },
-                  ),
-
-                  // Headline genres
-                  GestureDetector(
-                    child: Align(
-                      alignment: Alignment.topLeft,
-                      child: Text(
-                        "Musikrichtungen",
-                        style: customTextStyle.size3Bold(),
-                      ),
-                    ),
-                    onTap: (){
-                    },
-                  ),
-
-                  // Text
-                  GestureDetector(
-                    child: Align(
-                      alignment: Alignment.topLeft,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                            vertical: screenHeight*0.02
                         ),
-                        child: Text(
-                          formattedEventGenres,
-                          style: customTextStyle.size4(),
+                        onTap: (){
+                        },
+                      ),
+
+                      // Description content
+                      GestureDetector(
+                        child: Align(
+                            alignment: Alignment.topLeft,
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: screenHeight*0.02
+                              ),
+                              child: Text(
+                                stateProvider.clubMeEvent.getEventDescription(),
+                                style: customTextStyle.size4(),
+                              ),
+                            )
+                        ),
+                        onTap: (){
+                        },
+                      ),
+
+                      // Headline genres
+                      GestureDetector(
+                        child: Align(
+                          alignment: Alignment.topLeft,
+                          child: Text(
+                            "Musikrichtungen",
+                            style: customTextStyle.size3Bold(),
+                          ),
+                        ),
+                        onTap: (){
+                        },
+                      ),
+
+                      // Genres
+                      GestureDetector(
+                        child: Align(
+                          alignment: Alignment.topLeft,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                                vertical: screenHeight*0.02
+                            ),
+                            child: Text(
+                              formattedEventGenres,
+                              style: customTextStyle.size4(),
+                            ),
+                          ),
+                        ),
+                        onTap: (){
+                        },
+                      )
+
+                    ],
+                  ),
+                ),
+
+                stateProvider.clubMeEvent.getEventMarketingFileName().isNotEmpty ?
+                    GestureDetector(
+                      child: Container(
+                        height: screenHeight*0.32,
+                        width: screenWidth,
+                        alignment: Alignment.bottomRight,
+                        child: ClipRRect(
+                          borderRadius: const BorderRadius.only(
+                              topRight: Radius.circular(15),
+                              topLeft: Radius.circular(15)
+                          ),
+                          child: Image.asset(
+                            "assets/images/club_me_icon_round.png",
+                            scale: 15,
+                            // fit: BoxFit.cover,
+                          ),
                         ),
                       ),
-                    ),
-                    onTap: (){
-                    },
-                  )
+                      onTap: () => clickedOnContent(),
+                    )
+                    : Container(),
 
-                ],
-              ),
+              ],
             )
         ),
       ],
     );
   }
 
+  Future<void> prepareContent() async{
+
+    late String filePath;
+    late Uint8List? videoFile;
+    try{
+
+      videoFile = await _supabaseService.getEventContent(stateProvider.clubMeEvent.getEventMarketingFileName());
+
+      Directory tempDir = await getTemporaryDirectory();
+      String tempPath = tempDir.path;
+      filePath = '$tempPath/${stateProvider.clubMeEvent.getEventMarketingFileName()}';
+
+      file = await File(filePath).writeAsBytes(videoFile!);
+
+      // PlatformFile pFile = result.files.first;
+      String mimeStr = lookupMimeType(file!.path)!;
+      var fileType = mimeStr.split("/");
+
+      if(fileType.contains('image')){
+        print("is image");
+        isImage = true;
+      }else if(fileType.contains('video')){
+        _controller = VideoPlayerController.file(file!);
+        await _controller.initialize();
+        _createChewieController();
+        isVideo = true;
+        print("is video");
+      }
+
+    }catch(e){
+      print("prepareContent:" + e.toString());
+    }
+
+
+  }
+
+  Widget _buildContentView(){
+    return Container(
+      width: screenWidth,
+      height: screenHeight,
+      child: (isImage || isVideo) ? isImage ?
+      Stack(
+        alignment: Alignment.center,
+        children: [
+          Image.file(file!),
+
+          GestureDetector(
+            child: Container(
+              height: screenHeight*0.77,
+              width: screenWidth*0.902,
+              alignment: Alignment.bottomRight,
+              child: ClipRRect(
+                borderRadius: const BorderRadius.only(
+                    topRight: Radius.circular(15),
+                    topLeft: Radius.circular(15)
+                ),
+                child: Image.asset(
+                  "assets/images/club_me_icon_round.png",
+                  scale: 15,
+                  // fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            onTap: () => clickedOnContent(),
+          )
+
+        ],
+      ) :
+      Stack(
+        children: [
+
+          // Video container
+          Container(
+            width: screenWidth,
+            height: screenHeight*0.85,
+            child: _chewieController != null &&
+                _chewieController!
+                    .videoPlayerController.value.isInitialized
+                ? SizedBox(
+              width: screenWidth,
+              height: screenHeight*0.97,
+              child: Chewie(
+                controller: _chewieController!,
+              ),
+            ) :
+            SizedBox(
+              width: screenWidth,
+              height: screenHeight,
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+          ),
+
+          GestureDetector(
+            child: Container(
+              height: screenHeight*0.885,
+              width: screenWidth*0.95,
+              alignment: Alignment.bottomRight,
+              child: ClipRRect(
+                borderRadius: const BorderRadius.only(
+                    topRight: Radius.circular(15),
+                    topLeft: Radius.circular(15)
+                ),
+                child: Image.asset(
+                  "assets/images/club_me_icon_round.png",
+                  scale: 15,
+                  // fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            onTap: () => clickedOnContent(),
+          )
+
+          // ButtonRow
+/*          Container(
+            width: screenWidth,
+            height: screenHeight,
+            alignment: Alignment.bottomCenter,
+            padding: const EdgeInsets.only(bottom: 20),
+            child: _buildButtonRow(),
+          )*/
+        ],
+      ) :
+      const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -615,8 +813,8 @@ class _EventDetailViewState extends State<EventDetailView>{
 
 
       appBar: _buildAppBar(),
-      body: _buildMainColumn(),
-      bottomNavigationBar: stateProvider.clubUIActive ? CustomBottomNavigationBarClubs() : CustomBottomNavigationBar(),
+      body: isContentShown? _buildContentView(): _buildMainColumn(),
+      bottomNavigationBar: CustomBottomNavigationBar(),
     );
   }
 

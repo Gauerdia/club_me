@@ -1,5 +1,6 @@
 import 'package:club_me/models/discount.dart';
 import 'package:club_me/models/parser/club_me_discount_parser.dart';
+import 'package:club_me/services/hive_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -33,6 +34,7 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
   double newDiscountContainerHeightFactor = 0.2;
 
   final SupabaseService _supabaseService = SupabaseService();
+  final HiveService _hiveService = HiveService();
 
   @override
   void initState(){
@@ -389,6 +391,55 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
                     ),
                   ),
                 ),
+
+                // 'From template' button
+                stateProvider.getDiscountTemplates().isNotEmpty ?
+                Padding(
+                  padding: EdgeInsets.only(
+                    top:screenHeight*0.015,
+                    right: 7,
+                    bottom: 7,
+                  ),
+                  child: Align(
+                    child: GestureDetector(
+                      child: Container(
+                          width: screenWidth*0.8,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                                colors: [
+                                  customTextStyle.primeColorDark,
+                                  customTextStyle.primeColor,
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                stops: const [0.2, 0.9]
+                            ),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black54,
+                                spreadRadius: 1,
+                                blurRadius: 7,
+                                offset: Offset(3, 3), // changes position of shadow
+                              ),
+                            ],
+                            borderRadius: const BorderRadius.all(
+                                Radius.circular(10)
+                            ),
+                          ),
+                          padding: const EdgeInsets.all(18),
+                          child: Center(
+                            child: Text(
+                              "Coupon aus Vorlage erstellen!",
+                              style: customTextStyle.size4Bold(),
+                            ),
+                          )
+                      ),
+                      onTap: (){
+                        context.push("/club_discount_templates");
+                      },
+                    ),
+                  ),
+                ):Container(),
               ],
             ),
           ),
@@ -921,11 +972,24 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
     context.go("/club_upcoming_discounts");
   }
 
-
   // MISC FCTS
   void editDiscount(StateProvider stateProvider){
     stateProvider.setCurrentDiscount(upcomingDiscounts[0]);
     context.push("/discount_details");
+  }
+
+  void getAllDiscountTemplates(StateProvider stateProvider) async{
+    try{
+      var discountTemplates = await _hiveService.getAllDiscountTemplates();
+      stateProvider.setDiscountTemplates(discountTemplates);
+      if(discountTemplates.isNotEmpty){
+        setState(() {
+          newDiscountContainerHeightFactor = 0.3;
+        });
+      }
+    }catch(e){
+      _supabaseService.createErrorLog("getAllDiscountTemplates: $e");
+    }
   }
 
   @override
@@ -937,6 +1001,12 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
     screenHeight = MediaQuery.of(context).size.height;
 
     checkIfFilteringIsNecessary();
+
+    if(stateProvider.getDiscountTemplates().isEmpty){
+      getAllDiscountTemplates(stateProvider);
+    }else{
+      newDiscountContainerHeightFactor = 0.3;
+    }
 
     return Scaffold(
 

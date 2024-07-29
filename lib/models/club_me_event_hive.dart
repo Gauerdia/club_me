@@ -1,55 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+part 'club_me_event_hive.g.dart';
 
-class ClubMeEvent{
+@HiveType(typeId:  2)
+class ClubMeEventHive{
 
-  ClubMeEvent({
-    required this.eventId,
+  ClubMeEventHive({
     required this.eventTitle,
-    required this.clubName,
     required this.djName,
     required this.eventDate,
     required this.eventPrice,
-    required this.bannerId,
     required this.eventDescription,
     required this.musicGenres,
-    required this.clubId,
-    required this.eventMarketingFileName,
-    required this.eventMarketingCreatedAt,
-    required this.priorityScore
   });
 
-  String eventId;
-  String clubId;
-
-  String clubName;
+  @HiveField(0)
   String djName;
-
+  @HiveField(1)
   String eventTitle;
+  @HiveField(2)
   double eventPrice;
-
+  @HiveField(3)
   DateTime eventDate;
+  @HiveField(4)
   String eventDescription;
-
-  String bannerId;
+  @HiveField(5)
   String musicGenres;
 
-  String eventMarketingFileName;
-  DateTime? eventMarketingCreatedAt;
-
-  double priorityScore;
-
-  // howManyAreIn
-
-  double getPriorityScore(){
-    return priorityScore;
-  }
-
-  String getEventMarketingFileName(){
-    return eventMarketingFileName;
-  }
-  DateTime? getEventMarketingCreatedAt(){
-    return eventMarketingCreatedAt;
-  }
 
   void setEventTitle(String newValue){
     eventTitle = newValue;
@@ -71,33 +48,22 @@ class ClubMeEvent{
   }
 
 
-  String getEventId(){
-    return eventId;
-  }
-
   String getMusicGenres(){
     return musicGenres;
   }
 
-  String getClubId(){
-    return clubId;
-  }
 
   String getEventTitle(){
     return eventTitle;
   }
-  String getClubName(){
-    return clubName;
-  }
+
   String getDjName(){
     return djName;
   }
   DateTime getEventDate(){
     return eventDate;
   }
-  String getBannerId(){
-    return bannerId;
-  }
+
   double getEventPrice(){
     return eventPrice;
   }

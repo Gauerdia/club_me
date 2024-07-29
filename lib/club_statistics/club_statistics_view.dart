@@ -945,8 +945,31 @@ class _ClubStatisticsViewState extends State<ClubStatisticsView> {
                 child: Column(
                     children: [
 
+                      // Spacer
                       SizedBox(
                         height: screenHeight*0.025,
+                      ),
+
+                      Container(
+                        height: screenHeight*0.12,
+                        decoration: BoxDecoration(
+                            color: Colors.red,
+                          border: Border.all(
+                            color: Colors.grey
+                          )
+                        ),
+                        child: Center(
+                          child: Text(
+                            "Hinweis: Die hier dargestellten Statistiken sind nur beispielhaft."
+                                "Eine funktionierende Auswertung folgt in einem zukünftigen Update.",
+                            textAlign: TextAlign.center,
+                            style: customTextStyle.getFontStyle3Bold(),
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(
+                        height: screenHeight*0.01,
                       ),
 
                       // Demographie headline

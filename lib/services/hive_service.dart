@@ -1,3 +1,5 @@
+import 'package:club_me/models/club_me_discount_template.dart';
+import 'package:club_me/models/event_template.dart';
 import 'package:hive/hive.dart';
 import '../models/club_me_user_data.dart';
 
@@ -8,6 +10,9 @@ class HiveService{
   final String _clubMeFavoriteDiscountsBoxName = "clubMeFavoriteDiscountsBox";
   final String _clubMeAttendingEventsName = "clubMeAttendingEventsBox";
 
+  final String _clubMeEventTemplatesName = "clubMeEventTemplateBox";
+  final String _clubMeDiscountTemplatesName = "clubMeDiscountTemplatesBox";
+
   final String _clubMeUserDataBoxName = "clubMeUserDataBox";
 
   Future<Box<String>> get _clubMeEventBox async => await Hive.openBox<String>(_clubMeFavoriteEventsBoxName);
@@ -15,7 +20,27 @@ class HiveService{
   Future<Box<String>> get _clubMeDiscountBox async => await Hive.openBox<String>(_clubMeFavoriteDiscountsBoxName);
   Future<Box<String>> get _clubMeAttendingEventsBox async => await Hive.openBox<String>(_clubMeAttendingEventsName);
   Future<Box<ClubMeUserData>> get _clubMeUserClubBox async => await Hive.openBox<ClubMeUserData>(_clubMeUserDataBoxName);
+  Future<Box<EventTemplate>> get _clubMeEventTemplatesBox async => await Hive.openBox<EventTemplate>(_clubMeEventTemplatesName);
+  Future<Box<ClubMeDiscountTemplate>> get _clubMeDiscountTemplatesBox async => await Hive.openBox<ClubMeDiscountTemplate>(_clubMeDiscountTemplatesName);
 
+  Future<void> addDiscountTemplate(ClubMeDiscountTemplate discountTemplate) async {
+    var box = await _clubMeDiscountTemplatesBox;
+    await box.add(discountTemplate);
+  }
+  Future<List<ClubMeDiscountTemplate>> getAllDiscountTemplates() async {
+    var box = await _clubMeDiscountTemplatesBox;
+    return box.values.toList();
+  }
+
+  // Event template
+  Future<void> addEventTemplate(EventTemplate eventTemplate) async {
+    var box = await _clubMeEventTemplatesBox;
+    await box.add(eventTemplate);
+  }
+  Future<List<EventTemplate>> getAllEventTemplates() async {
+    var box = await _clubMeEventTemplatesBox;
+    return box.values.toList();
+  }
 
   // USER DATA
   Future<List<ClubMeUserData>> getUserData() async{

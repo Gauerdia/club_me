@@ -64,6 +64,7 @@ class _ClubEventsViewState extends State<ClubEventsView> {
           print("Futurebuilder: fetchedEvents isEmpty");
 
           if(snapshot.hasError){
+            /// TODO: ALL errors in db
             print("Error: ${snapshot.error}");
           }
 
@@ -315,6 +316,55 @@ class _ClubEventsViewState extends State<ClubEventsView> {
                         ),
                       ),
                     ),
+
+                    // 'From template' button
+                    stateProvider.getEventTemplates().isNotEmpty ?
+                    Padding(
+                      padding: EdgeInsets.only(
+                        top:screenHeight*0.015,
+                        right: 7,
+                        bottom: 7,
+                      ),
+                      child: Align(
+                        child: GestureDetector(
+                          child: Container(
+                              width: screenWidth*0.8,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                    colors: [
+                                      customTextStyle.primeColorDark,
+                                      customTextStyle.primeColor,
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    stops: const [0.2, 0.9]
+                                ),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Colors.black54,
+                                    spreadRadius: 1,
+                                    blurRadius: 7,
+                                    offset: Offset(3, 3), // changes position of shadow
+                                  ),
+                                ],
+                                borderRadius: const BorderRadius.all(
+                                    Radius.circular(10)
+                                ),
+                              ),
+                              padding: const EdgeInsets.all(18),
+                              child: Center(
+                                child: Text(
+                                  "Event aus Vorlage erstellen!",
+                                  style: customTextStyle.size4Bold(),
+                                ),
+                              )
+                          ),
+                          onTap: (){
+                            context.push("/club_event_templates");
+                          },
+                        ),
+                      ),
+                    ):Container(),
                   ],
                 ),
               ),
@@ -869,6 +919,20 @@ class _ClubEventsViewState extends State<ClubEventsView> {
     }
   }
 
+  void getAllEventTemplates(StateProvider stateProvider) async{
+    try{
+      var eventTemplates = await _hiveService.getAllEventTemplates();
+      stateProvider.setEventTemplates(eventTemplates);
+      if(eventTemplates.isNotEmpty){
+        setState(() {
+          newDiscountContainerHeightFactor = 0.3;
+        });
+      }
+    }catch(e){
+      _supabaseService.createErrorLog("getAllEventTemplates: $e");
+    }
+  }
+
   // CLICK
   void clickOnEditEvent(){
     stateProvider.setCurrentEvent(upcomingEvents[0]);
@@ -926,6 +990,12 @@ class _ClubEventsViewState extends State<ClubEventsView> {
     }
     if(upcomingEvents.isNotEmpty && !identical(upcomingEvents[0], stateProvider.getFetchedEvents().where((element) => element.getEventId() == upcomingEvents[0].getEventId()))){
       filterEventsFromProvider(stateProvider);
+    }
+
+    if(stateProvider.getEventTemplates().isEmpty){
+      getAllEventTemplates(stateProvider);
+    }else{
+      newDiscountContainerHeightFactor = 0.3;
     }
 
     return Scaffold(

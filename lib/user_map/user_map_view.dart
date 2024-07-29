@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/parser/club_me_club_parser.dart';
 import '../provider/state_provider.dart';
@@ -14,6 +15,9 @@ import '../services/supabase_service.dart';
 import '../shared/custom_text_style.dart';
 import 'components/club_info_bottom_sheet.dart';
 import 'components/club_list_item.dart';
+
+
+import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
 
 class UserMapView extends StatefulWidget {
   const UserMapView({Key? key}) : super(key: key);
@@ -26,7 +30,7 @@ class _UserMapViewState extends State<UserMapView> {
 
   String headline = "Finde deinen Club";
 
-  late Future getClubs;
+  late Future<PostgrestList> getClubs;
   late StateProvider stateProvider;
   late CustomTextStyle customTextStyle;
   late ClubMeEvent clubMeEventToDisplay;
@@ -118,7 +122,17 @@ class _UserMapViewState extends State<UserMapView> {
               isClubsFetched = true;
 
               // The map
-              return Container();
+              return Container(
+                child: Column(
+                  children: [
+                    Container(
+                      height: screenHeight*0.8,
+                      width: screenWidth,
+                      child: _buildFlutterMap(),
+                    )
+                  ],
+                ),
+              );
             }
           }
       );
@@ -132,7 +146,15 @@ class _UserMapViewState extends State<UserMapView> {
 
       isClubsFetched = true;
 
-      return Container();
+      return Column(
+        children: [
+          SizedBox(
+            height: screenHeight*0.8,
+            width: screenWidth,
+            child: _buildFlutterMap(),
+          )
+        ],
+      );
     }
   }
   Widget _buildFlutterMap(){
@@ -166,8 +188,28 @@ class _UserMapViewState extends State<UserMapView> {
                       rotate: true,
                       height: 50,
                       child: GestureDetector(
-                        child: const Image(
-                          image: AssetImage("assets/images/pin1.png"),
+                        child: Stack(
+                          children: [
+                            const Image(
+                              image: AssetImage("assets/images/pin1.png"),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(
+                                bottom: screenHeight*0.015
+                              ),
+                              child: Center(
+                                child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(45),
+                                    child: Image.asset(
+                                        scale: 0.1,
+                                        width: screenWidth*0.07,
+                                        "assets/images/${club.getBannerId()}",
+                                        fit: BoxFit.cover
+                                    )
+                                ),
+                              ),
+                            )
+                          ],
                         ),
                         onTap: (){
 
@@ -251,7 +293,7 @@ class _UserMapViewState extends State<UserMapView> {
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
 
-    if(isClubsFetched! && stateProvider.getFetchedClubs().isNotEmpty) {
+    if(isClubsFetched == false && stateProvider.getFetchedClubs().isNotEmpty) {
       isClubsFetched = true;
     }
 
@@ -294,15 +336,7 @@ class _UserMapViewState extends State<UserMapView> {
                 child: Stack(
                   children: [
 
-                    isClubsFetched ?
-                      Container() :
                       fetchClubsFromDbAndBuildWidget(screenHeight, screenWidth),
-
-                    // build map
-                    /// The loading icon that doesnt stop
-                    isClubsFetched ?
-                      _buildFlutterMap() :
-                      const CircularProgressIndicator(),
 
                     // transparent layer to click out of bottom sheet
                     showBottomSheet?

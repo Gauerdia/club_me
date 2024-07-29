@@ -68,6 +68,9 @@ class SupabaseService{
         "banner_id" : stateProvider.userClub.getEventBannerId(),
         "music_genres" : clubMeEvent.getMusicGenres(),
 
+        "event_marketing_file_name": clubMeEvent.getEventMarketingFileName(),
+        "event_marketing_created_at": DateTime.now().toString()
+
       });
       log.d("insertEvent: Finished successfully. Response: $data");
       return 0;
@@ -287,6 +290,23 @@ class SupabaseService{
     }
   }
 
+  void addContentPathToEvent(String eventId, String fileName) async {
+    try{
+      var data = await supabase
+          .from('club_me_events')
+          .update({
+        'event_marketing_file_name' : fileName,
+        'event_marketing_created_at' : DateTime.now().toString()
+      }).match({
+        'event_id': eventId
+      });
+      log.d("addContentPathToEvent: Finished successfully. Response: $data");
+    }catch(e){
+      log.d("Error in addContentPathToEvent: $e");
+      createErrorLog(e.toString());
+    }
+  }
+
   void addEventMarketingToEvent(String eventId, String fileName, StateProvider stateProvider) async {
 
     try{
@@ -381,7 +401,10 @@ class SupabaseService{
         'how_often_redeemed':clubMeDiscount.getHowOftenRedeemed(),
         'has_usage_limit': clubMeDiscount.getHasUsageLimit(),
         'has_time_limit': clubMeDiscount.getHasTimeLimit(),
-        'discount_description': clubMeDiscount.getDiscountDescription()
+        'discount_description': clubMeDiscount.getDiscountDescription(),
+        'target_gender': clubMeDiscount.getTargetGender(),
+        'target_age': clubMeDiscount.getTargetAge(),
+        'target_age_is_upper_limit': clubMeDiscount.getTargetAgeIsUpperLimit()
       }).select();
       log.d("insertDiscount: Finished successfully. Response: $data");
       return 0;
@@ -511,6 +534,23 @@ class SupabaseService{
     }
   }
 
+  Future<int> uploadEventContent(var content, String fileName, String eventId) async {
+    try{
+      var data = await supabase.storage.from('club_me_stories').upload(
+        'event_content/$fileName',
+        content,
+        fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
+      );
+      addContentPathToEvent(eventId, fileName);
+      log.d("uploadEventContent: Finished successfully. Response: $data");
+      return 0;
+    }catch(e){
+      log.d("Error in uploadEventContent: $e");
+      createErrorLog(e.toString());
+      return 1;
+    }
+  }
+
   Future<int> insertClubVideo(var video, String uuid, String clubId, StateProvider stateProvider) async {
     try{
       var data = await supabase.storage.from('club_me_stories').upload(
@@ -537,7 +577,7 @@ class SupabaseService{
         content,
         fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
       );
-      addEventMarketingToEvent(eventId, fileName, stateProvider);
+      // addEventMarketingToEvent(eventId, fileName, stateProvider);
       log.d("insertEventContent: Finished successfully. Response: $data");
       return 0;
     }catch(e){
