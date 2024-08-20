@@ -111,6 +111,9 @@ dependencies:
 flutter_localizations:
   sdk: flutter
 
+dependency_overrides:
+  win32: ^5.5.4
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
