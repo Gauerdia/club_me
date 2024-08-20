@@ -9,8 +9,8 @@ import 'package:provider/provider.dart';
 
 import '../../models/club.dart';
 import '../../shared/custom_text_style.dart';
-import '../../shared/show_story.dart';
-import '../../shared/show_story_chewie.dart';
+import '../../stories/show_story.dart';
+import '../../stories/show_story_chewie.dart';
 
 class ClubListItem extends StatelessWidget {
   ClubListItem({
@@ -239,9 +239,10 @@ class ClubListItem extends StatelessWidget {
                       width: screenWidth*0.32,
                     ),
                     Container(
-                      width: screenWidth*0.5,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10
+                      ),
                       height: screenHeight*0.05,
-                      // color: Colors.blue,
                       decoration: BoxDecoration(
                         color: Colors.grey[900],
                         borderRadius: const BorderRadius.all(
@@ -258,9 +259,14 @@ class ClubListItem extends StatelessWidget {
                                 color: stateProvider.getPrimeColor(),
                                 size: customTextStyle.getIconSize2(),
                               ),
-                              Text(
-                                calculateDistanceToClub().toStringAsFixed(2),
-                                style: customTextStyle.size5BoldGrey(),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 5
+                                ),
+                                child: Text(
+                                  calculateDistanceToClub().toStringAsFixed(2),
+                                  style: customTextStyle.size5BoldGrey(),
+                                ),
                               )
                             ],
                           ),
@@ -271,9 +277,14 @@ class ClubListItem extends StatelessWidget {
                                 color: stateProvider.getPrimeColor(),
                                 size: customTextStyle.getIconSize2(),
                               ),
-                              Text(
-                                getRandomNumber().toString(),
-                                style: customTextStyle.size5BoldGrey(),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 5
+                                ),
+                                child: Text(
+                                  getRandomNumber().toString(),
+                                  style: customTextStyle.size5BoldGrey(),
+                                ),
                               )
                             ],
                           ),
@@ -284,9 +295,14 @@ class ClubListItem extends StatelessWidget {
                                 color: stateProvider.getPrimeColor(),
                                 size: customTextStyle.getIconSize2(),
                               ),
-                              Text(
-                                getAndFormatMusicGenre(),
-                                style:customTextStyle.size5BoldGrey(),
+                              Container(
+                                padding: const EdgeInsets.only(
+                                  left: 5
+                                ),
+                                child: Text(
+                                  getAndFormatMusicGenre(),
+                                  style:customTextStyle.size5BoldGrey(),
+                                ),
                               )
                             ],
                           )

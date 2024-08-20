@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:no_screenshot/no_screenshot.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../provider/state_provider.dart';
@@ -28,11 +29,13 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
   late CustomTextStyle customTextStyle;
   late double screenHeight, screenWidth;
 
+  final _noScreenshot = NoScreenshot.instance;
 
   @override
   void initState() {
     // TODO: Block the coupon directly so that the user cant avoid the block by closing the app
     super.initState();
+    _noScreenshot.screenshotOff();
     _controller = AnimationController(
       vsync: this,
       lowerBound: 0.3,
@@ -160,6 +163,7 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
               ],
             ),
 
+            // Counter
             Padding(
               padding: EdgeInsets.only(top: screenHeight*0.15),
               child: Container(
@@ -179,10 +183,62 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
                         )
                     ),
                     child:  Text(
-                      "$_start",
+                      _start > 9 ? "$_start" : "0$_start",
                       style: customTextStyle.activeDiscountTimer(),
                     ),
                   )
+              ),
+            ),
+
+            Container(
+              padding: const EdgeInsets.only(
+                left: 5,
+                top: 5
+              ),
+              width: screenWidth,
+              height: screenHeight,
+              // color: Colors.red,
+              alignment: Alignment.topCenter,
+              child: // Datetime
+              GestureDetector(
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                      vertical: screenHeight*0.025,
+                      horizontal: screenWidth*0.04
+                  ),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                        colors: [
+                          stateProvider.getPrimeColorDark(),
+                          stateProvider.getPrimeColor(),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        stops: const [0.2, 0.9]
+                    ),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black54,
+                        spreadRadius: 1,
+                        blurRadius: 7,
+                        offset: Offset(3, 3),
+                      ),
+                    ],
+                    borderRadius: const BorderRadius.all(
+                        Radius.circular(10)
+                    ),
+                  ),
+                  child: Text(
+                    formatClock(todayTimestamp),
+                    textAlign: TextAlign.center,
+                    style: customTextStyle.size4Bold(),
+                  ),
+                ),
+                onTap: ()=> {
+                  setState(() {
+                    _start = 0;
+                  })
+                },
               ),
             ),
 
@@ -193,52 +249,7 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  // Datetime
-                  Container(
-                    // width: screenWidth*0.9,
-                    // color: Colors.red,
-                      alignment: Alignment.bottomRight,
-                      child: GestureDetector(
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                              vertical: screenHeight*0.025,
-                              horizontal: screenWidth*0.04
-                          ),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                                colors: [
-                                  stateProvider.getPrimeColorDark(),
-                                  stateProvider.getPrimeColor(),
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                stops: const [0.2, 0.9]
-                            ),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Colors.black54,
-                                spreadRadius: 1,
-                                blurRadius: 7,
-                                offset: Offset(3, 3),
-                              ),
-                            ],
-                            borderRadius: const BorderRadius.all(
-                                Radius.circular(10)
-                            ),
-                          ),
-                          child: Text(
-                            formatClock(todayTimestamp),
-                            textAlign: TextAlign.center,
-                            style: customTextStyle.size4Bold(),
-                          ),
-                        ),
-                        onTap: ()=> {
-                          setState(() {
-                            _start = 0;
-                          })
-                        },
-                      )
-                  ),
+
 
                   // Schließen button
                   Container(

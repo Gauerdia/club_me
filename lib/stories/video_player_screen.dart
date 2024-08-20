@@ -7,7 +7,7 @@ import '../provider/state_provider.dart';
 import '../services/supabase_service.dart';
 import 'package:uuid/uuid.dart';
 
-import 'custom_text_style.dart';
+import '../shared/custom_text_style.dart';
 
 class VideoPlayerScreen extends StatefulWidget {
 
@@ -98,60 +98,6 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
               }
             },
           ),
-          // showLoading?
-          // Container()
-          // :Padding(
-          //   padding: EdgeInsets.only(
-          //       bottom: screenHeight*0.04
-          //   ),
-          //   child: Align(
-          //     alignment: Alignment.bottomCenter,
-          //     child: Row(
-          //       mainAxisAlignment: MainAxisAlignment.spaceAround,
-          //       children: [
-          //         GestureDetector(
-          //           child: Container(
-          //               padding: const EdgeInsets.all(15),
-          //               decoration: BoxDecoration(
-          //                   color: stateProvider.getPrimeColorDark(),
-          //                   borderRadius: const BorderRadius.all(Radius.circular(15))
-          //               ),
-          //               child: Icon(
-          //                 _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
-          //                 color: Colors.white,
-          //               )
-          //           ),
-          //           onTap: (){
-          //             setState(() {
-          //               if (_controller.value.isPlaying) {
-          //                 _controller.pause();
-          //               } else {
-          //                 _controller.play();
-          //               }
-          //             });
-          //           },
-          //         ),
-          //         GestureDetector(
-          //           child: Container(
-          //               padding: const EdgeInsets.all(15),
-          //               decoration: BoxDecoration(
-          //                   color: stateProvider.getPrimeColorDark(),
-          //                   borderRadius: const BorderRadius.all(Radius.circular(15))
-          //               ),
-          //               child: const Icon(
-          //                 Icons.save,
-          //                 color: Colors.white,
-          //               )
-          //           ),
-          //           onTap: (){
-          //             saveStoryToSupabase(stateProvider, video);
-          //           },
-          //         ),
-          //       ],
-          //     ),
-          //   ),
-          // ),
-
           showLoading? const Center(
               child: CircularProgressIndicator(),
           ):Container()
@@ -159,7 +105,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
       ),
 
       bottomNavigationBar: Container(
-        height: screenHeight*0.1,
+        height: screenHeight*0.13,
         width: screenWidth,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -200,10 +146,6 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                       color: Colors.redAccent,
                       size: 32,
                     )
-                    // Text(
-                    //   "Zurück",
-                    //   style: customTextStyle.size4Bold(),
-                    // ),
                   ),
                   onTap: () => pressedBack(),
                 )

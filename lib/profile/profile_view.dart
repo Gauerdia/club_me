@@ -57,7 +57,9 @@ class _ProfileViewState extends State<ProfileView> {
 
   void clickedOnLogOut(){
     stateProvider.setPageIndex(0);
-    _hiveService.resetUserData().then((value) => context.go("/log_in"));
+    stateProvider.activeLogOut = true;
+    context.go("/log_in");
+    // _hiveService.resetUserData().then((value) => context.go("/log_in"));
   }
 
   @override
@@ -217,7 +219,7 @@ class _ProfileViewState extends State<ProfileView> {
                                 child: Column(
                                   children: [
 
-                                    // "New Event" headline
+                                    // "Personal Information" headline
                                     Container(
                                       width: screenWidth,
                                       // color: Colors.red,

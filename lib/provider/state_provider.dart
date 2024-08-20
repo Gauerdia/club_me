@@ -30,11 +30,13 @@ class StateProvider extends ChangeNotifier{
       clubGeoCoordLng: 10,
       clubContactCity: "Bochum",
       clubContactName: "MyClub",
-      clubContactStreet: "Kortumstraße 101",
+      clubContactStreet: "Kortumstraße",
+      clubContactStreetNumber: 101,
       clubContactZip: "44787",
       clubInstagramLink: "https://www.instagram.com/hilife.stuttgart",
       clubWebsiteLink: "https://google.de",
-      clubFrontpageBackgroundColorId: 0
+      clubFrontpageBackgroundColorId: 0,
+    priorityScore: 0
   );
 
   ClubMeUserData userData = ClubMeUserData(
@@ -96,6 +98,8 @@ class StateProvider extends ChangeNotifier{
   Color primeColorDark = Colors.teal;
   Color primeColor = Colors.tealAccent;
 
+  bool activeLogOut = false;
+
   Color getPrimeColor(){
     return primeColor;
   }
@@ -117,6 +121,7 @@ class StateProvider extends ChangeNotifier{
   List<ClubMeDiscountTemplate> getDiscountTemplates(){
     return discountTemplates;
   }
+
 
   void setCurrentDiscountTemplate(ClubMeDiscountTemplate newClubMeDiscountTemplate){
     currentDiscountTemplate = newClubMeDiscountTemplate;
@@ -431,6 +436,7 @@ class StateProvider extends ChangeNotifier{
     return [
       userClub.getContactName(),
       userClub.getContactStreet(),
+      userClub.getContactStreetNumber().toString(),
       userClub.getContactZip(),
       userClub.getContactCity()
     ];
@@ -439,12 +445,14 @@ class StateProvider extends ChangeNotifier{
   void setUserContact(
       String contactName,
       String contactStreet,
+      int contactStreetNumber,
       String contactZip,
       String contactCity
       ){
     userClub.setContactCity(contactCity);
     userClub.setContactName(contactName);
     userClub.setContactStreet(contactStreet);
+    userClub.setContactStreetNumber(contactStreetNumber);
     userClub.setContactZip(contactZip);
     notifyListeners();
   }

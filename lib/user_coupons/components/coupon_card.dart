@@ -35,7 +35,7 @@ class CouponCard extends StatelessWidget {
   void clickOnInfo(BuildContext context){
 
     Widget okButton = TextButton(
-      child: Text("OK"),
+      child: const Text("OK"),
       onPressed: () {
         Navigator.of(context).pop();
       },
@@ -45,7 +45,7 @@ class CouponCard extends StatelessWidget {
         context: context,
         builder: (BuildContext context){
           return AlertDialog(
-            title: Text("Coupon-Informationen"),
+            title: const Text("Coupon-Informationen"),
             content: Text(
               clubMeDiscount.getDiscountDescription(),
             ),
@@ -514,15 +514,15 @@ class CouponCard extends StatelessWidget {
     showDialog(context: context,
         builder: (BuildContext context){
           return AlertDialog(
-            title: Text("Coupon einlösen"),
-            content: Text("Bist du sicher, dass du den Coupon einlösen möchtest? Du kannst ihn danach womöglich nicht noch einmal einlösen"),
+            title: const Text("Coupon einlösen"),
+            content: const Text("Bist du sicher, dass du den Coupon einlösen möchtest? Du kannst ihn danach womöglich nicht noch einmal einlösen"),
             actions: [
               TextButton(
                   onPressed: () {
                     stateProvider.setCurrentDiscount(clubMeDiscount);
                     context.go('/coupon_active');
                   },
-                  child: Text("Einlösen")
+                  child: const Text("Einlösen")
               )
             ],
           );

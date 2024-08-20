@@ -128,11 +128,15 @@ class _UserCouponsViewState extends State<UserCouponsView>
             var today = DateFormat('yyyy-MM-dd').format(todayRaw);
             var todayFormatted = DateTime.parse(today);
 
+            print("today:" + todayFormatted.toString());
+
             // The function will be called twice after the response. Here, we avoid to fill the array twice as well.
             if(upcomingDbDiscounts.isEmpty){
               for(var element in data){
 
                 ClubMeDiscount currentDiscount = parseClubMeDiscount(element);
+
+                print(currentDiscount.discountDate);
 
                 // Show only events that are not yet in the past.
                 if(
@@ -310,31 +314,49 @@ class _UserCouponsViewState extends State<UserCouponsView>
   // FILTER
   void filterDiscounts(){
 
+    // Check if we need any filtering at all
     if(searchValue != "" || onlyFavoritesIsActive){
 
-
+      // Allocate space
       List<ClubMeDiscount> favoritesToDisplay = [];
       discountsToDisplay = [];
 
-      // Fetch only favorites
+      // Fetch favorites
       for(var discount in upcomingDbDiscounts){
         if(checkIfIsLiked(discount)){
           favoritesToDisplay.add(discount);
         }
       }
 
-      // Check if we have to combine favorites and search
+      // Check, if we are using the search bar
       if(searchValue != ""){
-        for(var discount in favoritesToDisplay){
 
-          String allInformationLowerCase = "${discount.getDiscountTitle()} ${discount
-              .getClubName()}".toLowerCase();
+        // Check if we have to combine favorites and search
+        if(onlyFavoritesIsActive){
+          for(var discount in favoritesToDisplay){
 
-          if (allInformationLowerCase.contains(
-              searchValue.toLowerCase())) {
-            discountsToDisplay.add(discount);
+            String allInformationLowerCase = "${discount.getDiscountTitle()} ${discount
+                .getClubName()}".toLowerCase();
+
+            if (allInformationLowerCase.contains(
+                searchValue.toLowerCase())) {
+              discountsToDisplay.add(discount);
+            }
+          }
+          // If not: Fill the other array
+        }else{
+          for(var discount in upcomingDbDiscounts){
+
+            String allInformationLowerCase = "${discount.getDiscountTitle()} ${discount
+                .getClubName()}".toLowerCase();
+
+            if (allInformationLowerCase.contains(
+                searchValue.toLowerCase())) {
+              discountsToDisplay.add(discount);
+            }
           }
         }
+
         // If we are only looking for fav's we are done
       }else{
         discountsToDisplay = favoritesToDisplay;
@@ -343,6 +365,9 @@ class _UserCouponsViewState extends State<UserCouponsView>
     }else{
       discountsToDisplay = upcomingDbDiscounts;
     }
+
+    discountsToDisplay.sort((a,b) => b.priorityScore.compareTo(a.priorityScore));
+
   }
   void filterForFavorites(){
     setState(() {
@@ -450,7 +475,6 @@ class _UserCouponsViewState extends State<UserCouponsView>
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  // Color(0xff11181f),
                   Color(0xff2b353d),
                   Color(0xff11181f)
                 ],
@@ -465,11 +489,30 @@ class _UserCouponsViewState extends State<UserCouponsView>
 
               _buildSupabaseDiscounts(stateProvider, screenHeight),
 
-              discountsToDisplay.isNotEmpty ? PageIndicator(
-                tabController: _tabController,
-                currentPageIndex: _currentPageIndex,
-                onUpdateCurrentPageIndex: _updateCurrentPageIndex,
-              ): Container(),
+              // Spacer
+              SizedBox(height: screenHeight*0.05,),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.keyboard_arrow_left_sharp,
+                    size: 50,
+                    color: _currentPageIndex > 0 ? Colors.white: Colors.grey,
+                  ),
+                  Icon(
+                      Icons.keyboard_arrow_right_sharp,
+                    size: 50,
+                    color: _currentPageIndex < (discountsToDisplay.length-1) ? Colors.white: Colors.grey,
+                  ),
+                ],
+              ),
+
+              // discountsToDisplay.length > 1 ? PageIndicator(
+              //   tabController: _tabController,
+              //   currentPageIndex: _currentPageIndex,
+              //   onUpdateCurrentPageIndex: _updateCurrentPageIndex,
+              // ): Container(),
             ],
           )
         )

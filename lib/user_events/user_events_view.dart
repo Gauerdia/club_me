@@ -158,7 +158,8 @@ class _UserEventsViewState extends State<UserEventsView> {
                 _supabaseService.createErrorLog("_buildSupabaseEvents, _buildSupabaseEvents: " + e.toString());
               }
 
-              return ListView.builder(
+              return eventsToDisplay.isNotEmpty ?
+              ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: eventsToDisplay.length,
@@ -184,6 +185,12 @@ class _UserEventsViewState extends State<UserEventsView> {
                       },
                     );
                   })
+              ): Container(
+                height: screenHeight*0.8,
+                width: screenWidth,
+                child: const Center(
+                  child: Text("Derzeit sind keine Events geplant!"),
+                ),
               );
             }
           }
@@ -202,7 +209,8 @@ class _UserEventsViewState extends State<UserEventsView> {
 
       filterEvents();
 
-      return ListView.builder(
+      return eventsToDisplay.isNotEmpty ?
+      ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: eventsToDisplay.length,
@@ -228,6 +236,12 @@ class _UserEventsViewState extends State<UserEventsView> {
               },
             );
           })
+      ): Container(
+        height: screenHeight*0.8,
+        width: screenWidth,
+        child: const Center(
+          child: Text("Derzeit sind keine Events geplant!"),
+        ),
       );
     }
   }

@@ -169,6 +169,7 @@ class _ClubInfoBottomSheetState extends State<ClubInfoBottomSheet> {
               height: screenHeight*imageHeightFactor,
               child: Stack(
                 children: [
+
                   // club name
                   Container(
                     height: screenHeight*headlineHeightFactor,
@@ -197,9 +198,11 @@ class _ClubInfoBottomSheetState extends State<ClubInfoBottomSheet> {
                       child: Text(
                         stateProvider.clubMeClub.getClubName(),
                         style: customTextStyle.size1MapHeadline(),
+                        textAlign: TextAlign.center,
                       ),
                     ),
                   )
+
                 ],
               ),
             ),
@@ -240,11 +243,11 @@ class _ClubInfoBottomSheetState extends State<ClubInfoBottomSheet> {
 
                   // Info, Like, Share
                   Container(
-                    width: screenWidth*0.35,
-                    height: screenHeight*0.055,
+                    // width: screenWidth*0.32,
+                    // height: screenHeight*0.055,
                     padding: EdgeInsets.symmetric(
                         horizontal: screenWidth*0.03,
-                        // vertical: screenHeight*0.01
+                        vertical: screenHeight*0.012
                     ),
 
                     decoration: const BoxDecoration(
@@ -262,8 +265,9 @@ class _ClubInfoBottomSheetState extends State<ClubInfoBottomSheet> {
 
                             // Info icon
                             Container(
-                                padding: const EdgeInsets.all(
-                                    4
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 2,
+                                  vertical: 4
                                 ),
                                 decoration: const BoxDecoration(
                                   color: Colors.black,
@@ -286,8 +290,9 @@ class _ClubInfoBottomSheetState extends State<ClubInfoBottomSheet> {
 
                             // star
                             Container(
-                              padding: const EdgeInsets.all(
-                                  4
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 2,
+                                  vertical: 4
                               ),
                               decoration: const BoxDecoration(
                                 color: Colors.black,
@@ -312,8 +317,9 @@ class _ClubInfoBottomSheetState extends State<ClubInfoBottomSheet> {
 
                             // share
                             Container(
-                              padding: const EdgeInsets.all(
-                                  4
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 2,
+                                  vertical: 4
                               ),
                               decoration: const BoxDecoration(
                                 color: Colors.black,
@@ -355,6 +361,7 @@ class _ClubInfoBottomSheetState extends State<ClubInfoBottomSheet> {
                           ),
                         ),
                         child: Row(
+                          // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
 
                             // Spacer
@@ -382,9 +389,14 @@ class _ClubInfoBottomSheetState extends State<ClubInfoBottomSheet> {
                             // const SizedBox(width: 7,),
 
                             // Text distance
-                            Text(
-                              calculateDistanceToClub().toStringAsFixed(2),
-                              style: customTextStyle.size5BoldGrey(),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 5
+                              ),
+                              child: Text(
+                                calculateDistanceToClub().toStringAsFixed(2),
+                                style: customTextStyle.size5BoldGrey(),
+                              ),
                             ),
 
                             // Spacer
@@ -410,9 +422,14 @@ class _ClubInfoBottomSheetState extends State<ClubInfoBottomSheet> {
                             // Spacer
                             // const SizedBox(width: 2,),
 
-                            Text(
-                              getRandomNumber(),
-                              style: customTextStyle.size5(),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 5
+                              ),
+                              child: Text(
+                                getRandomNumber(),
+                                style: customTextStyle.size5Bold(),
+                              ),
                             ),
 
                             // Spacer
@@ -440,9 +457,14 @@ class _ClubInfoBottomSheetState extends State<ClubInfoBottomSheet> {
                             // const SizedBox(width: 7,),
 
                             // Text Genre
-                            Text(
-                              getAndFormatMusicGenre(),
-                              style: customTextStyle.size5BoldGrey(),
+                            Container(
+                              padding: const EdgeInsets.only(
+                                left: 5
+                              ),
+                              child: Text(
+                                getAndFormatMusicGenre(),
+                                style: customTextStyle.size5BoldGrey(),
+                              ),
                             ),
                           ],
                         ),

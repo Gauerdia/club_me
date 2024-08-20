@@ -26,7 +26,7 @@ import 'package:club_me/detail_pages/discount_active_view.dart';
 import 'package:club_me/club_coupons/club_edit_discount_view.dart';
 import 'package:club_me/detail_pages/event_detail_view.dart';
 import 'package:club_me/shared/test.dart';
-import 'package:club_me/shared/video_recorder_screen.dart';
+import 'package:club_me/stories/video_recorder_screen.dart';
 import 'package:club_me/user_clubs/user_clubs_view.dart';
 import 'package:club_me/user_coupons/user_coupons_view.dart';
 import 'package:club_me/user_events/user_events_view.dart';
@@ -70,7 +70,6 @@ Future<void> main() async {
   );
 
   final cameras = await availableCameras();
-
   final firstCamera = cameras.first;
 
   Logger.level = Level.debug;

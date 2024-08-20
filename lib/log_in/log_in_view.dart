@@ -223,23 +223,35 @@ class _LogInViewState extends State<LogInView> {
         }else{
           log.d("fetchUserDataFromHive: isNotEmpty");
           stateProvider.setUserData(userData[0]);
-          print("LogIn Test: ${userData[0].getUserId()}");
-          if(userData[0].getProfileType() == 0){
-            context.go("/user_events");
+          if(!stateProvider.activeLogOut){
+            if(userData[0].getProfileType() == 0){
+              context.go("/user_events");
+            }else{
+              context.go("/club_events");
+            }
           }else{
-            context.go("/club_events");
+            isLoading = false;
           }
         }
-
       });
     }catch(e){
       log.d("Error in fetchUserDataFromHive: $e");
     }
   }
 
+  void clickOnLogIn(){
+    stateProvider.activeLogOut = false;
+    if(stateProvider.getUserData().getProfileType() == 0){
+      context.go("/user_events");
+    }else{
+      context.go("/club_events");
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    final stateProvider = Provider.of<StateProvider>(context, listen:  false);
     _determinePosition().then((value) => {
       stateProvider.setUserCoordinates(value)
     });
@@ -333,6 +345,7 @@ class _LogInViewState extends State<LogInView> {
                       ),
                     ),
 
+                    // Spacer
                     SizedBox(
                       height: screenHeight*0.02,
                     ),
@@ -406,6 +419,7 @@ class _LogInViewState extends State<LogInView> {
                       ),
                     ),
 
+                    // Spacer
                     SizedBox(
                       height: screenHeight*0.02,
                     ),
@@ -447,7 +461,49 @@ class _LogInViewState extends State<LogInView> {
                       onTap: (){
                         context.go("/register");
                       },
-                    )
+                    ),
+
+                    // Spacer
+                    stateProvider.activeLogOut ? SizedBox(
+                      height: screenHeight*0.02,
+                    ): Container(),
+
+                    stateProvider.activeLogOut ?
+                    GestureDetector(
+                      child: Container(
+                          width: screenWidth*0.8,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                                colors: [
+                                  primeColorDark,
+                                  primeColor,
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                stops: const [0.2, 0.9]
+                            ),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black54,
+                                spreadRadius: 1,
+                                blurRadius: 7,
+                                offset: Offset(3, 3),
+                              ),
+                            ],
+                            borderRadius: const BorderRadius.all(
+                                Radius.circular(10)
+                            ),
+                          ),
+                          padding: const EdgeInsets.all(18),
+                          child: Center(
+                            child: Text(
+                                "Log dich ein!",
+                                style: customTextStyle.size5Bold()
+                            ),
+                          )
+                      ),
+                      onTap: () => clickOnLogIn(),
+                    ):Container(),
 
 
                   ],

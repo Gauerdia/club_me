@@ -1,4 +1,4 @@
-import 'package:club_me/shared/show_story_chewie.dart';
+import 'package:club_me/stories/show_story_chewie.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../user_clubs/components/event_card.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -12,7 +12,8 @@ import '../shared/custom_bottom_navigation_bar.dart';
 import '../provider/state_provider.dart';
 import '../shared/custom_text_style.dart';
 import '../models/event.dart';
-import '../shared/show_story.dart';
+import '../stories/show_story.dart';
+import 'package:timezone/standalone.dart' as tz;
 
 class ClubDetailView extends StatefulWidget {
   const ClubDetailView({Key? key}) : super(key: key);
@@ -93,12 +94,10 @@ class _ClubDetailViewState extends State<ClubDetailView> {
         MaterialPageRoute(
           builder: (context) => ShowStoryChewie(
             storyUUID: stateProvider.getCurrentClubStoryId(),
-            clubName: stateProvider.getClubName(),
+            clubName: stateProvider.clubMeClub.getClubName(),
           ),
         ),
       );
-    }else{
-
     }
   }
 
@@ -527,15 +526,24 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                     ),
                   ),
 
-                  SizedBox(
-                    width: screenWidth*0.5,
-                    child: Text(
-                      stateProvider.clubMeClub.getContactStreet().length > 15 ?
-                      stateProvider.clubMeClub.getContactStreet().substring(0,15):
-                      stateProvider.clubMeClub.getContactStreet(),
-                      textAlign: TextAlign.left,
-                      style: customTextStyle.size4(),
-                    ),
+                  Row(
+                    children: [
+                      Text(
+                        stateProvider.clubMeClub.getContactStreet().length > 19 ?
+                        stateProvider.clubMeClub.getContactStreet().substring(0,19):
+                        stateProvider.clubMeClub.getContactStreet(),
+                        textAlign: TextAlign.left,
+                        style:customTextStyle.size4(),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left:5),
+                        child: Text(
+                          stateProvider.clubMeClub.getContactStreetNumber().toString(),
+                          textAlign: TextAlign.left,
+                          style:customTextStyle.size4(),
+                        ),
+                      )
+                    ],
                   ),
 
                   SizedBox(
@@ -909,7 +917,28 @@ class _ClubDetailViewState extends State<ClubDetailView> {
         ? await launchUrl(googleUrl)
         : print("Error");
   }
+  bool checkIfIsEventIsAfterToday(ClubMeEvent event){
+    final berlin = tz.getLocation('Europe/Berlin');
+    final todayTimestampGermany = tz.TZDateTime.from(DateTime.now(), berlin);
 
+    if(event.getEventDate().isBefore(todayTimestampGermany)){
+      return false;
+    }else{
+      return true;
+    }
+
+  }
+  void checkForUpcomingEventsAndSetList(){
+
+    eventsToDisplay = stateProvider.getFetchedEvents()
+        .where((event){
+      return (event.getClubId() == stateProvider.clubMeClub.getClubId() && checkIfIsEventIsAfterToday(event));
+    }).toList();
+
+    if(eventsToDisplay.isEmpty){
+      noEventsAvailable = true;
+      }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -922,14 +951,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
     customTextStyle = CustomTextStyle(context: context);
 
     // Set noEventsAvailable
-    if(eventsToDisplay.isEmpty){
-      if(stateProvider.getFetchedEvents().where((event) => event.getClubId() == stateProvider.clubMeClub.getClubId()).isEmpty){
-        noEventsAvailable = true;
-      }else{
-        eventsToDisplay = stateProvider.getFetchedEvents().where((event) => event.getClubId() == stateProvider.clubMeClub.getClubId()).toList();
-        noEventsAvailable = false;
-      }
-    }
+    checkForUpcomingEventsAndSetList();
 
     return Scaffold(
 

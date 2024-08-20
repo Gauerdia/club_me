@@ -1,6 +1,6 @@
 import 'package:club_me/models/parser/club_me_club_parser.dart';
 import 'package:club_me/shared/map_utils.dart';
-import 'package:club_me/shared/show_story_chewie.dart';
+import 'package:club_me/stories/show_story_chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
@@ -785,6 +785,8 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+
+                // "Contact"
                 Text(
                   "Kontakt",
                   textAlign: TextAlign.left,
@@ -850,15 +852,24 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                   ),
 
                   // Street
-                  SizedBox(
-                    width: screenWidth*0.5,
-                    child: Text(
-                      stateProvider.getUserContact()[1].length > 19 ?
-                      stateProvider.getUserContact()[1].substring(0,19):
-                      stateProvider.getUserContact()[1],
-                      textAlign: TextAlign.left,
-                      style:customTextStyle.size4(),
-                    ),
+                  Row(
+                    children: [
+                      Text(
+                        stateProvider.getUserContact()[1].length > 19 ?
+                        stateProvider.getUserContact()[1].substring(0,19):
+                        stateProvider.getUserContact()[1],
+                        textAlign: TextAlign.left,
+                        style:customTextStyle.size4(),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left:5),
+                        child: Text(
+                          stateProvider.getUserContact()[2],
+                          textAlign: TextAlign.left,
+                          style:customTextStyle.size4(),
+                        ),
+                      )
+                    ],
                   ),
 
                   // City
@@ -944,7 +955,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                 width: screenWidth,
                 alignment: Alignment.centerRight,
                 child: IconButton(
-                  icon: Icon(
+                  icon: const Icon(
                       Icons.settings
                   ),
                   onPressed: () => context.push("/settings"),
@@ -1176,7 +1187,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
   void clickOnAddPhotoOrVideo(double screenHeight, double screenWidth){
     showDialog(context: context, builder: (BuildContext context){
       return AlertDialog(
-        title: const Text("Hinzufügen von Photos und Videos"),
+        title: const Text("Hinzufügen von Fotos und Videos"),
         content: SizedBox(
             height: screenHeight*0.12,
             child: Center(
@@ -1205,7 +1216,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
   void clickOnDiscoverMorePhotos(double screenHeight, double screenWidth){
     showDialog(context: context, builder: (BuildContext context){
       return AlertDialog(
-        title: const Text("Ausführliche Photoliste"),
+        title: const Text("Ausführliche Fotoliste"),
         content: Text(
           "Diese Funktion steht zurzeit noch nicht zur Verfügung! Wir bitten um Verständnis!",
           textAlign: TextAlign.left,

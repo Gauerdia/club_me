@@ -35,17 +35,43 @@ class _UpdateNewsViewState extends State<UpdateNewsView> {
       backgroundColor: Colors.transparent,
       title: SizedBox(
         width: screenWidth,
-        child: Text(headLine,
-            style: customTextStyle.size1Bold()
+        child: Stack(
+          children: [
+            Container(
+                alignment: Alignment.bottomCenter,
+                height: 50,
+                width: screenWidth,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(headLine,
+                        textAlign: TextAlign.center,
+                        style: customTextStyle.size2()
+                    ),
+                  ],
+                )
+            ),
+
+            Container(
+                width: screenWidth,
+                alignment: Alignment.centerLeft,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      icon: const Icon(
+                          Icons.arrow_back_ios_new_outlined
+                      ),
+                      onPressed: (){
+                        context.go('/club_frontpage');
+                      },
+                    ),
+                  ],
+                )
+            ),
+
+          ],
         ),
-      ),
-      leading: IconButton(
-        icon: const Icon(
-            Icons.arrow_back_ios_new_outlined
-        ),
-        onPressed: (){
-          context.go('/club_frontpage');
-        },
       ),
     );
   }
@@ -79,56 +105,6 @@ class _UpdateNewsViewState extends State<UpdateNewsView> {
           SizedBox(
             height: screenHeight*0.01,
           ),
-
-          // Unfocus - Button
-          // Container(
-          //   width: screenWidth*0.8,
-          //   alignment: Alignment.bottomRight,
-          //   child: Padding(
-          //     padding: EdgeInsets.symmetric(
-          //         vertical: screenHeight*0.01,
-          //         horizontal: screenWidth*0.01
-          //     ),
-          //     child: GestureDetector(
-          //       child: Container(
-          //         padding: EdgeInsets.symmetric(
-          //             horizontal: screenWidth*0.035,
-          //             vertical: screenHeight*0.02
-          //         ),
-          //         decoration: BoxDecoration(
-          //           borderRadius: const BorderRadius.all(
-          //               Radius.circular(10)
-          //           ),
-          //           gradient: LinearGradient(
-          //               colors: [
-          //                 stateProvider.getPrimeColorDark(),
-          //                 stateProvider.getPrimeColor(),
-          //               ],
-          //               begin: Alignment.topLeft,
-          //               end: Alignment.bottomRight,
-          //               stops: const [0.2, 0.9]
-          //           ),
-          //           boxShadow: const [
-          //             BoxShadow(
-          //               color: Colors.black54,
-          //               spreadRadius: 1,
-          //               blurRadius: 7,
-          //               offset: Offset(3, 3),
-          //             ),
-          //           ],
-          //         ),
-          //         child: Text(
-          //           "Fertig",
-          //           style: TextStyle(
-          //               fontSize: screenHeight*0.015,
-          //               fontWeight: FontWeight.bold
-          //           ),
-          //         ),
-          //       ),
-          //       onTap: ()=> FocusScope.of(context).unfocus(),
-          //     ),
-          //   ),
-          // ),
 
           // Spacer
           SizedBox(
@@ -237,7 +213,7 @@ class _UpdateNewsViewState extends State<UpdateNewsView> {
 
     return Scaffold(
 
-        extendBodyBehindAppBar: true,
+        // extendBodyBehindAppBar: true,
         extendBody: true,
         resizeToAvoidBottomInset: true,
 

@@ -3,8 +3,9 @@ import 'dart:async';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'custom_text_style.dart';
+import '../shared/custom_text_style.dart';
 import 'video_player_screen.dart';
+// import 'package:adv_camera_example/camera.dart';
 
 class VideoRecorderScreen extends StatefulWidget {
 
@@ -40,7 +41,7 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
   }
 
   void pressedBack(){
-
+    context.go('/club_frontpage');
   }
   void pressedRecord() async{
     try {
@@ -120,79 +121,34 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
         mainAxisAlignment: _isRecording ? MainAxisAlignment.center
         : MainAxisAlignment.spaceEvenly,
         children: [
-          _isRecording ? Container()
-              : Align(
-              alignment: AlignmentDirectional.center,
-              child: GestureDetector(
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: screenWidth*0.055,
-                      vertical: screenHeight*0.02
-                  ),
-                  decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.all(
-                        Radius.circular(10)
-                    ),
-                    gradient: LinearGradient(
-                        colors: [
-                          customTextStyle.primeColorDark,
-                          customTextStyle.primeColor,
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        stops: [0.2, 0.9]
-                    ),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black54,
-                        spreadRadius: 1,
-                        blurRadius: 7,
-                        offset: Offset(3, 3),
-                      ),
-                    ],
-                  ),
-                  child: Text(
-                    "Zurück",
-                    style: customTextStyle.size4Bold(),
-                  ),
-                ),
-                onTap: () => pressedBack(),
-              )
-          ),
           Align(
               alignment: AlignmentDirectional.center,
               child: GestureDetector(
                 child: Container(
                   padding: EdgeInsets.symmetric(
-                      horizontal: screenWidth*0.055,
-                      vertical: screenHeight*0.02
+                      // horizontal: screenWidth*0.055,
+                      // vertical: screenHeight*0.02
                   ),
-                  decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.all(
-                        Radius.circular(10)
+                  child: Container(
+                    width: 70,
+                    height: 70,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        width: 4,
+                        color: _isRecording ? customTextStyle.primeColor.withOpacity(0.5) : Colors.white.withOpacity(0.5)
+                      )
                     ),
-                    gradient: LinearGradient(
-                        colors: [
-                          customTextStyle.primeColorDark,
-                          customTextStyle.primeColor,
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        stops: [0.2, 0.9]
-                    ),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black54,
-                        spreadRadius: 1,
-                        blurRadius: 7,
-                        offset: Offset(3, 3),
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: _isRecording ? customTextStyle.primeColor: Colors.white,
+                        // borderRadius: BorderRadius.circular(20)
                       ),
-                    ],
-                  ),
-                  child: Text(
-                    _isRecording ? "Aufnahme beenden" : "Aufnehmen",
-                    style: customTextStyle.size4Bold(),
-                  ),
+                    ),
+                  )
                 ),
                 onTap: () => pressedRecord(),
               )
@@ -220,9 +176,31 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
 
           if(!snapshot.hasData){
             if (snapshot.connectionState == ConnectionState.done) {
-              return SizedBox(
-                height: screenHeight*0.95,
-                child: CameraPreview(_controller),
+              return Stack(
+                children: [
+                  SizedBox(
+                    height: screenHeight*0.95,
+                    child: CameraPreview(_controller),
+                  ),
+
+                  Container(
+                    width: screenWidth,
+                    height: screenHeight,
+                    alignment: Alignment.topRight,
+                    padding: EdgeInsets.only(
+                      top: screenHeight*0.07,
+                      right: screenWidth*0.05
+                    ),
+                    child: IconButton(
+                      onPressed: () => pressedBack(),
+                      icon: const Icon(
+                        Icons.close,
+                        size: 30,
+                        color: Colors.white,
+                      ),
+                    ),
+                  )
+                ],
               );
             } else {
               return const Center(child: CircularProgressIndicator());
@@ -232,38 +210,6 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
           }
         },
       ): const Center(child: CircularProgressIndicator()),
-
-      // floatingActionButton: canBeDrawn ?
-      //   FloatingActionButton(
-      //     onPressed: () async {
-      //       try {
-      //         await _initializeControllerFuture;
-      //
-      //         if (!mounted) {return;}
-      //
-      //         if (_isRecording) {
-      //           final video = await _controller.stopVideoRecording();
-      //
-      //           await Navigator.of(context).push(
-      //             MaterialPageRoute(
-      //               builder: (context) => VideoPlayerScreen(videoPath: video!.path,),
-      //             ),
-      //           );
-      //         } else {
-      //           await _controller.prepareForVideoRecording();
-      //           await _controller.startVideoRecording();
-      //           startTimer();
-      //         }
-      //
-      //         setState(() {
-      //           _isRecording = !_isRecording;
-      //         });
-      //       } catch (e) {
-      //         print(e);
-      //       }
-      //     },
-      //     child: Icon(_isRecording ? Icons.stop : Icons.circle),
-      //   ): Container()
     );
   }
 }

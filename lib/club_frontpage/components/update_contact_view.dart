@@ -1,3 +1,5 @@
+import 'package:flutter/services.dart';
+
 import '../../shared/custom_bottom_navigation_bar_clubs.dart';
 import '../../services/supabase_service.dart';
 import '../../provider/state_provider.dart';
@@ -32,6 +34,7 @@ class _UpdateContactViewState extends State<UpdateContactView> {
   TextEditingController nameController = TextEditingController();
   TextEditingController cityController = TextEditingController();
   TextEditingController streetController = TextEditingController();
+  TextEditingController streetNumberController = TextEditingController();
 
 
   // BUILD
@@ -40,19 +43,45 @@ class _UpdateContactViewState extends State<UpdateContactView> {
       backgroundColor: Colors.transparent,
       title: SizedBox(
         width: screenWidth,
-        child: Text(
-          headLine,
-          style: customTextStyle.size1Bold(),
+        child: Stack(
+          children: [
+            Container(
+                alignment: Alignment.bottomCenter,
+                height: 50,
+                width: screenWidth,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(headLine,
+                        textAlign: TextAlign.center,
+                        style: customTextStyle.size2()
+                    ),
+                  ],
+                )
+            ),
+
+            Container(
+                width: screenWidth,
+                alignment: Alignment.centerLeft,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      icon: const Icon(
+                          Icons.arrow_back_ios_new_outlined
+                      ),
+                      onPressed: (){
+                        context.go('/club_frontpage');
+                      },
+                    ),
+                  ],
+                )
+            ),
+
+          ],
         ),
       ),
-      leading: IconButton(
-        icon: const Icon(
-            Icons.arrow_back_ios_new_outlined
-        ),
-        onPressed: (){
-          context.go('/club_frontpage');
-        },
-      ),
+
     );
   }
   Widget _buildMainColumn(){
@@ -84,16 +113,46 @@ class _UpdateContactViewState extends State<UpdateContactView> {
 
         // Textfield Straße
         SizedBox(
-          width: screenWidth*0.8,
-          child: TextFormField(
-            controller: streetController,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              label: Text("Straße"),
-            ),
-            maxLength: 30,
-          ),
+            width: screenWidth*0.82,
+            child: Row(
+              children: [
+                SizedBox(
+                  width: screenWidth*0.6,
+                  child: TextFormField(
+                    controller: streetController,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      label: Text("Straße"),
+                    ),
+                    maxLength: 30,
+                  ),
+                ),
+
+                // Spacer
+                SizedBox(
+                  width: screenHeight*0.01,
+                ),
+
+                // Textfield city
+                SizedBox(
+                  width: screenWidth*0.18,
+                  child: TextFormField(
+                    controller: streetNumberController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                    ],
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      label: Text("Nr."),
+                    ),
+                    maxLength: 3,
+                  ),
+                )
+              ],
+            )
         ),
+
 
         // Spacer
         SizedBox(
@@ -205,12 +264,14 @@ class _UpdateContactViewState extends State<UpdateContactView> {
         stateProvider.getClubId(),
         nameController.text,
         streetController.text,
+        int.parse(streetNumberController.text),
         zipController.text,
         cityController.text).then((value){
       if(value == 0){
         stateProvider.setUserContact(
             nameController.text,
             streetController.text,
+            int.parse(streetNumberController.text),
             zipController.text,
             cityController.text
         );
@@ -236,17 +297,20 @@ class _UpdateContactViewState extends State<UpdateContactView> {
 
   // MISC
   void initController(){
-    streetController = TextEditingController(
-        text:stateProvider.getUserContact()[1]
-    );
     nameController = TextEditingController(
         text:stateProvider.getUserContact()[0]
     );
-    cityController = TextEditingController(
-        text:stateProvider.getUserContact()[3]
+    streetController = TextEditingController(
+        text:stateProvider.getUserContact()[1]
+    );
+    streetNumberController = TextEditingController(
+        text: stateProvider.getUserContact()[2]
     );
     zipController = TextEditingController(
-        text:stateProvider.getUserContact()[2]
+        text:stateProvider.getUserContact()[3]
+    );
+    cityController = TextEditingController(
+        text:stateProvider.getUserContact()[4]
     );
     setState(() {
       initDone = true;

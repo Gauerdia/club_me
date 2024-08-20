@@ -15,6 +15,7 @@ ClubMeDiscount parseClubMeDiscount(var data){
       discountDescription: data['discount_description'],
       targetGender: data['target_gender'],
       targetAge: data['target_age'],
-      targetAgeIsUpperLimit: data['target_age_is_upper_limit']
+      targetAgeIsUpperLimit: data['target_age_is_upper_limit'],
+      priorityScore: data['priority_score']
   );
 }

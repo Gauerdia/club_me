@@ -117,6 +117,8 @@ class _UserMapViewState extends State<UserMapView> {
                 }
               }
 
+              clubsToDisplay.sort((a,b) => b.priorityScore.compareTo(a.priorityScore));
+
               stateProvider.setFetchedClubs(clubsToDisplay);
 
               isClubsFetched = true;
@@ -143,6 +145,8 @@ class _UserMapViewState extends State<UserMapView> {
           clubsToDisplay.add(club);
         }
       }
+
+      clubsToDisplay.sort((a,b) => b.priorityScore.compareTo(a.priorityScore));
 
       isClubsFetched = true;
 
@@ -238,19 +242,31 @@ class _UserMapViewState extends State<UserMapView> {
     );
   }
   Widget _buildAppBar(){
+
     return SizedBox(
       width: screenWidth,
       child: Stack(
         children: [
-          SizedBox(
-            width: screenWidth,
-            child: Text(headline,
-                textAlign: TextAlign.center,
-                style: customTextStyle.size2()
-            ),
+
+
+          // Headline
+          Container(
+              alignment: Alignment.bottomCenter,
+              height: 50,
+              width: screenWidth,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(headline,
+                      textAlign: TextAlign.center,
+                      style: customTextStyle.size2()
+                  ),
+                ],
+              )
           ),
 
           Container(
+            height: 50,
             alignment: Alignment.centerRight,
             child: GestureDetector(
               child: Padding(
@@ -299,7 +315,7 @@ class _UserMapViewState extends State<UserMapView> {
 
     return Scaffold(
 
-      extendBodyBehindAppBar: true,
+      // extendBodyBehindAppBar: true,
       extendBody: true,
 
       bottomNavigationBar: CustomBottomNavigationBar(),
@@ -327,7 +343,7 @@ class _UserMapViewState extends State<UserMapView> {
             children: [
 
               // Spacer
-              SizedBox(height: screenHeight*0.12,),
+              // SizedBox(height: screenHeight*0.12,),
 
               // Content
               SizedBox(

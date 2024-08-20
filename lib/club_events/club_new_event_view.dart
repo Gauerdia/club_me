@@ -258,7 +258,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
           ),
 
           (isVideo || isImage) ? Padding(
-            padding: EdgeInsets.only(),
+            padding: const EdgeInsets.only(),
             child: _buildButtonRow(),
           ) : Container(),
 
@@ -309,7 +309,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                       ],
                     ),
                     child: Text(
-                      genreScreenActive ? "Zurück" : "Abschicken",
+                      genreScreenActive ? "Speichern" : "Abschicken",
                       style: customTextStyle.size4Bold(),
                     ),
                   ),
@@ -338,7 +338,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
 
             // Events headline
             Container(
-              width: screenWidth,
+              width: screenWidth*0.9,
               padding: EdgeInsets.symmetric(
                   vertical: screenHeight*0.04,
                   horizontal: screenWidth*0.02
@@ -346,7 +346,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
               child: Text(
                 "Bitte gib die passenden Daten zu deinem Event an!",
                 textAlign: TextAlign.center,
-                style: customTextStyle.size1Bold(),
+                style: customTextStyle.size2Bold(),
               ),
             ),
 
@@ -426,14 +426,15 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
 
             // 'Which genres' headline
             Container(
-              width: screenWidth,
+              // color: Colors.red,
+              width: screenWidth*0.9,
               padding: EdgeInsets.symmetric(
                   vertical: screenHeight*0.04,
                   horizontal: screenWidth*0.02
               ),
               child: Text(
-                "Welche Musikgenres werden auf desem Event gespielt?",
-                textAlign: TextAlign.center,
+                "Welche Musikrichtungen werden auf diesem Event gespielt?",
+                textAlign: TextAlign.left,
                 style: customTextStyle.size1Bold(),
               ),
             ),
@@ -502,7 +503,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                                   end: Alignment.bottomRight,
                                   stops: const [0.2, 0.9]
                               ),
-                              boxShadow: [
+                              boxShadow: const [
                                 BoxShadow(
                                   color: Colors.black54,
                                   spreadRadius: 1,
@@ -639,7 +640,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
 
             // Own Genre
             Container(
-              width: screenWidth,
+              width: screenWidth*0.9,
               padding: EdgeInsets.only(
                 // left: screenWidth*0.05,
                 top: screenHeight*0.01,
@@ -647,7 +648,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
               ),
               child: Text(
                 "Eigene Genres hinzufügen",
-                textAlign: TextAlign.center,
+                textAlign: TextAlign.left,
                 style: customTextStyle.size2Bold(),
               ),
             ),
@@ -657,7 +658,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
               padding: EdgeInsets.only(
                   bottom: screenHeight*0.025
               ),
-              width: screenWidth*0.85,
+              width: screenWidth*0.9,
               child: Row(
                 children: [
                   Padding(
@@ -2457,7 +2458,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                               templateTileHeightFactor = originalFoldHeightFactor;
                               templateUnfold = false;
                             }else{
-                              templateTileHeightFactor = originalFoldHeightFactor*4;
+                              templateTileHeightFactor = originalFoldHeightFactor*3.5;
                               templateUnfold = true;
                             }
                           });
@@ -2481,18 +2482,6 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                   // indent: screenWidth*0.06,
                   // endIndent: screenWidth*0.75,
                 ): Container(),
-
-                // Explanation
-                templateUnfold ? Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10
-                    ),
-                    child: Text(
-                      "Möchtest du das Event als Vorlage speichern?",
-                      textAlign: TextAlign.center,
-                      style: customTextStyle.getFontStyle3(),
-                    )
-                ):Container(),
 
                 // Spacer
                 templateUnfold ?SizedBox(
@@ -2520,7 +2509,8 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                       initialLabelIndex: isTemplate,
                       totalSwitches: 2,
                       activeBgColor: [customTextStyle.primeColor],
-                      activeFgColor: Colors.white,
+                      activeFgColor: Colors.black,
+                      inactiveFgColor: customTextStyle.primeColor,
                       inactiveBgColor: const Color(0xff11181f),
                       labels: const [
                         'Nein',
@@ -2812,13 +2802,16 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
       priorityScore: 0.0
     );
 
+    // Is supposed to be saved as a template?
     if(isTemplate == 1){
       addEventToTemplates(newEvent);
     }
 
+    // Is there a file to upload?
     if( file != null){
       _supabaseService.insertEventContent(file, contentFileName, uuidV4, stateProvider).then((value) => {
 
+      // Has the upload been successful?
       if(value == 0){
           _supabaseService.insertEvent(newEvent, stateProvider).then((value) => {
         if(value == 0){
@@ -2843,6 +2836,8 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
       });
     }else{
       _supabaseService.insertEvent(newEvent, stateProvider).then((value) => {
+
+        // Has the entry been successfuL?
         if(value == 0){
           setState(() {
             stateProvider.setCurrentEvent(newEvent);

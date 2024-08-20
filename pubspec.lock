@@ -17,6 +17,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.35"
+  adv_camera:
+    dependency: "direct main"
+    description:
+      name: adv_camera
+      sha256: "92faf8483a1b406a9ddac19192b1e416874798722970877b2fdbe4b384757cb2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.0"
   analyzer:
     dependency: transitive
     description:

@@ -19,13 +19,14 @@ class ClubMeClub{
     required this.clubContactName,
     required this.clubContactStreet,
     required this.clubContactZip,
+    required this.clubContactStreetNumber,
     required this.clubEventBannerId,
 
     required this.clubWebsiteLink,
     required this.clubInstagramLink,
     required this.clubFrontpageBackgroundColorId,
 
-
+    required this.priorityScore
   });
 
   String clubId;
@@ -48,11 +49,25 @@ class ClubMeClub{
   String clubContactStreet;
   String clubContactCity;
   String clubContactZip;
+  int clubContactStreetNumber;
 
   String clubInstagramLink;
   String clubWebsiteLink;
 
   int clubFrontpageBackgroundColorId;
+  int priorityScore;
+
+  setContactStreetNumber(int newNumber){
+    clubContactStreetNumber = newNumber;
+  }
+
+  int getContactStreetNumber(){
+    return clubContactStreetNumber;
+  }
+
+  int getPriorityScore(){
+    return priorityScore;
+  }
 
   String getWebsiteLink(){
     return clubWebsiteLink;

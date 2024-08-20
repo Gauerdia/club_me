@@ -170,13 +170,13 @@ class CustomTextStyle{
         textStyle: TextStyle(
           fontWeight: FontWeight.bold,
           fontSize: screenHeight*fontSizeFactorMapHeadline,
-          shadows: const <Shadow>[
-            Shadow(
-                offset: Offset(2.0, 2.0),
-                blurRadius: 5.0,
-                color: Colors.grey
-            ),
-          ],
+          // shadows: const <Shadow>[
+          //   Shadow(
+          //       offset: Offset(2.0, 2.0),
+          //       blurRadius: 5.0,
+          //       color: Colors.grey
+          //   ),
+          // ],
         )
     );
   }
@@ -459,6 +459,22 @@ class CustomTextStyle{
         //   fontSize: screenHeight*fontSizeFactor5,
         //   fontWeight: FontWeight.bold,
         // )
+    );
+  }
+  TextStyle size5BoldLightGrey(){
+    return GoogleFonts.yaldevi(
+
+        textStyle:TextStyle(
+          color: Colors.grey[300],
+          fontSize: screenUtilFactor5,
+          fontWeight: FontWeight.bold,
+        )
+
+      // textStyle:TextStyle(
+      //   color: Colors.grey[500],
+      //   fontSize: screenHeight*fontSizeFactor5,
+      //   fontWeight: FontWeight.bold,
+      // )
     );
   }
 

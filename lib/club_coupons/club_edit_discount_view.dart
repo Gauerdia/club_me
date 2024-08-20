@@ -111,12 +111,11 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView> {
           height: screenHeight*0.05,
         ),
 
-
         _buildTitleTile(),
 
         // Spacer
         SizedBox(
-          height: screenHeight*0.05,
+          height: screenHeight*0.03,
         ),
 
         _buildDateTile(),
@@ -838,7 +837,8 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView> {
                       initialLabelIndex: hasTimeLimit,
                       totalSwitches: 2,
                       activeBgColor: [customTextStyle.primeColor],
-                      activeFgColor: Colors.white,
+                      activeFgColor: Colors.black,
+                      inactiveFgColor: customTextStyle.primeColor,
                       inactiveBgColor: const Color(0xff11181f),
                       labels: const [
                         'Nein',
@@ -1134,7 +1134,8 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView> {
                       initialLabelIndex: hasUsageLimit,
                       totalSwitches: 2,
                       activeBgColor: [customTextStyle.primeColor],
-                      activeFgColor: Colors.white,
+                      activeFgColor: Colors.black,
+                      inactiveFgColor: customTextStyle.primeColor,
                       inactiveBgColor: const Color(0xff11181f),
                       labels: const [
                         'Nein',
@@ -1382,7 +1383,8 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView> {
                       initialLabelIndex: targetGender,
                       totalSwitches: 3,
                       activeBgColor: [customTextStyle.primeColor],
-                      activeFgColor: Colors.white,
+                      activeFgColor: Colors.black,
+                      inactiveFgColor: customTextStyle.primeColor,
                       inactiveBgColor: const Color(0xff11181f),
                       labels: const [
                         'Allen',
@@ -1591,7 +1593,8 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView> {
                       initialLabelIndex: hasAgeLimit,
                       totalSwitches: 2,
                       activeBgColor: [customTextStyle.primeColor],
-                      activeFgColor: Colors.white,
+                      activeFgColor: Colors.black,
+                      inactiveFgColor: customTextStyle.primeColor,
                       inactiveBgColor: const Color(0xff11181f),
                       labels: const [
                         'Nein',
@@ -1681,7 +1684,8 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView> {
                       initialLabelIndex: ageLimitIsUpperLimit,
                       totalSwitches: 2,
                       activeBgColor: [customTextStyle.primeColor],
-                      activeFgColor: Colors.white,
+                      activeFgColor: Colors.black,
+                      inactiveFgColor: customTextStyle.primeColor,
                       inactiveBgColor: const Color(0xff11181f),
                       labels: const [
                         'Ab diesem Alter',
@@ -2282,7 +2286,8 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView> {
         discountDescription: _discountDescriptionController.text,
         targetGender: targetGender,
         targetAge: hasAgeLimit == 1? int.parse(_discountAgeLimitController.text): 0,
-        targetAgeIsUpperLimit: hasAgeLimit == 1 ? ageLimitIsUpperLimit == 1 ? true : false : false
+        targetAgeIsUpperLimit: hasAgeLimit == 1 ? ageLimitIsUpperLimit == 1 ? true : false : false,
+      priorityScore: 0
     );
 
     // print(

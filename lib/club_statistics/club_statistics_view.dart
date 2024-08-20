@@ -951,7 +951,7 @@ class _ClubStatisticsViewState extends State<ClubStatisticsView> {
                       ),
 
                       Container(
-                        height: screenHeight*0.12,
+                        height: screenHeight*0.15,
                         decoration: BoxDecoration(
                             color: Colors.red,
                           border: Border.all(
@@ -960,7 +960,7 @@ class _ClubStatisticsViewState extends State<ClubStatisticsView> {
                         ),
                         child: Center(
                           child: Text(
-                            "Hinweis: Die hier dargestellten Statistiken sind nur beispielhaft."
+                            "Hinweis: Die hier dargestellten Statistiken sind nur beispielhaft.\n\n"
                                 "Eine funktionierende Auswertung folgt in einem zukünftigen Update.",
                             textAlign: TextAlign.center,
                             style: customTextStyle.getFontStyle3Bold(),

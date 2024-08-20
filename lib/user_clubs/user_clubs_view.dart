@@ -150,6 +150,10 @@ class _UserClubsViewState extends State<UserClubsView>
       isAnyFilterActive = false;
       clubsToDisplay = stateProvider.getFetchedClubs();
     }
+
+    // Sort by priority score so that highest numbers come first
+    clubsToDisplay.sort((a,b) => b.priorityScore.compareTo(a.priorityScore));
+
   }
   void filterForFavorites(){
     setState(() {
@@ -160,14 +164,6 @@ class _UserClubsViewState extends State<UserClubsView>
 
 
   // MISC FUNCTS
-  // void _updateCurrentPageIndex(int index) {
-  //   _tabController.index = index;
-  //   _pageViewController.animateToPage(
-  //     index,
-  //     duration: const Duration(milliseconds: 400),
-  //     curve: Curves.easeInOut,
-  //   );
-  // }
   void _handlePageViewChanged(int currentPageIndex) {
     _tabController.index = currentPageIndex;
     setState(() {
@@ -385,6 +381,8 @@ class _UserClubsViewState extends State<UserClubsView>
                 }
               }
 
+              filterClubs();
+
               stateProvider.setFetchedClubs(clubsToDisplay);
 
               return SingleChildScrollView(
@@ -392,7 +390,7 @@ class _UserClubsViewState extends State<UserClubsView>
                 child: Column(
                   children: [
                     SizedBox(
-                      height: screenHeight*0.75,
+                      height: screenHeight*0.8,
                       child: PageView(
                         controller: _pageViewController,
                         onPageChanged: _handlePageViewChanged,
@@ -402,7 +400,7 @@ class _UserClubsViewState extends State<UserClubsView>
                             Center(
                               child: ClubCard(
                                   events: stateProvider.getFetchedEvents().where((event){
-                                    return event.getClubId() == club.getClubId();
+                                    return (event.getClubId() == club.getClubId() && checkIfIsEventIsAfterToday(event));
                                   }).toList(),
                                   clubMeClub: club,
                                   triggerSetState: triggerSetState,

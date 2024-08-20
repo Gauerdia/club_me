@@ -80,6 +80,7 @@ class _EventDetailViewState extends State<EventDetailView>{
     );
   }
 
+
   // CLICK HANDLING
   void clickOnInfo(){
     showDialog<String>(
@@ -131,6 +132,7 @@ class _EventDetailViewState extends State<EventDetailView>{
     });
   }
 
+
   // ABSTRACT FUNCTIONS
   void leavePage(StateProvider stateProvider){
 
@@ -172,6 +174,7 @@ class _EventDetailViewState extends State<EventDetailView>{
     Navigator.pop(context);
   }
 
+
   // FORMAT AND CROP
   void formatPrice(){
 
@@ -205,20 +208,19 @@ class _EventDetailViewState extends State<EventDetailView>{
 
     final exactlyOneWeekFromNowGermanTZ = todayGermanTZ.add(const Duration(days: 7));
 
-    if(stateProvider.clubMeEvent.getEventDate().isAfter(exactlyOneWeekFromNowGermanTZ)){
-      weekDayToDisplay = DateFormat('dd.MM.yyyy').format(stateProvider.clubMeEvent.getEventDate());
-    }else{
-      var eventDateWeekday = stateProvider.clubMeEvent.getEventDate().weekday;
-      switch(eventDateWeekday){
-        case(1): weekDayToDisplay = "Montag";
-        case(2): weekDayToDisplay = "Dienstag";
-        case(3): weekDayToDisplay = "Mittwoch";
-        case(4): weekDayToDisplay = "Donnerstag";
-        case(5): weekDayToDisplay = "Freitag";
-        case(6): weekDayToDisplay = "Samstag";
-        case(7): weekDayToDisplay = "Sonntag";
-      }
+    weekDayToDisplay = DateFormat('dd.MM.yyyy').format(stateProvider.clubMeEvent.getEventDate());
+
+    var eventDateWeekday = stateProvider.clubMeEvent.getEventDate().weekday;
+    switch(eventDateWeekday){
+      case(1): weekDayToDisplay = "Montag, $weekDayToDisplay";
+      case(2): weekDayToDisplay = "Dienstag, $weekDayToDisplay";
+      case(3): weekDayToDisplay = "Mittwoch, $weekDayToDisplay";
+      case(4): weekDayToDisplay = "Donnerstag, $weekDayToDisplay";
+      case(5): weekDayToDisplay = "Freitag, $weekDayToDisplay";
+      case(6): weekDayToDisplay = "Samstag, $weekDayToDisplay";
+      case(7): weekDayToDisplay = "Sonntag, $weekDayToDisplay";
     }
+
     formattedWeekday = weekDayToDisplay;
   }
   void formatEventTitle(){
@@ -255,7 +257,8 @@ class _EventDetailViewState extends State<EventDetailView>{
         child: Stack(
           children: [
 
-            SizedBox(
+            isContentShown ? Container()
+                :SizedBox(
               child: IconButton(
                 onPressed: () => leavePage(stateProvider),
                 icon: const Icon(
@@ -266,7 +269,8 @@ class _EventDetailViewState extends State<EventDetailView>{
               ),
             ),
 
-            SizedBox(
+            isContentShown ? Container()
+                :SizedBox(
               width: screenWidth,
               height: 50,
               child: Column(
@@ -279,7 +283,21 @@ class _EventDetailViewState extends State<EventDetailView>{
                   )
                 ],
               ),
-            )
+            ),
+
+            isContentShown ?
+            Container(
+              alignment: Alignment.centerRight,
+              width: screenWidth,
+              child: IconButton(
+                onPressed: () => clickedOnContent(),
+                icon: const Icon(
+                  Icons.close,
+                  color: Colors.white,
+                  size: 30,
+                ),
+              ),
+            ):Container(),
 
           ],
         ),
@@ -382,7 +400,7 @@ class _EventDetailViewState extends State<EventDetailView>{
           height: screenHeight*0.14,
         ),
 
-        // Header
+        // Header (image)
         SizedBox(
           width: screenWidth,
           height: screenHeight*0.2,
@@ -552,88 +570,99 @@ class _EventDetailViewState extends State<EventDetailView>{
             )
         ),
 
-        // Description
+        // Description + event content icon
         Container(
-            padding: const EdgeInsets.all(20),
             // height: screenHeight*0.4,
             width: screenWidth,
             child: Stack(
               children: [
-                SingleChildScrollView(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
 
-                      // Description headline
-                      GestureDetector(
-                        child: Align(
-                          alignment: Alignment.topLeft,
-                          child: Text(
-                            "Beschreibung",
-                            style: customTextStyle.size3Bold(),
+                // Text Info
+                Container(
+                  padding: const EdgeInsets.only(
+                      top:15,
+                      bottom: 15,
+                      right:15,
+                      left:9
+                  ),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+
+                        // Description headline
+                        GestureDetector(
+                          child: Align(
+                            alignment: Alignment.topLeft,
+                            child: Text(
+                              "Beschreibung",
+                              style: customTextStyle.size3Bold(),
+                            ),
                           ),
+                          onTap: (){
+                          },
                         ),
-                        onTap: (){
-                        },
-                      ),
 
-                      // Description content
-                      GestureDetector(
-                        child: Align(
+                        // Description content
+                        GestureDetector(
+                          child: Align(
+                              alignment: Alignment.topLeft,
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: screenHeight*0.02
+                                ),
+                                child: Text(
+                                  stateProvider.clubMeEvent.getEventDescription(),
+                                  style: customTextStyle.size4(),
+                                ),
+                              )
+                          ),
+                          onTap: (){
+                          },
+                        ),
+
+                        // Headline genres
+                        GestureDetector(
+                          child: Align(
+                            alignment: Alignment.topLeft,
+                            child: Text(
+                              "Musikrichtungen",
+                              style: customTextStyle.size3Bold(),
+                            ),
+                          ),
+                          onTap: (){
+                          },
+                        ),
+
+                        // Genres
+                        GestureDetector(
+                          child: Align(
                             alignment: Alignment.topLeft,
                             child: Padding(
                               padding: EdgeInsets.symmetric(
                                   vertical: screenHeight*0.02
                               ),
                               child: Text(
-                                stateProvider.clubMeEvent.getEventDescription(),
+                                formattedEventGenres,
                                 style: customTextStyle.size4(),
                               ),
-                            )
-                        ),
-                        onTap: (){
-                        },
-                      ),
-
-                      // Headline genres
-                      GestureDetector(
-                        child: Align(
-                          alignment: Alignment.topLeft,
-                          child: Text(
-                            "Musikrichtungen",
-                            style: customTextStyle.size3Bold(),
-                          ),
-                        ),
-                        onTap: (){
-                        },
-                      ),
-
-                      // Genres
-                      GestureDetector(
-                        child: Align(
-                          alignment: Alignment.topLeft,
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                                vertical: screenHeight*0.02
-                            ),
-                            child: Text(
-                              formattedEventGenres,
-                              style: customTextStyle.size4(),
                             ),
                           ),
-                        ),
-                        onTap: (){
-                        },
-                      )
+                          onTap: (){
+                          },
+                        )
 
-                    ],
+                      ],
+                    ),
                   ),
                 ),
 
+                // Switch Icon
                 stateProvider.clubMeEvent.getEventMarketingFileName().isNotEmpty ?
                     GestureDetector(
                       child: Container(
-                        height: screenHeight*0.32,
+                        // color: Colors.grey,
+                        height: screenHeight*0.36, //
                         width: screenWidth,
                         alignment: Alignment.bottomRight,
                         child: ClipRRect(
@@ -695,97 +724,100 @@ class _EventDetailViewState extends State<EventDetailView>{
 
   }
 
+  // View when event content is displayed
   Widget _buildContentView(){
-    return Container(
-      width: screenWidth,
-      height: screenHeight,
-      child: (isImage || isVideo) ? isImage ?
-      Stack(
-        alignment: Alignment.center,
-        children: [
-          Image.file(file!),
+    return GestureDetector(
+      child: Container(
+        // color: Colors.red,
+        width: screenWidth,
+        height: screenHeight, // *0.902
+        child: (isImage || isVideo) ? isImage ?
+        Stack(
+          alignment: Alignment.center,
+          children: [
 
-          GestureDetector(
-            child: Container(
-              height: screenHeight*0.77,
-              width: screenWidth*0.902,
-              alignment: Alignment.bottomRight,
-              child: ClipRRect(
-                borderRadius: const BorderRadius.only(
-                    topRight: Radius.circular(15),
-                    topLeft: Radius.circular(15)
-                ),
-                child: Image.asset(
-                  "assets/images/club_me_icon_round.png",
-                  scale: 15,
-                  // fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            onTap: () => clickedOnContent(),
-          )
-
-        ],
-      ) :
-      Stack(
-        children: [
-
-          // Video container
-          Container(
-            width: screenWidth,
-            height: screenHeight*0.85,
-            child: _chewieController != null &&
-                _chewieController!
-                    .videoPlayerController.value.isInitialized
-                ? SizedBox(
+            // File
+            Container(
               width: screenWidth,
-              height: screenHeight*0.97,
-              child: Chewie(
-                controller: _chewieController!,
+              height: screenHeight*1.2,
+              child: Image.file(file!),
+            ),
+
+            // Icon
+            GestureDetector(
+              child: Container(
+                alignment: Alignment.bottomRight,
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.only(
+                      topRight: Radius.circular(15),
+                      topLeft: Radius.circular(15)
+                  ),
+                  child: Image.asset(
+                    "assets/images/club_me_icon_round.png",
+                    scale: 15,
+                    // fit: BoxFit.cover,
+                  ),
+                ),
               ),
-            ) :
-            SizedBox(
+              onTap: () => clickedOnContent(),
+            )
+
+          ],
+        ) :
+        Stack(
+          children: [
+
+            // Video container
+            Container(
               width: screenWidth,
-              height: screenHeight,
-              child: const Center(
-                child: CircularProgressIndicator(),
-              ),
-            ),
-          ),
-
-          GestureDetector(
-            child: Container(
-              height: screenHeight*0.885,
-              width: screenWidth*0.95,
-              alignment: Alignment.bottomRight,
-              child: ClipRRect(
-                borderRadius: const BorderRadius.only(
-                    topRight: Radius.circular(15),
-                    topLeft: Radius.circular(15)
+              height: screenHeight*0.85,
+              child: _chewieController != null &&
+                  _chewieController!
+                      .videoPlayerController.value.isInitialized
+                  ? SizedBox(
+                width: screenWidth,
+                height: screenHeight*0.97,
+                child: Chewie(
+                  controller: _chewieController!,
                 ),
-                child: Image.asset(
-                  "assets/images/club_me_icon_round.png",
-                  scale: 15,
-                  // fit: BoxFit.cover,
+              ) :
+              SizedBox(
+                width: screenWidth,
+                height: screenHeight,
+                child: const Center(
+                  child: CircularProgressIndicator(),
                 ),
               ),
             ),
-            onTap: () => clickedOnContent(),
-          )
 
-          // ButtonRow
-/*          Container(
-            width: screenWidth,
-            height: screenHeight,
-            alignment: Alignment.bottomCenter,
-            padding: const EdgeInsets.only(bottom: 20),
-            child: _buildButtonRow(),
-          )*/
-        ],
-      ) :
-      const Center(
-        child: CircularProgressIndicator(),
+            GestureDetector(
+              child: Container(
+                height: screenHeight*0.885,
+                width: screenWidth*0.95,
+                alignment: Alignment.bottomRight,
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.only(
+                      topRight: Radius.circular(15),
+                      topLeft: Radius.circular(15)
+                  ),
+                  child: Image.asset(
+                    "assets/images/club_me_icon_round.png",
+                    scale: 15,
+                    // fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+              onTap: () => clickedOnContent(),
+            )
+          ],
+        ) :
+        const Center(
+          child: CircularProgressIndicator(),
+        ),
       ),
+      onHorizontalDragDown: (DragDownDetails details){
+          clickedOnContent();
+      },
     );
   }
 
@@ -812,9 +844,9 @@ class _EventDetailViewState extends State<EventDetailView>{
       resizeToAvoidBottomInset: false,
 
 
-      appBar: _buildAppBar(),
+      appBar: _buildAppBar() ,
       body: isContentShown? _buildContentView(): _buildMainColumn(),
-      bottomNavigationBar: CustomBottomNavigationBar(),
+      bottomNavigationBar: isContentShown? Container() : CustomBottomNavigationBar(),
     );
   }
 

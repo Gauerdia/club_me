@@ -58,8 +58,8 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-    <string>your usage description here</string>
+    <string>We need the camera to record stories.</string>
     <key>NSMicrophoneUsageDescription</key>
-    <string>your usage description here</string>
+    <string>We need the microphone to record stories.</string>
 </dict>
 </plist>

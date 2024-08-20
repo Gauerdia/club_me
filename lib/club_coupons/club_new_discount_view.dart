@@ -45,6 +45,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
   bool isDateSelected = false;
 
   int isTemplate = 0;
+  int isSupposedToBeTemplate = 0;
 
   bool dateUnfold = false;
   bool titleUnfold = false;
@@ -159,10 +160,11 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
         discountDescription: _discountDescriptionController.text,
         targetGender: targetGender,
         targetAge: hasAgeLimit == 1? int.parse(_discountAgeLimitController.text) : 0,
-        targetAgeIsUpperLimit: hasAgeLimit == 1 ? ageLimitIsUpperLimit == 0 ? true : false : false
+        targetAgeIsUpperLimit: hasAgeLimit == 1 ? ageLimitIsUpperLimit == 0 ? true : false : false,
+        priorityScore: 0
     );
 
-    if(isTemplate == 1){
+    if(isSupposedToBeTemplate == 1){
       addDiscountToTemplates(clubMeDiscount);
     }
 
@@ -171,6 +173,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
         if(value == 0){
           stateProvider.addDiscountToFetchedDiscounts(clubMeDiscount);
           stateProvider.sortFetchedDiscounts();
+          stateProvider.resetCurrentDiscountTemplate();
           context.go('/club_coupons');
         }else{
           showModalBottomSheet(
@@ -1350,11 +1353,12 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                       initialLabelIndex: targetGender,
                       totalSwitches: 3,
                       activeBgColor: [customTextStyle.primeColor],
-                      activeFgColor: Colors.white,
+                      activeFgColor: Colors.black,
+                      inactiveFgColor: customTextStyle.primeColor,
                       inactiveBgColor: const Color(0xff11181f),
                       labels: const [
-                        'Allen',
-                        'Männern',
+                        'Alle',
+                        'Männer',
                         'Frauen',
                       ],
                       fontSize: screenHeight*stateProvider.getFontSizeFactor6(),
@@ -1559,7 +1563,8 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                       initialLabelIndex: hasAgeLimit,
                       totalSwitches: 2,
                       activeBgColor: [customTextStyle.primeColor],
-                      activeFgColor: Colors.white,
+                      activeFgColor: Colors.black,
+                      inactiveFgColor: customTextStyle.primeColor,
                       inactiveBgColor: const Color(0xff11181f),
                       labels: const [
                         'Nein',
@@ -1649,7 +1654,8 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                       initialLabelIndex: ageLimitIsUpperLimit,
                       totalSwitches: 2,
                       activeBgColor: [customTextStyle.primeColor],
-                      activeFgColor: Colors.white,
+                      activeFgColor: Colors.black,
+                      inactiveFgColor: customTextStyle.primeColor,
                       inactiveBgColor: const Color(0xff11181f),
                       labels: const [
                         'Ab diesem Alter',
@@ -1953,7 +1959,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
             )
         ),
 
-        // main Div
+        // main Divhttps://drive.google.com/drive/folders/1oqke5-nK3PtNWRZ1MboS9tTc7ruCbocL?usp=drive_linkmänn
         Padding(
           padding: const EdgeInsets.only(
               left:2,
@@ -2003,7 +2009,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                               templateTileHeightFactor = originalFoldHeightFactor;
                               templateUnfold = false;
                             }else{
-                              templateTileHeightFactor = originalFoldHeightFactor*4;
+                              templateTileHeightFactor = originalFoldHeightFactor*3.5;
                               templateUnfold = true;
                             }
                           });
@@ -2028,6 +2034,11 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                   // endIndent: screenWidth*0.75,
                 ): Container(),
 
+                // Spacer
+                templateUnfold ?SizedBox(
+                  height: screenHeight*0.03,
+                ):Container(),
+
                 // Explanation
                 templateUnfold ? Container(
                     padding: const EdgeInsets.symmetric(
@@ -2051,10 +2062,11 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                   height: screenHeight*0.1,
                   child:  Center(
                     child: ToggleSwitch(
-                      initialLabelIndex: isTemplate,
+                      initialLabelIndex: isSupposedToBeTemplate,
                       totalSwitches: 2,
                       activeBgColor: [customTextStyle.primeColor],
-                      activeFgColor: Colors.white,
+                      activeFgColor: Colors.black,
+                      inactiveFgColor: customTextStyle.primeColor,
                       inactiveBgColor: const Color(0xff11181f),
                       labels: const [
                         'Nein',
@@ -2062,7 +2074,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                       ],
                       onToggle: (index) {
                         setState(() {
-                          isTemplate == 0 ? isTemplate = 1 : isTemplate = 0;
+                          isSupposedToBeTemplate == 0 ? isSupposedToBeTemplate = 1 : isSupposedToBeTemplate = 0;
                         });
                       },
                     ),
@@ -2091,7 +2103,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
 
             // Headline 'Please check if everything is fine'
             Container(
-              width: screenWidth,
+              width: screenWidth*0.9,
               padding: EdgeInsets.symmetric(
                   vertical: screenHeight*0.04,
                   horizontal: screenWidth*0.02
@@ -2099,7 +2111,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
               child: Text(
                 "Bitte gib die passenden Daten zu deinem Coupon an!",
                 textAlign: TextAlign.center,
-                style: customTextStyle.size1Bold(),
+                style: customTextStyle.size2Bold(),
               ),
             ),
 
@@ -2263,7 +2275,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                       ],
                     ),
                     child: Text(
-                      "Coupon kreieren!",
+                      "Coupon erstellen!",
                       // creationIndex == 5 ? "Abschicken!":"Weiter!",
                       style:customTextStyle.size4Bold(),
                     ),
@@ -2272,54 +2284,6 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                 )
             ),
           )
-
-          // Left button
-          // creationIndex != 0 ? Padding(
-          //   padding: EdgeInsets.only(
-          //       left: screenWidth*0.04,
-          //       bottom: screenHeight*0.015
-          //   ),
-          //   child: Align(
-          //       alignment: AlignmentDirectional.bottomStart,
-          //       child: GestureDetector(
-          //         child: Container(
-          //           padding: EdgeInsets.symmetric(
-          //               horizontal: screenWidth*0.035,
-          //               vertical: screenHeight*0.02
-          //           ),
-          //           decoration: BoxDecoration(
-          //             borderRadius: const BorderRadius.all(
-          //                 Radius.circular(10)
-          //             ),
-          //             gradient: LinearGradient(
-          //                 colors: [
-          //                   customTextStyle.primeColorDark,
-          //                   customTextStyle.primeColor,
-          //                 ],
-          //                 begin: Alignment.topLeft,
-          //                 end: Alignment.bottomRight,
-          //                 stops: const [0.2, 0.9]
-          //             ),
-          //             boxShadow: const [
-          //               BoxShadow(
-          //                 color: Colors.black54,
-          //                 spreadRadius: 1,
-          //                 blurRadius: 7,
-          //                 offset: Offset(3, 3),
-          //               ),
-          //             ],
-          //           ),
-          //           child: Text(
-          //             "Zurück!",
-          //             style: customTextStyle.size4Bold(),
-          //           ),
-          //         ),
-          //         onTap: () => deiterateScreen(),
-          //       )
-          //   ),
-          // ): Container(),
-
-
         ],
       ),
     );
@@ -2468,12 +2432,12 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
         context: context,
         builder: (BuildContext context){
           return AlertDialog(
-              title: Text("Abbrechen"),
-              content: Text("Bist du sicher, dass du abbrechen möchtest?"),
+              title: const Text("Abbrechen"),
+              content: const Text("Bist du sicher, dass du abbrechen möchtest?"),
               actions: [
 
                 TextButton(
-                  child: Text("Zurück"),
+                  child: const Text("Zurück"),
                   onPressed: (){
                     Navigator.of(context).pop();
                   },
@@ -2482,6 +2446,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                 TextButton(
                   child: Text("Ja"),
                   onPressed: (){
+                    stateProvider.resetCurrentDiscountTemplate();
                     switch(stateProvider.pageIndex){
                       case(2): context.go('/club_coupons');
                       case(3): context.go('/club_frontpage');

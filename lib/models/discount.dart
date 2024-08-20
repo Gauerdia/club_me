@@ -15,7 +15,8 @@ class ClubMeDiscount{
     required this.discountDescription,
     required this.targetGender,
     required this.targetAge,
-    required this.targetAgeIsUpperLimit
+    required this.targetAgeIsUpperLimit,
+    required this.priorityScore
   });
 
   String clubId;
@@ -38,6 +39,8 @@ class ClubMeDiscount{
   int targetGender;
   int targetAge;
   bool targetAgeIsUpperLimit;
+
+  int priorityScore;
 
   int getTargetAge(){
     return targetAge;

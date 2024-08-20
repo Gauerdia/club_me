@@ -177,7 +177,8 @@ class _RegisterViewState extends State<RegisterView> {
                         initialLabelIndex: gender,
                         totalSwitches: 3,
                         activeBgColor: [primeColor],
-                        activeFgColor: Colors.white,
+                        activeFgColor: Colors.black,
+                        inactiveFgColor: primeColor,
                         inactiveBgColor: Color(0xff11181f),
                         labels: const [
                           'Mann',
@@ -376,6 +377,7 @@ class _RegisterViewState extends State<RegisterView> {
       isLoading = true;
     });
 
+
     if(profileType == 0){
 
       if(RegExp(r'^.+@[a-zA-Z]+\.{1}[a-zA-Z]+(\.{0,1}[a-zA-Z]+)$').hasMatch(_eMailController.text)){
@@ -401,6 +403,8 @@ class _RegisterViewState extends State<RegisterView> {
   }
 
   void transferToHiveAndDB() async{
+
+    // If user
     if(profileType == 0){
       var uuid = const Uuid();
 
@@ -415,19 +419,24 @@ class _RegisterViewState extends State<RegisterView> {
 
       try{
 
+        await _hiveService.resetUserData();
+
         _hiveService.addUserData(newUserData).then((value) => {
-          _supabaseService.insertUserDate(newUserData).then((value) => {
+          _supabaseService.insertUserDate(newUserData).then((value){
+            stateProvider.setUserData(newUserData);
             if(newUserData.getProfileType() == 0){
-              context.go("/user_events")
+              context.go("/user_events");
             }else{
-              context.go("/club_events")
+              context.go("/club_events");
             }
           })
         });
 
       }catch(e){
-        log.d("Error in clickOnRegister: $e");
+        log.d("Error in transferToHiveAndDB: $e");
       }
+
+    // If club
     }else{
       try{
         await _supabaseService.checkIfClubPwIsLegit(_clubPasswordController.text).then((value){
@@ -455,7 +464,7 @@ class _RegisterViewState extends State<RegisterView> {
         });
 
       }catch(e){
-        log.d("Error in clickOnRegister: $e");
+        log.d("Error in transferToHiveAndDB: $e");
       }
     }
   }
@@ -603,6 +612,45 @@ class _RegisterViewState extends State<RegisterView> {
     );
   }
 
+  AppBar _buildAppBar(){
+    return AppBar(
+        backgroundColor: Colors.transparent,
+        title: SizedBox(
+          width: screenWidth,
+          child: Stack(
+            children: [
+              Container(
+                width: screenWidth,
+                padding: EdgeInsets.only(
+                    top: screenHeight*0.01
+                ),
+                child: Center(
+                  child: Text(headLine,
+                      textAlign: TextAlign.center,
+                      style: customTextStyle.size2()
+                  ),
+                ),
+              ),
+              Container(
+                width: screenWidth,
+                alignment: Alignment.centerLeft,
+                child: IconButton(
+                  icon: const Icon(
+                      Icons.arrow_back_ios
+                  ),
+                  onPressed: () => _goBack(),
+                ),
+              )
+            ],
+          ),
+        )
+    );
+  }
+
+  void _goBack(){
+    context.go("/");
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -614,17 +662,7 @@ class _RegisterViewState extends State<RegisterView> {
     customTextStyle = CustomTextStyle(context: context);
 
     return Scaffold(
-      appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          title: SizedBox(
-            width: screenWidth,
-            child: Text(
-              headLine,
-              textAlign: TextAlign.center,
-              style: customTextStyle.size2(),
-            ),
-          )
-      ),
+      appBar: _buildAppBar(),
       body: _buildViewBasedOnIndex()
     );
   }

@@ -48,37 +48,6 @@ class EventCard extends StatelessWidget {
       case(7): weekDayToDisplay = "Sonntag, $weekDayToDisplay";
     }
 
-    // if(clubMeEvent.getEventDate().isBefore(exactlyOneWeekFromNow)){
-    //   switch(clubMeEvent.getEventDate().weekday){
-    //     case(1): weekdayToDisplay = "Montag";
-    //     case(2): weekdayToDisplay = "Dienstag";
-    //     case(3): weekdayToDisplay = "Mittwoch";
-    //     case(4): weekdayToDisplay = "Donnerstag";
-    //     case(5): weekdayToDisplay = "Freitag";
-    //     case(6): weekdayToDisplay = "Samstag";
-    //     case(7): weekdayToDisplay = "Sonntag";
-    //     default: weekdayToDisplay = "Montag";
-    //   }
-    // }else{
-    //
-    //   String dayToDisplay = "";
-    //   String monthToDisplay = "";
-    //
-    //   if(clubMeEvent.getEventDate().day < 10){
-    //     dayToDisplay = "0${clubMeEvent.getEventDate().day}";
-    //   }else{
-    //     dayToDisplay = clubMeEvent.getEventDate().day.toString();
-    //   }
-    //
-    //   if(clubMeEvent.getEventDate().month < 10){
-    //     monthToDisplay = "0${clubMeEvent.getEventDate().month}";
-    //   }else{
-    //     monthToDisplay = clubMeEvent.getEventDate().month.toString();
-    //   }
-    //
-    //   weekdayToDisplay = "$dayToDisplay.$monthToDisplay.${clubMeEvent.getEventDate().year}";
-    // }
-
     formattedWeekDay = weekDayToDisplay;
   }
   void formatEventTitle(){
@@ -163,7 +132,7 @@ class EventCard extends StatelessWidget {
             child: Text(
               formattedWeekDay,
               textAlign: TextAlign.left,
-              style: customTextStyle.size5BoldDarkGrey(),
+              style: customTextStyle.size5BoldLightGrey(),
             ),
           ),
 

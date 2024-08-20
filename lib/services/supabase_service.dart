@@ -330,6 +330,7 @@ class SupabaseService{
       String clubId,
       String contactName,
       String contactStreet,
+      int contactStreetNumber,
       String contactZip,
       String contactCity
       ) async{
@@ -339,6 +340,7 @@ class SupabaseService{
           .update({
         "contact_name" : contactName,
         "contact_street": contactStreet,
+        "contact_street_number": contactStreetNumber,
         "contact_zip_code" : contactZip,
         "contact_city": contactCity
       }).match({
