@@ -58,6 +58,65 @@ class _RegisterViewState extends State<RegisterView> {
     newSelectedDate = DateTime.now();
   }
 
+  Widget _buildBottomNavigationBar2(){
+
+    return progressIndex == 0 ?
+     Container() :
+        progressIndex == 1 ?
+        Container(
+          width: screenWidth,
+          height: screenHeight*0.06,
+          decoration: BoxDecoration(
+              color: Colors.black,
+              border: Border(
+                  top: BorderSide(
+                      color: Colors.grey[500]!
+                  )
+              )
+          ),
+
+          // color: Colors.green,
+          alignment: Alignment.bottomRight,
+          padding: const EdgeInsets.only(
+              right: 10,
+              bottom: 10
+          ),
+          child: GestureDetector(
+            child: Text(
+              "Registrieren!",
+              style: customStyleClass.getFontStyle3BoldPrimeColor(),
+            ),
+            onTap: () => clickOnRegister(),
+          ),
+        ) :
+        Container(
+          width: screenWidth,
+          height: screenHeight*0.06,
+          decoration: BoxDecoration(
+              color: Colors.black,
+              border: Border(
+                  top: BorderSide(
+                      color: Colors.grey[500]!
+                  )
+              )
+          ),
+
+          // color: Colors.green,
+          alignment: Alignment.bottomRight,
+          padding: const EdgeInsets.only(
+              right: 10,
+              bottom: 10
+          ),
+          child: GestureDetector(
+            child: Text(
+              "Registrieren!",
+              style: customStyleClass.getFontStyle3BoldPrimeColor(),
+            ),
+            onTap: () => clickOnRegister(),
+          ),
+        );
+  }
+
   String formatSelectedDate(){
 
     String tempDay = "";
@@ -99,20 +158,9 @@ class _RegisterViewState extends State<RegisterView> {
   }
 
   Widget _buildRegisterAsUser(){
-    return Container(
+    return SizedBox(
         height: screenHeight,
         width: screenWidth,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color(0xff2b353d),
-                Color(0xff11181f)
-              ],
-              stops: [0.15, 0.6]
-          ),
-        ),
         child: SingleChildScrollView(
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             child: Column(
@@ -132,60 +180,115 @@ class _RegisterViewState extends State<RegisterView> {
                     ),
                   ),
 
+                  // Text: Title
+                  Container(
+                    width: screenWidth*0.9,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "Vorname",
+                      style: customStyleClass.getFontStyle3(),
+                    ),
+                  ),
+
                   // Textfield first name
                   SizedBox(
-                    height: screenHeight*0.15,
-                    width: screenWidth*0.8,
+                    height: screenHeight*0.12,
+                    width: screenWidth*0.9,
                     child: TextField(
                       controller: _firstNameController,
-                      decoration: const InputDecoration(
-                          hintText: "Mario",
-                          border: OutlineInputBorder(),
-                        label: Text("Vorname")
+                      cursorColor: customStyleClass.primeColor,
+                      decoration: InputDecoration(
+                        focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                                color: customStyleClass.primeColor
+                            )
+                        ),
+                        hintText: "z.B. Max",
+                        border: const OutlineInputBorder(),
                       ),
-                      style: customStyleClass.getFontStyle3(),
+                      style: customStyleClass.getFontStyle4(),
                       autofocus: true,
                       maxLength: 35,
+                    ),
+                  ),
+
+                  // Text: Title
+                  Container(
+                    width: screenWidth*0.9,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "Nachname",
+                      style: customStyleClass.getFontStyle3(),
                     ),
                   ),
 
                   // Textfield last name
                   SizedBox(
-                    height: screenHeight*0.15,
-                    width: screenWidth*0.8,
+                    height: screenHeight*0.12,
+                    width: screenWidth*0.9,
                     child: TextField(
                       controller: _lastNameController,
-                      decoration: const InputDecoration(
-                          hintText: "Müller",
-                          border: OutlineInputBorder(),
-                          label: Text("Nachname")
+                      cursorColor: customStyleClass.primeColor,
+                      decoration: InputDecoration(
+                        focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                                color: customStyleClass.primeColor
+                            )
+                        ),
+                        hintText: "z.B. Mustermann",
+                        border: const OutlineInputBorder(),
                       ),
-                      style: customStyleClass.getFontStyle3(),
+                      style: customStyleClass.getFontStyle4(),
                       autofocus: true,
                       maxLength: 35,
+                    ),
+                  ),
+
+                  // Text: Title
+                  Container(
+                    width: screenWidth*0.9,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "E-Mail",
+                      style: customStyleClass.getFontStyle3(),
                     ),
                   ),
 
                   // Textfield email
                   SizedBox(
-                    height: screenHeight*0.15,
-                    width: screenWidth*0.8,
+                    height: screenHeight*0.12,
+                    width: screenWidth*0.9,
                     child: TextFormField(
                       controller: _eMailController,
-                      decoration: const InputDecoration(
-                          hintText: "max.mustermann@gmail.com",
-                          border: OutlineInputBorder(),
-                          label: Text("E-Mail")
+                      cursorColor: customStyleClass.primeColor,
+                      decoration: InputDecoration(
+                        focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                                color: customStyleClass.primeColor
+                            )
+                        ),
+                        hintText: "z.B. max.mustermann@gmx.de",
+                        border: const OutlineInputBorder(),
                       ),
-                      style: customStyleClass.getFontStyle3(),
+                      style: customStyleClass.getFontStyle4(),
                       autofocus: true,
                       maxLength: 35,
                     ),
                   ),
 
+                  // Text: Title
+                  Container(
+                    width: screenWidth*0.9,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "Geschlecht",
+                      style: customStyleClass.getFontStyle3(),
+                    ),
+                  ),
+
                   // toggle man, woman, diverse
                   SizedBox(
-                    width: screenWidth*0.8,
+                    width: screenWidth*0.9,
                     child:  Center(
                       child: ToggleSwitch(
                         initialLabelIndex: gender,
@@ -200,7 +303,8 @@ class _RegisterViewState extends State<RegisterView> {
                           "Divers"
                         ],
                         // fontSize: screenHeight*stateProvider.getFontSizeFactor3(),
-                        minWidth: screenWidth*0.25,
+                        minWidth: screenWidth*0.9,
+                        minHeight: screenHeight*0.07,
                         onToggle: (index) {
                           setState(() {
                             gender = index!;
@@ -210,67 +314,75 @@ class _RegisterViewState extends State<RegisterView> {
                     ),
                   ),
 
-                  // Spacer
                   SizedBox(
-                    height: screenHeight*0.04,
+                    height: screenHeight*0.05,
                   ),
 
-                  Text(
-                    "Geburtstag"
+                  // Text: Title
+                  Container(
+                    width: screenWidth*0.9,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "Geburtsdatum",
+                      style: customStyleClass.getFontStyle3(),
+                    ),
                   ),
 
-                  // Datepicker
                   SizedBox(
-                    width: screenWidth*0.6,
-                    height: screenHeight*0.07,
-                    child: OutlinedButton(
-                        onPressed: (){
-                          showDatePicker(
-                              context: context,
-                              locale: const Locale("de", "DE"),
-                              initialDate: newSelectedDate,
-                              firstDate: DateTime(1960),
-                              lastDate: DateTime(2025),
-                              builder: (BuildContext context, Widget? child) {
-                                return Theme(
-                                  data: ThemeData.dark(),
-                                  child: child!,
-                                );
-                              }).then((pickedDate){
-                            if( pickedDate == null){
-                              return;
-                            }
-                            setState(() {
-                              newSelectedDate = pickedDate;
-                            });
-                          });
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            // Date as Text
-                            Text(
-                              formatSelectedDate(),
-                              style: customStyleClass.getFontStyle3Bold(),
-                            ),
-                            // Spacer
-                            SizedBox(
-                              width: screenWidth*0.02,
-                            ),
-                            // Calendar icon
-                            Icon(
-                                Icons.calendar_month_outlined,
-                                color: primeColor,
-                                size: customStyleClass.getFontSize3() //screenHeight*stateProvider.getIconSizeFactor()
-                            )
-                          ],
+                    height: screenHeight*0.12,
+                    child: Column(
+                      children: [
+
+                        SizedBox(
+                          height: screenHeight*0.01,
+                        ),
+
+                        SizedBox(
+                          width: screenWidth*0.32,
+                          child:OutlinedButton(
+                              onPressed: (){
+                                showDatePicker(
+                                    context: context,
+                                    locale: const Locale("de", "DE"),
+                                    initialDate: DateTime(2000),
+                                    firstDate: DateTime(1949),
+                                    lastDate: DateTime(2010),
+                                    builder: (BuildContext context, Widget? child) {
+                                      return Theme(
+                                        data: ThemeData.dark(),
+                                        child: child!,
+                                      );
+                                    }).then((pickedDate){
+                                  if( pickedDate == null){
+                                    return;
+                                  }
+                                  setState(() {
+                                    newSelectedDate = pickedDate;
+                                  });
+                                });
+                              },
+                              style: OutlinedButton.styleFrom(
+                                  minimumSize: Size(
+                                      screenHeight*0.05,
+                                      screenHeight*0.07
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(5.0)
+                                  )
+                              ),
+                              child: Text(
+                                formatSelectedDate(),
+                                style: customStyleClass.getFontStyle4(),
+                              )
+                          ),
                         )
+                      ],
                     ),
                   ),
 
                   // Spacer
                   SizedBox(
-                    height: screenHeight*0.04,
+                    height: screenHeight*0.1,
                   ),
 
                 ]
@@ -282,17 +394,6 @@ class _RegisterViewState extends State<RegisterView> {
   Widget _buildRegisterAsClub(){
     return Container(
         height: screenHeight,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color(0xff2b353d),
-                Color(0xff11181f)
-              ],
-              stops: [0.15, 0.6]
-          ),
-        ),
         child: SingleChildScrollView(
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             child: Column(
@@ -318,12 +419,17 @@ class _RegisterViewState extends State<RegisterView> {
                     width: screenWidth*0.8,
                     child: TextField(
                       controller: _clubPasswordController,
-                      decoration: const InputDecoration(
-                          hintText: "1234",
-                          border: OutlineInputBorder(),
-                          label: Text("Passwort")
+                      cursorColor: customStyleClass.primeColor,
+                      decoration: InputDecoration(
+                        focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                                color: customStyleClass.primeColor
+                            )
+                        ),
+                        hintText: "z.B. passwort1234",
+                        border: const OutlineInputBorder(),
                       ),
-                      style: customStyleClass.getFontStyle3(),
+                      style: customStyleClass.getFontStyle4(),
                       autofocus: true,
                       maxLength: 35,
                     ),
@@ -465,17 +571,6 @@ class _RegisterViewState extends State<RegisterView> {
   Widget _buildChooseUserOrClub(){
     return Container(
       height: screenHeight,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xff2b353d),
-              Color(0xff11181f)
-            ],
-            stops: [0.15, 0.6]
-        ),
-      ),
       child: SingleChildScrollView(
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         child: Column(
@@ -626,7 +721,8 @@ class _RegisterViewState extends State<RegisterView> {
                 alignment: Alignment.centerLeft,
                 child: IconButton(
                   icon: const Icon(
-                      Icons.arrow_back_ios
+                      Icons.arrow_back_ios,
+                    color: Colors.white,
                   ),
                   onPressed: () => _goBack(),
                 ),
@@ -639,114 +735,6 @@ class _RegisterViewState extends State<RegisterView> {
 
   void _goBack(){
     context.go("/");
-  }
-
-  Widget _buildNavigationBar(){
-    return SizedBox(
-      height: screenHeight*0.12,
-      child: Stack(
-        children: [
-
-          // Top accent
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              height: screenHeight*0.105,
-              decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.topRight,
-                      colors: [Colors.grey[600]!, Colors.grey[900]!],
-                      stops: const [0.1, 0.9]
-                  ),
-                  borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30)
-                  )
-              ),
-            ),
-          ),
-
-          // Main Background
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              height: screenHeight*0.1,
-              decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Colors.grey[800]!.withOpacity(0.7),
-                        Colors.grey[900]!
-                      ],
-                      stops: const [0.1,0.9]
-                  ),
-                  borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30)
-                  )
-              ),
-            ),
-          ),
-
-          // Right button
-          isLoading?
-              SizedBox(
-                width: screenWidth,
-                child: const Center(
-                  child: CircularProgressIndicator(),
-                ),
-              )
-              : Padding(
-            padding: EdgeInsets.only(
-                top: screenHeight*0.02
-              // right: screenWidth*0.04,
-              // bottom: screenHeight*0.015,
-            ),
-            child: Align(
-                alignment: AlignmentDirectional.center,
-                child: GestureDetector(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: screenWidth*0.055,
-                        vertical: screenHeight*0.02
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.all(
-                          Radius.circular(10)
-                      ),
-                      gradient: LinearGradient(
-                          colors: [
-                            customStyleClass.primeColorDark,
-                            customStyleClass.primeColor,
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          stops: [0.2, 0.9]
-                      ),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black54,
-                          spreadRadius: 1,
-                          blurRadius: 7,
-                          offset: Offset(3, 3),
-                        ),
-                      ],
-                    ),
-                    child: Text(
-                      "Registrieren" ,
-                      style: customStyleClass.getFontStyle4Bold(),
-                    ),
-                  ),
-                  onTap: () => clickOnRegister(),
-                )
-            ),
-          )
-        ],
-
-      ),
-    );
   }
 
   @override
@@ -764,7 +752,7 @@ class _RegisterViewState extends State<RegisterView> {
       extendBody: true,
       appBar: _buildAppBar(),
       body: _buildViewBasedOnIndex(),
-      bottomNavigationBar: _buildNavigationBar(),
+      bottomNavigationBar: _buildBottomNavigationBar2(),
     );
   }
 }
