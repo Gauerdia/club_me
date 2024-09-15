@@ -183,10 +183,6 @@ class _UserEventsViewState extends State<UserEventsView> {
 
                           // If we haven't started to fetch the image yet, we ought to
                           if(!fetchedContentProvider.getFetchedBannerImageIds().contains(currentEvent.getBannerId())){
-
-                            // Save the name so that we don't fetch the same image several times
-                            // imageFileNamesToBeFetched.add(currentEvent.getBannerId());
-
                             fetchAndSaveBannerImage(currentEvent.getBannerId());
                           }
                         }else{
@@ -259,7 +255,15 @@ class _UserEventsViewState extends State<UserEventsView> {
               || currentEvent.getEventDate().isAtSameMomentAs(todayFormatted)){
             upcomingDbEvents.add(currentEvent);
             if(!fetchedContentProvider.getFetchedBannerImageIds().contains(currentEvent.getBannerId())){
-              fetchedContentProvider.addFetchedBannerImageId(currentEvent.getBannerId());
+
+              checkIfImageExistsLocally(currentEvent.getBannerId()).then((exists){
+                if(!exists){
+                  fetchAndSaveBannerImage(currentEvent.getBannerId());
+                }else{
+                  fetchedContentProvider.addFetchedBannerImageId(currentEvent.getBannerId());
+                }
+              });
+
             }
           }
         }

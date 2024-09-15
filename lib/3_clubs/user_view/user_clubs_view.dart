@@ -426,12 +426,9 @@ class _UserClubsViewState extends State<UserClubsView>
                   // Check if we need to fetch the image
                   checkIfImageExistsLocally(currentClub.getBannerId()).then((exists){
                     if(!exists){
-                      print("_buildSupabaseClubs: doesnt exist");
                         fetchAndSaveBannerImage(currentClub.getBannerId());
-
                     }else{
                       if(!fetchedContentProvider.getFetchedBannerImageIds().contains(currentClub.getBannerId())){
-                        print("_buildSupabaseClubs: exists");
                         fetchedContentProvider.addFetchedBannerImageId(currentClub.getBannerId());
                       }
                     }
@@ -475,23 +472,39 @@ class _UserClubsViewState extends State<UserClubsView>
             }
           }
       );
-    }
-    else{
+    }else{
 
       if(clubsToDisplay.isEmpty){
-        for(var club in fetchedContentProvider.getFetchedClubs()){
-          clubsToDisplay.add(club);
-          if(!fetchedContentProvider.getFetchedBannerImageIds().contains(club.getBannerId()))
+        for(var currentClub in fetchedContentProvider.getFetchedClubs()){
+          clubsToDisplay.add(currentClub);
+          if(!fetchedContentProvider.getFetchedBannerImageIds().contains(currentClub.getBannerId()))
             {
-              print("_buildSupabaseClubs, fetchedclubs not empty, clubsToDisplay empty");
-              // fetchedContentProvider.addFetchedBannerImageId(club.getBannerId());
+              // Check if we need to fetch the image
+              checkIfImageExistsLocally(currentClub.getBannerId()).then((exists){
+                if(!exists){
+                  fetchAndSaveBannerImage(currentClub.getBannerId());
+                }else{
+                  if(!fetchedContentProvider.getFetchedBannerImageIds().contains(currentClub.getBannerId())){
+                    fetchedContentProvider.addFetchedBannerImageId(currentClub.getBannerId());
+                  }
+                }
+              });
             }
         }
       }else{
-        for(var club in clubsToDisplay){
-          if(!fetchedContentProvider.getFetchedBannerImageIds().contains(club.getBannerId()))
+        for(var currentClub in clubsToDisplay){
+          if(!fetchedContentProvider.getFetchedBannerImageIds().contains(currentClub.getBannerId()))
           {
-            fetchedContentProvider.addFetchedBannerImageId(club.getBannerId());
+            // Check if we need to fetch the image
+            checkIfImageExistsLocally(currentClub.getBannerId()).then((exists){
+              if(!exists){
+                fetchAndSaveBannerImage(currentClub.getBannerId());
+              }else{
+                if(!fetchedContentProvider.getFetchedBannerImageIds().contains(currentClub.getBannerId())){
+                  fetchedContentProvider.addFetchedBannerImageId(currentClub.getBannerId());
+                }
+              }
+            });
           }
         }
       }
