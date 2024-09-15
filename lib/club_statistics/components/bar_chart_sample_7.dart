@@ -79,6 +79,9 @@ class _BarChartSample7State extends State<BarChartSample7> {
                     return Text(
                       value.toInt().toString(),
                       textAlign: TextAlign.left,
+                      style: TextStyle(
+                        color: Colors.white
+                      ),
                     );
                   },
                 ),
@@ -93,7 +96,10 @@ class _BarChartSample7State extends State<BarChartSample7> {
                       axisSide: meta.axisSide,
                       child:
                       Text(
-                        testValues[index]
+                        testValues[index],
+                        style: TextStyle(
+                          color: Colors.white
+                        ),
                       )
                       // _IconWidget(
                       //   color: widget.dataList[index].color,

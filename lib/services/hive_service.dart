@@ -1,9 +1,19 @@
 import 'package:club_me/models/club_me_discount_template.dart';
+import 'package:club_me/models/club_me_event_template.dart';
+import 'package:club_me/models/club_me_local_discount.dart';
+import 'package:club_me/models/discount.dart';
 import 'package:club_me/models/event_template.dart';
+import 'package:club_me/models/parser/discount_to_local_discount_parser.dart';
+import 'package:club_me/services/supabase_service.dart';
 import 'package:hive/hive.dart';
 import '../models/club_me_user_data.dart';
+import '../shared/logger.util.dart';
 
 class HiveService{
+
+  final log = getLogger();
+
+  final SupabaseService _supabaseService = SupabaseService();
 
   final String _clubMeFavoriteEventsBoxName = "clubMeFavoriteEventsBox";
   final String _clubMeFavoriteClubsBoxName = "clubMeFavoriteClubsBox";
@@ -12,6 +22,7 @@ class HiveService{
 
   final String _clubMeEventTemplatesName = "clubMeEventTemplateBox";
   final String _clubMeDiscountTemplatesName = "clubMeDiscountTemplatesBox";
+  final String _clubMeLocalDiscountsName = "clubMeLocalDiscountsBox";
 
   final String _clubMeUserDataBoxName = "clubMeUserDataBox";
 
@@ -20,26 +31,85 @@ class HiveService{
   Future<Box<String>> get _clubMeDiscountBox async => await Hive.openBox<String>(_clubMeFavoriteDiscountsBoxName);
   Future<Box<String>> get _clubMeAttendingEventsBox async => await Hive.openBox<String>(_clubMeAttendingEventsName);
   Future<Box<ClubMeUserData>> get _clubMeUserClubBox async => await Hive.openBox<ClubMeUserData>(_clubMeUserDataBoxName);
-  Future<Box<EventTemplate>> get _clubMeEventTemplatesBox async => await Hive.openBox<EventTemplate>(_clubMeEventTemplatesName);
+  Future<Box<ClubMeEventTemplate>> get _clubMeEventTemplatesBox async => await Hive.openBox<ClubMeEventTemplate>(_clubMeEventTemplatesName);
   Future<Box<ClubMeDiscountTemplate>> get _clubMeDiscountTemplatesBox async => await Hive.openBox<ClubMeDiscountTemplate>(_clubMeDiscountTemplatesName);
+  Future<Box<ClubMeLocalDiscount>> get _clubMeLocalDiscountsBox async => await Hive.openBox<ClubMeLocalDiscount>(_clubMeLocalDiscountsName);
+
+  // We save all discounts locally so that bad internet connection doesn't impede
+  // the use of the discounts.
+  Future<List<ClubMeLocalDiscount>> getAllLocalDiscounts() async {
+    var box = await _clubMeLocalDiscountsBox;
+    return box.values.toList();
+  }
+  Future<void> resetLocalDiscounts() async {
+    var box = await _clubMeLocalDiscountsBox;
+    await box.deleteAll(box.keys);
+  }
+  Future<void> deleteLocalDiscount(String discountId) async {
+    var discounts = await getAllLocalDiscounts();
+    var index = discounts.indexWhere((element) => element.discountId == discountId);
+
+    var box = await _clubMeLocalDiscountsBox;
+    await box.deleteAt(index);
+  }
+  Future<void> addLocalDiscount(ClubMeDiscount clubMeDiscount) async {
+
+    ClubMeLocalDiscount clubMeLocalDiscount = discountToLocalDiscountParser(clubMeDiscount);
+
+    var box = await _clubMeLocalDiscountsBox;
+    await box.add(clubMeLocalDiscount);
+  }
+  Future<void> updateLocalDiscount(ClubMeDiscount clubMeDiscount) async{
+
+    ClubMeLocalDiscount clubMeLocalDiscount = discountToLocalDiscountParser(clubMeDiscount);
+
+    var discounts = await getAllLocalDiscounts();
+    var index = discounts.indexWhere((element) => element.discountId == clubMeDiscount.getDiscountId());
+
+    var box = await _clubMeLocalDiscountsBox;
+    await box.putAt(index, clubMeLocalDiscount);
+  }
+
 
   Future<void> addDiscountTemplate(ClubMeDiscountTemplate discountTemplate) async {
-    var box = await _clubMeDiscountTemplatesBox;
-    await box.add(discountTemplate);
+    try{
+      var box = await _clubMeDiscountTemplatesBox;
+      await box.add(discountTemplate);
+      log.d("addDiscountTemplate: Finished successfully");
+    }catch(e){
+      log.d("Error in addDiscountTemplate: $e");
+      _supabaseService.createErrorLog(e.toString());
+    }
   }
   Future<List<ClubMeDiscountTemplate>> getAllDiscountTemplates() async {
     var box = await _clubMeDiscountTemplatesBox;
     return box.values.toList();
   }
+  Future<void> deleteTemplateDiscount(String templateId) async {
+
+    var discounts = await getAllDiscountTemplates();
+    var index = discounts.indexWhere((element) => element.getTemplateId() == templateId);
+
+    var box = await _clubMeDiscountBox;
+    await box.deleteAt(index);
+  }
 
   // Event template
-  Future<void> addEventTemplate(EventTemplate eventTemplate) async {
+  Future<void> addClubMeEventTemplate(ClubMeEventTemplate clubMeEventTemplate) async {
     var box = await _clubMeEventTemplatesBox;
-    await box.add(eventTemplate);
+    await box.add(clubMeEventTemplate);
   }
-  Future<List<EventTemplate>> getAllEventTemplates() async {
+  Future<List<ClubMeEventTemplate>> getAllClubMeEventTemplates() async {
     var box = await _clubMeEventTemplatesBox;
     return box.values.toList();
+  }
+  Future<void> deleteClubMeEventTemplate(String templateId) async {
+
+    var events = await getAllClubMeEventTemplates();
+    var index = events.indexWhere((element) => element.getTemplateId() == templateId);
+
+    var box = await _clubMeDiscountBox;
+    await box.deleteAt(index);
   }
 
   // USER DATA

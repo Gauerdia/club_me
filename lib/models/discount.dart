@@ -14,39 +14,57 @@ class ClubMeDiscount{
     required this.hasUsageLimit,
     required this.discountDescription,
     required this.targetGender,
-    required this.targetAge,
-    required this.targetAgeIsUpperLimit,
-    required this.priorityScore
+    required this.priorityScore,
+    required this.ageLimitUpperLimit,
+    required this.ageLimitLowerLimit,
+    required this.hasAgeLimit,
+    required this.isRepeatedDays
   });
 
   String clubId;
   String clubName;
-
   String discountId;
+
   String discountTitle;
-
   DateTime discountDate;
-
   String discountDescription;
 
   bool hasTimeLimit;
   bool hasUsageLimit;
+  bool hasAgeLimit;
 
-  int numberOfUsages;
   String bannerId;
+  int numberOfUsages;
   int howOftenRedeemed;
 
+  // 0: all, 1: men, 2: women
   int targetGender;
-  int targetAge;
-  bool targetAgeIsUpperLimit;
-
   int priorityScore;
 
-  int getTargetAge(){
-    return targetAge;
+  int ageLimitLowerLimit, ageLimitUpperLimit;
+
+  int isRepeatedDays;
+
+  int getIsRepeatedDays(){
+    return isRepeatedDays;
   }
-  bool getTargetAgeIsUpperLimit(){
-    return targetAgeIsUpperLimit;
+
+  int getPriorityScore(){
+    return priorityScore;
+  }
+
+  bool getIsRepeated(){
+    return isRepeatedDays != 0 ? true:false;
+  }
+
+  bool getHasAgeLimit(){
+    return hasAgeLimit;
+  }
+  int getAgeLimitLowerLimit(){
+    return ageLimitLowerLimit;
+  }
+  int getAgeLimitUpperLimit(){
+    return ageLimitUpperLimit;
   }
 
   int getTargetGender(){

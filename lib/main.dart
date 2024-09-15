@@ -1,37 +1,24 @@
-import 'package:club_me/club_coupons/club_choose_discount_template_view.dart';
-import 'package:club_me/club_coupons/club_coupons_view.dart';
-import 'package:club_me/club_coupons/club_new_discount_view.dart';
-import 'package:club_me/club_coupons/club_past_discounts_view.dart';
-import 'package:club_me/club_coupons/club_upcoming_discounts_view.dart';
-import 'package:club_me/club_events/club_choose_event_template_view.dart';
-import 'package:club_me/club_events/club_events_view.dart';
-import 'package:club_me/club_events/club_new_event_view.dart';
-import 'package:club_me/club_events/club_past_events_view.dart';
-import 'package:club_me/club_events/club_upcoming_events_view.dart';
-import 'package:club_me/club_frontpage/club_front_page_view.dart';
-import 'package:club_me/club_frontpage/components/update_contact_view.dart';
-import 'package:club_me/club_frontpage/components/update_news_view.dart';
+import 'package:club_me/1_events/user_view/user_upcoming_events_view.dart';
+import 'package:club_me/3_clubs/club_view/components/offers_list_club_view.dart';
+import 'package:club_me/3_clubs/user_view/offers_list_view.dart';
 import 'package:club_me/club_statistics/club_statistics_view.dart';
 import 'package:club_me/log_in/log_in_view.dart';
 import 'package:club_me/models/club_me_discount_template.dart';
-import 'package:club_me/models/club_me_event_hive.dart';
+import 'package:club_me/models/club_me_event_template.dart';
+import 'package:club_me/models/club_me_local_discount.dart';
 import 'package:club_me/models/club_me_user_data.dart';
-import 'package:club_me/models/event_template.dart';
 import 'package:club_me/profile/profile_view.dart';
+import 'package:club_me/provider/current_and_liked_elements_provider.dart';
+import 'package:club_me/provider/fetched_content_provider.dart';
 import 'package:club_me/provider/state_provider.dart';
+import 'package:club_me/provider/user_data_provider.dart';
 import 'package:club_me/register/register_view.dart';
-import 'package:club_me/settings/settings_view.dart';
-import 'package:club_me/detail_pages/club_detail_view.dart';
-import 'package:club_me/detail_pages/discount_active_view.dart';
-import 'package:club_me/club_coupons/club_edit_discount_view.dart';
-import 'package:club_me/detail_pages/event_detail_view.dart';
+import 'package:club_me/settings/club_view/settings_club_view.dart';
+import 'package:club_me/settings/user_view/settings_user_view.dart';
 import 'package:club_me/shared/test.dart';
 import 'package:club_me/stories/video_recorder_screen.dart';
-import 'package:club_me/user_clubs/user_clubs_view.dart';
-import 'package:club_me/user_coupons/user_coupons_view.dart';
-import 'package:club_me/user_events/user_events_view.dart';
-import 'package:club_me/user_map/user_map_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
@@ -40,7 +27,6 @@ import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
-import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:camera/camera.dart';
@@ -49,7 +35,28 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
+import '1_events/club_view/club_choose_event_template_view.dart';
+import '1_events/club_view/club_events_view.dart';
+import '1_events/club_view/club_new_event_view.dart';
+import '1_events/club_view/club_past_events_view.dart';
+import '1_events/club_view/club_upcoming_events_view.dart';
+import '1_events/event_detail_view.dart';
+import '1_events/user_view/user_events_view.dart';
+import '2_discounts/club_view/club_choose_discount_template_view.dart';
+import '2_discounts/club_view/club_coupons_view.dart';
+import '2_discounts/club_view/club_edit_discount_view.dart';
+import '2_discounts/club_view/club_new_discount_view.dart';
+import '2_discounts/club_view/club_past_discounts_view.dart';
+import '2_discounts/club_view/club_upcoming_discounts_view.dart';
+import '2_discounts/discount_active_view.dart';
+import '2_discounts/user_view/user_coupons_view.dart';
+import '3_clubs/club_detail_view.dart';
+import '3_clubs/club_view/club_front_page_view.dart';
+import '3_clubs/club_view/components/update_contact_view.dart';
+import '3_clubs/club_view/components/update_news_view.dart';
+import '3_clubs/club_view/components/update_photos_and_videos_view.dart';
+import '3_clubs/user_view/user_clubs_view.dart';
+import '4_map/user_map_view.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -57,9 +64,9 @@ Future<void> main() async {
   // Set up Hive
   await Hive.initFlutter((await getApplicationDocumentsDirectory()).path);
   Hive.registerAdapter(ClubMeUserDataAdapter());
-  Hive.registerAdapter(EventTemplateAdapter());
-  Hive.registerAdapter(ClubMeEventHiveAdapter());
+  Hive.registerAdapter(ClubMeEventTemplateAdapter());
   Hive.registerAdapter(ClubMeDiscountTemplateAdapter());
+  Hive.registerAdapter(ClubMeLocalDiscountAdapter());
 
   // Used to make sure that coupons and user timezones match
   tz.initializeTimeZones();
@@ -69,15 +76,30 @@ Future<void> main() async {
     anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zc2ZiZmxnemtneHloa2tmdWtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTUyNTM2MzUsImV4cCI6MjAzMDgyOTYzNX0.aG3TR8A3UrpZNW65qDZ1BXyasQEo65NzgS03FcTebs0'
   );
 
+  var appDocumentsDir = await getApplicationDocumentsDirectory();
+
   final cameras = await availableCameras();
   final firstCamera = cameras.first;
 
   Logger.level = Level.debug;
 
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
+
   runApp(
     MultiProvider(providers: [
       ChangeNotifierProvider<StateProvider>(
-          create: (context) => StateProvider(camera: firstCamera)
+          create: (context) => StateProvider(camera: firstCamera, appDocumentsDir: appDocumentsDir)
+      ),
+      ChangeNotifierProvider<UserDataProvider>(
+          create: (context) => UserDataProvider()
+      ),
+      ChangeNotifierProvider<FetchedContentProvider>(
+          create: (context) => FetchedContentProvider()
+      ),
+      ChangeNotifierProvider<CurrentAndLikedElementsProvider>(
+          create: (context) => CurrentAndLikedElementsProvider()
       )
     ],
       child: const MyApp()
@@ -185,13 +207,20 @@ final GoRouter _router = GoRouter(
       ),
     ),
     GoRoute(
-      path: '/settings',
+      path: '/user_settings',
       pageBuilder: (context, state) => buildPageWithoutTransition<void>(
         context: context,
         state: state,
-        child: SettingsView(),
+        child: SettingsUserView(),
       ),
-
+    ),
+    GoRoute(
+      path: '/club_settings',
+      pageBuilder: (context, state) => buildPageWithoutTransition<void>(
+        context: context,
+        state: state,
+        child: SettingsClubView(),
+      ),
     ),
 
 
@@ -258,6 +287,14 @@ final GoRouter _router = GoRouter(
       ),
     ),
     GoRoute(
+      path: '/user_upcoming_events',
+      pageBuilder: (context, state) => buildPageWithoutTransition<void>(
+        context: context,
+        state: state,
+        child: UserUpcomingEventsView(),
+      ),
+    ),
+    GoRoute(
       path: '/club_past_events',
       pageBuilder: (context, state) => buildPageWithoutTransition<void>(
         context: context,
@@ -315,6 +352,30 @@ final GoRouter _router = GoRouter(
             context: context,
             state: state,
             child: const UpdateContactView()
+        )
+    ),
+    GoRoute(
+        path: '/club_update_photos_and_videos',
+        pageBuilder: (context, state) => buildPageWithoutTransition(
+            context: context,
+            state: state,
+            child: const UpdatePhotosAndVideosView()
+        )
+    ),
+    GoRoute(
+        path: '/club_offers',
+        pageBuilder: (context, state) => buildPageWithoutTransition(
+            context: context,
+            state: state,
+            child: const OffersListClubView()
+        )
+    ),
+    GoRoute(
+        path: '/user_offers',
+        pageBuilder: (context, state) => buildPageWithoutTransition(
+            context: context,
+            state: state,
+            child: const OffersListView()
         )
     ),
 
@@ -381,42 +442,6 @@ CustomTransitionPage buildPageWithoutTransition<T>({
   );
 }
 
-
-
-
-Future<bool> _onWillPop(BuildContext context) async {
-  bool? exitResult = await showDialog(
-    context: context,
-    builder: (context) => _buildExitDialog(context),
-  );
-  return exitResult ?? false;
-}
-
-Future<bool?> _showExitDialog(BuildContext context) async {
-  return await showDialog(
-    context: context,
-    builder: (context) => _buildExitDialog(context),
-  );
-}
-
-AlertDialog _buildExitDialog(BuildContext context) {
-  return AlertDialog(
-    title: const Text('Bitte bestätigen'),
-    content: const Text('Möchtest du die App schließen?'),
-    actions: <Widget>[
-      TextButton(
-        onPressed: () => Navigator.of(context).pop(false),
-        child: Text('No'),
-      ),
-      TextButton(
-        onPressed: () => Navigator.of(context).pop(true),
-        child: Text('Yes'),
-      ),
-    ],
-  );
-}
-
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -437,12 +462,11 @@ class MyApp extends StatelessWidget {
         routerConfig: _router,
 
         title: 'Club Me Test Version',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.teal,
-              brightness: Brightness.dark
-          ),
-          useMaterial3: true,
+        theme:
+
+
+        ThemeData(
+          scaffoldBackgroundColor: Colors.black,
 
           textTheme: TextTheme(
               displayLarge: const TextStyle(

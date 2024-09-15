@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:adv_camera/adv_camera.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -18,14 +19,31 @@ class VideoRecorderScreen extends StatefulWidget {
 class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
 
   late CameraController _controller;
-  late CustomTextStyle customTextStyle;
+  late CustomStyleClass customStyleClass;
   late Future<void> _initializeControllerFuture;
+
+  bool showFocusCircle = false;
+  double x = 0;
+  double y = 0;
 
   bool canBeDrawn = false;
   bool _isRecording = false;
 
   late double screenHeight, screenWidth;
 
+  AdvCameraController? cameraController;
+  List<String> pictureSizes = <String>[];
+  String? imagePath;
+
+  // _onCameraCreated(AdvCameraController controller) {
+  //   this.cameraController = controller;
+  //
+  //   this.cameraController!.getPictureSizes().then((pictureSizes) {
+  //     setState(() {
+  //       this.pictureSizes = pictureSizes ?? <String>[];
+  //     });
+  //   });
+  // }
 
   @override
   void initState() {
@@ -70,20 +88,32 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
       print(e);
     }
   }
+  void pressedRecord2() async {
+
+    if(_isRecording){
+
+    }else{
+      cameraController!.captureImage();
+      _isRecording = true;
+    }
+  }
 
   void setUpCamera() async {
     final cameras = await availableCameras();
     _controller = CameraController(
       cameras.first,
-      ResolutionPreset.medium,
+      ResolutionPreset.high,
     );
     _initializeControllerFuture = _controller.initialize();
+    // xScale = _controller.value.aspectRatio / deviceRatio;
     setState(() {
       canBeDrawn = true;
     });
   }
 
   late Timer _timer;
+  late double deviceRatio;
+  late double xScale;
   int _start = 10;
 
   void startTimer() async{
@@ -136,7 +166,7 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
                       shape: BoxShape.circle,
                       border: Border.all(
                         width: 4,
-                        color: _isRecording ? customTextStyle.primeColor.withOpacity(0.5) : Colors.white.withOpacity(0.5)
+                        color: _isRecording ? customStyleClass.primeColor.withOpacity(0.5) : Colors.white.withOpacity(0.5)
                       )
                     ),
                     child: Container(
@@ -144,7 +174,7 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
                       height: 40,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: _isRecording ? customTextStyle.primeColor: Colors.white,
+                        color: _isRecording ? customStyleClass.primeColor: Colors.white,
                         // borderRadius: BorderRadius.circular(20)
                       ),
                     ),
@@ -158,17 +188,76 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
     );
   }
 
+  Future<void> _onTap(TapUpDetails details) async {
+    if(_controller.value.isInitialized) {
+      showFocusCircle = true;
+      x = details.localPosition.dx;
+      y = details.localPosition.dy;
+
+      double fullWidth = MediaQuery.of(context).size.width;
+      double cameraHeight = fullWidth * _controller.value.aspectRatio;
+
+      double xp = x / fullWidth;
+      double yp = y / cameraHeight;
+
+      Offset point = Offset(xp,yp);
+      print("point : $point");
+
+      // Manually focus
+      await _controller.setFocusPoint(point);
+
+      // Manually set light exposure
+      //controller.setExposurePoint(point);
+
+      setState(() {
+        Future.delayed(const Duration(seconds: 2)).whenComplete(() {
+          setState(() {
+            showFocusCircle = false;
+          });
+        });
+      });
+    }
+  }
+
+  Widget cameraWidget(context) {
+    var camera = _controller.value;
+    // fetch screen size
+    final size = MediaQuery.of(context).size;
+
+    // calculate scale depending on screen and camera ratios
+    // this is actually size.aspectRatio / (1 / camera.aspectRatio)
+    // because camera preview size is received as landscape
+    // but we're calculating for portrait orientation
+    var scale = size.aspectRatio * camera.aspectRatio;
+
+    // to prevent scaling down, invert the value
+    if (scale < 1) scale = 1 / scale;
+
+    return Transform.scale(
+      scale: scale,
+      child: Center(
+        child: CameraPreview(_controller),
+      ),
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
 
-    customTextStyle = CustomTextStyle(context: context);
+    customStyleClass = CustomStyleClass(context: context);
 
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
 
+    deviceRatio = screenWidth / screenHeight;
+
+    // Modify the yScale if you are in Landscape
+    double yScale = 1;
+    
     return Scaffold(
 
-      bottomNavigationBar: _buildBottomNavigationBar(),
+      // bottomNavigationBar: _buildBottomNavigationBar(),
 
       body: canBeDrawn ? FutureBuilder<void>(
         future: _initializeControllerFuture,
@@ -176,31 +265,100 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
 
           if(!snapshot.hasData){
             if (snapshot.connectionState == ConnectionState.done) {
-              return Stack(
-                children: [
-                  SizedBox(
-                    height: screenHeight*0.95,
-                    child: CameraPreview(_controller),
-                  ),
+              return GestureDetector(
+                onTapUp: (details) {
+                  _onTap(details);
+                },
+                child: Stack(
+                  children: [
 
-                  Container(
-                    width: screenWidth,
-                    height: screenHeight,
-                    alignment: Alignment.topRight,
-                    padding: EdgeInsets.only(
-                      top: screenHeight*0.07,
-                      right: screenWidth*0.05
+                    // Camera view
+                    CameraPreview(_controller),
+                      
+                      // child: AspectRatio(
+                      //     aspectRatio: _controller.value.aspectRatio,
+                      //   child: CameraPreview(_controller),
+                      // )
+                    // ),
+
+                    if(showFocusCircle) Positioned(
+                        top: y-20,
+                        left: x-20,
+                        child: Container(
+                          height: 40,
+                          width: 40,
+                          decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white,width: 1.5)
+                          ),
+                        )
                     ),
-                    child: IconButton(
-                      onPressed: () => pressedBack(),
-                      icon: const Icon(
-                        Icons.close,
-                        size: 30,
-                        color: Colors.white,
+
+                    // Record button
+                    Container(
+                      padding: const EdgeInsets.only(
+                          bottom: 20
+                      ),
+                      height: screenHeight,
+                      width: screenWidth,
+                      alignment: Alignment.bottomCenter,
+                      child: Row(
+                        mainAxisAlignment: _isRecording ? MainAxisAlignment.center
+                            : MainAxisAlignment.spaceEvenly,
+                        children: [
+                          GestureDetector(
+                            child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  // horizontal: screenWidth*0.055,
+                                  // vertical: screenHeight*0.02
+                                ),
+                                child: Container(
+                                  width: 70,
+                                  height: 70,
+                                  decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                          width: 4,
+                                          color: _isRecording ? customStyleClass.primeColor.withOpacity(0.5) : Colors.white.withOpacity(0.5)
+                                      )
+                                  ),
+                                  child: Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: _isRecording ? customStyleClass.primeColor: Colors.white,
+                                      // borderRadius: BorderRadius.circular(20)
+                                    ),
+                                  ),
+                                )
+                            ),
+                            onTap: () => pressedRecord(),
+                          )
+                        ],
                       ),
                     ),
-                  )
-                ],
+
+                    //Close Icon
+                    Container(
+                      width: screenWidth,
+                      height: screenHeight,
+                      alignment: Alignment.topRight,
+                      padding: EdgeInsets.only(
+                          top: screenHeight*0.07,
+                          right: screenWidth*0.05
+                      ),
+                      child: IconButton(
+                        onPressed: () => pressedBack(),
+                        icon: const Icon(
+                          Icons.close,
+                          size: 30,
+                          color: Colors.white,
+                        ),
+                      ),
+                    )
+                  ],
+                ),
               );
             } else {
               return const Center(child: CircularProgressIndicator());
@@ -209,7 +367,8 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
             return const Center(child: CircularProgressIndicator());
           }
         },
-      ): const Center(child: CircularProgressIndicator()),
+      ):
+      const Center(child: CircularProgressIndicator()),
     );
   }
 }

@@ -12,8 +12,11 @@ class ClubMeDiscountTemplate{
     required this.hasUsageLimit,
     required this.discountDescription,
     required this.targetGender,
-    required this.targetAge,
-    required this.targetAgeIsUpperLimit
+    required this.hasAgeLimit,
+    required this.ageLimitLowerLimit,
+    required this.ageLimitUpperLimit,
+    required this.isRepeatedDays,
+    required this.templateId
   });
 
   @HiveField(0)
@@ -31,16 +34,39 @@ class ClubMeDiscountTemplate{
   @HiveField(6)
   int targetGender;
   @HiveField(7)
-  int targetAge;
-  @HiveField(8)
-  bool targetAgeIsUpperLimit;
+  bool hasAgeLimit;
+  @HiveField(9)
+  int ageLimitLowerLimit;
+  @HiveField(10)
+  int ageLimitUpperLimit;
+  @HiveField(11)
+  int isRepeatedDays;
+  @HiveField(12)
+  String templateId;
 
-  int getTargetAge(){
-    return targetAge;
+  String getTemplateId(){
+    return templateId;
   }
-  bool getTargetAgeIsUpperLimit(){
-    return targetAgeIsUpperLimit;
+
+  bool getHasAgeLimit(){
+    return hasAgeLimit;
   }
+  int getIsRepeatedDays(){
+    return isRepeatedDays;
+  }
+  bool getIsRepeated(){
+    return isRepeatedDays != 0 ? true:false;
+  }
+
+  int getAgeLimitLowerLimit(){
+    return ageLimitLowerLimit;
+  }
+  int getAgeLimitUpperLimit(){
+    return ageLimitUpperLimit;
+  }
+
+
+
   int getTargetGender(){
     return targetGender;
   }

@@ -1,3 +1,4 @@
+import 'package:club_me/models/opening_times.dart';
 import 'package:flutter/material.dart';
 
 class ClubMeEvent{
@@ -15,7 +16,10 @@ class ClubMeEvent{
     required this.clubId,
     required this.eventMarketingFileName,
     required this.eventMarketingCreatedAt,
-    required this.priorityScore
+    required this.priorityScore,
+    required this.openingTimes,
+    required this.ticketLink,
+    required this.isRepeatedDays
   });
 
   String eventId;
@@ -38,7 +42,39 @@ class ClubMeEvent{
 
   double priorityScore;
 
+  // Default is 0. Everything except 0 will be recreated x days after the event
+  // date automatically by the cron job.
+  int isRepeatedDays;
+
+  // Originally, we wanted to display the opening hours of the club directly on
+  // the event. Due to this no longer being a requirement, we don't need this
+  // information anymore. Nonetheless, I keep it here because it doesn't harm and
+  // maybe we'll find a new application.
+  OpeningTimes openingTimes;
+
+  String ticketLink;
+
   // howManyAreIn
+
+  int getIsRepeatedDays(){
+    return isRepeatedDays;
+  }
+
+  bool getIsRepeated(){
+    return isRepeatedDays != 0 ? true:false;
+  }
+
+  void setIsRepeatedDays(int newIsRepeatedDays){
+    isRepeatedDays = newIsRepeatedDays;
+  }
+
+  String getTicketLink(){
+    return ticketLink;
+  }
+
+  OpeningTimes getOpeningTimes(){
+    return openingTimes;
+  }
 
   double getPriorityScore(){
     return priorityScore;

@@ -37,7 +37,7 @@ class _TestState extends State<Test> {
 
   late double screenHeight, screenWidth;
 
-  late CustomTextStyle customTextStyle;
+  late CustomStyleClass customStyleClass;
 
   String fileExtension = "";
 
@@ -125,7 +125,7 @@ class _TestState extends State<Test> {
           width: screenHeight*0.08,
           decoration: BoxDecoration(
             shape: BoxShape.rectangle,
-            color: customTextStyle.primeColorDark,
+            color: customStyleClass.primeColorDark,
             borderRadius: BorderRadius.circular(10),
             boxShadow: [
               // BoxShadow(
@@ -139,7 +139,7 @@ class _TestState extends State<Test> {
           child: Center(
             child: Text(
               "Zurück",
-              style: customTextStyle.getFontStyle3Bold(),
+              style: customStyleClass.getFontStyle3Bold(),
             ),
           ),
         ),
@@ -150,7 +150,7 @@ class _TestState extends State<Test> {
             width: screenHeight*0.08,
             decoration: BoxDecoration(
               shape: BoxShape.rectangle,
-              color: customTextStyle.primeColorDark,
+              color: customStyleClass.primeColorDark,
               borderRadius: BorderRadius.circular(10),
               boxShadow: [
                 // BoxShadow(
@@ -164,7 +164,7 @@ class _TestState extends State<Test> {
             child: Center(
               child: Text(
                 "Weiter",
-                style: customTextStyle.getFontStyle3Bold(),
+                style: customStyleClass.getFontStyle3Bold(),
               ),
             ),
           ),
@@ -214,7 +214,7 @@ class _TestState extends State<Test> {
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
 
-    customTextStyle = CustomTextStyle(context: context);
+    customStyleClass = CustomStyleClass(context: context);
 
     return Scaffold(
 

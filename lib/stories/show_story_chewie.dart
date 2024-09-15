@@ -23,7 +23,7 @@ class _ShowStoryChewieState extends State<ShowStoryChewie>
 
   String? VIDEO_ON;
   ChewieController? _chewieController;
-  late CustomTextStyle customTextStyle;
+  late CustomStyleClass customStyleClass;
   late VideoPlayerController _controller;
   final _noScreenshot = NoScreenshot.instance;
   final SupabaseService _supabaseService = SupabaseService();
@@ -166,7 +166,7 @@ class _ShowStoryChewieState extends State<ShowStoryChewie>
           //     child: Text(
           //       widget.clubName,
           //       textAlign: TextAlign.center,
-          //       style: customTextStyle.size2(),
+          //       style: customStyleClass.size2(),
           //     ),
           //   ),
           // ),
@@ -248,7 +248,7 @@ class _ShowStoryChewieState extends State<ShowStoryChewie>
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
 
-    customTextStyle = CustomTextStyle(context: context);
+    customStyleClass = CustomStyleClass(context: context);
 
     return test2();
 

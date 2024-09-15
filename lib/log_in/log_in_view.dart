@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:club_me/models/club.dart';
 import 'package:club_me/models/club_me_user_data.dart';
 import 'package:club_me/models/parser/club_me_club_parser.dart';
@@ -8,6 +10,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import '../provider/state_provider.dart';
+import '../provider/user_data_provider.dart';
 import '../services/hive_service.dart';
 import '../services/supabase_service.dart';
 import 'package:geolocator/geolocator.dart';
@@ -28,7 +31,8 @@ class _LogInViewState extends State<LogInView> {
   final log = getLogger();
 
   late StateProvider stateProvider;
-  late CustomTextStyle customTextStyle;
+  late UserDataProvider userDataProvider;
+  late CustomStyleClass customStyleClass;
   late double screenHeight, screenWidth;
 
   final HiveService _hiveService = HiveService();
@@ -51,6 +55,8 @@ class _LogInViewState extends State<LogInView> {
 
   bool isLoading = false;
   bool hasUserData = false;
+
+  bool test = false;
 
   Color primeColorDark = Colors.teal;
   Color primeColor = Colors.tealAccent;
@@ -93,7 +99,7 @@ class _LogInViewState extends State<LogInView> {
               child: Center(
                 child: Text(
                   textToDisplay,
-                  style: customTextStyle.size5Bold()
+                  style: customStyleClass.getFontStyle5Bold()
                 ),
               )
           ),
@@ -146,9 +152,10 @@ class _LogInViewState extends State<LogInView> {
     try{
       var _list = await _supabaseService.getSpecificClub(selectedClubId);
       if(_list != null){
+
         ClubMeClub clubMeClub = parseClubMeClub(_list[0]);
-        stateProvider.setUserClub(clubMeClub);
-        stateProvider.setUserData(
+        userDataProvider.setUserClub(clubMeClub);
+        userDataProvider.setUserData(
             ClubMeUserData(
               firstName: "...",
               lastName: "...",
@@ -222,7 +229,7 @@ class _LogInViewState extends State<LogInView> {
 
         }else{
           log.d("fetchUserDataFromHive: isNotEmpty");
-          stateProvider.setUserData(userData[0]);
+          userDataProvider.setUserData(userData[0]);
           if(!stateProvider.activeLogOut){
             if(userData[0].getProfileType() == 0){
               context.go("/user_events");
@@ -241,7 +248,7 @@ class _LogInViewState extends State<LogInView> {
 
   void clickOnLogIn(){
     stateProvider.activeLogOut = false;
-    if(stateProvider.getUserData().getProfileType() == 0){
+    if(userDataProvider.getUserData().getProfileType() == 0){
       context.go("/user_events");
     }else{
       context.go("/club_events");
@@ -253,7 +260,7 @@ class _LogInViewState extends State<LogInView> {
     super.initState();
     final stateProvider = Provider.of<StateProvider>(context, listen:  false);
     _determinePosition().then((value) => {
-      stateProvider.setUserCoordinates(value)
+      userDataProvider.setUserCoordinates(value)
     });
     fetchUserDataFromHive();
   }
@@ -262,11 +269,12 @@ class _LogInViewState extends State<LogInView> {
   Widget build(BuildContext context) {
 
     stateProvider = Provider.of<StateProvider>(context);
+    userDataProvider = Provider.of<UserDataProvider>(context);
 
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
 
-    customTextStyle = CustomTextStyle(context: context);
+    customStyleClass = CustomStyleClass(context: context);
 
     return Scaffold(
       appBar:
@@ -277,7 +285,7 @@ class _LogInViewState extends State<LogInView> {
             child: Text(
               headLine,
               textAlign: TextAlign.center,
-              style: customTextStyle.size2(),
+              style: customStyleClass.getFontStyleHeadline1Bold(),
             ),
           )
       ),
@@ -287,8 +295,10 @@ class _LogInViewState extends State<LogInView> {
         children: [
 
           isLoading ?
-          const Center(
-            child: CircularProgressIndicator(),
+          Center(
+            child: CircularProgressIndicator(
+              color: customStyleClass.primeColor,
+            ),
           ):SizedBox(
             width: screenWidth,
             height: screenHeight*0.85,
@@ -334,7 +344,7 @@ class _LogInViewState extends State<LogInView> {
                               child: Center(
                                 child: Text(
                                   "Starte als normaler User",
-                                  style: customTextStyle.size5Bold(),
+                                  style: customStyleClass.getFontStyle3Bold(),
                                 ),
                               )
                           ),
@@ -384,7 +394,7 @@ class _LogInViewState extends State<LogInView> {
                                 child: Center(
                                   child: Text(
                                       "Starte als Club",
-                                      style: customTextStyle.size5Bold()
+                                      style: customStyleClass.getFontStyle3Bold()
                                   ),
                                 )
                             ),
@@ -407,9 +417,7 @@ class _LogInViewState extends State<LogInView> {
                                   return Center(
                                     child: Text(
                                       clubNames[index].toString(),
-                                      style: const TextStyle(
-                                          fontSize: 24
-                                      ),
+                                      style: customStyleClass.getFontStyle2(),
                                     ),
                                   );
                                 })
@@ -454,7 +462,7 @@ class _LogInViewState extends State<LogInView> {
                           child: Center(
                             child: Text(
                                 "Registriere dich",
-                                style: customTextStyle.size5Bold()
+                                style: customStyleClass.getFontStyle3Bold()
                             ),
                           )
                       ),
@@ -498,7 +506,7 @@ class _LogInViewState extends State<LogInView> {
                           child: Center(
                             child: Text(
                                 "Log dich ein!",
-                                style: customTextStyle.size5Bold()
+                                style: customStyleClass.getFontStyle5Bold()
                             ),
                           )
                       ),

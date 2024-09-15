@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 import '../provider/state_provider.dart';
+import '../provider/user_data_provider.dart';
 import '../services/supabase_service.dart';
 import 'package:uuid/uuid.dart';
 
@@ -23,7 +24,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
 
   late var video;
-  late CustomTextStyle customTextStyle;
+  late UserDataProvider userDataProvider;
+  late CustomStyleClass customStyleClass;
   late VideoPlayerController _controller;
   late Future<void> _initializeControllerFuture;
 
@@ -72,8 +74,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   Widget build(BuildContext context) {
 
     stateProvider = Provider.of<StateProvider>(context);
+    userDataProvider = Provider.of<UserDataProvider>(context);
 
-    customTextStyle = CustomTextStyle(context: context);
+    customStyleClass = CustomStyleClass(context: context);
 
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
@@ -82,15 +85,160 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
       body: Stack(
         children: [
-          showLoading ? Container()
-          : FutureBuilder(
+          showLoading ?
+          const Center(
+            child: CircularProgressIndicator(),
+          ):
+          FutureBuilder(
             future: _initializeControllerFuture,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.done) {
-                return AspectRatio(
-                  aspectRatio: _controller.value.aspectRatio,
-                  child: VideoPlayer(_controller),
+
+                // Camera view
+                return Stack(
+                  children: [
+
+                    SizedBox(
+                      height: screenHeight*0.8,
+                      width: screenWidth,
+                      child: VideoPlayer(_controller),
+                    ),
+                    // Three icons
+                    Container(
+                      height: screenHeight,
+                      width: screenWidth,
+                      padding: const EdgeInsets.only(
+                          bottom: 20
+                      ),
+                      alignment: Alignment.bottomCenter,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          GestureDetector(
+                            child: Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: screenWidth*0.04,
+                                    vertical: screenHeight*0.013
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(10)
+                                  ),
+                                  gradient: LinearGradient(
+                                      colors: [
+                                        customStyleClass.primeColorDark,
+                                        customStyleClass.primeColor,
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      stops: [0.2, 0.9]
+                                  ),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      color: Colors.black54,
+                                      spreadRadius: 1,
+                                      blurRadius: 7,
+                                      offset: Offset(3, 3),
+                                    ),
+                                  ],
+                                ),
+                                child:
+                                const Icon(
+                                  Icons.close,
+                                  color: Colors.redAccent,
+                                  size: 32,
+                                )
+                            ),
+                            onTap: () => pressedBack(),
+                          ),
+                          GestureDetector(
+                            child: Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: screenWidth*0.04,
+                                    vertical: screenHeight*0.013
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(10)
+                                  ),
+                                  gradient: LinearGradient(
+                                      colors: [
+                                        customStyleClass.primeColorDark,
+                                        customStyleClass.primeColor,
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      stops: [0.2, 0.9]
+                                  ),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      color: Colors.black54,
+                                      spreadRadius: 1,
+                                      blurRadius: 7,
+                                      offset: Offset(3, 3),
+                                    ),
+                                  ],
+                                ),
+                                child:
+                                // Text(
+                                //   _controller.value.isPlaying? "Pausieren" : "Abspielen",
+                                //   style: customStyleClass.size4Bold(),
+                                // ),
+                                Icon(
+                                  _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+                                  size: 32,
+                                )
+                            ),
+                            onTap: () => pressedPlay(),
+                          ),
+                          GestureDetector(
+                            child: Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: screenWidth*0.04,
+                                    vertical: screenHeight*0.013
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(10)
+                                  ),
+                                  gradient: LinearGradient(
+                                      colors: [
+                                        customStyleClass.primeColorDark,
+                                        customStyleClass.primeColor,
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      stops: [0.2, 0.9]
+                                  ),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      color: Colors.black54,
+                                      spreadRadius: 1,
+                                      blurRadius: 7,
+                                      offset: Offset(3, 3),
+                                    ),
+                                  ],
+                                ),
+                                child:
+                                const Icon(
+                                  Icons.check,
+                                  color: Colors.white,
+                                  size: 32,
+                                )
+                              // Text(
+                              //   "Speichern",
+                              //   style: customStyleClass.size4Bold(),
+                              // ),
+                            ),
+                            onTap: () => pressedSave(),
+                          )
+                        ],
+                      ),
+                    ),
+
+                  ],
                 );
+
               } else {
                 return const Center(
                   child: CircularProgressIndicator(),
@@ -98,148 +246,145 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
               }
             },
           ),
-          showLoading? const Center(
-              child: CircularProgressIndicator(),
-          ):Container()
         ],
       ),
 
-      bottomNavigationBar: Container(
-        height: screenHeight*0.13,
-        width: screenWidth,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Align(
-                alignment: AlignmentDirectional.center,
-                child: GestureDetector(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: screenWidth*0.04,
-                        vertical: screenHeight*0.013
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.all(
-                          Radius.circular(10)
-                      ),
-                      gradient: LinearGradient(
-                          colors: [
-                            customTextStyle.primeColorDark,
-                            customTextStyle.primeColor,
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          stops: [0.2, 0.9]
-                      ),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black54,
-                          spreadRadius: 1,
-                          blurRadius: 7,
-                          offset: Offset(3, 3),
-                        ),
-                      ],
-                    ),
-                    child:
-                    const Icon(
-                      Icons.close,
-                      color: Colors.redAccent,
-                      size: 32,
-                    )
-                  ),
-                  onTap: () => pressedBack(),
-                )
-            ),
-            Align(
-                alignment: AlignmentDirectional.center,
-                child: GestureDetector(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: screenWidth*0.04,
-                        vertical: screenHeight*0.013
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.all(
-                          Radius.circular(10)
-                      ),
-                      gradient: LinearGradient(
-                          colors: [
-                            customTextStyle.primeColorDark,
-                            customTextStyle.primeColor,
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          stops: [0.2, 0.9]
-                      ),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black54,
-                          spreadRadius: 1,
-                          blurRadius: 7,
-                          offset: Offset(3, 3),
-                        ),
-                      ],
-                    ),
-                    child:
-                    // Text(
-                    //   _controller.value.isPlaying? "Pausieren" : "Abspielen",
-                    //   style: customTextStyle.size4Bold(),
-                    // ),
-                    Icon(
-                      _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
-                      size: 32,
-                    )
-                  ),
-                  onTap: () => pressedPlay(),
-                )
-            ),
-            Align(
-                alignment: AlignmentDirectional.center,
-                child: GestureDetector(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: screenWidth*0.04,
-                        vertical: screenHeight*0.013
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.all(
-                          Radius.circular(10)
-                      ),
-                      gradient: LinearGradient(
-                          colors: [
-                            customTextStyle.primeColorDark,
-                            customTextStyle.primeColor,
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          stops: [0.2, 0.9]
-                      ),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black54,
-                          spreadRadius: 1,
-                          blurRadius: 7,
-                          offset: Offset(3, 3),
-                        ),
-                      ],
-                    ),
-                    child:
-                    const Icon(
-                      Icons.check,
-                      color: Colors.white,
-                      size: 32,
-                    )
-                    // Text(
-                    //   "Speichern",
-                    //   style: customTextStyle.size4Bold(),
-                    // ),
-                  ),
-                  onTap: () => pressedSave(),
-                )
-            )
-          ],
-        ),
-      ),
+      // bottomNavigationBar: Container(
+      //   height: screenHeight*0.13,
+      //   width: screenWidth,
+      //   child: Row(
+      //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      //     children: [
+      //       Align(
+      //           alignment: AlignmentDirectional.center,
+      //           child: GestureDetector(
+      //             child: Container(
+      //               padding: EdgeInsets.symmetric(
+      //                   horizontal: screenWidth*0.04,
+      //                   vertical: screenHeight*0.013
+      //               ),
+      //               decoration: BoxDecoration(
+      //                 borderRadius: const BorderRadius.all(
+      //                     Radius.circular(10)
+      //                 ),
+      //                 gradient: LinearGradient(
+      //                     colors: [
+      //                       customStyleClass.primeColorDark,
+      //                       customStyleClass.primeColor,
+      //                     ],
+      //                     begin: Alignment.topLeft,
+      //                     end: Alignment.bottomRight,
+      //                     stops: [0.2, 0.9]
+      //                 ),
+      //                 boxShadow: const [
+      //                   BoxShadow(
+      //                     color: Colors.black54,
+      //                     spreadRadius: 1,
+      //                     blurRadius: 7,
+      //                     offset: Offset(3, 3),
+      //                   ),
+      //                 ],
+      //               ),
+      //               child:
+      //               const Icon(
+      //                 Icons.close,
+      //                 color: Colors.redAccent,
+      //                 size: 32,
+      //               )
+      //             ),
+      //             onTap: () => pressedBack(),
+      //           )
+      //       ),
+      //       Align(
+      //           alignment: AlignmentDirectional.center,
+      //           child: GestureDetector(
+      //             child: Container(
+      //               padding: EdgeInsets.symmetric(
+      //                   horizontal: screenWidth*0.04,
+      //                   vertical: screenHeight*0.013
+      //               ),
+      //               decoration: BoxDecoration(
+      //                 borderRadius: const BorderRadius.all(
+      //                     Radius.circular(10)
+      //                 ),
+      //                 gradient: LinearGradient(
+      //                     colors: [
+      //                       customStyleClass.primeColorDark,
+      //                       customStyleClass.primeColor,
+      //                     ],
+      //                     begin: Alignment.topLeft,
+      //                     end: Alignment.bottomRight,
+      //                     stops: [0.2, 0.9]
+      //                 ),
+      //                 boxShadow: const [
+      //                   BoxShadow(
+      //                     color: Colors.black54,
+      //                     spreadRadius: 1,
+      //                     blurRadius: 7,
+      //                     offset: Offset(3, 3),
+      //                   ),
+      //                 ],
+      //               ),
+      //               child:
+      //               // Text(
+      //               //   _controller.value.isPlaying? "Pausieren" : "Abspielen",
+      //               //   style: customStyleClass.size4Bold(),
+      //               // ),
+      //               Icon(
+      //                 _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+      //                 size: 32,
+      //               )
+      //             ),
+      //             onTap: () => pressedPlay(),
+      //           )
+      //       ),
+      //       Align(
+      //           alignment: AlignmentDirectional.center,
+      //           child: GestureDetector(
+      //             child: Container(
+      //               padding: EdgeInsets.symmetric(
+      //                   horizontal: screenWidth*0.04,
+      //                   vertical: screenHeight*0.013
+      //               ),
+      //               decoration: BoxDecoration(
+      //                 borderRadius: const BorderRadius.all(
+      //                     Radius.circular(10)
+      //                 ),
+      //                 gradient: LinearGradient(
+      //                     colors: [
+      //                       customStyleClass.primeColorDark,
+      //                       customStyleClass.primeColor,
+      //                     ],
+      //                     begin: Alignment.topLeft,
+      //                     end: Alignment.bottomRight,
+      //                     stops: [0.2, 0.9]
+      //                 ),
+      //                 boxShadow: const [
+      //                   BoxShadow(
+      //                     color: Colors.black54,
+      //                     spreadRadius: 1,
+      //                     blurRadius: 7,
+      //                     offset: Offset(3, 3),
+      //                   ),
+      //                 ],
+      //               ),
+      //               child:
+      //               const Icon(
+      //                 Icons.check,
+      //                 color: Colors.white,
+      //                 size: 32,
+      //               )
+      //               // Text(
+      //               //   "Speichern",
+      //               //   style: customStyleClass.size4Bold(),
+      //               // ),
+      //             ),
+      //             onTap: () => pressedSave(),
+      //           )
+      //       )
+      //     ],
+      //   ),
+      // ),
 
     );
   }
@@ -253,10 +398,10 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
       showLoading = true;
     });
 
-    await _supabaseService.insertClubVideo(video, uuidV4, stateProvider.getClubId(), stateProvider)
+    await _supabaseService.insertClubVideo(video, uuidV4, userDataProvider)
         .then((value){
       if(value == 0){
-        stateProvider.setClubStoryId(uuidV4);
+        userDataProvider.setUserClubStoryId(uuidV4);
         context.go('/club_frontpage');
       }else{
         showBottomSheet(

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../provider/state_provider.dart';
@@ -11,17 +12,16 @@ class CustomBottomNavigationBarClubs extends StatelessWidget {
   CustomBottomNavigationBarClubs({Key? key}) : super(key: key);
 
   var colorTransitionDuration = const Duration(milliseconds: 900);
-  late CustomTextStyle customTextStyle;
+  late CustomStyleClass customStyleClass;
 
   @override
   Widget build(BuildContext context) {
 
     final stateProvider = Provider.of<StateProvider>(context);
 
-    customTextStyle = CustomTextStyle(context: context);
+    customStyleClass = CustomStyleClass(context: context);
 
-    Color navigationBackgroundColor = const Color(0xff11181f);
-    Color iconBackgroundColor = Colors.teal;
+    Color navigationBackgroundColor = Colors.black;
 
     return Container(
         decoration: BoxDecoration(
@@ -42,17 +42,25 @@ class CustomBottomNavigationBarClubs extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     GestureDetector(
-                      child: AnimatedContainer(
-                        padding: const EdgeInsets.all(3),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: stateProvider.pageIndex == 0 ? iconBackgroundColor : Colors.transparent
-                        ),
-                        duration: colorTransitionDuration,
-                        child: Icon(
-                          Icons.calendar_month_outlined,
-                          color: Colors.white,
-                          size: customTextStyle.getIconSize1(),
+                      child: SizedBox(
+                        height: 60,
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.calendar_month_outlined,
+                              color: stateProvider.pageIndex == 0 ? customStyleClass.primeColor : Colors.white,
+                              size: customStyleClass.getIconSize1(),
+                            ),
+                            Text(
+                                "Events",
+                                style: GoogleFonts.inter(
+                                    textStyle: TextStyle(
+                                      fontSize: customStyleClass.getFontSize3(),
+                                      color: stateProvider.pageIndex == 0 ? customStyleClass.primeColor : Colors.white,
+                                    )
+                                )
+                            )
+                          ],
                         ),
                       ),
                       onTap: (){
@@ -63,17 +71,25 @@ class CustomBottomNavigationBarClubs extends StatelessWidget {
                     ),
 
                     GestureDetector(
-                      child: AnimatedContainer(
-                        duration: colorTransitionDuration,
-                        padding: const EdgeInsets.all(3),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: stateProvider.pageIndex == 1 ? iconBackgroundColor : Colors.transparent
-                        ),
-                        child: Icon(
-                          Icons.insert_chart_outlined,
-                          color: Colors.white,
-                          size: customTextStyle.getIconSize1(),
+                      child: SizedBox(
+                        height: 60,
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.insert_chart_outlined,
+                              color: stateProvider.pageIndex == 1 ? customStyleClass.primeColor : Colors.white,
+                              size: customStyleClass.getIconSize1(),
+                            ),
+                            Text(
+                                "Auswertungen",
+                                style: GoogleFonts.inter(
+                                    textStyle: TextStyle(
+                                      fontSize: customStyleClass.getFontSize3(),
+                                      color: stateProvider.pageIndex == 1 ? customStyleClass.primeColor : Colors.white,
+                                    )
+                                )
+                            )
+                          ],
                         ),
                       ),
                       onTap: (){
@@ -84,17 +100,25 @@ class CustomBottomNavigationBarClubs extends StatelessWidget {
                     ),
 
                     GestureDetector(
-                      child: AnimatedContainer(
-                        duration: colorTransitionDuration,
-                        padding: const EdgeInsets.all(3),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: stateProvider.pageIndex == 2 ? iconBackgroundColor : Colors.transparent
-                        ),
-                        child: Icon(
-                          Icons.percent,
-                          color: Colors.white,
-                          size: customTextStyle.getIconSize1(),
+                      child: SizedBox(
+                        height: 60,
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.percent,
+                              color: stateProvider.pageIndex == 2 ? customStyleClass.primeColor : Colors.white,
+                              size: customStyleClass.getIconSize1(),
+                            ),
+                            Text(
+                                "Coupons",
+                                style: GoogleFonts.inter(
+                                    textStyle: TextStyle(
+                                      fontSize: customStyleClass.getFontSize3(),
+                                      color: stateProvider.pageIndex == 2 ? customStyleClass.primeColor : Colors.white,
+                                    )
+                                )
+                            )
+                          ],
                         ),
                       ),
                       onTap: (){
@@ -105,17 +129,25 @@ class CustomBottomNavigationBarClubs extends StatelessWidget {
                     ),
 
                     GestureDetector(
-                      child: AnimatedContainer(
-                        duration: colorTransitionDuration,
-                        padding: const EdgeInsets.all(3),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: stateProvider.pageIndex == 3 ? iconBackgroundColor : Colors.transparent
-                        ),
-                        child: Icon(
-                          Icons.camera_front,
-                          color: Colors.white,
-                          size: customTextStyle.getIconSize1(),
+                      child: SizedBox(
+                        height: 60,
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.camera_front,
+                              color: stateProvider.pageIndex == 3 ? customStyleClass.primeColor : Colors.white,
+                              size: customStyleClass.getIconSize1(),
+                            ),
+                            Text(
+                                "Profil",
+                                style: GoogleFonts.inter(
+                                    textStyle: TextStyle(
+                                      fontSize: customStyleClass.getFontSize3(),
+                                      color: stateProvider.pageIndex == 3 ? customStyleClass.primeColor : Colors.white,
+                                    )
+                                )
+                            )
+                          ],
                         ),
                       ),
                       onTap: (){
@@ -124,6 +156,7 @@ class CustomBottomNavigationBarClubs extends StatelessWidget {
                         context.go('/club_frontpage');
                       },
                     ),
+
                   ],
                 ),
               ),

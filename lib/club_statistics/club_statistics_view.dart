@@ -26,7 +26,7 @@ class _ClubStatisticsViewState extends State<ClubStatisticsView> {
 
   late double screenHeight, screenWidth;
 
-  late CustomTextStyle customTextStyle;
+  late CustomStyleClass customStyleClass;
 
   double tileHeight = 250;
 
@@ -880,6 +880,7 @@ class _ClubStatisticsViewState extends State<ClubStatisticsView> {
       children: [
         Container(
           width: screenWidth*0.9,
+          height: screenHeight*0.3,
           child:  Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -907,7 +908,7 @@ class _ClubStatisticsViewState extends State<ClubStatisticsView> {
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
 
-    customTextStyle = CustomTextStyle(context: context);
+    customStyleClass = CustomStyleClass(context: context);
 
 
     return Scaffold(
@@ -922,25 +923,25 @@ class _ClubStatisticsViewState extends State<ClubStatisticsView> {
             width: screenWidth,
             child: Text(headLine,
               textAlign: TextAlign.center,
-              style: customTextStyle.size2(),
+              style: customStyleClass.getFontStyleHeadline1Bold(),
             ),
           ),
         ),
         body: Container(
             width: screenWidth,
             height: screenHeight,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    // Color(0xff11181f),
-                    Color(0xff2b353d),
-                    Color(0xff11181f)
-                  ],
-                  stops: [0.15, 0.6]
-              ),
-            ),
+            // decoration: const BoxDecoration(
+            //   gradient: LinearGradient(
+            //       begin: Alignment.topLeft,
+            //       end: Alignment.bottomRight,
+            //       colors: [
+            //         // Color(0xff11181f),
+            //         Color(0xff2b353d),
+            //         Color(0xff11181f)
+            //       ],
+            //       stops: [0.15, 0.6]
+            //   ),
+            // ),
             child: SingleChildScrollView(
                 child: Column(
                     children: [
@@ -952,18 +953,15 @@ class _ClubStatisticsViewState extends State<ClubStatisticsView> {
 
                       Container(
                         height: screenHeight*0.15,
-                        decoration: BoxDecoration(
-                            color: Colors.red,
-                          border: Border.all(
-                            color: Colors.grey
-                          )
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 15
                         ),
                         child: Center(
                           child: Text(
                             "Hinweis: Die hier dargestellten Statistiken sind nur beispielhaft.\n\n"
                                 "Eine funktionierende Auswertung folgt in einem zukünftigen Update.",
                             textAlign: TextAlign.center,
-                            style: customTextStyle.getFontStyle3Bold(),
+                            style: customStyleClass.getFontStyle3BoldPrimeColor(),
                           ),
                         ),
                       ),
@@ -980,12 +978,10 @@ class _ClubStatisticsViewState extends State<ClubStatisticsView> {
                             left: screenWidth*0.05,
                             top: screenHeight*0.01
                         ),
-                        child: const Text(
+                        child: Text(
                           "Demographie",
                           textAlign: TextAlign.left,
-                          style: TextStyle(
-                              fontSize: 24
-                          ),
+                          style: customStyleClass.getFontStyle1(),
                         ),
                       ),
 
@@ -993,7 +989,9 @@ class _ClubStatisticsViewState extends State<ClubStatisticsView> {
                         height: screenHeight*0.02,
                       ),
 
-                      _buildTileWithPieChart(context),
+                      _buildTileWithPieChartContent(context),
+                      // _buildTileWithBarChartContent(context),
+                      // _buildTileWithPieChart(context),
 
                       SizedBox(
                         height: screenHeight*0.03,
@@ -1007,12 +1005,10 @@ class _ClubStatisticsViewState extends State<ClubStatisticsView> {
                             left: screenWidth*0.05,
                             top: screenHeight*0.01
                         ),
-                        child: const Text(
+                        child:  Text(
                           "Besucher: Entfernungen (in km)",
                           textAlign: TextAlign.left,
-                          style: TextStyle(
-                              fontSize: 22
-                          ),
+                          style: customStyleClass.getFontStyle1(),
                         ),
                       ),
 
@@ -1020,7 +1016,8 @@ class _ClubStatisticsViewState extends State<ClubStatisticsView> {
                         height: screenHeight*0.02,
                       ),
 
-                      _buildTileWithBarChart(context),
+                      _buildTileWithBarChartContent(context),
+                      // _buildTileWithBarChart(context),
 
                       SizedBox(
                         height: screenHeight*0.02,
@@ -1034,12 +1031,10 @@ class _ClubStatisticsViewState extends State<ClubStatisticsView> {
                             left: screenWidth*0.05,
                             top: screenHeight*0.01
                         ),
-                        child: const Text(
+                        child:  Text(
                           "Besucheranzahl",
                           textAlign: TextAlign.left,
-                          style: TextStyle(
-                              fontSize: 24
-                          ),
+                          style: customStyleClass.getFontStyle1(),
                         ),
                       ),
 
@@ -1047,7 +1042,32 @@ class _ClubStatisticsViewState extends State<ClubStatisticsView> {
                         height: screenHeight*0.02,
                       ),
 
-                      _buildTileWithFlowChart(context),
+                      // _buildTileWithFlowChartContent(context),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            left:2,
+                            top: 2
+                        ),
+                        child: Container(
+                          width: screenWidth*0.9,
+                          height: tileHeight,
+                          decoration: BoxDecoration(
+                              // gradient: LinearGradient(
+                              //     begin: Alignment.topLeft,
+                              //     end: Alignment.bottomRight,
+                              //     colors: [
+                              //       Colors.grey[800]!.withOpacity(0.7),
+                              //       Colors.grey[900]!
+                              //     ],
+                              //     stops: const [0.1,0.9]
+                              // ),
+                              borderRadius: BorderRadius.circular(
+                                  15
+                              )
+                          ),
+                          child: _buildTileWithFlowChartContent(context),
+                        ),
+                      ),
 
                       SizedBox(
                         height: screenHeight*0.2,

@@ -1,7 +1,10 @@
 import '../event.dart';
+import '../opening_times.dart';
 
 ClubMeEvent parseClubMeEvent(var data){
-  return ClubMeEvent(
+
+  ClubMeEvent clubMeEvent =
+  ClubMeEvent(
       eventId: data['event_id'],
       eventTitle: data["event_title"],
       clubName: data["club_name"],
@@ -14,7 +17,12 @@ ClubMeEvent parseClubMeEvent(var data){
       clubId: data["club_id"],
       eventMarketingFileName: data['event_marketing_file_name'],
       eventMarketingCreatedAt: data['event_marketing_created_at'] != null ?
-        DateTime.tryParse(data['event_marketing_created_at']): null,
-      priorityScore: data["priority_score"].toDouble()
+      DateTime.tryParse(data['event_marketing_created_at']): null,
+      priorityScore: data["priority_score"].toDouble(),
+      openingTimes: OpeningTimes.fromJson(data['opening_times']),
+      ticketLink: data["ticket_link"],
+      isRepeatedDays: data['is_repeated_days']
   );
+
+  return clubMeEvent;
 }

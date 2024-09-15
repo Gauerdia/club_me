@@ -1,9 +1,13 @@
+import 'dart:async';
 import 'dart:typed_data';
 import 'package:club_me/main.dart';
 import 'package:club_me/models/club_me_user_data.dart';
+import 'package:club_me/models/club_offers.dart';
 import 'package:club_me/models/event.dart';
+import 'package:club_me/models/front_page_images.dart';
 import 'package:club_me/models/price_list.dart';
 import 'package:club_me/provider/state_provider.dart';
+import 'package:club_me/provider/user_data_provider.dart';
 import 'package:club_me/shared/logger.util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
@@ -26,7 +30,8 @@ class SupabaseService{
           .from('club_me_events')
           .select();
       return data;
-    }catch(e){
+    }
+    catch(e){
       log.d("Error in getAllEvents: $e");
       createErrorLog(e.toString());
       return [];
@@ -48,7 +53,7 @@ class SupabaseService{
     }
   }
 
-  Future<int> insertEvent(ClubMeEvent clubMeEvent, StateProvider stateProvider) async {
+  Future<int> insertEvent(ClubMeEvent clubMeEvent, UserDataProvider userDataProvider) async {
 
     try{
       final data = await supabase
@@ -65,11 +70,16 @@ class SupabaseService{
         "event_description" : clubMeEvent.getEventDescription(),
         "event_price" : clubMeEvent.getEventPrice(),
 
-        "banner_id" : stateProvider.userClub.getEventBannerId(),
+        "banner_id" : userDataProvider.getUserClubEventBannerId(),
         "music_genres" : clubMeEvent.getMusicGenres(),
 
         "event_marketing_file_name": clubMeEvent.getEventMarketingFileName(),
-        "event_marketing_created_at": DateTime.now().toString()
+        "event_marketing_created_at": clubMeEvent.getEventMarketingFileName().isNotEmpty ? DateTime.now().toString() : null,
+        "priority_score": clubMeEvent.getPriorityScore(),
+        "opening_times": clubMeEvent.getOpeningTimes().toJson(),
+
+        "is_repeated": clubMeEvent.getIsRepeated(),
+        "ticket_link": clubMeEvent.getTicketLink()
 
       });
       log.d("insertEvent: Finished successfully. Response: $data");
@@ -119,7 +129,11 @@ class SupabaseService{
           'event_date': updatedEvent.getEventDate().toString(),
           'music_genres': updatedEvent.getMusicGenres(),
           'event_price': updatedEvent.getEventPrice(),
-          'event_description': updatedEvent.getEventDescription()
+          'event_description': updatedEvent.getEventDescription(),
+          'event_marketing_file_name': updatedEvent.getEventMarketingFileName(),
+          'event_marketing_created_at': updatedEvent.getEventMarketingFileName().isNotEmpty ? DateTime.now().toString() : null,
+          'ticket_link': updatedEvent.getTicketLink(),
+          'is_repeated': updatedEvent.getIsRepeated()
         }).match({
         'event_id' : updatedEvent.getEventId()
       });
@@ -149,6 +163,24 @@ class SupabaseService{
   }
 
   // CLUBS
+
+  Future<int> updateClubOffers(ClubOffers newClubOffers, String clubId) async{
+    try{
+      var data = await supabase
+          .from('club_me_clubs')
+          .update({
+        "club_offers" : newClubOffers
+      }).match({
+        'club_id' :clubId
+      });
+      log.d("updateClub: Finished successfully. Response: $data");
+      return 0;
+    }catch(e){
+      log.d("Error in updateClubOffers: $e");
+      createErrorLog(e.toString());
+      return 1;
+    }
+  }
 
   Future<PostgrestList> checkIfClubPwIsLegit(String pw) async {
     try{
@@ -189,7 +221,8 @@ class SupabaseService{
           .match({
         'club_id' : clubId
       });
-      log.d("getSpecificClub: Finished successfully. Response: $data");
+      String fetchedClubId = data[0]['club_id'].toString();
+      log.d("getSpecificClub: Finished successfully. Fetched Club with Id: $fetchedClubId");
       return data;
     }catch(e){
       log.d("Error in getSpecificClub: $e");
@@ -212,11 +245,7 @@ class SupabaseService{
         ]
     );
 
-    Map<String, dynamic> dataJson = {
-      "test1": "test1wefwe",
-      "test2": "test2ewfwe",
-      "test3": "test3wefew"
-    };
+    Map<String, dynamic> dataJson = {};
 
     try{
       final data = await supabase
@@ -229,13 +258,13 @@ class SupabaseService{
         'music_genres':clubMeClub.getMusicGenres(),
         'news':clubMeClub.getNews(),
         'price_list':dataJson,
-        'photo_paths':clubMeClub.getPhotoPaths(),
         'contact_name':clubMeClub.getContactName(),
         'contact_street':clubMeClub.getContactStreet(),
         'contact_city':clubMeClub.getContactCity(),
         'contact_zip_code':clubMeClub.getContactZip(),
         'banner_id':clubMeClub.getBannerId(),
-        'story_path': ""
+        'story_path': "",
+        'front_page_images': dataJson
       }).select();
       log.d("insertClub: Finished successfully. Response: $data");
     }catch(e){
@@ -272,7 +301,7 @@ class SupabaseService{
     }
   }
 
-  void addVideoPathToClub(String clubId, String uuid, StateProvider stateProvider) async{
+  void addVideoPathToClub(String uuid, UserDataProvider userDataProvider) async{
     try{
       var data = await supabase
           .from('club_me_clubs')
@@ -280,9 +309,9 @@ class SupabaseService{
         'story_id' : uuid,
         'story_created_at' : DateTime.now().toString()
       }).match({
-        'club_id': clubId
+        'club_id': userDataProvider.getUserClubId()
       });
-      stateProvider.setClubStoryId(uuid);
+      userDataProvider.setUserClubStoryId(uuid);
       log.d("addVideoPathToClub: Finished successfully. Response: $data");
     }catch(e){
       log.d("Error in addVideoPathToClub: $e");
@@ -393,20 +422,31 @@ class SupabaseService{
       var data = await supabase
           .from('club_me_discounts')
           .insert({
+
         'club_id':clubMeDiscount.getClubId(),
         'club_name':clubMeDiscount.getClubName(),
+        'banner_id':clubMeDiscount.getBannerId(),
+
         'discount_id':clubMeDiscount.getDiscountId(),
         'discount_title':clubMeDiscount.getDiscountTitle(),
         'discount_date':clubMeDiscount.getDiscountDate().toString(),
-        'number_of_usages':clubMeDiscount.getNumberOfUsages(),
-        'banner_id':clubMeDiscount.getBannerId(),
-        'how_often_redeemed':clubMeDiscount.getHowOftenRedeemed(),
-        'has_usage_limit': clubMeDiscount.getHasUsageLimit(),
-        'has_time_limit': clubMeDiscount.getHasTimeLimit(),
         'discount_description': clubMeDiscount.getDiscountDescription(),
+
+        'has_usage_limit': clubMeDiscount.getHasUsageLimit(),
+        'number_of_usages':clubMeDiscount.getNumberOfUsages(),
+
+        'how_often_redeemed':clubMeDiscount.getHowOftenRedeemed(),
+
+        'has_time_limit': clubMeDiscount.getHasTimeLimit(),
+
         'target_gender': clubMeDiscount.getTargetGender(),
-        'target_age': clubMeDiscount.getTargetAge(),
-        'target_age_is_upper_limit': clubMeDiscount.getTargetAgeIsUpperLimit()
+
+        'has_age_limit': clubMeDiscount.getHasAgeLimit(),
+        'age_limit_lower_limit': clubMeDiscount.getAgeLimitLowerLimit(),
+        'age_limit_upper_limit': clubMeDiscount.getAgeLimitUpperLimit(),
+
+        'is_repeated_days': clubMeDiscount.getIsRepeatedDays()
+
       }).select();
       log.d("insertDiscount: Finished successfully. Response: $data");
       return 0;
@@ -456,17 +496,26 @@ class SupabaseService{
       var data = await supabase
           .from("club_me_discounts")
           .update({
-        "discount_id": clubMeDiscount.getDiscountId(),
-        "club_name" : clubMeDiscount.getClubName(),
-        "discount_date" : clubMeDiscount.getDiscountDate().toString(),
-        "number_of_usages":clubMeDiscount.getNumberOfUsages(),
-        "discount_title" : clubMeDiscount.getDiscountTitle(),
-        "how_often_redeemed": clubMeDiscount.getHowOftenRedeemed(),
-        "club_id" : clubMeDiscount.getClubId(),
-        "has_usage_limit":clubMeDiscount.getHasUsageLimit(),
-        "has_time_limit": clubMeDiscount.getHasTimeLimit(),
-        "discount_description" : clubMeDiscount.getDiscountDescription(),
-        "banner_id" : clubMeDiscount.getBannerId(),
+
+        'discount_title':clubMeDiscount.getDiscountTitle(),
+        'discount_date':clubMeDiscount.getDiscountDate().toString(),
+        'discount_description': clubMeDiscount.getDiscountDescription(),
+
+        'has_usage_limit': clubMeDiscount.getHasUsageLimit(),
+        'number_of_usages':clubMeDiscount.getNumberOfUsages(),
+
+        'how_often_redeemed':clubMeDiscount.getHowOftenRedeemed(),
+
+        'has_time_limit': clubMeDiscount.getHasTimeLimit(),
+
+        'target_gender': clubMeDiscount.getTargetGender(),
+
+        'has_age_limit': clubMeDiscount.getHasAgeLimit(),
+        'age_limit_lower_limit': clubMeDiscount.getAgeLimitLowerLimit(),
+        'age_limit_upper_limit': clubMeDiscount.getAgeLimitUpperLimit(),
+
+        'is_repeated_days': clubMeDiscount.getIsRepeatedDays()
+
       }).match({
         'discount_id' : clubMeDiscount.getDiscountId()
       });
@@ -474,6 +523,79 @@ class SupabaseService{
       return 0;
     }catch(e){
       log.d("Error in updateCompleteDiscount: $e");
+      createErrorLog(e.toString());
+      return 1;
+    }
+  }
+
+  // FRONTPAGE IMAGES
+
+  Future<Uint8List> getFrontPageImage(String fileName) async {
+
+    try{
+      var data = await supabase
+          .storage
+          .from('club_me_frontpage_images')
+          .download(fileName);
+      log.d("getFrontPageImage: Finished successfully. Response: $data");
+      return data;
+    }catch(e){
+      log.d("Error in getFrontPageImage: $e");
+      createErrorLog(e.toString());
+      return Uint8List(0);
+    }
+  }
+
+  Future<int> uploadFrontPageImage(
+      var content,
+      String fileName,
+      String clubId,
+      FrontPageImages frontPageImages
+      ) async {
+    try{
+      var data = await supabase.storage.from('club_me_frontpage_images').upload(
+        fileName,
+        content,
+        fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
+      );
+      updateFrontPageImageInClub(clubId, frontPageImages);
+      log.d("uploadEventContent: Finished successfully. Response: $data");
+      return 0;
+    }catch(e){
+      log.d("Error in uploadFrontPageImage: $e");
+      createErrorLog(e.toString());
+      return 1;
+    }
+  }
+
+  Future<int> updateFrontPageImageInClub(String clubId, FrontPageImages frontPageImages) async{
+    try{
+      var data = await supabase
+          .from('club_me_clubs')
+          .update({
+        'front_page_images' : frontPageImages.toJson(),
+      }).match({
+        'club_id': clubId
+      });
+      log.d("updateFrontPageImageInClub: Finished successfully. Response: $data");
+      return 0;
+    }catch(e){
+      log.d("Error in updateFrontPageImageInClub: $e");
+      createErrorLog(e.toString());
+      return 1;
+    }
+  }
+
+  Future<int> deleteFrontPageFromStorage(String fileName) async{
+    try{
+      var data = await supabase
+        .storage
+        .from('club_me_frontpage_images')
+        .remove([fileName]);
+      log.d("deleteFrontPageFromStorage: Finished successfully. Response: $data");
+      return 0;
+    }catch(e){
+      log.d("Error in deleteFrontPageFromStorage: $e");
       createErrorLog(e.toString());
       return 1;
     }
@@ -503,7 +625,7 @@ class SupabaseService{
     }
   }
 
-  // VIDEOS
+  // EVENT CONTENT: PHOTOS/VIDEOS
 
   Future<Uint8List> getEventContent(String fileName) async {
 
@@ -519,6 +641,19 @@ class SupabaseService{
       return Uint8List(0);
     }
 
+  }
+
+  Future<Uint8List> getBannerImage(String fileName) async {
+
+    try{
+      var data = await supabase.storage.from('club_me_banner_images').download(fileName);
+      log.d("getBannerImage: Finished successfully. Response: $data");
+      return data;
+    }catch(e){
+      log.d("Error in getBannerImage: $e");
+      createErrorLog(e.toString());
+      return Uint8List(0);
+    }
   }
 
   Future<Uint8List> getClubVideo(String uuid) async {
@@ -553,14 +688,14 @@ class SupabaseService{
     }
   }
 
-  Future<int> insertClubVideo(var video, String uuid, String clubId, StateProvider stateProvider) async {
+  Future<int> insertClubVideo(var video, String uuid, UserDataProvider userDataProvider) async {
     try{
       var data = await supabase.storage.from('club_me_stories').upload(
         'club_stories/$uuid.mp4',
         video,
         fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
       );
-      addVideoPathToClub(clubId, uuid, stateProvider);
+      addVideoPathToClub(uuid, userDataProvider);
       log.d("insertVideo: Finished successfully. Response: $data");
       return 0;
     }catch(e){
@@ -588,7 +723,6 @@ class SupabaseService{
       return 1;
     }
   }
-
 
   // ERROR
 

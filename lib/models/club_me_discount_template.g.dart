@@ -25,15 +25,18 @@ class ClubMeDiscountTemplateAdapter
       hasUsageLimit: fields[4] as bool,
       discountDescription: fields[2] as String,
       targetGender: fields[6] as int,
-      targetAge: fields[7] as int,
-      targetAgeIsUpperLimit: fields[8] as bool,
+      hasAgeLimit: fields[7] as bool,
+      ageLimitLowerLimit: fields[9] as int,
+      ageLimitUpperLimit: fields[10] as int,
+      isRepeatedDays: fields[11] as int,
+      templateId: fields[12] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, ClubMeDiscountTemplate obj) {
     writer
-      ..writeByte(9)
+      ..writeByte(12)
       ..writeByte(0)
       ..write(obj.discountTitle)
       ..writeByte(1)
@@ -49,9 +52,15 @@ class ClubMeDiscountTemplateAdapter
       ..writeByte(6)
       ..write(obj.targetGender)
       ..writeByte(7)
-      ..write(obj.targetAge)
-      ..writeByte(8)
-      ..write(obj.targetAgeIsUpperLimit);
+      ..write(obj.hasAgeLimit)
+      ..writeByte(9)
+      ..write(obj.ageLimitLowerLimit)
+      ..writeByte(10)
+      ..write(obj.ageLimitUpperLimit)
+      ..writeByte(11)
+      ..write(obj.isRepeatedDays)
+      ..writeByte(12)
+      ..write(obj.templateId);
   }
 
   @override

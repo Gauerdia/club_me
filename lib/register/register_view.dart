@@ -9,6 +9,7 @@ import 'package:toggle_switch/toggle_switch.dart';
 import 'package:uuid/uuid.dart';
 
 import '../provider/state_provider.dart';
+import '../provider/user_data_provider.dart';
 import '../services/hive_service.dart';
 import '../services/supabase_service.dart';
 import '../shared/custom_text_style.dart';
@@ -27,9 +28,10 @@ class _RegisterViewState extends State<RegisterView> {
 
   final log = getLogger();
 
+  late UserDataProvider userDataProvider;
   late StateProvider stateProvider;
   late double screenHeight, screenWidth;
-  late CustomTextStyle customTextStyle;
+  late CustomStyleClass customStyleClass;
 
   final HiveService _hiveService = HiveService();
   final SupabaseService _supabaseService = SupabaseService();
@@ -97,8 +99,20 @@ class _RegisterViewState extends State<RegisterView> {
   }
 
   Widget _buildRegisterAsUser(){
-    return SizedBox(
+    return Container(
         height: screenHeight,
+        width: screenWidth,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xff2b353d),
+                Color(0xff11181f)
+              ],
+              stops: [0.15, 0.6]
+          ),
+        ),
         child: SingleChildScrollView(
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             child: Column(
@@ -106,7 +120,7 @@ class _RegisterViewState extends State<RegisterView> {
 
                   // Question headline
                   Container(
-                    width: screenWidth,
+                    width: screenWidth*0.9,
                     padding: EdgeInsets.symmetric(
                         vertical: screenHeight*0.04,
                         horizontal: screenWidth*0.02
@@ -114,7 +128,7 @@ class _RegisterViewState extends State<RegisterView> {
                     child: Text(
                       "Erzähl uns ein wenig über dich!",
                       textAlign: TextAlign.center,
-                      style: customTextStyle.size1Bold(),
+                      style: customStyleClass.getFontStyle2Bold(),
                     ),
                   ),
 
@@ -129,7 +143,7 @@ class _RegisterViewState extends State<RegisterView> {
                           border: OutlineInputBorder(),
                         label: Text("Vorname")
                       ),
-                      style: customTextStyle.size3(),
+                      style: customStyleClass.getFontStyle3(),
                       autofocus: true,
                       maxLength: 35,
                     ),
@@ -146,7 +160,7 @@ class _RegisterViewState extends State<RegisterView> {
                           border: OutlineInputBorder(),
                           label: Text("Nachname")
                       ),
-                      style: customTextStyle.size3(),
+                      style: customStyleClass.getFontStyle3(),
                       autofocus: true,
                       maxLength: 35,
                     ),
@@ -163,7 +177,7 @@ class _RegisterViewState extends State<RegisterView> {
                           border: OutlineInputBorder(),
                           label: Text("E-Mail")
                       ),
-                      style: customTextStyle.size3(),
+                      style: customStyleClass.getFontStyle3(),
                       autofocus: true,
                       maxLength: 35,
                     ),
@@ -237,7 +251,7 @@ class _RegisterViewState extends State<RegisterView> {
                             // Date as Text
                             Text(
                               formatSelectedDate(),
-                              style: customTextStyle.size3Bold(),
+                              style: customStyleClass.getFontStyle3Bold(),
                             ),
                             // Spacer
                             SizedBox(
@@ -247,7 +261,7 @@ class _RegisterViewState extends State<RegisterView> {
                             Icon(
                                 Icons.calendar_month_outlined,
                                 color: primeColor,
-                                size: screenHeight*stateProvider.getIconSizeFactor()
+                                size: customStyleClass.getFontSize3() //screenHeight*stateProvider.getIconSizeFactor()
                             )
                           ],
                         )
@@ -259,36 +273,6 @@ class _RegisterViewState extends State<RegisterView> {
                     height: screenHeight*0.04,
                   ),
 
-                  // Button
-                  isLoading ? CircularProgressIndicator():
-                  Container(
-                      width: screenWidth*0.9,
-                      // color: Colors.red,
-                      alignment: Alignment.bottomRight,
-                      child: GestureDetector(
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                              vertical: screenHeight*0.015,
-                              horizontal: screenWidth*0.03
-                          ),
-                          decoration: const BoxDecoration(
-                              color: Colors.black54,
-                              borderRadius: BorderRadius.all(Radius.circular(10))
-                          ),
-                          child: Text(
-                            "Registrieren",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                                color: primeColor,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20
-                            ),
-                          ),
-                        ),
-                        onTap: () =>  clickOnRegister(),
-                      )
-                  ),
-
                 ]
             )
         )
@@ -296,8 +280,19 @@ class _RegisterViewState extends State<RegisterView> {
   }
 
   Widget _buildRegisterAsClub(){
-    return SizedBox(
+    return Container(
         height: screenHeight,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xff2b353d),
+                Color(0xff11181f)
+              ],
+              stops: [0.15, 0.6]
+          ),
+        ),
         child: SingleChildScrollView(
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             child: Column(
@@ -313,7 +308,7 @@ class _RegisterViewState extends State<RegisterView> {
                     child: Text(
                       "Gib bitte dein Club-Passwort ein!",
                       textAlign: TextAlign.center,
-                      style: customTextStyle.size1Bold(),
+                      style: customStyleClass.getFontStyle1Bold(),
                     ),
                   ),
 
@@ -328,43 +323,12 @@ class _RegisterViewState extends State<RegisterView> {
                           border: OutlineInputBorder(),
                           label: Text("Passwort")
                       ),
-                      style: customTextStyle.size3(),
+                      style: customStyleClass.getFontStyle3(),
                       autofocus: true,
                       maxLength: 35,
                     ),
                   ),
 
-                  // Button
-                  isLoading? CircularProgressIndicator()
-                  : Container(
-                      width: screenWidth*0.9,
-                      // color: Colors.red,
-                      alignment: Alignment.bottomRight,
-                      child: isLoading ?
-                      CircularProgressIndicator():
-                      GestureDetector(
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                              vertical: screenHeight*0.015,
-                              horizontal: screenWidth*0.03
-                          ),
-                          decoration: const BoxDecoration(
-                              color: Colors.black54,
-                              borderRadius: BorderRadius.all(Radius.circular(10))
-                          ),
-                          child: Text(
-                            "Registrieren",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                                color: primeColor,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20
-                            ),
-                          ),
-                        ),
-                        onTap: () =>  clickOnRegister(),
-                      )
-                  ),
                 ]
             )
         )
@@ -377,10 +341,10 @@ class _RegisterViewState extends State<RegisterView> {
       isLoading = true;
     });
 
-
     if(profileType == 0){
 
-      if(RegExp(r'^.+@[a-zA-Z]+\.{1}[a-zA-Z]+(\.{0,1}[a-zA-Z]+)$').hasMatch(_eMailController.text)){
+      if(RegExp(r'^.+@[a-zA-Z]+\.{1}[a-zA-Z]+(\.{0,1}[a-zA-Z]+)$')
+          .hasMatch(_eMailController.text)){
         transferToHiveAndDB();
       }else{
         setState(() {
@@ -392,7 +356,7 @@ class _RegisterViewState extends State<RegisterView> {
               content: Text(
                 "Bitte gib eine gültige E-Mail-Adresse ein!",
                 textAlign: TextAlign.left,
-                style: customTextStyle.size4(),
+                style: customStyleClass.getFontStyle4(),
               )
           );
         });
@@ -423,7 +387,7 @@ class _RegisterViewState extends State<RegisterView> {
 
         _hiveService.addUserData(newUserData).then((value) => {
           _supabaseService.insertUserDate(newUserData).then((value){
-            stateProvider.setUserData(newUserData);
+            userDataProvider.setUserData(newUserData);
             if(newUserData.getProfileType() == 0){
               context.go("/user_events");
             }else{
@@ -440,7 +404,6 @@ class _RegisterViewState extends State<RegisterView> {
     }else{
       try{
         await _supabaseService.checkIfClubPwIsLegit(_clubPasswordController.text).then((value){
-          isLoading = false;
           if(value.isEmpty){
             showErrorDialog();
           }else{
@@ -457,10 +420,13 @@ class _RegisterViewState extends State<RegisterView> {
                 profileType: 1
             );
             _hiveService.addUserData(newUserData).then((value){
-              stateProvider.setUserData(newUserData);
+              userDataProvider.setUserData(newUserData);
               context.go("/club_events");
             });
           }
+          setState(() {
+            isLoading = false;
+          });
         });
 
       }catch(e){
@@ -470,7 +436,16 @@ class _RegisterViewState extends State<RegisterView> {
   }
 
   void showErrorDialog(){
-
+    showDialog(context: context, builder: (BuildContext context){
+      return AlertDialog(
+          title: const Text("Fehler"),
+          content: Text(
+            "Tut uns leid. Leider war eine Registrierung nicht möglich.",
+            textAlign: TextAlign.left,
+            style: customStyleClass.getFontStyle4(),
+          )
+      );
+    });
   }
 
   void iterateProgressIndex(){
@@ -488,8 +463,19 @@ class _RegisterViewState extends State<RegisterView> {
   }
 
   Widget _buildChooseUserOrClub(){
-    return SizedBox(
+    return Container(
       height: screenHeight,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xff2b353d),
+              Color(0xff11181f)
+            ],
+            stops: [0.15, 0.6]
+        ),
+      ),
       child: SingleChildScrollView(
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         child: Column(
@@ -505,7 +491,7 @@ class _RegisterViewState extends State<RegisterView> {
               child: Text(
                 "Möchtest du dich als Club oder als User registrieren?",
                 textAlign: TextAlign.center,
-                style: customTextStyle.size1Bold(),
+                style: customStyleClass.getFontStyle1Bold(),
               ),
             ),
 
@@ -544,7 +530,7 @@ class _RegisterViewState extends State<RegisterView> {
                   child: Center(
                     child: Text(
                         "Normaler Nutzer",
-                        style: customTextStyle.size5Bold()
+                        style: customStyleClass.getFontStyle5Bold()
                     ),
                   )
               ),
@@ -589,7 +575,7 @@ class _RegisterViewState extends State<RegisterView> {
                   child: Center(
                     child: Text(
                         "Clubbesitzer",
-                        style: customTextStyle.size5Bold()
+                        style: customStyleClass.getFontStyle5Bold()
                     ),
                   )
               ),
@@ -619,6 +605,8 @@ class _RegisterViewState extends State<RegisterView> {
           width: screenWidth,
           child: Stack(
             children: [
+
+              // TEXT
               Container(
                 width: screenWidth,
                 padding: EdgeInsets.only(
@@ -627,10 +615,12 @@ class _RegisterViewState extends State<RegisterView> {
                 child: Center(
                   child: Text(headLine,
                       textAlign: TextAlign.center,
-                      style: customTextStyle.size2()
+                      style: customStyleClass.getFontStyle2()
                   ),
                 ),
               ),
+
+              // ICON
               Container(
                 width: screenWidth,
                 alignment: Alignment.centerLeft,
@@ -651,19 +641,130 @@ class _RegisterViewState extends State<RegisterView> {
     context.go("/");
   }
 
+  Widget _buildNavigationBar(){
+    return SizedBox(
+      height: screenHeight*0.12,
+      child: Stack(
+        children: [
+
+          // Top accent
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              height: screenHeight*0.105,
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.topRight,
+                      colors: [Colors.grey[600]!, Colors.grey[900]!],
+                      stops: const [0.1, 0.9]
+                  ),
+                  borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30)
+                  )
+              ),
+            ),
+          ),
+
+          // Main Background
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              height: screenHeight*0.1,
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Colors.grey[800]!.withOpacity(0.7),
+                        Colors.grey[900]!
+                      ],
+                      stops: const [0.1,0.9]
+                  ),
+                  borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30)
+                  )
+              ),
+            ),
+          ),
+
+          // Right button
+          isLoading?
+              SizedBox(
+                width: screenWidth,
+                child: const Center(
+                  child: CircularProgressIndicator(),
+                ),
+              )
+              : Padding(
+            padding: EdgeInsets.only(
+                top: screenHeight*0.02
+              // right: screenWidth*0.04,
+              // bottom: screenHeight*0.015,
+            ),
+            child: Align(
+                alignment: AlignmentDirectional.center,
+                child: GestureDetector(
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: screenWidth*0.055,
+                        vertical: screenHeight*0.02
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.all(
+                          Radius.circular(10)
+                      ),
+                      gradient: LinearGradient(
+                          colors: [
+                            customStyleClass.primeColorDark,
+                            customStyleClass.primeColor,
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          stops: [0.2, 0.9]
+                      ),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black54,
+                          spreadRadius: 1,
+                          blurRadius: 7,
+                          offset: Offset(3, 3),
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      "Registrieren" ,
+                      style: customStyleClass.getFontStyle4Bold(),
+                    ),
+                  ),
+                  onTap: () => clickOnRegister(),
+                )
+            ),
+          )
+        ],
+
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
 
     stateProvider = Provider.of<StateProvider>(context);
+    userDataProvider = Provider.of<UserDataProvider>(context);
 
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
 
-    customTextStyle = CustomTextStyle(context: context);
+    customStyleClass = CustomStyleClass(context: context);
 
     return Scaffold(
+      extendBody: true,
       appBar: _buildAppBar(),
-      body: _buildViewBasedOnIndex()
+      body: _buildViewBasedOnIndex(),
+      bottomNavigationBar: _buildNavigationBar(),
     );
   }
 }
