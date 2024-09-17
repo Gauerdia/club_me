@@ -78,7 +78,7 @@ class SupabaseService{
         "priority_score": clubMeEvent.getPriorityScore(),
         "opening_times": clubMeEvent.getOpeningTimes().toJson(),
 
-        "is_repeated": clubMeEvent.getIsRepeated(),
+        "is_repeated_days": clubMeEvent.getIsRepeatedDays(),
         "ticket_link": clubMeEvent.getTicketLink()
 
       });

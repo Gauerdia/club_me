@@ -256,11 +256,7 @@ class CouponCard extends StatelessWidget {
                                 Icon(
                                   Icons.info_outline,
                                   color: customStyleClass.primeColor,
-                                ),
-                                Text(
-                                  "Info",
-                                  style: customStyleClass.getFontStyle5(),
-                                ),
+                                )
                               ],
                             ),
                             onTap: () => clickOnInfo(context),
@@ -274,11 +270,7 @@ class CouponCard extends StatelessWidget {
                                 Icon(
                                   isLiked ? Icons.star_outlined : Icons.star_border,
                                   color:customStyleClass.primeColor,
-                                ),
-                                Text(
-                                  "Like",
-                                  style: customStyleClass.getFontStyle5(),
-                                ),
+                                )
                               ],
                             ),
                             onTap: () => clickedOnLike(clubMeDiscount.getDiscountId()),
@@ -292,11 +284,7 @@ class CouponCard extends StatelessWidget {
                                 Icon(
                                   Icons.share,
                                   color: customStyleClass.primeColor,
-                                ),
-                                Text(
-                                  "Share",
-                                  style: customStyleClass.getFontStyle5(),
-                                ),
+                                )
                               ],
                             ),
                             onTap: () => clickedOnShare(),

@@ -467,7 +467,7 @@ class _LogInViewState extends State<LogInView> {
                           )
                       ),
                       onTap: (){
-                        context.go("/register");
+                        context.push("/register");
                       },
                     ),
 
