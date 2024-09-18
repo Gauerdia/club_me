@@ -278,11 +278,12 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                             // Datepicker
                             SizedBox(
                               height: screenHeight*0.12,
+                              width: screenWidth*0.3,
                               child: Column(
                                 children: [
 
                                   Container(
-                                    width: screenWidth*0.32,
+                                    width: screenWidth*0.28,
                                     child: Text(
                                       "Datum",
                                       style: customStyleClass.getFontStyle3(),
@@ -295,7 +296,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                                   ),
 
                                   SizedBox(
-                                    width: screenWidth*0.32,
+                                    width: screenWidth*0.28,
                                     child:OutlinedButton(
                                         onPressed: (){
                                           showDatePicker(
@@ -326,7 +327,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                                         ),
                                         child: Text(
                                           formatSelectedDate(),
-                                          style: customStyleClass.getFontStyle4(),
+                                          style: customStyleClass.getFontStyle5(),
                                         )
                                     ),
                                   )
@@ -337,12 +338,13 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                             // Column: Text,ToggleSwitch: TimeLimit
                             SizedBox(
                                 height: screenHeight*0.12,
-                                width: screenWidth*0.37,
+                                width: screenWidth*0.3,
                                 child: Column(
                                     children: [
 
-                                      Container(
-                                        width: screenWidth*0.3,
+                                      // TEXT: time limit
+                                      SizedBox(
+                                        width: screenWidth*0.28,
                                         child: Text(
                                           "Zeitlimit",
                                           style: customStyleClass.getFontStyle3(),
@@ -350,12 +352,14 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                                         ),
                                       ),
 
+                                      // Spacer
                                       SizedBox(
                                         height: screenHeight*0.01,
                                       ),
 
+                                      // TOGGLE SWITCH
                                       SizedBox(
-                                        width: screenWidth*0.3,
+                                        width: screenWidth*0.28,
                                         child:  Center(
                                           child: ToggleSwitch(
                                             minHeight: screenHeight*0.07,
@@ -397,7 +401,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                             if(hasTimeLimit != 0)
                               SizedBox(
                                 height: screenHeight*0.12,
-                                width: screenWidth*0.2,
+                                width: screenWidth*0.3,
                                 child: Column(
                                   children: [
 
@@ -418,7 +422,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
 
                                     // Button: Time
                                     SizedBox(
-                                      width: screenWidth*0.22,
+                                      width: screenWidth*0.25,
                                       child: OutlinedButton(
                                           onPressed: () => {
                                             setState(() {
@@ -445,7 +449,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                             if(hasTimeLimit == 0)
                               SizedBox(
                                 height: screenHeight*0.12,
-                                width: screenWidth*0.2,
+                                width: screenWidth*0.3,
                               )
                           ],
                         ),
@@ -1019,7 +1023,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
   Widget _buildBottomNavigationBar2(){
     return Container(
       width: screenWidth,
-      height: screenHeight*0.06,
+      height: screenHeight*0.07,
       decoration: BoxDecoration(
           color: Colors.black,
           border: Border(
@@ -1036,9 +1040,14 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
           bottom: 10
       ),
       child: GestureDetector(
-        child: Text(
-          "Abschicken!",
-          style: customStyleClass.getFontStyle3BoldPrimeColor(),
+        child: Container(
+          padding: const EdgeInsets.only(
+              bottom: 10
+          ),
+          child: Text(
+            "Abschicken!",
+            style: customStyleClass.getFontStyle3BoldPrimeColor(),
+          ),
         ),
         onTap: () => clickEventProcessNewDiscount(),
       ),

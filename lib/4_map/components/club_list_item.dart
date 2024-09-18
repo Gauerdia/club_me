@@ -538,56 +538,36 @@ class ClubListItem extends StatelessWidget {
           ),
         ),
 
-        SizedBox(
-          width: screenWidth*0.7,
-          height: screenHeight*0.07,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
+        InkWell(
+          child: SizedBox(
+            width: screenWidth*0.7,
+            height: screenHeight*0.07,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
 
-              // TITLE
-              SizedBox(
-                width: screenWidth*0.7,
-                child: Text(
-                  currentClub.getClubName(),
-                  textAlign: TextAlign.left,
-                  style: customStyleClass.getFontStyle1(),
+                // TITLE
+                SizedBox(
+                  width: screenWidth*0.7,
+                  child: Text(
+                    currentClub.getClubName(),
+                    textAlign: TextAlign.left,
+                    style: customStyleClass.getFontStyle1(),
+                  ),
                 ),
-              ),
 
-              // ICONS
-              SizedBox(
-                width: screenWidth*0.7,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Padding(
-                        padding: EdgeInsets.only(right: 10),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.location_on_outlined,
-                            color: customStyleClass.primeColor,
-                            size: customStyleClass.getIconSize2(),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 5
-                            ),
-                            child: Text(
-                              calculateDistanceToClub().toStringAsFixed(2),
-                              style: customStyleClass.getFontStyle5(),
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                    Padding(
+                // ICONS
+                SizedBox(
+                  width: screenWidth*0.7,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Padding(
                         padding: EdgeInsets.only(right: 10),
                         child: Row(
                           children: [
                             Icon(
-                              Icons.group,
+                              Icons.location_on_outlined,
                               color: customStyleClass.primeColor,
                               size: customStyleClass.getIconSize2(),
                             ),
@@ -596,36 +576,63 @@ class ClubListItem extends StatelessWidget {
                                   horizontal: 5
                               ),
                               child: Text(
-                                getRandomNumber().toString(),
+                                calculateDistanceToClub().toStringAsFixed(2),
                                 style: customStyleClass.getFontStyle5(),
                               ),
                             )
                           ],
-                        )),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.library_music_outlined,
-                          color: customStyleClass.primeColor,
-                          size: customStyleClass.getIconSize2(),
                         ),
-                        Container(
-                          padding: const EdgeInsets.only(
-                              left: 5
+                      ),
+                      Padding(
+                          padding: EdgeInsets.only(right: 10),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.group,
+                                color: customStyleClass.primeColor,
+                                size: customStyleClass.getIconSize2(),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 5
+                                ),
+                                child: Text(
+                                  getRandomNumber().toString(),
+                                  style: customStyleClass.getFontStyle5(),
+                                ),
+                              )
+                            ],
+                          )),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.library_music_outlined,
+                            color: customStyleClass.primeColor,
+                            size: customStyleClass.getIconSize2(),
                           ),
-                          child: Text(
-                            getAndFormatMusicGenre(),
-                            style:customStyleClass.getFontStyle5(),
-                          ),
-                        )
-                      ],
-                    )
-                  ],
+                          Container(
+                            padding: const EdgeInsets.only(
+                                left: 5
+                            ),
+                            child: Text(
+                              getAndFormatMusicGenre(),
+                              style:customStyleClass.getFontStyle5(),
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
                 ),
-              ),
 
-            ],
+              ],
+            ),
           ),
+          onTap: (){
+            currentAndLikedElementsProvider.setCurrentClub(currentClub);
+            stateProvider.setAccessedEventDetailFrom(3);
+            context.push("/club_details");
+          },
         )
       ],
     );

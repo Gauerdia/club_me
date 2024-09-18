@@ -395,7 +395,7 @@ class _OffersListClubViewState extends State<OffersListClubView> {
       ),
       bottomNavigationBar: Container(
         width: screenWidth,
-        height: screenHeight*0.06,
+        height: screenHeight*0.07,
         decoration: BoxDecoration(
           color: Colors.black,
           border: Border(
@@ -409,7 +409,7 @@ class _OffersListClubViewState extends State<OffersListClubView> {
         alignment: Alignment.bottomRight,
         padding: const EdgeInsets.only(
           right: 10,
-          bottom: 10
+          bottom: 20
         ),
         child: GestureDetector(
           child: Text(

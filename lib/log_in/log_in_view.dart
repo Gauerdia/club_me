@@ -349,6 +349,7 @@ class _LogInViewState extends State<LogInView> {
                               )
                           ),
                           onTap: (){
+                            stateProvider.setClubUiActive(false);
                             context.go("/user_events");
                           },
                         ),

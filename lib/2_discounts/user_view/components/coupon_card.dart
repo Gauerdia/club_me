@@ -39,7 +39,10 @@ class CouponCard extends StatelessWidget {
   void clickOnInfo(BuildContext context){
 
     Widget okButton = TextButton(
-      child: const Text("OK"),
+      child: Text(
+          "OK",
+        style: customStyleClass.getFontStyle4BoldPrimeColor(),
+      ),
       onPressed: () {
         Navigator.of(context).pop();
       },
@@ -49,9 +52,20 @@ class CouponCard extends StatelessWidget {
         context: context,
         builder: (BuildContext context){
           return AlertDialog(
-            title: const Text("Coupon-Informationen"),
+            backgroundColor: Colors.black,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.0),
+                side: BorderSide(
+                    color: customStyleClass.primeColor
+                )
+            ),
+            title: Text(
+                "Coupon-Informationen",
+              style: customStyleClass.getFontStyle1Bold(),
+            ),
             content: Text(
               clubMeDiscount.getDiscountDescription(),
+              style: customStyleClass.getFontStyle4(),
             ),
             actions: [
               okButton
@@ -527,15 +541,31 @@ class CouponCard extends StatelessWidget {
     showDialog(context: context,
         builder: (BuildContext context){
           return AlertDialog(
-            title: const Text("Coupon einlösen"),
-            content: const Text("Bist du sicher, dass du den Coupon einlösen möchtest? Du kannst ihn danach womöglich nicht noch einmal einlösen"),
+            backgroundColor: Colors.black,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.0),
+                side: BorderSide(
+                    color: customStyleClass.primeColor
+                )
+            ),
+            title: Text(
+                "Coupon einlösen",
+              style: customStyleClass.getFontStyle1Bold(),
+            ),
+            content: Text(
+                "Bist du sicher, dass du den Coupon einlösen möchtest? Du kannst ihn danach womöglich nicht noch einmal einlösen",
+              style: customStyleClass.getFontStyle4(),
+            ),
             actions: [
               TextButton(
                   onPressed: () {
                     currentAndLikedElementsProvider.setCurrentDiscount(clubMeDiscount);
                     context.go('/coupon_active');
                   },
-                  child: const Text("Einlösen")
+                  child: Text(
+                      "Einlösen",
+                    style: customStyleClass.getFontStyle4BoldPrimeColor(),
+                  )
               )
             ],
           );

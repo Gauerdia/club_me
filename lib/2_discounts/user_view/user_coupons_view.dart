@@ -107,10 +107,23 @@ class _UserCouponsViewState extends State<UserCouponsView>
   void clickedOnShare(){
     showDialog<String>(
         context: context,
-        builder: (BuildContext context) => const AlertDialog(
-            title: Text("Teilen noch nicht möglich!"),
-            content: Text("Die Funktion, ein Event zu teilen, ist derzeit noch"
-                "nicht implementiert. Wir bitten um Verständnis.")
+        builder: (BuildContext context) => AlertDialog(
+            backgroundColor: Colors.black,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.0),
+                side: BorderSide(
+                    color: customStyleClass.primeColor
+                )
+            ),
+            title: Text(
+                "Teilen noch nicht möglich!",
+              style: customStyleClass.getFontStyle1Bold(),
+            ),
+            content: Text(
+                "Die Funktion, ein Event zu teilen, ist derzeit noch"
+                "nicht implementiert. Wir bitten um Verständnis.",
+              style: customStyleClass.getFontStyle4(),
+            )
         )
     );
   }

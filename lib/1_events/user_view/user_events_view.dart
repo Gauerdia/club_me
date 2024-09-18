@@ -294,6 +294,7 @@ class _UserEventsViewState extends State<UserEventsView> {
               ),
               onTap: (){
                 currentAndLikedElementsProvider.setCurrentEvent(currentEvent);
+                stateProvider.setAccessedEventDetailFrom(0);
                 context.push('/event_details');
               },
             );

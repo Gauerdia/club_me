@@ -231,7 +231,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
     return (isVideo || isImage) ?
     Container(
       width: screenWidth,
-      height: screenHeight*0.06,
+      height: screenHeight*0.07,
       alignment: Alignment.center,
       decoration: BoxDecoration(
           color: Colors.black,
@@ -266,7 +266,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
     ):
     Container(
       width: screenWidth,
-      height: screenHeight*0.06,
+      height: screenHeight*0.07,
       decoration: BoxDecoration(
           color: Colors.black,
           border: Border(
@@ -282,11 +282,16 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
           right: 10,
           bottom: 10
       ),
-      child: isUploading ? CircularProgressIndicator()
+      child: isUploading ? const CircularProgressIndicator()
       : GestureDetector(
-        child: Text(
-          "Abschicken!",
-          style: customStyleClass.getFontStyle3BoldPrimeColor(),
+        child: Container(
+          padding: const EdgeInsets.only(
+            bottom: 10
+          ),
+          child: Text(
+            "Abschicken!",
+            style: customStyleClass.getFontStyle3BoldPrimeColor(),
+          ),
         ),
         onTap: () => clickEventCreateEvent(),
       ),
@@ -403,8 +408,9 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                               child: Column(
                                 children: [
 
+                                  // Text: Date
                                   Container(
-                                    width: screenWidth*0.32,
+                                    width: screenWidth*0.4,
                                     child: Text(
                                       "Datum",
                                       style: customStyleClass.getFontStyle3(),
@@ -412,12 +418,14 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                                     ),
                                   ),
 
+                                  // Spacer
                                   SizedBox(
                                     height: screenHeight*0.01,
                                   ),
 
+                                  // OutlinedButton with Text
                                   SizedBox(
-                                    width: screenWidth*0.32,
+                                    width: screenWidth*0.4,
                                     child:OutlinedButton(
                                         onPressed: (){
                                           showDatePicker(
@@ -463,7 +471,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                                 children: [
 
                                   Container(
-                                    width: screenWidth*0.22,
+                                    width: screenWidth*0.4,
                                     child: Text(
                                       "Uhrzeit",
                                       style: customStyleClass.getFontStyle3(),
@@ -476,7 +484,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                                   ),
 
                                   SizedBox(
-                                    width: screenWidth*0.22,
+                                    width: screenWidth*0.4,
                                     child: OutlinedButton(
                                         onPressed: () => {
                                           setState(() {
@@ -499,53 +507,60 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                               ),
                             ),
 
-                            // Price text field
+
+                          ],
+                        ),
+                      ),
+
+                      // Price text field
+                      Container(
+                        padding: const EdgeInsets.only(
+                            top: 5
+                        ),
+                        child: Column(
+                          children: [
+
+                            // Text: Price
                             Container(
-                              padding: const EdgeInsets.only(
-                                  top: 5
+                              width: screenWidth*0.9,
+                              child: Text(
+                                "Eintrittspreis",
+                                style: customStyleClass.getFontStyle3(),
+                                textAlign: TextAlign.left,
                               ),
-                              child: Column(
-                                children: [
+                            ),
 
-                                  // Text: Price
-                                  Container(
-                                    width: screenWidth*0.3,
-                                    child: Text(
-                                      "Eintrittspreis",
-                                      style: customStyleClass.getFontStyle3(),
-                                      textAlign: TextAlign.left,
+                            // Spacer
+                            SizedBox(
+                              height: screenHeight*0.007,
+                            ),
+
+                            // Textfield: Price
+                            Container(
+                              width: screenWidth*0.9,
+                              alignment: Alignment.centerLeft,
+                              child: Container(
+                                width: screenWidth*0.3,
+                                // height: screenHeight*0.085,
+                                child: TextField(
+                                  controller: _eventPriceController,
+                                  keyboardType: TextInputType.number,
+                                  cursorColor: customStyleClass.primeColor,
+                                  decoration: InputDecoration(
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        vertical: 20,
+                                        horizontal: 10
+                                    ),
+                                    border: const OutlineInputBorder(),
+                                    focusedBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                            color: customStyleClass.primeColor
+                                        )
                                     ),
                                   ),
-
-                                  // Spacer
-                                  SizedBox(
-                                    height: screenHeight*0.012,
-                                  ),
-
-                                  // Textfield: Price
-                                  Container(
-                                    width: screenWidth*0.3,
-                                    child: TextField(
-                                      controller: _eventPriceController,
-                                      keyboardType: TextInputType.number,
-                                      cursorColor: customStyleClass.primeColor,
-                                      decoration: InputDecoration(
-                                        contentPadding: const EdgeInsets.symmetric(
-                                            vertical: 20,
-                                            horizontal: 10
-                                        ),
-                                        border: const OutlineInputBorder(),
-                                        focusedBorder: OutlineInputBorder(
-                                            borderSide: BorderSide(
-                                                color: customStyleClass.primeColor
-                                            )
-                                        ),
-                                      ),
-                                      style: customStyleClass.getFontStyle4(),
-                                      maxLength: 5,
-                                    ),
-                                  )
-                                ],
+                                  style: customStyleClass.getFontStyle4(),
+                                  maxLength: 5,
+                                ),
                               ),
                             )
                           ],
@@ -554,6 +569,9 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
 
                       // Text: Description
                       Container(
+                        padding: EdgeInsets.only(
+                          top: 10
+                        ),
                         width: screenWidth*0.9,
                         alignment: Alignment.centerLeft,
                         child: Text(
@@ -991,6 +1009,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                 ),
               ),
 
+            // window to pick genres
             if(pickGenreIsActive)
               Center(
                 child: Container(
@@ -1029,6 +1048,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                         height: screenHeight*0.03,
                       ),
 
+                      // dynamic elements
                       Column(
                         children: [
 
@@ -1092,6 +1112,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                             ),
                           ),
 
+                          // Text: Nothing picked
                           if(musicGenresChosen.isEmpty)
                             Padding(
                               padding: const EdgeInsets.only(
@@ -1109,21 +1130,21 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                             style: customStyleClass.getFontStyle4Bold(),
                           ),
 
+                          // Spacer
                           const SizedBox(
                             height: 10,
                           ),
 
-                          // textfield own genres
+                          // Textfield: own genres
                           Row(
                             children: [
+
+                              // TEXTFIELD
                               SizedBox(
-                                // height: screenHeight*0.08,
                                 width: screenWidth*0.5,
-                                // color: Colors.green,
                                 child: TextField(
                                   controller: _eventMusicGenresController,
                                   cursorColor: customStyleClass.primeColor,
-                                  keyboardType: TextInputType.number,
                                   decoration: InputDecoration(
                                     border: const OutlineInputBorder(),
                                     focusedBorder: OutlineInputBorder(
@@ -1136,13 +1157,12 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                                   maxLength: 15,
                                 ),
                               ),
+
+                              // ICON
                               Container(
                                   height: screenHeight*0.08,
-                                  // color: Colors.red,
                                   alignment: Alignment.topCenter,
                                   child: SizedBox(
-                                    // height: screenHeight*0.4,
-                                    // color: Colors.green,
                                       child: IconButton(
                                           onPressed: () => addOwnGenreToChosenGenres(),
                                           icon: Icon(

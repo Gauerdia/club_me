@@ -385,11 +385,9 @@ class _ClubInfoBottomSheet2State extends State<ClubInfoBottomSheet2> {
 
                       // Event Card
                       Container(
-                        padding: EdgeInsets.only(
+                        padding: const EdgeInsets.only(
                           top: 5
                         ),
-                        // height: bottomHeight-45,
-                        // color: Colors.red,
                         child: noEventAvailable ?
                         SizedBox(
                           height: bottomHeight-45,
@@ -406,6 +404,7 @@ class _ClubInfoBottomSheet2State extends State<ClubInfoBottomSheet2> {
                           ),
                           onTap: (){
                             currentAndLikedElementsProvider.setCurrentEvent(clubMeEvent!);
+                            stateProvider.setAccessedEventDetailFrom(3);
                             context.push("/event_details");
                           },
                         ),

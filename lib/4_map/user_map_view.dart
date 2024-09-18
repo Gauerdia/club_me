@@ -20,7 +20,6 @@ import '../provider/state_provider.dart';
 import '../provider/user_data_provider.dart';
 import '../services/supabase_service.dart';
 import '../shared/custom_text_style.dart';
-import 'components/club_info_bottom_sheet.dart';
 import 'components/club_list_item.dart';
 
 
@@ -45,9 +44,6 @@ class _UserMapViewState extends State<UserMapView>{
   late double screenWidth, screenHeight;
   late UserDataProvider userDataProvider;
   late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
-
-  // List<String> imageFileNamesToBeFetched = [];
-  // List<String> imageFileNamesAlreadyFetched = [];
 
   final MapController _mapController = MapController();
   final SupabaseService _supabaseService = SupabaseService();
@@ -418,9 +414,6 @@ class _UserMapViewState extends State<UserMapView>{
           child: Column(
             children: [
 
-              // Spacer
-              // SizedBox(height: screenHeight*0.12,),
-
               // Content
               SizedBox(
                 width: screenWidth,
@@ -446,7 +439,10 @@ class _UserMapViewState extends State<UserMapView>{
 
                     // The bottom info container
                     GestureDetector(
-                      child: Align(
+                      child: Container(
+                        padding: const EdgeInsets.only(
+                            bottom: 10
+                        ),
                         alignment: Alignment.bottomCenter,
                         child:
                         showBottomSheet ?
@@ -461,6 +457,7 @@ class _UserMapViewState extends State<UserMapView>{
                             noEventAvailable: noEventAvailable
                         )
                             : Container(),
+
                       ),
                       onTap: (){
                         // club will be set in stateprovider when clicked on marker
@@ -488,7 +485,6 @@ class _UserMapViewState extends State<UserMapView>{
                     showListIsActive ?
                       Padding(
                             padding: const EdgeInsets.only(
-                                // top: screenWidth*0.1
                             ),
                           child: Center(
 
@@ -498,8 +494,6 @@ class _UserMapViewState extends State<UserMapView>{
                                 top: 20,
                                 bottom: 20
                               ),
-                              // width: screenWidth*0.9,
-                              // height: screenHeight*0.7,
                               child: SingleChildScrollView(
                                 child: Column(
                                   children: [
