@@ -115,7 +115,8 @@ dependencies:
   workmanager:
     git:
       url: https://github.com/absar/flutter_workmanager.git
-      ref: b783000
+      ref: ios-bg-tasks-enh-final
+
   shared_preferences: ^2.3.2
 
   #  flutter_background_geolocation: ^4.12.0
