@@ -69,6 +69,9 @@ import '3_clubs/club_view/components/update_photos_and_videos_view.dart';
 import '3_clubs/user_view/user_clubs_view.dart';
 import '4_map/user_map_view.dart';
 
+
+const rescheduledTaskKey = "be.szymendera.workmanager.rescheduledTask";
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -93,7 +96,7 @@ Future<void> main() async {
     // The top level function, aka callbackDispatcher
     callbackDispatcher,
     // If enabled it will post a notification whenever the task is running. Handy for debugging tasks
-    isInDebugMode: true
+    isInDebugMode: false
   );
 
   // Get the directory of the app to save images and videos

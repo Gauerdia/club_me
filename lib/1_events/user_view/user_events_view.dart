@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:club_me/main.dart';
 import 'package:club_me/provider/user_data_provider.dart';
 import 'package:club_me/services/hive_service.dart';
 import 'package:club_me/services/supabase_service.dart';
@@ -91,11 +92,12 @@ class _UserEventsViewState extends State<UserEventsView> {
     final userDataProvider = Provider.of<UserDataProvider>(context, listen:  false);
 
     Workmanager().registerPeriodicTask(
-        'test',
-        'test1',
+        rescheduledTaskKey,
+        rescheduledTaskKey,
         inputData: <String, dynamic>{
           'id': userDataProvider.getUserData().getUserId()
         },
+        initialDelay: Duration(seconds: 10),
         frequency: const Duration(minutes: 1)
     );
 
