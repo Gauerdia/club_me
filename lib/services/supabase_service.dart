@@ -10,6 +10,7 @@ import 'package:club_me/provider/state_provider.dart';
 import 'package:club_me/provider/user_data_provider.dart';
 import 'package:club_me/shared/logger.util.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -20,6 +21,27 @@ import 'package:logging/logging.dart';
 class SupabaseService{
 
   final log = getLogger();
+
+
+  // GEO LOCATION
+
+  Future<int> saveUsersGeoLocation(String userId, double latCoord, double longCoord) async{
+    try{
+      final data = await supabase
+          .from("club_me_user_location")
+          .insert({
+            "lat_coord": latCoord,
+            'long_coord': longCoord,
+            'user_id': userId
+      });
+      log.d("saveUsersGeoLocation: Finished successfully. Response: $data");
+      return 0;
+    }catch(e){
+      log.d("Error in saveUsersGeoLocation: $e");
+      createErrorLog(e.toString());
+      return 1;
+    }
+  }
 
 
   // EVENTS
@@ -625,6 +647,44 @@ class SupabaseService{
     }
   }
 
+  Future<int> updateUserData(ClubMeUserData userData) async{
+
+    try{
+      var data = await supabase
+        .from('club_me_users')
+        .update({
+        'first_name': userData.getFirstName(),
+        'last_name': userData.getLastName(),
+        'e_mail': userData.getEMail(),
+        'gender': userData.getGender(),
+        'birth_date': userData.getBirthDate().toString(),
+      })
+      .eq('user_id', userData.getUserId());
+      log.d("updateUserData: Finished successfully. Response: $data");
+      return 0;
+    }catch(e){
+      log.d("Error in updateUserData: $e");
+      createErrorLog(e.toString());
+      return 1;
+    }
+  }
+
+  Future<int> markToDeleteUserData(String userId) async{
+    try{
+      var data = await supabase
+          .from('club_me_users')
+          .update({
+        'account_shall_be_deleted': true,
+      }).eq('user_id', userId);
+      log.d("markToDeleteUserData: Finished successfully. Response: $data");
+      return 0;
+    }catch(e){
+      log.d("Error in markToDeleteUserData: $e");
+      createErrorLog(e.toString());
+      return 1;
+    }
+  }
+
   // EVENT CONTENT: PHOTOS/VIDEOS
 
   Future<Uint8List> getEventContent(String fileName) async {
@@ -736,6 +796,8 @@ class SupabaseService{
       /// TODO: If error log fails, save to local until it could be transfered successfully.
     }
   }
+
+
 
 }
 

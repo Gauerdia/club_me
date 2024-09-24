@@ -55,21 +55,14 @@ class SmallDiscountTile extends StatelessWidget {
 
         // Image container
         Container(
-            decoration: const BoxDecoration(
-              borderRadius: BorderRadius.only(
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.only(
                   topRight: Radius.circular(12),
                   topLeft: Radius.circular(12)
               ),
-              border: Border(
-                top: BorderSide(
-                    width: 1, color: Colors.white60
-                ),
-                left: BorderSide(
-                    width: 1, color: Colors.white60
-                ),
-                right: BorderSide(
-                    width: 1, color: Colors.white60
-                ),
+              border: Border.all(
+                color: customStyleClass.backgroundColorEventTile,
+                width: 2
               ),
             ),
             child: SizedBox(
@@ -102,33 +95,19 @@ class SmallDiscountTile extends StatelessWidget {
         Container(
             width: screenWidth*0.905,
             height: screenHeight*0.12,
+
             padding: const EdgeInsets.only(
                 bottom: 10
             ),
             decoration: BoxDecoration(
+              color: customStyleClass.backgroundColorEventTile,
               borderRadius: const BorderRadius.only(
                   bottomRight: Radius.circular(12),
                   bottomLeft: Radius.circular(12)
               ),
-              border: const Border(
-                bottom: BorderSide(
-                    width: 1, color: Colors.white60
-                ),
-                left: BorderSide(
-                    width: 1, color: Colors.white60
-                ),
-                right: BorderSide(
-                    width: 1, color: Colors.white60
-                ),
-              ),
-              gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.grey[700]!,
-                    Colors.grey[850]!
-                  ],
-                  stops: const [0.3, 0.8]
+              border: Border.all(
+                color: customStyleClass.backgroundColorEventTile,
+                width: 2
               ),
             ),
             child: Stack(
@@ -176,7 +155,7 @@ class SmallDiscountTile extends StatelessWidget {
                   alignment: Alignment.bottomLeft,
                   child: Text(
                       formattedWeekday,
-                      style: customStyleClass.getFontStyle5Bold()
+                      style: customStyleClass.getFontStyle5BoldPrimeColor()
                   ),
                 ),
 
@@ -213,6 +192,7 @@ class SmallDiscountTile extends StatelessWidget {
     return Container(
       padding: EdgeInsets.only(bottom: screenHeight*0.02),
       child: Card(
+        color: Color(0xff121111),
         child: _buildMainColumn()
       ),
     );

@@ -4,6 +4,7 @@ import 'package:club_me/models/club_me_local_discount.dart';
 import 'package:club_me/models/discount.dart';
 import 'package:club_me/models/event_template.dart';
 import 'package:club_me/models/parser/discount_to_local_discount_parser.dart';
+import 'package:club_me/models/temp_geo_location_data.dart';
 import 'package:club_me/services/supabase_service.dart';
 import 'package:hive/hive.dart';
 import '../models/club_me_user_data.dart';
@@ -26,6 +27,8 @@ class HiveService{
 
   final String _clubMeUserDataBoxName = "clubMeUserDataBox";
 
+  final String _tempGeoLocationDataBoxName ="tempGeoLocationDataBox";
+
   Future<Box<String>> get _clubMeEventBox async => await Hive.openBox<String>(_clubMeFavoriteEventsBoxName);
   Future<Box<String>> get _clubMeClubBox async => await Hive.openBox<String>(_clubMeFavoriteClubsBoxName);
   Future<Box<String>> get _clubMeDiscountBox async => await Hive.openBox<String>(_clubMeFavoriteDiscountsBoxName);
@@ -34,6 +37,13 @@ class HiveService{
   Future<Box<ClubMeEventTemplate>> get _clubMeEventTemplatesBox async => await Hive.openBox<ClubMeEventTemplate>(_clubMeEventTemplatesName);
   Future<Box<ClubMeDiscountTemplate>> get _clubMeDiscountTemplatesBox async => await Hive.openBox<ClubMeDiscountTemplate>(_clubMeDiscountTemplatesName);
   Future<Box<ClubMeLocalDiscount>> get _clubMeLocalDiscountsBox async => await Hive.openBox<ClubMeLocalDiscount>(_clubMeLocalDiscountsName);
+  Future<Box<TempGeoLocationData>> get _tempGeoLocationDataBox async => await Hive.openBox<TempGeoLocationData>(_tempGeoLocationDataBoxName);
+
+  Future<void> addTempGeoLocationData(TempGeoLocationData tempGeoLocationData) async{
+    var box = await _tempGeoLocationDataBox;
+    await box.add(tempGeoLocationData);
+    print("addTempGeoLocationData ended");
+  }
 
   // We save all discounts locally so that bad internet connection doesn't impede
   // the use of the discounts.
@@ -70,7 +80,7 @@ class HiveService{
     await box.putAt(index, clubMeLocalDiscount);
   }
 
-
+  // DISCOUNT TEMPLATE
   Future<void> addDiscountTemplate(ClubMeDiscountTemplate discountTemplate) async {
     try{
       var box = await _clubMeDiscountTemplatesBox;

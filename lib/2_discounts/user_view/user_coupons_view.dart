@@ -30,7 +30,7 @@ class _UserCouponsViewState extends State<UserCouponsView>
 
   var log = Logger();
 
-  String headline = "Deine Coupons";
+  String headline = "Coupons";
   late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
   late FetchedContentProvider fetchedContentProvider;
   late Future getDiscounts;
@@ -52,29 +52,10 @@ class _UserCouponsViewState extends State<UserCouponsView>
   String searchValue = "";
   int _currentPageIndex = 0;
 
-  // Theoretically obsolete but maybe we need the separation in the future
-  // List<ClubMeDiscount> localDiscounts = [];
-  // List<ClubMeDiscount> dbDiscounts = [];
-
   // All elements that lie in the future and by that are worth to display
   List<ClubMeDiscount> upcomingDiscounts = [];
   // A dynamic array that considers all filters.
   List<ClubMeDiscount> discountsToDisplay = [];
-
-  BoxDecoration gradientDecoration = const BoxDecoration(
-    gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          Color(0xff2b353d),
-          Color(0xff11181f)
-        ],
-        stops: [0.15, 0.6]
-    ),
-  );
-  BoxDecoration plainBlackDecoration = const BoxDecoration(
-      color: Colors.black
-  );
 
   @override
   void initState() {
@@ -108,12 +89,12 @@ class _UserCouponsViewState extends State<UserCouponsView>
     showDialog<String>(
         context: context,
         builder: (BuildContext context) => AlertDialog(
-            backgroundColor: Colors.black,
+            backgroundColor: Color(0xff121111),
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20.0),
-                side: BorderSide(
-                    color: customStyleClass.primeColor
-                )
+                // side: BorderSide(
+                //     color: customStyleClass.primeColor
+                // )
             ),
             title: Text(
                 "Teilen noch nicht möglich!",
@@ -299,7 +280,8 @@ class _UserCouponsViewState extends State<UserCouponsView>
   }
   AppBar _buildAppBarWithSearch(){
     return AppBar(
-      backgroundColor: Colors.transparent,
+      backgroundColor: customStyleClass.backgroundColorMain,
+      surfaceTintColor: customStyleClass.backgroundColorMain,
       title: TextField(
         autofocus: true,
         controller: _textEditingController,
@@ -335,7 +317,7 @@ class _UserCouponsViewState extends State<UserCouponsView>
         IconButton(
             onPressed: () => filterForFavorites(),
             icon: Icon(
-              Icons.stars,
+              onlyFavoritesIsActive ? Icons.star : Icons.star_border,
               color: onlyFavoritesIsActive ? customStyleClass.primeColor : Colors.grey,
             )
         )
@@ -344,13 +326,47 @@ class _UserCouponsViewState extends State<UserCouponsView>
   }
   AppBar _buildAppBarWithTitle(){
     return AppBar(
-      backgroundColor: Colors.transparent,
+      backgroundColor: customStyleClass.backgroundColorMain,
+      surfaceTintColor: customStyleClass.backgroundColorMain,
       title: SizedBox(
         width: screenWidth,
-        child: Text(
-            headline,
-          textAlign: TextAlign.center,
-            style: customStyleClass.getFontStyle1()
+        child: Stack(
+          children: [
+            // Headline
+            Container(
+                alignment: Alignment.bottomCenter,
+                height: 50,
+                width: screenWidth,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                                headline,
+                                textAlign: TextAlign.center,
+                                style: customStyleClass.getFontStyleHeadline1Bold()
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  bottom: 15
+                              ),
+                              child: Text(
+                                "VIP",
+                                style: customStyleClass.getFontStyleVIPGold(),
+                              ),
+                            )
+                          ],
+                        ),
+                      ],
+                    )
+                  ],
+                )
+            ),
+          ],
         ),
       ),
       leading: GestureDetector(
@@ -365,7 +381,7 @@ class _UserCouponsViewState extends State<UserCouponsView>
         IconButton(
             onPressed: () => filterForFavorites(),
             icon: Icon(
-              Icons.stars,
+              onlyFavoritesIsActive ? Icons.star : Icons.star_border,
               color: onlyFavoritesIsActive ? customStyleClass.primeColor : Colors.grey,
             )
         )
@@ -640,7 +656,7 @@ class _UserCouponsViewState extends State<UserCouponsView>
         body: Container(
           width: screenWidth,
           height: screenHeight,
-          decoration: plainBlackDecoration,
+          color: customStyleClass.backgroundColorMain,
           child: Column(
             children: [
 
@@ -649,9 +665,8 @@ class _UserCouponsViewState extends State<UserCouponsView>
 
               _buildSupabaseDiscounts(stateProvider, screenHeight),
 
-              // Spacer
-              SizedBox(height: screenHeight*0.05,),
 
+              // Page arrows
               if(discountsToDisplay.isNotEmpty)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -659,12 +674,12 @@ class _UserCouponsViewState extends State<UserCouponsView>
                     Icon(
                       Icons.keyboard_arrow_left_sharp,
                       size: 50,
-                      color: _currentPageIndex > 0 ? Colors.white: Colors.grey,
+                      color: _currentPageIndex > 0 ? customStyleClass.primeColor : Colors.grey,
                     ),
                     Icon(
                       Icons.keyboard_arrow_right_sharp,
                       size: 50,
-                      color: _currentPageIndex < (discountsToDisplay.length-1) ? Colors.white: Colors.grey,
+                      color: _currentPageIndex < (discountsToDisplay.length-1) ? customStyleClass.primeColor : Colors.grey,
                     ),
                   ],
                 ),

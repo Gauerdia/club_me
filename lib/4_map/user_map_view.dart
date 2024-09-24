@@ -32,7 +32,7 @@ class UserMapView extends StatefulWidget {
 
 class _UserMapViewState extends State<UserMapView>{
 
-  String headline = "Finde deinen Club";
+  List<String> headline = ["Karte", "Liste"];
 
   var log = Logger();
 
@@ -307,11 +307,29 @@ class _UserMapViewState extends State<UserMapView>{
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                      headline,
-                      textAlign: TextAlign.center,
-                      style: customStyleClass.getFontStyle1()
-                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                              showListIsActive ? headline[1] : headline[0],
+                              textAlign: TextAlign.center,
+                              style: customStyleClass.getFontStyleHeadline1Bold()
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                                bottom: 15
+                            ),
+                            child: Text(
+                              "VIP",
+                              style: customStyleClass.getFontStyleVIPGold(),
+                            ),
+                          )
+                        ],
+                      ),
+                    ],
+                  )
                 ],
               )
           ),
@@ -387,30 +405,18 @@ class _UserMapViewState extends State<UserMapView>{
 
     return Scaffold(
 
-      // extendBodyBehindAppBar: true,
       extendBody: true,
 
       bottomNavigationBar: CustomBottomNavigationBar(),
-
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: customStyleClass.backgroundColorMain,
+        surfaceTintColor: customStyleClass.backgroundColorMain,
         title: _buildAppBar(),
       ),
-
       body: Container(
         width: screenWidth,
           height: screenHeight,
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color(0xff2b353d),
-                Color(0xff11181f)
-              ],
-              stops: [0.15, 0.6]
-            ),
-          ),
+          color:customStyleClass.backgroundColorMain,
           child: Column(
             children: [
 
@@ -471,7 +477,7 @@ class _UserMapViewState extends State<UserMapView>{
                           child: Container(
                             width: screenWidth,
                             height: screenHeight,
-                            color: Colors.black.withOpacity(0.95),
+                            color: customStyleClass.backgroundColorMain.withOpacity(0.95),
                           ),
                           onTap: (){
                             setState(() {
@@ -490,13 +496,21 @@ class _UserMapViewState extends State<UserMapView>{
 
                             // Whole list background
                             child: Container(
+                              height: screenHeight,
+                              // color: Colors.red,
                               padding: const EdgeInsets.only(
-                                top: 20,
+                                // top: 20,
                                 bottom: 20
                               ),
                               child: SingleChildScrollView(
                                 child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
+
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+
                                     for( ClubMeClub club in clubsToDisplay)
                                       ClubListItem(
                                           currentClub: club,
@@ -512,6 +526,7 @@ class _UserMapViewState extends State<UserMapView>{
                   ],
                 )
               )
+
             ],
           )
           ),

@@ -64,20 +64,47 @@ class _SettingsViewState extends State<SettingsView> {
               width: screenWidth,
               child: Stack(
                 children: [
+
+                  // Headline
                   Container(
-                    width: screenWidth,
-                    height: 50,
-                    // color: Colors.red,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(headLine,
-                          textAlign: TextAlign.center,
-                          style: customStyleClass.getFontStyle2(),
-                        ),
-                      ],
-                    )
+                      alignment: Alignment.bottomCenter,
+                      height: screenHeight*0.2,
+                      width: screenWidth,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                      headLine,
+                                      textAlign: TextAlign.center,
+                                      style: customStyleClass.getFontStyleHeadline1Bold()
+                                  ),
+                                ],
+                              ),
+                            ],
+                          )
+                        ],
+                      )
                   ),
+
+                  // Container(
+                  //   width: screenWidth,
+                  //   height: 50,
+                  //   // color: Colors.red,
+                  //   child: Column(
+                  //     mainAxisAlignment: MainAxisAlignment.center,
+                  //     children: [
+                  //       Text(headLine,
+                  //         textAlign: TextAlign.center,
+                  //         style: customStyleClass.getFontStyle2(),
+                  //       ),
+                  //     ],
+                  //   )
+                  // ),
 
                   // Search icon
                   Container(

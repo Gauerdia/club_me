@@ -34,7 +34,8 @@ class _UpdateNewsViewState extends State<UpdateNewsView> {
   // BUILD
   AppBar _buildAppBar(){
     return AppBar(
-      backgroundColor: Colors.transparent,
+      backgroundColor: customStyleClass.backgroundColorMain,
+      surfaceTintColor: customStyleClass.backgroundColorMain,
       title: SizedBox(
         width: screenWidth,
         child: Stack(
@@ -132,17 +133,19 @@ class _UpdateNewsViewState extends State<UpdateNewsView> {
                       vertical: screenHeight*0.015,
                       horizontal: screenWidth*0.03
                   ),
-                  decoration: BoxDecoration(
-                      color: Colors.black54,
-                      border: Border.all(
-                          color: customStyleClass.primeColor
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        "News anpassen",
+                        textAlign: TextAlign.center,
+                        style: customStyleClass.getFontStyle4BoldPrimeColor(),
                       ),
-                      borderRadius: BorderRadius.all(Radius.circular(10))
-                  ),
-                  child: Text(
-                    "News anpassen!",
-                    textAlign: TextAlign.center,
-                    style: customStyleClass.getFontStyle4BoldPrimeColor(),
+                      Icon(
+                        Icons.arrow_forward_outlined,
+                        color: customStyleClass.primeColor,
+                      )
+                    ],
                   ),
                 ),
                 onTap: () => clickOnUpdateButton(stateProvider, controller),
@@ -226,18 +229,7 @@ class _UpdateNewsViewState extends State<UpdateNewsView> {
         body: Container(
             width: screenWidth,
             height: screenHeight,
-            // decoration: const BoxDecoration(
-            //   gradient: LinearGradient(
-            //       begin: Alignment.topLeft,
-            //       end: Alignment.bottomRight,
-            //       colors: [
-            //         Color(0xff2b353d),
-            //         Color(0xff11181f)
-            //       ],
-            //       stops: [0.15, 0.6]
-            //   ),
-            // ),
-
+            color: customStyleClass.backgroundColorMain,
             child: SingleChildScrollView(
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               child: _buildMainColumn(),

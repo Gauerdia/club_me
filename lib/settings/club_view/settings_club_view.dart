@@ -77,13 +77,11 @@ class _SettingsClubViewState extends State<SettingsClubView> {
 
     return Scaffold(
 
-      // extendBodyBehindAppBar: true,
         extendBody: true,
-
-        bottomNavigationBar: CustomBottomNavigationBarClubs(),
         appBar: AppBar(
             automaticallyImplyLeading: false,
-            backgroundColor: Colors.transparent,
+            backgroundColor: customStyleClass.backgroundColorMain,
+            surfaceTintColor: customStyleClass.backgroundColorMain,
             title: SizedBox(
               width: screenWidth,
               child: Stack(
@@ -97,7 +95,7 @@ class _SettingsClubViewState extends State<SettingsClubView> {
                         children: [
                           Text(headLine,
                             textAlign: TextAlign.center,
-                            style: customStyleClass.getFontStyle2(),
+                            style: customStyleClass.getFontStyleHeadline1Bold(),
                           ),
                         ],
                       )
@@ -129,12 +127,16 @@ class _SettingsClubViewState extends State<SettingsClubView> {
         body: Container(
             width: screenWidth,
             height: screenHeight,
+            color: customStyleClass.backgroundColorMain,
             child: SingleChildScrollView(
 
                 child: Column(
                   children: [
 
-                    SizedBox(
+                    Container(
+                      padding: const EdgeInsets.only(
+                        top:20
+                      ),
                       width: screenWidth*0.9,
                       child: Row(
                         children: [

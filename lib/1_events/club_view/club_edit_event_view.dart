@@ -57,10 +57,14 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
 
   List<String> musicGenresChosen = [];
   List<String> musicGenresOffer = [
-    "90s", "Techno", "Rock", "EDM", "80s", "Metal", "Pop"
+    "Latin", "Rock", "Hip-Hop", "Electronic", "Pop", "Reggaeton", "Afrobeats",
+    "R&B", "House", "Techno", "Rap", "90er", "80er", "2000er",
+    "Heavy Metal", "Psychedelic", "Balkan"
   ];
   List<String> musicGenresToCompare = [
-    "90s", "Techno", "Rock", "EDM", "80s", "Metal", "Pop"
+    "Latin", "Rock", "Hip-Hop", "Electronic", "Pop", "Reggaeton", "Afrobeats",
+    "R&B", "House", "Techno", "Rap", "90er", "80er", "2000er",
+    "Heavy Metal", "Psychedelic", "Balkan"
   ];
 
   late TextEditingController _eventTitleController;
@@ -111,12 +115,13 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
 
   ByteData? screenshot;
 
+  // INIT
+
   @override
   void initState(){
     super.initState();
     initControllers();
   }
-
   void initControllers(){
 
     stateProvider = Provider.of<StateProvider>(context, listen:  false);
@@ -156,10 +161,14 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
   }
 
 
+  // BUILD
+
+
   AppBar _buildAppBar(){
     return AppBar(
       automaticallyImplyLeading: false,
-      backgroundColor: Colors.transparent,
+      backgroundColor: customStyleClass.backgroundColorMain,
+      surfaceTintColor: customStyleClass.backgroundColorMain,
       title: SizedBox(
         width: screenWidth,
         child: Stack(
@@ -167,7 +176,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
 
             // Icon
             Container(
-              alignment: Alignment.centerLeft,
+              alignment: Alignment.centerRight,
               height: 50,
               child: IconButton(
                   icon: const Icon(
@@ -188,7 +197,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                   Text(
                     headline,
                     textAlign: TextAlign.center,
-                    style: customStyleClass.getFontStyle1(),
+                    style: customStyleClass.getFontStyleHeadline1Bold(),
                   )
                 ],
               ),
@@ -199,72 +208,17 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
       ),
     );
   }
-
-  void clickedOnAbort(){
-
-    showDialog(
-        context: context,
-        builder: (BuildContext context){
-          return AlertDialog(
-              backgroundColor: Colors.black,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20.0),
-                  side: BorderSide(
-                      color: customStyleClass.primeColor
-                  )
-              ),
-              title: Text(
-                "Abbrechen",
-                style: customStyleClass.getFontStyle1Bold(),
-              ),
-              content: Text(
-                "Bist du sicher, dass du abbrechen möchtest?",
-                textAlign: TextAlign.left,
-                style: customStyleClass.getFontStyle4(),
-              ),
-              actions: [
-
-                TextButton(
-                  child: Text(
-                    "Zurück",
-                    style: customStyleClass.getFontStyle3(),
-                  ),
-                  onPressed: (){
-                    Navigator.of(context).pop();
-                  },
-                ),
-
-                TextButton(
-                  child: Text(
-                    "Ja",
-                    style: customStyleClass.getFontStyle3(),
-                  ),
-                  onPressed: () => resetAndGoBackToEvents(),
-                ),
-
-              ]
-          );
-        }
-    );
-  }
-
-  void resetAndGoBackToEvents(){
-    // TODO: context.go doesnt work !? Need to investigate
-    stateProvider.resetCurrentEventTemplate();
-    context.push('/club_events');
-  }
-
   Widget _buildNavigationBar2(){
     return (isVideo || isImage) ?
     Container(
       width: screenWidth,
-      height: screenHeight*0.06,
+      height: screenHeight*0.08,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-          color: Colors.black,
+          color: customStyleClass.backgroundColorMain,
           border: Border(
               top: BorderSide(
-                  color: Colors.grey[500]!
+                  color: Colors.grey[900]!
               )
           )
       ),
@@ -275,14 +229,14 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
           children: [
             GestureDetector(
               child: Text(
-                "Abbrechen!",
+                "Abbrechen",
                 style: customStyleClass.getFontStyle3BoldPrimeColor(),
               ),
               onTap: () => deselectContent(),
             ),
             GestureDetector(
               child: Text(
-                "Übernehmen!",
+                "Übernehmen",
                 style: customStyleClass.getFontStyle3BoldPrimeColor(),
               ),
               onTap: () => selectContent(),
@@ -293,27 +247,35 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
     ):
     Container(
       width: screenWidth,
-      height: screenHeight*0.06,
+      height: screenHeight*0.08,
       decoration: BoxDecoration(
-          color: Colors.black,
+          color: customStyleClass.backgroundColorMain,
           border: Border(
               top: BorderSide(
-                  color: Colors.grey[500]!
+                  color: Colors.grey[900]!
               )
           )
       ),
 
-      // color: Colors.green,
-      alignment: Alignment.bottomRight,
+      alignment: Alignment.centerRight,
       padding: const EdgeInsets.only(
           right: 10,
-          bottom: 10
+          // bottom: 10
       ),
       child: isUploading ? CircularProgressIndicator()
           : GestureDetector(
-        child: Text(
-          "Abschicken!",
-          style: customStyleClass.getFontStyle3BoldPrimeColor(),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Text(
+              "Abschicken",
+              style: customStyleClass.getFontStyle3BoldPrimeColor(),
+            ),
+            Icon(
+              Icons.arrow_forward_outlined,
+              color: customStyleClass.primeColor,
+            )
+          ],
         ),
         onTap: () => clickEventUpdateEvent(),
       ),
@@ -369,6 +331,11 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                           controller: _eventTitleController,
                           cursorColor: customStyleClass.primeColor,
                           decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.only(
+                                left: 20,
+                                top:20,
+                                bottom:20
+                            ),
                             focusedBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
                                     color: customStyleClass.primeColor
@@ -400,6 +367,11 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                             controller: _eventDJController,
                             cursorColor: customStyleClass.primeColor,
                             decoration: InputDecoration(
+                              contentPadding: const EdgeInsets.only(
+                                  left: 20,
+                                  top:20,
+                                  bottom:20
+                              ),
                               hintText: "z.B. DJ David Guetta",
                               border: OutlineInputBorder(),
                               focusedBorder: OutlineInputBorder(
@@ -430,8 +402,9 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                               child: Column(
                                 children: [
 
-                                  Container(
-                                    width: screenWidth*0.32,
+                                  // Text: Date
+                                  SizedBox(
+                                    width: screenWidth*0.4,
                                     child: Text(
                                       "Datum",
                                       style: customStyleClass.getFontStyle3(),
@@ -439,12 +412,10 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                                     ),
                                   ),
 
-                                  SizedBox(
-                                    height: screenHeight*0.01,
-                                  ),
 
+                                  // OutlinedButton with Text
                                   SizedBox(
-                                    width: screenWidth*0.32,
+                                    width: screenWidth*0.4,
                                     child:OutlinedButton(
                                         onPressed: (){
                                           showDatePicker(
@@ -489,8 +460,8 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                               child: Column(
                                 children: [
 
-                                  Container(
-                                    width: screenWidth*0.22,
+                                  SizedBox(
+                                    width: screenWidth*0.4,
                                     child: Text(
                                       "Uhrzeit",
                                       style: customStyleClass.getFontStyle3(),
@@ -498,12 +469,12 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                                     ),
                                   ),
 
-                                  SizedBox(
-                                    height: screenHeight*0.01,
-                                  ),
+                                  // SizedBox(
+                                  //   height: screenHeight*0.01,
+                                  // ),
 
                                   SizedBox(
-                                    width: screenWidth*0.22,
+                                    width: screenWidth*0.4,
                                     child: OutlinedButton(
                                         onPressed: () => {
                                           setState(() {
@@ -526,53 +497,61 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                               ),
                             ),
 
-                            // Price text field
+                          ],
+                        ),
+                      ),
+
+                      // Price text field
+                      Container(
+                        // padding: const EdgeInsets.only(
+                        //     top: 5
+                        // ),
+                        child: Column(
+                          children: [
+
+                            // Text: Price
                             Container(
-                              padding: const EdgeInsets.only(
-                                  top: 5
+                              width: screenWidth*0.9,
+                              child: Text(
+                                "Eintrittspreis",
+                                style: customStyleClass.getFontStyle3(),
+                                textAlign: TextAlign.left,
                               ),
-                              child: Column(
-                                children: [
+                            ),
 
-                                  // Text: Price
-                                  Container(
-                                    width: screenWidth*0.3,
-                                    child: Text(
-                                      "Eintrittspreis",
-                                      style: customStyleClass.getFontStyle3(),
-                                      textAlign: TextAlign.left,
+                            // Spacer
+                            SizedBox(
+                              height: screenHeight*0.007,
+                            ),
+
+                            // Textfield: Price
+                            Container(
+                              width: screenWidth*0.9,
+                              alignment: Alignment.centerLeft,
+                              child: Container(
+                                width: screenWidth*0.3,
+                                // height: screenHeight*0.085,
+                                child: TextField(
+                                  controller: _eventPriceController,
+                                  keyboardType: TextInputType.number,
+                                  cursorColor: customStyleClass.primeColor,
+                                  decoration: InputDecoration(
+                                    hintText: "z.B. 10",
+                                    contentPadding: const EdgeInsets.only(
+                                        left: 20,
+                                        top:20,
+                                        bottom:20
+                                    ),
+                                    border: const OutlineInputBorder(),
+                                    focusedBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                            color: customStyleClass.primeColor
+                                        )
                                     ),
                                   ),
-
-                                  // Spacer
-                                  SizedBox(
-                                    height: screenHeight*0.012,
-                                  ),
-
-                                  // Textfield: Price
-                                  Container(
-                                    width: screenWidth*0.3,
-                                    child: TextField(
-                                      controller: _eventPriceController,
-                                      keyboardType: TextInputType.number,
-                                      cursorColor: customStyleClass.primeColor,
-                                      decoration: InputDecoration(
-                                        contentPadding: const EdgeInsets.symmetric(
-                                            vertical: 20,
-                                            horizontal: 10
-                                        ),
-                                        border: const OutlineInputBorder(),
-                                        focusedBorder: OutlineInputBorder(
-                                            borderSide: BorderSide(
-                                                color: customStyleClass.primeColor
-                                            )
-                                        ),
-                                      ),
-                                      style: customStyleClass.getFontStyle4(),
-                                      maxLength: 5,
-                                    ),
-                                  )
-                                ],
+                                  style: customStyleClass.getFontStyle4(),
+                                  maxLength: 5,
+                                ),
                               ),
                             )
                           ],
@@ -581,6 +560,9 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
 
                       // Text: Description
                       Container(
+                        padding: EdgeInsets.only(
+                            top: 10
+                        ),
                         width: screenWidth*0.9,
                         alignment: Alignment.centerLeft,
                         child: Text(
@@ -598,6 +580,12 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                           cursorColor: customStyleClass.primeColor,
                           maxLines: null,
                           decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.only(
+                                left: 20,
+                                top:20,
+                                bottom:20,
+                              right: 10
+                            ),
                             border: OutlineInputBorder(),
                             hintText: "Erzähe deinen Kunden etwas über das Event...",
                             focusedBorder: OutlineInputBorder(
@@ -727,6 +715,11 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                           controller: _eventTicketLinkController,
                           cursorColor: customStyleClass.primeColor,
                           decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.only(
+                                left: 20,
+                                top:20,
+                                bottom:20
+                            ),
                             hintText: "https://www.eventbrite.com",
                             border: const OutlineInputBorder(),
                             focusedBorder: OutlineInputBorder(
@@ -757,7 +750,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                       // ToggleSwitch: isRepeated
                       Container(
                         width: screenWidth*0.9,
-                        height: screenHeight*0.12,
+                        height: screenHeight*0.1,
                         alignment: Alignment.centerLeft,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -765,7 +758,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                             SizedBox(
                                 width: screenWidth*0.3,
                                 child: ToggleSwitch(
-                                  minHeight: screenHeight*0.07,
+                                  minHeight: screenHeight*0.06,
                                   initialLabelIndex: isRepeated,
                                   totalSwitches: 2,
                                   activeBgColor: [customStyleClass.primeColor],
@@ -829,7 +822,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                       if(isTemplate != 0)
                         Container(
                           width: screenWidth*0.9,
-                          height: screenHeight*0.12,
+                          height: screenHeight*0.1,
                           alignment: Alignment.centerLeft,
                           child: Container(
                             width: screenWidth*0.45,
@@ -837,7 +830,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                             child: SizedBox(
                                 width: screenWidth*0.3,
                                 child: ToggleSwitch(
-                                  minHeight: screenHeight*0.07,
+                                  minHeight: screenHeight*0.06,
                                   initialLabelIndex: isTemplate,
                                   totalSwitches: 2,
                                   activeBgColor: [customStyleClass.primeColor],
@@ -1028,7 +1021,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                       horizontal: 20
                   ),
                   decoration: BoxDecoration(
-                      color: Colors.black,
+                      color: customStyleClass.backgroundColorMain,
                       border: Border.all(
                           color: Colors.grey[200]!
                       )
@@ -1130,58 +1123,58 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                               ),
                             ),
 
-                          // headline
-                          Text(
-                            "Eigene Musikrichtungen",
-                            style: customStyleClass.getFontStyle4Bold(),
-                          ),
-
-                          const SizedBox(
-                            height: 10,
-                          ),
-
-                          // textfield own genres
-                          Row(
-                            children: [
-                              SizedBox(
-                                // height: screenHeight*0.08,
-                                width: screenWidth*0.5,
-                                // color: Colors.green,
-                                child: TextField(
-                                  controller: _eventMusicGenresController,
-                                  keyboardType: TextInputType.number,
-                                  cursorColor: customStyleClass.primeColor,
-                                  decoration: InputDecoration(
-                                    border: const OutlineInputBorder(),
-                                    focusedBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                            color: customStyleClass.primeColor
-                                        )
-                                    ),
-                                  ),
-                                  style: customStyleClass.getFontStyle4(),
-                                  maxLength: 15,
-                                ),
-                              ),
-                              Container(
-                                  height: screenHeight*0.08,
-                                  // color: Colors.red,
-                                  alignment: Alignment.topCenter,
-                                  child: SizedBox(
-                                    // height: screenHeight*0.4,
-                                    // color: Colors.green,
-                                      child: IconButton(
-                                          onPressed: () => addOwnGenreToChosenGenres(),
-                                          icon: Icon(
-                                            Icons.add,
-                                            size: 35,
-                                            color: customStyleClass.primeColor,
-                                          )
-                                      )
-                                  )
-                              ),
-                            ],
-                          ),
+                          // // headline
+                          // Text(
+                          //   "Eigene Musikrichtungen",
+                          //   style: customStyleClass.getFontStyle4Bold(),
+                          // ),
+                          //
+                          // const SizedBox(
+                          //   height: 10,
+                          // ),
+                          //
+                          // // textfield own genres
+                          // Row(
+                          //   children: [
+                          //     SizedBox(
+                          //       // height: screenHeight*0.08,
+                          //       width: screenWidth*0.5,
+                          //       // color: Colors.green,
+                          //       child: TextField(
+                          //         controller: _eventMusicGenresController,
+                          //         keyboardType: TextInputType.number,
+                          //         cursorColor: customStyleClass.primeColor,
+                          //         decoration: InputDecoration(
+                          //           border: const OutlineInputBorder(),
+                          //           focusedBorder: OutlineInputBorder(
+                          //               borderSide: BorderSide(
+                          //                   color: customStyleClass.primeColor
+                          //               )
+                          //           ),
+                          //         ),
+                          //         style: customStyleClass.getFontStyle4(),
+                          //         maxLength: 15,
+                          //       ),
+                          //     ),
+                          //     Container(
+                          //         height: screenHeight*0.08,
+                          //         // color: Colors.red,
+                          //         alignment: Alignment.topCenter,
+                          //         child: SizedBox(
+                          //           // height: screenHeight*0.4,
+                          //           // color: Colors.green,
+                          //             child: IconButton(
+                          //                 onPressed: () => addOwnGenreToChosenGenres(),
+                          //                 icon: Icon(
+                          //                   Icons.add,
+                          //                   size: 35,
+                          //                   color: customStyleClass.primeColor,
+                          //                 )
+                          //             )
+                          //         )
+                          //     ),
+                          //   ],
+                          // ),
                         ],
                       ),
 
@@ -1225,144 +1218,6 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
         )
     );
   }
-
-  void clickedOnChooseContent() async{
-
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-        allowMultiple: false
-    );
-    if (result != null) {
-
-      file = File(result.files.single.path!);
-      PlatformFile pFile = result.files.first;
-      String mimeStr = lookupMimeType(file!.path)!;
-      var fileType = mimeStr.split("/");
-      fileExtension = pFile.extension.toString();
-
-      pickedFileNameToDisplay = result.files.single.name;
-
-      if(fileType.contains('image')){
-        isImage = true;
-      }
-      else if(fileType.contains('video')){
-        _controller = VideoPlayerController.file(file!);
-        await _controller!.initialize();
-        _createChewieController();
-        isVideo = true;
-      }
-      setState(() {});
-    }
-  }
-
-  _createChewieController() {
-    _chewieController = ChewieController(
-      videoPlayerController: _controller!,
-      looping: true,
-      autoPlay: true,
-      showOptions: true,
-      autoInitialize: true,
-      allowFullScreen: true,
-    );
-  }
-
-  void clickEventProcessNewEvent(){
-
-  }
-  void removeGenresFromList(String genreToRemove){
-    setState(() {
-      musicGenresChosen.removeWhere((element) => element == genreToRemove);
-      if(musicGenresToCompare.contains(genreToRemove) && !musicGenresOffer.contains(genreToRemove)){
-        musicGenresOffer.add(genreToRemove);
-      }
-    });
-  }
-  void addOwnGenreToChosenGenres(){
-    setState(() {
-      musicGenresChosen.add(_eventMusicGenresController.text);
-      _eventMusicGenresController.text = "";
-    });
-  }
-  void addGenreToChosenGenres(String genreToAdd){
-    setState(() {
-      musicGenresChosen.add(genreToAdd);
-      if(musicGenresOffer.contains(genreToAdd)){
-        musicGenresOffer.remove(genreToAdd);
-      }
-    });
-  }
-  void showDialogToAddGenres(){
-    setState(() {
-      pickGenreIsActive = true;
-    });
-  }
-
-  String formatSelectedHourAndMinute(){
-    String hourToDisplay = "", minuteToDisplay = "";
-
-    if(selectedHour < 10){
-      hourToDisplay = "0$selectedHour";
-    }else{
-      hourToDisplay = selectedHour.toString();
-    }
-    if(selectedMinute < 10){
-      minuteToDisplay = "0$selectedMinute";
-    }else{
-      minuteToDisplay = selectedMinute.toString();
-    }
-
-    return "$hourToDisplay:$minuteToDisplay";
-  }
-
-  void clickEventUpdateEvent(){
-    setState(() {
-      isUploading = true;
-      finishUpdateEvent();
-    });
-  }
-
-  void selectContent() async{
-
-    if(isVideo){
-      contentType = 2;
-    }
-    if(isImage){
-      contentType = 1;
-    }
-
-    setState(() {
-
-      var uuid = const Uuid();
-      var uuidV4 = uuid.v4();
-
-      contentFileName = "$uuidV4.$fileExtension";
-
-      if(_controller != null){
-        _controller!.pause();
-      }
-      if(_chewieController != null){
-        _chewieController!.pause();
-        _chewieController!.setVolume(0.0);
-      }
-
-      isImage = false;
-      isVideo = false;
-    });
-  }
-  void deselectContent(){
-    setState(() {
-      file = null;
-      isImage = false;
-      isVideo = false;
-      contentType = 0;
-      contentFileName = "";
-    });
-  }
-
-
-
-  // BUILD
-
-
   AlertDialog _buildErrorDialog(){
     return const AlertDialog(
       title: Text("Fehler aufgetreten"),
@@ -1379,7 +1234,6 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
       ),
     );
   }
-
   Widget _buildCheckForMusicGenres(){
     return SizedBox(
       height: screenHeight,
@@ -1655,7 +1509,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                           icon: Icon(
                             Icons.send,
                             size:
-                              customStyleClass.getFontSize4(),
+                            customStyleClass.getFontSize4(),
                             //screenHeight*stateProvider.getIconSizeFactor(),
                             color: customStyleClass.primeColor,
                           )
@@ -1675,37 +1529,173 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
       ),
     );
   }
+  Widget _buildImagePreview(){
+    return Stack(
+      children: [
 
-  // MISC
-  void leavePage(){
+        // Image container
+        SizedBox(
+          width: screenWidth,
+          height: screenHeight,
+          child: Image.file(file!),
+        ),
+
+      ],
+    );
+  }
+  Widget _buildVideoPreview(){
+    return Stack(
+      children: [
+
+        // Video container
+        Padding(
+          padding: EdgeInsets.only(
+              bottom: screenHeight*0.15
+          ),
+          child: SizedBox(
+            width: screenWidth,
+            height: screenHeight*0.75,
+            child: _chewieController != null &&
+                _chewieController!
+                    .videoPlayerController.value.isInitialized
+                ? SizedBox(
+              width: screenWidth,
+              height: screenHeight*0.95,
+              child: Chewie(
+                controller: _chewieController!,
+              ),
+            ) :
+            SizedBox(
+              width: screenWidth,
+              height: screenHeight,
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+
+  // CLICK EVENTS
+
+
+  void clickedOnAbort(){
 
     showDialog(
         context: context,
         builder: (BuildContext context){
           return AlertDialog(
-              title: const Text("Abbrechen"),
-              content: const Text("Bist du sicher, dass du abbrechen möchtest?"),
+              backgroundColor: Color(0xff121111),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.0),
+                  // side: BorderSide(
+                  //     color: customStyleClass.primeColor
+                  // )
+              ),
+              title: Text(
+                "Abbrechen",
+                style: customStyleClass.getFontStyle1Bold(),
+              ),
+              content: Text(
+                "Bist du sicher, dass du abbrechen möchtest?",
+                textAlign: TextAlign.left,
+                style: customStyleClass.getFontStyle4(),
+              ),
               actions: [
 
                 TextButton(
-                  child: const Text("Zurück"),
+                  child: Text(
+                    "Zurück",
+                    style: customStyleClass.getFontStyle3BoldPrimeColor(),
+                  ),
                   onPressed: (){
                     Navigator.of(context).pop();
                   },
                 ),
 
                 TextButton(
-                  child: const Text("Ja"),
-                  onPressed: (){
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop();
-                  },
+                  child: Text(
+                    "Ja",
+                    style: customStyleClass.getFontStyle3BoldPrimeColor(),
+                  ),
+                  onPressed: () => resetAndGoBackToEvents(),
                 ),
 
               ]
           );
         }
     );
+  }
+  void clickedOnChooseContent() async{
+
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+        allowMultiple: false
+    );
+    if (result != null) {
+
+      file = File(result.files.single.path!);
+      PlatformFile pFile = result.files.first;
+      String mimeStr = lookupMimeType(file!.path)!;
+      var fileType = mimeStr.split("/");
+      fileExtension = pFile.extension.toString();
+
+      pickedFileNameToDisplay = result.files.single.name;
+
+      if(fileType.contains('image')){
+        isImage = true;
+      }
+      else if(fileType.contains('video')){
+        _controller = VideoPlayerController.file(file!);
+        await _controller!.initialize();
+        _createChewieController();
+        isVideo = true;
+      }
+      setState(() {});
+    }
+  }
+  void clickEventProcessNewEvent(){
+
+  }
+  void clickEventUpdateEvent(){
+    setState(() {
+      isUploading = true;
+      finishUpdateEvent();
+    });
+  }
+  void resetAndGoBackToEvents(){
+    // TODO: context.go doesnt work !? Need to investigate
+    stateProvider.resetCurrentEventTemplate();
+    context.push('/club_events');
+  }
+
+
+  // LOGIC
+
+
+  void removeGenresFromList(String genreToRemove){
+    setState(() {
+      musicGenresChosen.removeWhere((element) => element == genreToRemove);
+      if(musicGenresToCompare.contains(genreToRemove) && !musicGenresOffer.contains(genreToRemove)){
+        musicGenresOffer.add(genreToRemove);
+      }
+    });
+  }
+  void addOwnGenreToChosenGenres(){
+    setState(() {
+      musicGenresChosen.add(_eventMusicGenresController.text);
+      _eventMusicGenresController.text = "";
+    });
+  }
+  void addGenreToChosenGenres(String genreToAdd){
+    setState(() {
+      musicGenresChosen.add(genreToAdd);
+      if(musicGenresOffer.contains(genreToAdd)){
+        musicGenresOffer.remove(genreToAdd);
+      }
+    });
   }
   void processGenres(CurrentAndLikedElementsProvider tempCurrentAndLikedElementsProvider){
 
@@ -1722,32 +1712,6 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
       musicGenresChosen.add(value);
     });
 
-  }
-  String formatSelectedDate(){
-
-    String tempDay = "";
-    String tempMonth = "";
-    String tempYear = "";
-
-    if(newSelectedDate.day.toString().length == 1){
-      tempDay = "0${newSelectedDate.day}";
-    }else{
-      tempDay = "${newSelectedDate.day}";
-    }
-
-    if(newSelectedDate.month.toString().length == 1){
-      tempMonth = "0${newSelectedDate.month}";
-    }else{
-      tempMonth = "${newSelectedDate.month}";
-    }
-
-    if(newSelectedDate.year.toString().length == 1){
-      tempYear = "0${newSelectedDate.year}";
-    }else{
-      tempYear = "${newSelectedDate.year}";
-    }
-
-    return "$tempDay.$tempMonth.$tempYear";
   }
   void finishUpdateEvent() async{
 
@@ -1824,16 +1788,16 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
     // Is there a file to upload?
     if( file != null){
       _supabaseService
-        .insertEventContent(
-        file,
-        contentFileName,
-        currentAndLikedElementsProvider.currentClubMeEvent.getEventId(),
+          .insertEventContent(
+          file,
+          contentFileName,
+          currentAndLikedElementsProvider.currentClubMeEvent.getEventId(),
           stateProvider
-        )
-        .then((value) => {
+      )
+          .then((value) => {
 
-          // Has the upload been successful?
-          _supabaseService.updateCompleteEvent(updatedEvent).then((value){
+        // Has the upload been successful?
+        _supabaseService.updateCompleteEvent(updatedEvent).then((value){
           if(value == 0){
             fetchedContentProvider.updateSpecificEvent(
                 currentAndLikedElementsProvider.currentClubMeEvent.getEventId(),
@@ -1848,8 +1812,8 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
               return _buildErrorDialog();
             });
           }
-          })
-        });
+        })
+      });
     }else{
       _supabaseService.updateCompleteEvent(updatedEvent).then((value){
         if(value == 0){
@@ -1870,54 +1834,137 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
     }
   }
 
-  Widget _buildImagePreview(){
-    return Stack(
-      children: [
 
-        // Image container
-        SizedBox(
-          width: screenWidth,
-          height: screenHeight,
-          child: Image.file(file!),
-        ),
+  // MISC
 
-      ],
+
+  _createChewieController() {
+    _chewieController = ChewieController(
+      videoPlayerController: _controller!,
+      looping: true,
+      autoPlay: true,
+      showOptions: true,
+      autoInitialize: true,
+      allowFullScreen: true,
     );
   }
-  Widget _buildVideoPreview(){
-    return Stack(
-      children: [
+  void showDialogToAddGenres(){
+    setState(() {
+      pickGenreIsActive = true;
+    });
+  }
+  String formatSelectedHourAndMinute(){
+    String hourToDisplay = "", minuteToDisplay = "";
 
-        // Video container
-        Padding(
-          padding: EdgeInsets.only(
-              bottom: screenHeight*0.15
-          ),
-          child: SizedBox(
-            width: screenWidth,
-            height: screenHeight*0.75,
-            child: _chewieController != null &&
-                _chewieController!
-                    .videoPlayerController.value.isInitialized
-                ? SizedBox(
-              width: screenWidth,
-              height: screenHeight*0.95,
-              child: Chewie(
-                controller: _chewieController!,
-              ),
-            ) :
-            SizedBox(
-              width: screenWidth,
-              height: screenHeight,
-              child: const Center(
-                child: CircularProgressIndicator(),
-              ),
-            ),
-          ),
-        )
-      ],
+    if(selectedHour < 10){
+      hourToDisplay = "0$selectedHour";
+    }else{
+      hourToDisplay = selectedHour.toString();
+    }
+    if(selectedMinute < 10){
+      minuteToDisplay = "0$selectedMinute";
+    }else{
+      minuteToDisplay = selectedMinute.toString();
+    }
+
+    return "$hourToDisplay:$minuteToDisplay";
+  }
+  void selectContent() async{
+
+    if(isVideo){
+      contentType = 2;
+    }
+    if(isImage){
+      contentType = 1;
+    }
+
+    setState(() {
+
+      var uuid = const Uuid();
+      var uuidV4 = uuid.v4();
+
+      contentFileName = "$uuidV4.$fileExtension";
+
+      if(_controller != null){
+        _controller!.pause();
+      }
+      if(_chewieController != null){
+        _chewieController!.pause();
+        _chewieController!.setVolume(0.0);
+      }
+
+      isImage = false;
+      isVideo = false;
+    });
+  }
+  void deselectContent(){
+    setState(() {
+      file = null;
+      isImage = false;
+      isVideo = false;
+      contentType = 0;
+      contentFileName = "";
+    });
+  }
+  void leavePage(){
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context){
+          return AlertDialog(
+              title: const Text("Abbrechen"),
+              content: const Text("Bist du sicher, dass du abbrechen möchtest?"),
+              actions: [
+
+                TextButton(
+                  child: const Text("Zurück"),
+                  onPressed: (){
+                    Navigator.of(context).pop();
+                  },
+                ),
+
+                TextButton(
+                  child: const Text("Ja"),
+                  onPressed: (){
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                  },
+                ),
+
+              ]
+          );
+        }
     );
   }
+  String formatSelectedDate(){
+
+    String tempDay = "";
+    String tempMonth = "";
+    String tempYear = "";
+
+    if(newSelectedDate.day.toString().length == 1){
+      tempDay = "0${newSelectedDate.day}";
+    }else{
+      tempDay = "${newSelectedDate.day}";
+    }
+
+    if(newSelectedDate.month.toString().length == 1){
+      tempMonth = "0${newSelectedDate.month}";
+    }else{
+      tempMonth = "${newSelectedDate.month}";
+    }
+
+    if(newSelectedDate.year.toString().length == 1){
+      tempYear = "0${newSelectedDate.year}";
+    }else{
+      tempYear = "${newSelectedDate.year}";
+    }
+
+    return "$tempDay.$tempMonth.$tempYear";
+  }
+
+
+
 
 
 

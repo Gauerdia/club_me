@@ -19,6 +19,7 @@ import 'package:intl/intl.dart';
 
 import '../../shared/custom_text_style.dart';
 import '../user_view/components/event_tile.dart';
+import 'club_edit_event_view.dart';
 
 class ClubUpcomingEventsView extends StatefulWidget {
   const ClubUpcomingEventsView({Key? key}) : super(key: key);
@@ -29,7 +30,7 @@ class ClubUpcomingEventsView extends StatefulWidget {
 
 class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
 
-  String headLine = "Kommende Events";
+  String headLine = "Aktuelle Events";
 
   var logger = Logger();
 
@@ -87,7 +88,7 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
                 children: [
                   Text(headLine,
                       textAlign: TextAlign.center,
-                      style: customStyleClass.getFontStyle1()
+                      style: customStyleClass.getFontStyleHeadline1Bold()
                   ),
                 ],
               )
@@ -117,12 +118,52 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
   }
 
   void backButtonPressed(){
-    if(stateProvider.wentFromClubDetailToEventDetail && stateProvider.clubUIActive){
-      stateProvider.resetWentFromCLubDetailToEventDetail();
-      context.go("/club_frontpage");
-    }else{
-      context.go("/club_events");
-    }
+    Navigator.pop(context);
+    // if(stateProvider.wentFromClubDetailToEventDetail && stateProvider.clubUIActive){
+    //   stateProvider.resetWentFromCLubDetailToEventDetail();
+    //   context.go("/club_frontpage");
+    // }else{
+    //   context.go("/club_events");
+    // }
+  }
+
+  void clickOnEditEvent(ClubMeEvent clubMeEvent){
+    currentAndLikedElementsProvider.setCurrentEvent(clubMeEvent);
+    context.push("/club_edit_event");
+  }
+  void clickOnDeleteEvent(ClubMeEvent clubMeEvent){
+    showDialog(context: context, builder: (BuildContext context){
+      return AlertDialog(
+        backgroundColor: Color(0xff121111),
+        title:  Text(
+          "Achtung!",
+          style: customStyleClass.getFontStyle1Bold(),
+        ),
+        content: Text(
+          "Bist du sicher, dass du dieses Event löschen möchtest?",
+          style: customStyleClass.getFontStyle3(),
+          textAlign: TextAlign.left,
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => _supabaseService.deleteEvent(clubMeEvent.getEventId()).then((value){
+                if(value == 0){
+                  setState(() {
+                    fetchedContentProvider.fetchedEvents.removeWhere((element) => element.getEventId() == clubMeEvent.getEventId());
+                  });
+                  Navigator.pop(context);
+                }else{
+                  Navigator.pop(context);
+                }
+              }),
+              child: Text(
+                "Löschen",
+                style: customStyleClass.getFontStyle3BoldPrimeColor(),
+              )
+          )
+        ],
+      );
+    });
   }
 
   void getAllLikedEvents(StateProvider stateProvider) async{
@@ -161,18 +202,50 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
             isLiked = true;
           }
 
-          return GestureDetector(
-            child: EventTile(
-                clubMeEvent: currentEvent,
-                isLiked: isLiked,
-                clickedOnLike: clickedOnLike,
-                clickedOnShare: clickedOnShare,
-            ),
-            onTap: (){
-              currentAndLikedElementsProvider.setCurrentEvent(currentEvent);
-              stateProvider.setAccessedEventDetailFrom(6);
-              context.go('/event_details');
-            },
+          return Stack(
+
+            children: [
+
+              GestureDetector(
+                child: EventTile(
+                  clubMeEvent: currentEvent,
+                  isLiked: isLiked,
+                  clickedOnLike: clickedOnLike,
+                  clickedOnShare: clickedOnShare,
+                ),
+                onTap: (){
+                  currentAndLikedElementsProvider.setCurrentEvent(currentEvent);
+                  stateProvider.setAccessedEventDetailFrom(6);
+                  context.go('/event_details');
+                },
+              ),
+
+
+              // Edit button
+              Container(
+                padding: EdgeInsets.only(
+                  right: screenWidth*0.05,
+                ),
+                alignment: Alignment.topRight,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.edit, size: screenWidth*0.08),
+                      color: customStyleClass.primeColor,
+                      onPressed: () => clickOnEditEvent(currentEvent),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.clear_rounded, size: screenWidth*0.08),
+                      color: customStyleClass.primeColor,
+                      onPressed: () => clickOnDeleteEvent(currentEvent),
+                    ),
+                  ],
+                ),
+              ),
+
+            ],
+
           );
         })
     );
@@ -306,26 +379,14 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
 
 
       appBar: AppBar(
-          surfaceTintColor: Colors.black,
+          surfaceTintColor: customStyleClass.backgroundColorMain,
             automaticallyImplyLeading: false,
-            backgroundColor: Colors.transparent,
+            backgroundColor: customStyleClass.backgroundColorMain,
             title: _buildAppBarShowTitle()
         ),
       body: Container(
             width: screenWidth,
             height: screenHeight,
-            // decoration: const BoxDecoration(
-            //   gradient: LinearGradient(
-            //       begin: Alignment.topLeft,
-            //       end: Alignment.bottomRight,
-            //       colors: [
-            //         // Color(0xff11181f),
-            //         Color(0xff2b353d),
-            //         Color(0xff11181f)
-            //       ],
-            //       stops: [0.15, 0.6]
-            //   ),
-            // ),
             child: Stack(
               children: [
 
@@ -350,7 +411,7 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
                   color: const Color(0xff2b353d),
                   child: Row(
                     children: [
-                      Container(
+                      SizedBox(
                         width: screenWidth*0.5,
                         child: Column(
                           children: [
@@ -359,7 +420,7 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
                               height: screenHeight*0.01,
                             ),
 
-                            Text(
+                            const Text(
                                 "Preis"
                             ),
 

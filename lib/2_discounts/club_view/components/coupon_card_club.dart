@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:club_me/services/supabase_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -10,14 +11,17 @@ import '../../../provider/state_provider.dart';
 import '../../../shared/custom_text_style.dart';
 import 'package:intl/intl.dart';
 
-class CouponCard extends StatelessWidget {
-  CouponCard({
+class CouponCardClub extends StatelessWidget {
+  CouponCardClub({
     Key? key,
     required this.isLiked,
     required this.clickedOnLike,
     required this.clubMeDiscount,
     required this.clickedOnShare,
+    required this.isEditable
   }) : super(key: key);
+
+  SupabaseService _supabaseService = SupabaseService();
 
   ClubMeDiscount clubMeDiscount;
   late FetchedContentProvider fetchedContentProvider;
@@ -31,16 +35,17 @@ class CouponCard extends StatelessWidget {
   Function () clickedOnShare;
   Function (String) clickedOnLike;
 
+  bool isEditable;
   bool isLiked;
   String timeLimitToDisplay = "";
 
 
- // CLICK
+  // CLICK
   void clickOnInfo(BuildContext context){
 
     Widget okButton = TextButton(
       child: Text(
-          "OK",
+        "OK",
         style: customStyleClass.getFontStyle4BoldPrimeColor(),
       ),
       onPressed: () {
@@ -54,13 +59,13 @@ class CouponCard extends StatelessWidget {
           return AlertDialog(
             backgroundColor: Color(0xff121111),
             shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20.0),
-                // side: BorderSide(
-                //     color: customStyleClass.primeColor
-                // )
+              borderRadius: BorderRadius.circular(20.0),
+              // side: BorderSide(
+              //     color: customStyleClass.primeColor
+              // )
             ),
             title: Text(
-                "Coupon-Informationen",
+              "Coupon-Informationen",
               style: customStyleClass.getFontStyle1Bold(),
             ),
             content: Text(
@@ -74,7 +79,44 @@ class CouponCard extends StatelessWidget {
         }
     );
   }
-
+  void clickEventEditDiscount(BuildContext context, ClubMeDiscount discount){
+    currentAndLikedElementsProvider.setCurrentDiscount(discount);
+    context.push("/discount_details");
+  }
+  void clickEventDeleteDiscount(BuildContext context, ClubMeDiscount discount){
+    showDialog(context: context, builder: (BuildContext context){
+      return AlertDialog(
+        backgroundColor: Color(0xff121111),
+        title:  Text(
+            "Achtung!",
+          style: customStyleClass.getFontStyle1Bold(),
+        ),
+        content:  Text(
+          "Bist du sicher, dass du diesen Coupon löschen möchtest?",
+          style: customStyleClass.getFontStyle3(),
+          textAlign: TextAlign.left,
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => _supabaseService.deleteDiscount(discount.getDiscountId()).then((value){
+                if(value == 0){
+                    fetchedContentProvider.fetchedDiscounts.removeWhere(
+                            (element) => element.getDiscountId() == discount.getDiscountId()
+                    );
+                  Navigator.pop(context);
+                }else{
+                  Navigator.pop(context);
+                }
+              }),
+              child:  Text(
+                  "Löschen",
+                style: customStyleClass.getFontStyle3(),
+              )
+          )
+        ],
+      );
+    });
+  }
 
   // BUILD
   Widget _buildStackView(BuildContext context){
@@ -94,22 +136,14 @@ class CouponCard extends StatelessWidget {
             width: screenWidth*0.9,
             height: screenHeight*0.555,
             decoration: BoxDecoration(
-                gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Colors.grey[800]!.withOpacity(0.7),
-                      Colors.grey[900]!
-                    ],
-                    stops: [0.1,0.9]
-                ),
+                color: customStyleClass.backgroundColorEventTile,
                 borderRadius: BorderRadius.circular(
                     15
                 ),
-              border: Border.all(
-                color: Colors.grey[900]!,
-                width: 2
-              )
+                border: Border.all(
+                    color: Colors.grey[900]!,
+                    width: 2
+                )
             ),
             child: _buildStackViewContent(context),
           ),
@@ -128,28 +162,27 @@ class CouponCard extends StatelessWidget {
             child: Stack(
               children: [
 
-
                 fetchedContentProvider.getFetchedBannerImageIds()
                     .contains(clubMeDiscount.getBannerId()) ?
                 SizedBox(
                   height: screenHeight*0.35,
                   width: screenWidth,
                   child: ClipRRect(
-                    borderRadius: const BorderRadius.only(
-                        topRight: Radius.circular(15),
-                        topLeft: Radius.circular(15)
-                    ),
-                    child: Image(
-                      image: FileImage(
-                          File("${stateProvider.appDocumentsDir.path}/${clubMeDiscount.getBannerId()}")
+                      borderRadius: const BorderRadius.only(
+                          topRight: Radius.circular(15),
+                          topLeft: Radius.circular(15)
                       ),
-                      fit: BoxFit.cover,
-                    )
+                      child: Image(
+                        image: FileImage(
+                            File("${stateProvider.appDocumentsDir.path}/${clubMeDiscount.getBannerId()}")
+                        ),
+                        fit: BoxFit.cover,
+                      )
 
                   ),
                 ):SizedBox(
-                  height: screenHeight*0.3,
-                  width: screenWidth,
+                    height: screenHeight*0.3,
+                    width: screenWidth,
                     child: Center(
                       child: SizedBox(
                         child: CircularProgressIndicator(
@@ -159,22 +192,59 @@ class CouponCard extends StatelessWidget {
                     )
                 ),
 
+            if(isEditable)
+            Container(
+              height: screenHeight*0.35,
+              width: screenWidth,
+              alignment: Alignment.topRight,
+              padding: const EdgeInsets.only(
+                right: 10,
+                top: 10
+              ),
+              child:Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+
+                  InkWell(
+                    child: Icon(
+                      Icons.edit,
+                      color: customStyleClass.primeColor,
+                      size: 32,
+                    ),
+                    onTap: () => clickEventEditDiscount(context, clubMeDiscount),
+                  ),
+
+                  InkWell(
+                    child: Icon(
+                      Icons.delete,
+                      color: customStyleClass.primeColor,
+                      size: 32,
+                    ),
+                    onTap: () => clickEventDeleteDiscount(context, clubMeDiscount),
+                  )
+
+                ],
+              )
+            )
+
               ],
             )
         ),
 
         // Content container
-        SizedBox(
+        Container(
+          color: customStyleClass.backgroundColorEventTile,
           height: screenHeight*0.2,
           child: Container(
               height: screenHeight*0.2,
               width: screenWidth,
               decoration: BoxDecoration(
                 color: customStyleClass.backgroundColorEventTile,
-                borderRadius: BorderRadius.only(
+                borderRadius: const BorderRadius.only(
                     bottomRight: Radius.circular(12),
                     bottomLeft: Radius.circular(12)
                 ),
+
               ),
               child: Stack(
                 children: [
@@ -225,8 +295,8 @@ class CouponCard extends StatelessWidget {
                         child: Padding(
                           padding: EdgeInsets.only(
                             // top: 5,
-                              left: screenWidth*0.02,
-                              // top: screenHeight*0.005
+                            left: screenWidth*0.02,
+                            // top: screenHeight*0.005
                           ),
                           child: Align(
                             alignment: Alignment.centerLeft,
@@ -246,20 +316,13 @@ class CouponCard extends StatelessWidget {
                       if(clubMeDiscount.getHasTimeLimit())
                         Padding(
                           padding: const EdgeInsets.only(
-                              left: 10,
-                              // bottom: 7
+                            left: 10,
+                            // bottom: 7
                           ),
                           child: Align(
                             alignment: Alignment.bottomLeft,
                             child: GestureDetector(
                               child: Container(
-                                // decoration: const BoxDecoration(
-                                //     color: Color(0xff11181f),
-                                //     borderRadius: BorderRadius.all(
-                                //         Radius.circular(10)
-                                //     )
-                                // ),
-                                // padding: const EdgeInsets.all(10),
                                 child: Text(
                                   "Bis $timeLimitToDisplay Uhr",
                                   style: customStyleClass.getFontStyle5(),
@@ -274,19 +337,13 @@ class CouponCard extends StatelessWidget {
                       if(clubMeDiscount.getHasUsageLimit())
                         Padding(
                           padding: const EdgeInsets.only(
-                            left: 10,
-                            top: 5
+                              left: 10,
+                              top: 5
                           ),
                           child: Align(
                             alignment: Alignment.bottomLeft,
                             child: GestureDetector(
                               child: Container(
-                                // decoration: const BoxDecoration(
-                                //     color: Color(0xff11181f),
-                                //     borderRadius: BorderRadius.all(
-                                //         Radius.circular(10)
-                                //     )
-                                // ),
 
                                 child: Text(
                                   "${clubMeDiscount.getNumberOfUsages()}x einlösbar",
@@ -363,12 +420,11 @@ class CouponCard extends StatelessWidget {
                     ),
                   ),
 
-
                   Center(
                     child: Container(
                       width: screenWidth*0.83,
-                      padding: EdgeInsets.only(
-                        bottom: 10
+                      padding: const EdgeInsets.only(
+                          bottom: 10
                       ),
                       alignment: Alignment.bottomCenter,
                       child: Row(
@@ -379,25 +435,11 @@ class CouponCard extends StatelessWidget {
                             style: customStyleClass.getFontStyle5BoldPrimeColor(),
                           ),
 
-                          InkWell(
-                            child: Row(
-                              children: [
-                                Text(
-                                  "Einlösen",
-                                  style: customStyleClass.getFontStyle3BoldPrimeColor(),
-                                ),
-                                Icon(
-                                  Icons.arrow_forward_outlined,
-                                  color: customStyleClass.primeColor,
-                                )
-                              ],
-                            ),
-                            onTap: () => showRedeemDialog(context, stateProvider, clubMeDiscount),
-                          )
                         ],
                       ),
                     ),
                   ),
+
 
                 ],
               )
@@ -436,11 +478,6 @@ class CouponCard extends StatelessWidget {
   }
   void formatDateToDisplay(){
 
-    // Get current time for germany
-    // final berlin = tz.getLocation('Europe/Berlin');
-    // final oneWeekFromNowGermanTZ = tz.TZDateTime.from(DateTime.now(), berlin).add(const Duration(days: 7));
-    // var exactOneWeekFromNow = DateTime.now().add(const Duration(days: 7));
-
     weekDayToDisplay = DateFormat('dd.MM.yyyy').format(clubMeDiscount.getDiscountDate());
 
     var eventDateWeekday = clubMeDiscount.getDiscountDate().weekday;
@@ -454,21 +491,6 @@ class CouponCard extends StatelessWidget {
       case(7): weekDayToDisplay = "Sonntag, $weekDayToDisplay";
     }
 
-
-    // if(clubMeDiscount.getDiscountDate().isAfter(oneWeekFromNowGermanTZ)){
-    //   weekDayToDisplay = DateFormat('dd.MM.yyyy').format(clubMeDiscount.getDiscountDate());
-    // }else{
-    //   var eventDateWeekday = clubMeDiscount.getDiscountDate().weekday;
-    //   switch(eventDateWeekday){
-    //     case(1): weekDayToDisplay = "Montag";
-    //     case(2): weekDayToDisplay = "Dienstag";
-    //     case(3): weekDayToDisplay = "Mittwoch";
-    //     case(4): weekDayToDisplay = "Donnerstag";
-    //     case(5): weekDayToDisplay = "Freitag";
-    //     case(6): weekDayToDisplay = "Samstag";
-    //     case(7): weekDayToDisplay = "Sonntag";
-    //   }
-    // }
   }
 
 
@@ -482,17 +504,17 @@ class CouponCard extends StatelessWidget {
           return AlertDialog(
             backgroundColor: Color(0xff121111),
             shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20.0),
-                // side: BorderSide(
-                //     color: customStyleClass.primeColor
-                // )
+              borderRadius: BorderRadius.circular(20.0),
+              // side: BorderSide(
+              //     color: customStyleClass.primeColor
+              // )
             ),
             title: Text(
-                "Coupon einlösen",
+              "Coupon einlösen",
               style: customStyleClass.getFontStyle1Bold(),
             ),
             content: Text(
-                "Bist du sicher, dass du den Coupon einlösen möchtest? Du kannst ihn danach womöglich nicht noch einmal einlösen",
+              "Bist du sicher, dass du den Coupon einlösen möchtest? Du kannst ihn danach womöglich nicht noch einmal einlösen",
               style: customStyleClass.getFontStyle4(),
             ),
             actions: [
@@ -502,7 +524,7 @@ class CouponCard extends StatelessWidget {
                     context.go('/coupon_active');
                   },
                   child: Text(
-                      "Einlösen",
+                    "Einlösen",
                     style: customStyleClass.getFontStyle4BoldPrimeColor(),
                   )
               )

@@ -61,5 +61,29 @@
     <string>We need the camera to record stories.</string>
     <key>NSMicrophoneUsageDescription</key>
     <string>We need the microphone to record stories.</string>
+
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>The app needs it</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>The app needs it</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>The app needs it</string>
+    <key>NSMotionUsageDescription</key>
+    <string>Needed for the location service</string>
+
+    <key>BGTaskSchedulerPermittedIdentifiers</key>
+    <array>
+        <string>task-identifier</string>
+
+        <!-- Register a periodic task in iOS 13+ -->
+        <string>be.tramckrijte.workmanagerExample.iOSBackgroundAppRefresh</string>
+    </array>
+
+    <key>UIBackgroundModes</key>
+    <array>
+      <string>processing</string>
+      <string>fetch</string>
+      <string>location</string>
+    </array>
 </dict>
 </plist>

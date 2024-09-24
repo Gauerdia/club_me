@@ -21,7 +21,7 @@ class CustomBottomNavigationBarClubs extends StatelessWidget {
 
     customStyleClass = CustomStyleClass(context: context);
 
-    Color navigationBackgroundColor = Colors.black;
+    Color navigationBackgroundColor = customStyleClass.backgroundColorMain;
 
     return Container(
         decoration: BoxDecoration(
@@ -55,8 +55,9 @@ class CustomBottomNavigationBarClubs extends StatelessWidget {
                                 "Events",
                                 style: GoogleFonts.inter(
                                     textStyle: TextStyle(
-                                      fontSize: customStyleClass.getFontSize3(),
+                                      fontSize: customStyleClass.getNavIconTextSize(),
                                       color: stateProvider.pageIndex == 0 ? customStyleClass.primeColor : Colors.white,
+
                                     )
                                 )
                             )
@@ -76,7 +77,7 @@ class CustomBottomNavigationBarClubs extends StatelessWidget {
                         child: Column(
                           children: [
                             Icon(
-                              Icons.insert_chart_outlined,
+                              Icons.bar_chart,
                               color: stateProvider.pageIndex == 1 ? customStyleClass.primeColor : Colors.white,
                               size: customStyleClass.getIconSize1(),
                             ),
@@ -84,7 +85,7 @@ class CustomBottomNavigationBarClubs extends StatelessWidget {
                                 "Auswertungen",
                                 style: GoogleFonts.inter(
                                     textStyle: TextStyle(
-                                      fontSize: customStyleClass.getFontSize3(),
+                                      fontSize: customStyleClass.getNavIconTextSize(),
                                       color: stateProvider.pageIndex == 1 ? customStyleClass.primeColor : Colors.white,
                                     )
                                 )
@@ -113,7 +114,7 @@ class CustomBottomNavigationBarClubs extends StatelessWidget {
                                 "Coupons",
                                 style: GoogleFonts.inter(
                                     textStyle: TextStyle(
-                                      fontSize: customStyleClass.getFontSize3(),
+                                      fontSize: customStyleClass.getNavIconTextSize(),
                                       color: stateProvider.pageIndex == 2 ? customStyleClass.primeColor : Colors.white,
                                     )
                                 )
@@ -134,7 +135,7 @@ class CustomBottomNavigationBarClubs extends StatelessWidget {
                         child: Column(
                           children: [
                             Icon(
-                              Icons.camera_front,
+                              Icons.person,
                               color: stateProvider.pageIndex == 3 ? customStyleClass.primeColor : Colors.white,
                               size: customStyleClass.getIconSize1(),
                             ),
@@ -142,7 +143,7 @@ class CustomBottomNavigationBarClubs extends StatelessWidget {
                                 "Profil",
                                 style: GoogleFonts.inter(
                                     textStyle: TextStyle(
-                                      fontSize: customStyleClass.getFontSize3(),
+                                      fontSize: customStyleClass.getNavIconTextSize(),
                                       color: stateProvider.pageIndex == 3 ? customStyleClass.primeColor : Colors.white,
                                     )
                                 )
@@ -156,7 +157,6 @@ class CustomBottomNavigationBarClubs extends StatelessWidget {
                         context.go('/club_frontpage');
                       },
                     ),
-
                   ],
                 ),
               ),

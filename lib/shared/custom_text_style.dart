@@ -22,10 +22,13 @@ class CustomStyleClass{
   late BuildContext context;
   late double screenWidth, screenHeight;
 
-  Color primeColorDark = Colors.teal;
-  Color primeColor = Colors.tealAccent;
+  Color backgroundColorMain = const Color(0xff121111);
+  Color backgroundColorEventTile = const Color(0xff222222);
 
-  double fontSizeHeadline1 = 30;
+  Color primeColorDark = Colors.teal;
+  Color primeColor = Color(0xFF249e9f);  //Colors.tealAccent.shade400;
+
+  double fontSizeHeadline1 = 24;
 
   double fontSize1 = 20;
   double fontSize2 = 18;
@@ -33,6 +36,26 @@ class CustomStyleClass{
   double fontSize4 = 14;
   double fontSize5 = 12;
   double fontSize6 = 10;
+
+
+  double getIconSize1(){
+    return 26;
+  }
+
+  double getNavIconTextSize(){
+    return 8;
+  }
+
+
+  TextStyle getFontStyleVIPGold(){
+    return GoogleFonts.inter(
+        textStyle: TextStyle(
+            color: Color(0xffd4af37),
+            fontSize: fontSize6,
+            fontWeight: FontWeight.bold
+        )
+    );
+  }
 
   TextStyle getFontStyleHeadline1Bold(){
     return GoogleFonts.inter(
@@ -227,6 +250,9 @@ class CustomStyleClass{
     );
   }
 
+  double getFontSize5(){
+    return fontSize5;
+  }
   TextStyle getFontStyle5(){
     return GoogleFonts.inter(
         textStyle:TextStyle(
@@ -271,7 +297,20 @@ class CustomStyleClass{
         )
     );
   }
+  TextStyle getFontStyle5BoldPrimeColor(){
+    return GoogleFonts.inter(
+        textStyle:TextStyle(
+          color: primeColor,
+          fontSize: fontSize5,
+          fontWeight: FontWeight.bold,
+        )
+    );
+  }
 
+
+  double getFontSize6(){
+    return fontSize6;
+  }
   TextStyle getFontStyle6(){
     return GoogleFonts.inter(
         textStyle:TextStyle(
@@ -324,9 +363,7 @@ class CustomStyleClass{
   // double dropDownItemHeightFactor = 0.08;
 
 
-  double getIconSize1(){
-    return screenHeight*iconSizeFactor;
-  }
+
   double getIconSize2(){
     return screenHeight*iconSizeFactor2;
   }

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:club_me/stories/show_story_chewie.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:logger/logger.dart';
+import '../models/opening_times.dart';
 import 'user_view/components/event_card.dart';
 import '../provider/current_and_liked_elements_provider.dart';
 import '../provider/fetched_content_provider.dart';
@@ -67,12 +68,12 @@ class _ClubDetailViewState extends State<ClubDetailView> {
   void _showDialogWithTitleAndText(String title, String content){
     showDialog(context: context, builder: (BuildContext context){
       return AlertDialog(
-        backgroundColor: Colors.black,
+        backgroundColor: Color(0xff121111),
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20.0),
-            side: BorderSide(
-                color: customStyleClass.primeColor
-            )
+            // side: BorderSide(
+            //     color: customStyleClass.primeColor
+            // )
         ),
         title: Text(
             title,
@@ -154,11 +155,18 @@ class _ClubDetailViewState extends State<ClubDetailView> {
   void clickEventLounge(){
     showDialog(context: context, builder: (BuildContext context){
       return AlertDialog(
-        title: const Text("Lounges"),
+        backgroundColor: Color(0xff121111),
+        title: Text(
+            "Lounges",
+          style: customStyleClass.getFontStyle3Bold(),
+        ),
         content: SizedBox(
             height: screenHeight*0.12,
-            child: const Center(
-              child: Text("Diese Funktion steht zurzeit noch nicht zur Verfügung! Wir bitten um Verständnis!"),
+            child: Center(
+              child: Text(
+                  "Diese Funktion steht zurzeit noch nicht zur Verfügung! Wir bitten um Verständnis!",
+                style: customStyleClass.getFontStyle5(),
+              ),
             )
         ),
       );
@@ -168,15 +176,50 @@ class _ClubDetailViewState extends State<ClubDetailView> {
   // BUILD
   AppBar _buildAppBar(){
     return AppBar(
-        surfaceTintColor: Colors.black,
+        surfaceTintColor: customStyleClass.backgroundColorMain,
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.transparent,
-        title: SizedBox(
+        backgroundColor: customStyleClass.backgroundColorMain,
+        title: Container(
           width: screenWidth*0.6,
-          child: Text(
-            currentAndLikedElementsProvider.currentClubMeClub.getClubName(),
-            textAlign: TextAlign.center,
-            style: customStyleClass.getFontStyleHeadline1Bold(),
+          child: Stack(
+            children: [
+
+              // Headline
+              Container(
+                  alignment: Alignment.bottomCenter,
+                  height: 50,
+                  width: screenWidth,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                currentAndLikedElementsProvider.currentClubMeClub.getClubName(),
+                                textAlign: TextAlign.center,
+                                style: customStyleClass.getFontStyleHeadline1Bold(),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                    bottom: 15
+                                ),
+                                child: Text(
+                                  "VIP",
+                                  style: customStyleClass.getFontStyleVIPGold(),
+                                ),
+                              )
+                            ],
+                          ),
+                        ],
+                      )
+                    ],
+                  )
+              ),
+
+            ],
           ),
         ),
         leading: GestureDetector(
@@ -213,8 +256,10 @@ class _ClubDetailViewState extends State<ClubDetailView> {
 
             // BG Image
             Container(
-                height: screenHeight*0.25,
-                color: currentAndLikedElementsProvider.currentClubMeClub.getBackgroundColorId() == 0 ? Colors.white : Colors.black,
+                height: screenHeight*0.19,
+                color: currentAndLikedElementsProvider.currentClubMeClub.getBackgroundColorId() == 0 ?
+                      Colors.white :
+                      Colors.black,
                 child: Center(
                     child: SizedBox(
                       height: screenHeight,
@@ -233,15 +278,16 @@ class _ClubDetailViewState extends State<ClubDetailView> {
             // main Content
             Padding(
               padding: EdgeInsets.only(
-                top: screenHeight*0.24,
+                top: screenHeight*0.19,
               ),
               child: Container(
                 width: screenWidth,
                 height: screenHeight*0.6,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                     border: Border(
                         top: BorderSide(color: Colors.grey)
-                    )
+                    ),
+                  color: customStyleClass.backgroundColorMain
                 ),
                 child: SingleChildScrollView(
                   child: Column(
@@ -249,18 +295,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
 
                       // Container for the bg gradient
                       Container(
-                        color: Colors.black,
-                        // decoration: const BoxDecoration(
-                        //   gradient: LinearGradient(
-                        //       begin: Alignment.topCenter,
-                        //       end: Alignment.bottomCenter,
-                        //       colors: [
-                        //         Color(0xff11181f),
-                        //         Color(0xff2b353d),
-                        //       ],
-                        //       stops: [0.15, 0.6]
-                        //   ),
-                        // ),
+                        color: customStyleClass.backgroundColorMain,
 
                         child: Column(
                           children: [
@@ -268,67 +303,78 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                             _buildMapAndPricelistIconSection(),
 
                             // White line
-                            const Divider(
+                            Divider(
                               height:10,
                               thickness: 1,
-                              color: Colors.white,
-                              indent: 20,
-                              endIndent: 20,
+                              color: Colors.grey[900],
+                              indent: 0,
+                              endIndent: 0,
                             ),
 
                             _buildEventSection(),
 
                             // White line
-                            const Divider(
+                            Divider(
                               height:10,
                               thickness: 1,
-                              color: Colors.white,
-                              indent: 20,
-                              endIndent: 20,
+                              color: Colors.grey[900],
+                              indent: 0,
+                              endIndent: 0,
                             ),
 
                             _buildNewsSection(),
 
                             // White line
-                            const Divider(
+                            Divider(
                               height:10,
                               thickness: 1,
-                              color: Colors.white,
-                              indent: 20,
-                              endIndent: 20,
+                              color: Colors.grey[900],
+                              indent: 0,
+                              endIndent: 0,
                             ),
 
                             _buildPhotosAndVideosSection(),
 
                             // White line
-                            const Divider(
+                            Divider(
                               height:10,
                               thickness: 1,
-                              color: Colors.white,
-                              indent: 20,
-                              endIndent: 20,
+                              color: Colors.grey[900],
+                              indent: 0,
+                              endIndent: 0,
                             ),
 
                             _buildSocialMediaSection(),
 
                             // White line
-                            const Divider(
+                            Divider(
                               height:10,
                               thickness: 1,
-                              color: Colors.white,
-                              indent: 20,
-                              endIndent: 20,
+                              color: Colors.grey[900],
+                              indent: 0,
+                              endIndent: 0,
                             ),
 
                             _buildMusicGenresSection(),
 
                             // White line
-                            const Divider(
+                            Divider(
                               height:10,
                               thickness: 1,
-                              color: Colors.white,
-                              indent: 20,
-                              endIndent: 20,
+                              color: Colors.grey[900],
+                              indent: 0,
+                              endIndent: 0,
+                            ),
+
+                            _buildOpeningHoursSection(),
+
+                            // White line
+                            Divider(
+                              height:10,
+                              thickness: 1,
+                              color: Colors.grey[900],
+                              indent: 0,
+                              endIndent: 0,
                             ),
 
                             _buildContactSection(),
@@ -345,7 +391,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
             // Centered logo
             Padding(
               padding: EdgeInsets.only(
-                  top: screenHeight*0.185
+                  top: screenHeight*0.135
               ),
               child: Align(
                   alignment: Alignment.center,
@@ -444,8 +490,9 @@ class _ClubDetailViewState extends State<ClubDetailView> {
         Container(
           width: screenWidth,
           // color: Colors.red,
+          alignment: Alignment.center,
           padding: EdgeInsets.only(
-              left: screenWidth*0.05,
+              // left: screenWidth*0.05,
               top: screenHeight*0.01
           ),
           child: Text(
@@ -472,9 +519,10 @@ class _ClubDetailViewState extends State<ClubDetailView> {
         // Events headline
         Container(
           width: screenWidth,
+          alignment: Alignment.center,
           // color: Colors.red,
           padding: EdgeInsets.only(
-              left: screenWidth*0.05,
+              // left: screenWidth*0.05,
               top: screenHeight*0.01
           ),
           child: Text(
@@ -501,6 +549,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
           clubMeEvent: eventsToDisplay[0],
           wentFromClubDetailToEventDetail: true,
           accessedEventDetailFrom: 2,
+          backgroundColorIndex: 1,
         ),
 
         // Spacer
@@ -511,7 +560,8 @@ class _ClubDetailViewState extends State<ClubDetailView> {
         EventCard(
             clubMeEvent: eventsToDisplay[1],
             accessedEventDetailFrom: 2,
-            wentFromClubDetailToEventDetail: true
+            wentFromClubDetailToEventDetail: true,
+          backgroundColorIndex: 1,
         ):Container(),
 
         // Spacer
@@ -519,31 +569,67 @@ class _ClubDetailViewState extends State<ClubDetailView> {
           height: screenHeight*0.02,
         ),
 
-        Container(
-            width: screenWidth*0.9,
-            alignment: Alignment.bottomRight,
-            child: GestureDetector(
-              child: Container(
-                padding: EdgeInsets.symmetric(
-                    vertical: screenHeight*0.015,
-                    horizontal: screenWidth*0.03
-                ),
-                decoration: const BoxDecoration(
-                    color: Colors.black54,
-                    borderRadius: BorderRadius.all(Radius.circular(10))
-                ),
-                child: Text(
-                  mehrEventsString[0],
-                  textAlign: TextAlign.center,
-                  style: customStyleClass.getFontStyle4BoldPrimeColor(),
-                ),
-              ),
-              onTap: ()=> clickOnDiscoverMoreEvents(screenHeight, screenWidth),
-            )
-        ),
+        // More events
+        // Container(
+        //     width: screenWidth*0.9,
+        //     alignment: Alignment.bottomRight,
+        //     child: GestureDetector(
+        //       child: Container(
+        //         padding: EdgeInsets.symmetric(
+        //             vertical: screenHeight*0.015,
+        //             horizontal: screenWidth*0.03
+        //         ),
+        //         decoration: const BoxDecoration(
+        //             color: Colors.black54,
+        //             borderRadius: BorderRadius.all(Radius.circular(10))
+        //         ),
+        //         child: Text(
+        //           mehrEventsString[0],
+        //           textAlign: TextAlign.center,
+        //           style: customStyleClass.getFontStyle4BoldPrimeColor(),
+        //         ),
+        //       ),
+        //       onTap: ()=> clickOnDiscoverMoreEvents(screenHeight, screenWidth),
+        //     )
+        // ),
 
         // Spacer
         SizedBox(height: screenHeight*0.02,),
+      ],
+    );
+  }
+  Widget _buildOpeningHoursSection(){
+    return Column(
+      children: [
+
+        // headline
+        Container(
+          width: screenWidth,
+          alignment: Alignment.center,
+          padding: EdgeInsets.only(
+              // left: screenWidth*0.05,
+              top: screenHeight*0.01
+          ),
+          child: Text(
+            "Öffnungszeiten",
+            textAlign: TextAlign.left,
+            style: customStyleClass.getFontStyle2BoldLightGrey(),
+          ),
+        ),
+
+        // Spacer
+        SizedBox(
+          height: screenHeight*0.02,
+        ),
+
+        // Musikgenres
+        for(var element in currentAndLikedElementsProvider.currentClubMeClub.getOpeningTimes().days!)
+          formatOpeningTime(element),
+
+        // Spacer
+        SizedBox(
+          height: screenHeight*0.02,
+        ),
       ],
     );
   }
@@ -566,8 +652,9 @@ class _ClubDetailViewState extends State<ClubDetailView> {
         Container(
           width: screenWidth,
           // color: Colors.red,
+          alignment: Alignment.center,
           padding: EdgeInsets.only(
-              left: screenWidth*0.05,
+              // left: screenWidth*0.05,
               top: screenHeight*0.01
           ),
           child: Text(
@@ -582,105 +669,116 @@ class _ClubDetailViewState extends State<ClubDetailView> {
         ),
 
         // Anschrift + icon
-        Row(
-          children: [
-            SizedBox(
-              width: screenWidth*0.05,
-            ),
-
-            // Left Contact text column
-            SizedBox(
-              width: screenWidth*0.45,
-              height: screenHeight*0.12,
-              child: Column(
-                children: [
-                  SizedBox(
-                    width: screenWidth*0.5,
-                    child: Text(
-                      currentAndLikedElementsProvider.currentClubMeClub.getContactName().length > 15 ?
-                      currentAndLikedElementsProvider.currentClubMeClub.getContactName().substring(0,15):
-                      currentAndLikedElementsProvider.currentClubMeClub.getContactName(),
-                      textAlign: TextAlign.left,
-                      style: customStyleClass.getFontStyle2Bold(),
-                    ),
-                  ),
-
-                  Row(
-                    children: [
-                      Text(
-                        currentAndLikedElementsProvider.currentClubMeClub.getContactStreet().length > 19 ?
-                        currentAndLikedElementsProvider.currentClubMeClub.getContactStreet().substring(0,19):
-                        currentAndLikedElementsProvider.currentClubMeClub.getContactStreet(),
-                        textAlign: TextAlign.left,
-                        style:customStyleClass.getFontStyle4(),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left:5),
-                        child: Text(
-                          currentAndLikedElementsProvider.currentClubMeClub.getContactStreetNumber().toString(),
-                          textAlign: TextAlign.left,
-                          style:customStyleClass.getFontStyle4(),
-                        ),
-                      )
-                    ],
-                  ),
-
-                  SizedBox(
-                    width: screenWidth*0.5,
-                    child: Text(
-                      "$ContactZipToDisplay $ContactCityToDisplay",
-                      textAlign: TextAlign.left,
-                      style: customStyleClass.getFontStyle4(),
-                    ),
-                  ),
-
-                ],
-              ),
-            ),
-
-            // Image
-            Container(
-              width: screenWidth*0.45,
-              child: Column(
-                children: [
-                  Container(
-                    width: screenWidth*0.2,
-                    height: screenWidth*0.2,
-                    child:
-                    Image.asset(
-                      'assets/images/google_maps_teal.png',
-                    ),
-                  )
-                ],
-              ),
-            )
-          ],
-        ),
-
         Container(
-            width: screenWidth*0.9,
-            // color: Colors.red,
-            alignment: Alignment.bottomRight,
-            child: GestureDetector(
-              child: Container(
-                padding: EdgeInsets.symmetric(
-                    vertical: screenHeight*0.015,
-                    horizontal: screenWidth*0.03
-                ),
-                decoration: const BoxDecoration(
-                    color: Colors.black54,
-                    borderRadius: BorderRadius.all(Radius.circular(10))
-                ),
-                child: Text(
-                  findOnMapsButtonString[0],
-                  textAlign: TextAlign.center,
-                  style: customStyleClass.getFontStyle4BoldPrimeColor(),
+          width: screenWidth*0.9,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+
+              // Anschrift
+              Container(
+                // color: Colors.red,
+                // width: screenWidth*0.55,
+                child: Column(
+                  children: [
+
+                    // Contact name text
+                    SizedBox(
+                      width: screenWidth*0.6,
+                      child: Text(
+                        currentAndLikedElementsProvider.currentClubMeClub.getContactName().length > 17 ?
+                        currentAndLikedElementsProvider.currentClubMeClub.getContactName().substring(0,17) :
+                        currentAndLikedElementsProvider.currentClubMeClub.getContactName(),
+                        textAlign: TextAlign.left,
+                        style: customStyleClass.getFontStyle4Bold(),
+                      ),
+                    ),
+
+                    // Street
+                    Container(
+                      width: screenWidth*0.6,
+                      // color: Colors.red,
+                      alignment: Alignment.centerLeft,
+                      child:Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            currentAndLikedElementsProvider.currentClubMeClub.getContactStreet().length > 19 ?
+                            currentAndLikedElementsProvider.currentClubMeClub.getContactStreet().substring(0,19):
+                            currentAndLikedElementsProvider.currentClubMeClub.getContactStreet(),
+                            textAlign: TextAlign.left,
+                            style:customStyleClass.getFontStyle4(),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left:5),
+                            child: Text(
+                              currentAndLikedElementsProvider.currentClubMeClub.getContactStreetNumber().toString(),
+                              textAlign: TextAlign.left,
+                              style:customStyleClass.getFontStyle4(),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+
+                    // City
+                    SizedBox(
+                      width: screenWidth*0.6,
+                      child: Text(
+                        "$ContactZipToDisplay $ContactCityToDisplay",
+                        textAlign: TextAlign.left,
+                        style: customStyleClass.getFontStyle4(),
+                      ),
+                    )
+                  ],
                 ),
               ),
-              onTap: ()=> MapUtils.openMap(
-                  currentAndLikedElementsProvider.currentClubMeClub.getGeoCoordLat(), currentAndLikedElementsProvider.currentClubMeClub.getGeoCoordLng()),
-            )
+
+              // Google maps icon
+              Container(
+
+                // width: screenWidth*0.35,
+                child: Column(
+                  children: [
+                    SizedBox(
+                      width: screenWidth*0.2,
+                      height: screenWidth*0.2,
+                      child: Image.asset(
+                        'assets/images/google_maps_teal.png',
+                      ),
+                    )
+                  ],
+                ),
+              )
+            ],
+          ),
         ),
+
+
+        // Container(
+        //     width: screenWidth*0.9,
+        //     // color: Colors.red,
+        //     alignment: Alignment.bottomRight,
+        //     child: GestureDetector(
+        //       child: Container(
+        //         padding: EdgeInsets.symmetric(
+        //             vertical: screenHeight*0.015,
+        //             horizontal: screenWidth*0.03
+        //         ),
+        //         decoration: const BoxDecoration(
+        //             color: Colors.black54,
+        //             borderRadius: BorderRadius.all(Radius.circular(10))
+        //         ),
+        //         child: Text(
+        //           findOnMapsButtonString[0],
+        //           textAlign: TextAlign.center,
+        //           style: customStyleClass.getFontStyle4BoldPrimeColor(),
+        //         ),
+        //       ),
+        //       onTap: ()=> MapUtils.openMap(
+        //           currentAndLikedElementsProvider.currentClubMeClub.getGeoCoordLat(), currentAndLikedElementsProvider.currentClubMeClub.getGeoCoordLng()),
+        //     )
+        // ),
 
         // Spacer
         SizedBox(
@@ -696,8 +794,9 @@ class _ClubDetailViewState extends State<ClubDetailView> {
         // headline
         Container(
           width: screenWidth,
+          alignment: Alignment.center,
           padding: EdgeInsets.only(
-              left: screenWidth*0.05,
+              // left: screenWidth*0.05,
               top: screenHeight*0.01
           ),
           child: Text(
@@ -714,11 +813,11 @@ class _ClubDetailViewState extends State<ClubDetailView> {
 
         // Musikgenres
         Row(
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             Padding(
-              padding: EdgeInsets.only(
-                  left: screenWidth*0.05
+              padding: const EdgeInsets.symmetric(
+                  vertical: 10
               ),
               child: Text(
                 currentAndLikedElementsProvider.currentClubMeClub.getMusicGenres(),
@@ -742,8 +841,9 @@ class _ClubDetailViewState extends State<ClubDetailView> {
         Container(
           width: screenWidth,
           // color: Colors.red,
+          alignment: Alignment.center,
           padding: EdgeInsets.only(
-              left: screenWidth*0.05,
+              // left: screenWidth*0.05,
               top: screenHeight*0.01
           ),
           child: Text(
@@ -754,39 +854,42 @@ class _ClubDetailViewState extends State<ClubDetailView> {
         ),
 
         // Insta Icon
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
+        Container(
+          width: screenWidth*0.7,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
 
-            Padding(
-              padding: EdgeInsets.only(
-                  left: screenWidth*0.03
+              Padding(
+                padding: EdgeInsets.only(
+                    left: screenWidth*0.03
+                ),
+                child: IconButton(
+                    onPressed: () => goToSocialMedia(currentAndLikedElementsProvider.currentClubMeClub.getInstagramLink()),
+                    icon: Icon(
+                        FontAwesomeIcons.instagram,
+                        color: customStyleClass.primeColor
+                    )
+                ),
               ),
-              child: IconButton(
-                  onPressed: () => goToSocialMedia(currentAndLikedElementsProvider.currentClubMeClub.getInstagramLink()),
-                  icon: Icon(
-                      FontAwesomeIcons.instagram,
-                      color: customStyleClass.primeColor
-                  )
-              ),
-            ),
 
-            Padding(
-              padding: EdgeInsets.only(
-                  left: screenWidth*0.03
+              Padding(
+                padding: EdgeInsets.only(
+                    left: screenWidth*0.03
+                ),
+                child: IconButton(
+                    onPressed: () => goToSocialMedia(
+                        currentAndLikedElementsProvider.currentClubMeClub.getWebsiteLink()
+                    ),
+                    icon: Icon(
+                      Icons.home_filled,
+                      color: customStyleClass.primeColor,
+                    )
+                ),
               ),
-              child: IconButton(
-                  onPressed: () => goToSocialMedia(
-                      currentAndLikedElementsProvider.currentClubMeClub.getWebsiteLink()
-                  ),
-                  icon: Icon(
-                    Icons.home_filled,
-                    color: customStyleClass.primeColor,
-                  )
-              ),
-            ),
 
-          ],
+            ],
+          ),
         ),
 
         // Spacer
@@ -802,9 +905,10 @@ class _ClubDetailViewState extends State<ClubDetailView> {
         // Fotos and videos headline
         Container(
           width: screenWidth,
+          alignment: Alignment.center,
           // color: Colors.red,
           padding: EdgeInsets.only(
-              left: screenWidth*0.05,
+              // left: screenWidth*0.05,
               top: screenHeight*0.01
           ),
           child: Text(
@@ -968,54 +1072,56 @@ class _ClubDetailViewState extends State<ClubDetailView> {
       children: [
         // Spacer
         SizedBox(
-          height: screenHeight*0.03,
+          height: screenHeight*0.015,
         ),
 
         // Icons next to logo
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            // Map
-            GestureDetector(
-              child: Column(
-                children: [
-                  Icon(
-                    Icons.event_seat,
-                    color: customStyleClass.primeColor,
-                    size:
-                      customStyleClass.getIconSize2()
+        Container(
+          width: screenWidth*0.75,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+
+              // Lounges
+              GestureDetector(
+                  child: Column(
+                    children: [
+                      Icon(
+                          Icons.event_seat_outlined,
+                          color: customStyleClass.primeColor,
+                      ),
+                      Text(
+                        "Lounges",
+                        style: customStyleClass.getFontStyle6(),
+                      ),
+                    ],
                   ),
-                  Text(
-                      "Lounge",
-                    style: customStyleClass.getFontStyle3(),
-                  ),
-                ],
+                  onTap: () => clickEventLounge()
               ),
-              onTap: () => clickEventLounge()
-            ),
-            // Price list
-            GestureDetector(
-              child: Column(
-                children: [
-                  Icon(
-                    Icons.search,
-                    color: customStyleClass.primeColor,
-                    size: customStyleClass.getIconSize2()
-                  ),
-                  Text(
+
+              // Price list
+              GestureDetector(
+                child: Column(
+                  children: [
+                    Icon(
+                        Icons.file_open_outlined,
+                        color: customStyleClass.primeColor,
+                    ),
+                    Text(
                       "Angebote",
-                    style: customStyleClass.getFontStyle3(),
-                  )
-                ],
+                      style: customStyleClass.getFontStyle6(),
+                    )
+                  ],
+                ),
+                onTap: () => clickOnPriceList(screenHeight, screenWidth),
               ),
-              onTap: () => clickOnPriceList(screenHeight, screenWidth),
-            ),
-          ],
+            ],
+          ),
         ),
 
         // Spacer
         SizedBox(
-          height: screenHeight*0.02,
+          height: screenHeight*0.01,
         ),
       ],
     );
@@ -1023,6 +1129,60 @@ class _ClubDetailViewState extends State<ClubDetailView> {
 
 
   // MISC FUNCTS
+  Container formatOpeningTime(Days days){
+
+    String dayToDisplay = "";
+    String openingHourToDisplay = "";
+    String closingHourToDisplay = "";
+
+    switch(days.day){
+      case(1):dayToDisplay = "Montag";break;
+      case(2):dayToDisplay = "Dienstag";break;
+      case(3):dayToDisplay = "Mittwoch";break;
+      case(4):dayToDisplay = "Donnerstag";break;
+      case(5):dayToDisplay = "Freitag";break;
+      case(6):dayToDisplay = "Samstag";break;
+      case(7):dayToDisplay = "Sonntag";break;
+    }
+
+    openingHourToDisplay = days.openingHour! < 10 ? "0${days.openingHour}:00": "${days.openingHour}:00";
+    closingHourToDisplay = days.closingHour! < 10 ?  "0${days.closingHour}:00": "${days.closingHour}:00";
+
+    return Container(
+      width: screenWidth*0.9,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            dayToDisplay,
+            style: customStyleClass.getFontStyle3(),
+          ),
+          Row(
+            children: [
+              Text(
+                openingHourToDisplay,
+                style: customStyleClass.getFontStyle3(),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 10
+                ),
+                child: Text(
+                  "-",
+                  style: customStyleClass.getFontStyle3(),
+                ),
+              ),
+              Text(
+                closingHourToDisplay,
+                style: customStyleClass.getFontStyle3(),
+              )
+            ],
+          )
+        ],
+      ),
+    );
+
+  }
   static Future<void> goToSocialMedia(String socialMediaLink) async{
 
     Uri googleUrl = Uri.parse(socialMediaLink);
@@ -1106,18 +1266,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
       body: Container(
         width: screenWidth,
         height: screenHeight,
-        // decoration: const BoxDecoration(
-        //   gradient: LinearGradient(
-        //       begin: Alignment.topLeft,
-        //       end: Alignment.bottomRight,
-        //       colors: [
-        //         // Color(0xff11181f),
-        //         Color(0xff2b353d),
-        //         Color(0xff11181f)
-        //       ],
-        //       stops: [0.15, 0.6]
-        //   ),
-        // ),
+        color: customStyleClass.backgroundColorMain,
         child: _buildMainView()
       ),
       bottomNavigationBar: CustomBottomNavigationBar(),

@@ -18,7 +18,7 @@ class ClubStatisticsView extends StatefulWidget{
 
 class _ClubStatisticsViewState extends State<ClubStatisticsView> {
 
-  String headLine = "Deine Auswertungen";
+  String headLine = "Auswertungen";
 
   int touchedIndex = -1;
   bool dialog = false;
@@ -115,36 +115,6 @@ class _ClubStatisticsViewState extends State<ClubStatisticsView> {
       }
     });
   }
-
-  void _showClickPiePartDialog(int touchedIndex, BuildContext context){
-    showDialog(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: const Text('Add an equation step'),
-          content:const SizedBox(
-            height:200,
-            child: Column(
-              children: [
-                Text("fewfewf")
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {Navigator.of(context).pop();},
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Accept'),
-            ),
-          ],
-        )
-    );
-  }
-
 
   Widget bottomTitleWidgets(double value, TitleMeta meta) {
     const style = TextStyle(
@@ -404,119 +374,6 @@ class _ClubStatisticsViewState extends State<ClubStatisticsView> {
     );
   }
 
-  Widget _buildTileWithPieChart(BuildContext context){
-
-    return Stack(
-      children: [
-
-        // Colorful accent
-        Container(
-          width: screenWidth*0.91,
-          height:  tileHeight+4,
-          decoration: BoxDecoration(
-              gradient: LinearGradient(
-                  begin: Alignment.bottomLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.grey[900]!,
-                    primeColorDark.withOpacity(0.4)
-                  ],
-                  stops: const [0.6, 0.9]
-              ),
-              borderRadius: BorderRadius.circular(15)
-          ),
-        ),
-
-        // Colorful accent
-        Container(
-          width: screenWidth*0.91,
-          height: tileHeight,
-          decoration: BoxDecoration(
-              gradient: LinearGradient(
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.grey[900]!,
-                    primeColorDark.withOpacity(0.2)
-                  ],
-                  stops: const [0.6, 0.9]
-              ),
-              borderRadius: BorderRadius.circular(
-                  15
-              )
-          ),
-        ),
-
-        // light grey highlight
-        Container(
-          width: screenWidth*0.89,
-          height: tileHeight,
-          decoration: BoxDecoration(
-              gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Colors.grey[600]!, Colors.grey[900]!],
-                  stops: const [0.1, 0.9]
-              ),
-              borderRadius: BorderRadius.circular(
-                  15
-              )
-          ),
-        ),
-
-        // light grey highlight
-        Padding(
-            padding: const EdgeInsets.only(
-                left:2
-            ),
-            child: Container(
-              width: screenWidth*0.9,
-              height: tileHeight,
-              decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.topRight,
-                      colors: [Colors.grey[600]!, Colors.grey[900]!],
-                      stops: const [0.1, 0.9]
-                  ),
-                  borderRadius: BorderRadius.circular(
-                      15
-                  )
-              ),
-            )
-        ),
-
-        // main Div
-        Padding(
-          padding: const EdgeInsets.only(
-              left:2,
-              top: 2
-          ),
-          child: Container(
-            width: screenWidth*0.9,
-            height: tileHeight,
-            decoration: BoxDecoration(
-                gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Colors.grey[800]!.withOpacity(0.7),
-                      Colors.grey[900]!
-                    ],
-                    stops: const [0.1,0.9]
-                ),
-                borderRadius: BorderRadius.circular(
-                    15
-                )
-            ),
-            child: _buildTileWithPieChartContent(context),
-          ),
-        )
-
-      ],
-    );
-  }
-
   Widget _buildTileWithPieChartContent(
       BuildContext context
       ){
@@ -634,119 +491,6 @@ class _ClubStatisticsViewState extends State<ClubStatisticsView> {
     );
   }
 
-  Widget _buildTileWithBarChart(BuildContext context){
-
-    return Stack(
-      children: [
-
-        // Colorful accent
-        Container(
-          width: screenWidth*0.91,
-          height:  tileHeight+4,
-          decoration: BoxDecoration(
-              gradient: LinearGradient(
-                  begin: Alignment.bottomLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.grey[900]!,
-                    primeColorDark.withOpacity(0.4)
-                  ],
-                  stops: const [0.6, 0.9]
-              ),
-              borderRadius: BorderRadius.circular(15)
-          ),
-        ),
-
-        // Colorful accent
-        Container(
-          width: screenWidth*0.91,
-          height: tileHeight,
-          decoration: BoxDecoration(
-              gradient: LinearGradient(
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.grey[900]!,
-                    primeColorDark.withOpacity(0.2)
-                  ],
-                  stops: const [0.6, 0.9]
-              ),
-              borderRadius: BorderRadius.circular(
-                  15
-              )
-          ),
-        ),
-
-        // light grey highlight
-        Container(
-          width: screenWidth*0.89,
-          height: tileHeight,
-          decoration: BoxDecoration(
-              gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Colors.grey[600]!, Colors.grey[900]!],
-                  stops: const [0.1, 0.9]
-              ),
-              borderRadius: BorderRadius.circular(
-                  15
-              )
-          ),
-        ),
-
-        // light grey highlight
-        Padding(
-            padding: const EdgeInsets.only(
-                left:2
-            ),
-            child: Container(
-              width: screenWidth*0.9,
-              height: tileHeight,
-              decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.topRight,
-                      colors: [Colors.grey[600]!, Colors.grey[900]!],
-                      stops: const [0.1, 0.9]
-                  ),
-                  borderRadius: BorderRadius.circular(
-                      15
-                  )
-              ),
-            )
-        ),
-
-        // main Div
-        Padding(
-          padding: const EdgeInsets.only(
-              left:2,
-              top: 2
-          ),
-          child: Container(
-            width: screenWidth*0.9,
-            height: tileHeight,
-            decoration: BoxDecoration(
-                gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Colors.grey[800]!.withOpacity(0.7),
-                      Colors.grey[900]!
-                    ],
-                    stops: const [0.1,0.9]
-                ),
-                borderRadius: BorderRadius.circular(
-                    15
-                )
-            ),
-            child: _buildTileWithBarChartContent(context),
-          ),
-        )
-
-      ],
-    );
-  }
-
   Widget _buildTileWithBarChartContent(
       BuildContext context
       ){
@@ -756,119 +500,6 @@ class _ClubStatisticsViewState extends State<ClubStatisticsView> {
           width: screenWidth*0.85,
           child: BarChartSample7(),
         ),
-      ],
-    );
-  }
-
-  Widget _buildTileWithFlowChart(BuildContext context){
-
-    return Stack(
-      children: [
-
-        // Colorful accent
-        Container(
-          width: screenWidth*0.91,
-          height:  tileHeight+4,
-          decoration: BoxDecoration(
-              gradient: LinearGradient(
-                  begin: Alignment.bottomLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.grey[900]!,
-                    primeColorDark.withOpacity(0.4)
-                  ],
-                  stops: const [0.6, 0.9]
-              ),
-              borderRadius: BorderRadius.circular(15)
-          ),
-        ),
-
-        // Colorful accent
-        Container(
-          width: screenWidth*0.91,
-          height: tileHeight,
-          decoration: BoxDecoration(
-              gradient: LinearGradient(
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.grey[900]!,
-                    primeColorDark.withOpacity(0.2)
-                  ],
-                  stops: const [0.6, 0.9]
-              ),
-              borderRadius: BorderRadius.circular(
-                  15
-              )
-          ),
-        ),
-
-        // light grey highlight
-        Container(
-          width: screenWidth*0.89,
-          height: tileHeight,
-          decoration: BoxDecoration(
-              gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Colors.grey[600]!, Colors.grey[900]!],
-                  stops: const [0.1, 0.9]
-              ),
-              borderRadius: BorderRadius.circular(
-                  15
-              )
-          ),
-        ),
-
-        // light grey highlight
-        Padding(
-            padding: const EdgeInsets.only(
-                left:2
-            ),
-            child: Container(
-              width: screenWidth*0.9,
-              height: tileHeight,
-              decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.topRight,
-                      colors: [Colors.grey[600]!, Colors.grey[900]!],
-                      stops: const [0.1, 0.9]
-                  ),
-                  borderRadius: BorderRadius.circular(
-                      15
-                  )
-              ),
-            )
-        ),
-
-        // main Div
-        Padding(
-          padding: const EdgeInsets.only(
-              left:2,
-              top: 2
-          ),
-          child: Container(
-            width: screenWidth*0.9,
-            height: tileHeight,
-            decoration: BoxDecoration(
-                gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Colors.grey[800]!.withOpacity(0.7),
-                      Colors.grey[900]!
-                    ],
-                    stops: const [0.1,0.9]
-                ),
-                borderRadius: BorderRadius.circular(
-                    15
-                )
-            ),
-            child: _buildTileWithFlowChartContent(context),
-          ),
-        )
-
       ],
     );
   }
@@ -903,8 +534,6 @@ class _ClubStatisticsViewState extends State<ClubStatisticsView> {
   @override
   Widget build(BuildContext context) {
 
-    final stateProvider = Provider.of<StateProvider>(context);
-
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
 
@@ -918,7 +547,8 @@ class _ClubStatisticsViewState extends State<ClubStatisticsView> {
 
         bottomNavigationBar: CustomBottomNavigationBarClubs(),
         appBar: AppBar(
-          backgroundColor: Colors.transparent,
+          backgroundColor: customStyleClass.backgroundColorMain,
+          surfaceTintColor: customStyleClass.backgroundColorMain,
           title: SizedBox(
             width: screenWidth,
             child: Text(headLine,
@@ -930,18 +560,7 @@ class _ClubStatisticsViewState extends State<ClubStatisticsView> {
         body: Container(
             width: screenWidth,
             height: screenHeight,
-            // decoration: const BoxDecoration(
-            //   gradient: LinearGradient(
-            //       begin: Alignment.topLeft,
-            //       end: Alignment.bottomRight,
-            //       colors: [
-            //         // Color(0xff11181f),
-            //         Color(0xff2b353d),
-            //         Color(0xff11181f)
-            //       ],
-            //       stops: [0.15, 0.6]
-            //   ),
-            // ),
+            color: customStyleClass.backgroundColorMain,
             child: SingleChildScrollView(
                 child: Column(
                     children: [
@@ -954,14 +573,14 @@ class _ClubStatisticsViewState extends State<ClubStatisticsView> {
                       Container(
                         height: screenHeight*0.15,
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 15
+                          horizontal: 25
                         ),
                         child: Center(
                           child: Text(
-                            "Hinweis: Die hier dargestellten Statistiken sind nur beispielhaft.\n\n"
-                                "Eine funktionierende Auswertung folgt in einem zukünftigen Update.",
+                            "Hinweis: Die hier dargestellten Statistiken sind nur beispielhaft."
+                                " Eine funktionierende Auswertung folgt in einem zukünftigen Update.",
                             textAlign: TextAlign.center,
-                            style: customStyleClass.getFontStyle3BoldPrimeColor(),
+                            style: customStyleClass.getFontStyle5BoldPrimeColor(),
                           ),
                         ),
                       ),
@@ -980,8 +599,8 @@ class _ClubStatisticsViewState extends State<ClubStatisticsView> {
                         ),
                         child: Text(
                           "Demographie",
-                          textAlign: TextAlign.left,
-                          style: customStyleClass.getFontStyle1(),
+                          textAlign: TextAlign.center,
+                          style: customStyleClass.getFontStyle1Bold(),
                         ),
                       ),
 
@@ -989,7 +608,12 @@ class _ClubStatisticsViewState extends State<ClubStatisticsView> {
                         height: screenHeight*0.02,
                       ),
 
-                      _buildTileWithPieChartContent(context),
+                      Container(
+                        padding: EdgeInsets.only(
+                          left: 40
+                        ),
+                        child: _buildTileWithPieChartContent(context),
+                      ),
                       // _buildTileWithBarChartContent(context),
                       // _buildTileWithPieChart(context),
 
@@ -1007,8 +631,8 @@ class _ClubStatisticsViewState extends State<ClubStatisticsView> {
                         ),
                         child:  Text(
                           "Besucher: Entfernungen (in km)",
-                          textAlign: TextAlign.left,
-                          style: customStyleClass.getFontStyle1(),
+                          textAlign: TextAlign.center,
+                          style: customStyleClass.getFontStyle1Bold(),
                         ),
                       ),
 
@@ -1033,8 +657,8 @@ class _ClubStatisticsViewState extends State<ClubStatisticsView> {
                         ),
                         child:  Text(
                           "Besucheranzahl",
-                          textAlign: TextAlign.left,
-                          style: customStyleClass.getFontStyle1(),
+                          textAlign: TextAlign.center,
+                          style: customStyleClass.getFontStyle1Bold(),
                         ),
                       ),
 

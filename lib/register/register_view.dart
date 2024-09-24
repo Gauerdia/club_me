@@ -695,6 +695,7 @@ class _RegisterViewState extends State<RegisterView> {
 
   AppBar _buildAppBar(){
     return AppBar(
+      automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
         title: SizedBox(
           width: screenWidth,

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -19,12 +20,16 @@ class CustomBottomNavigationBar extends StatelessWidget {
 
     customStyleClass = CustomStyleClass(context: context);
 
-    Color navigationBackgroundColor = Colors.black; //const Color(0xff11181f);
-    Color iconBackgroundColor = Colors.teal;
+    Color navigationBackgroundColor = customStyleClass.backgroundColorMain;
 
     return Container(
         decoration: BoxDecoration(
             borderRadius: const BorderRadius.only(
+            ),
+            border: Border(
+                top: BorderSide(
+                    color: Colors.grey[800]!
+                )
             ),
             color: navigationBackgroundColor
         ),
@@ -44,30 +49,23 @@ class CustomBottomNavigationBar extends StatelessWidget {
                     // Events icon
                     GestureDetector(
                       child: AnimatedContainer(
-                        // padding: const EdgeInsets.all(3),
-                        // decoration: BoxDecoration(
-                        //   borderRadius: BorderRadius.circular(10),
-                        //   color: stateProvider.pageIndex == 0 ? iconBackgroundColor : Colors.transparent
-                        // ),
                         duration: colorTransitionDuration,
-                        child: Container(
-                          // color: Colors.grey,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.calendar_month_outlined,
-                                color: stateProvider.pageIndex == 0 ? customStyleClass.primeColor : Colors.white,
-                                size: customStyleClass.getIconSize1(),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.calendar_month_outlined,
+                              color: stateProvider.pageIndex == 0 ? customStyleClass.primeColor : Colors.white,
+                              size: customStyleClass.getIconSize1(),
+                            ),
+                            Text(
+                                "Events",
+                              style: TextStyle(
+                                  color: stateProvider.pageIndex == 0 ? customStyleClass.primeColor : Colors.white,
+                                  fontSize: customStyleClass.getNavIconTextSize()
                               ),
-                              Text(
-                                  "Events",
-                                style: TextStyle(
-                                    color: stateProvider.pageIndex == 0 ? customStyleClass.primeColor : Colors.white
-                                ),
-                              )
-                            ],
-                          ),
+                            )
+                          ],
                         )
                       ),
                       onTap: (){
@@ -79,28 +77,22 @@ class CustomBottomNavigationBar extends StatelessWidget {
                     GestureDetector(
                       child: AnimatedContainer(
                         duration: colorTransitionDuration,
-                        // padding: const EdgeInsets.all(3),
-                        // decoration: BoxDecoration(
-                        //     borderRadius: BorderRadius.circular(10),
-                        //     color: stateProvider.pageIndex == 1 ? iconBackgroundColor : Colors.transparent
-                        // ),
-                        child: Container(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.wine_bar_outlined,
-                                color: stateProvider.pageIndex == 1 ? customStyleClass.primeColor : Colors.white,
-                                size: customStyleClass.getIconSize1(),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.wine_bar_rounded,
+                              color: stateProvider.pageIndex == 1 ? customStyleClass.primeColor : Colors.white,
+                              size: customStyleClass.getIconSize1(),
+                            ),
+                            Text(
+                              "Clubs",
+                              style: TextStyle(
+                                  color: stateProvider.pageIndex == 1 ? customStyleClass.primeColor : Colors.white,
+                                  fontSize: customStyleClass.getNavIconTextSize()
                               ),
-                              Text(
-                                "Clubs",
-                                style: TextStyle(
-                                    color: stateProvider.pageIndex == 1 ? customStyleClass.primeColor : Colors.white
-                                ),
-                              )
-                            ],
-                          ),
+                            )
+                          ],
                         ),
                       ),
                       onTap: (){
@@ -112,28 +104,22 @@ class CustomBottomNavigationBar extends StatelessWidget {
                     GestureDetector(
                       child: AnimatedContainer(
                         duration: colorTransitionDuration,
-                        // padding: const EdgeInsets.all(3),
-                        // decoration: BoxDecoration(
-                        //     borderRadius: BorderRadius.circular(10),
-                        //     color: stateProvider.pageIndex == 2 ? iconBackgroundColor : Colors.transparent
-                        // ),
-                        child: Container(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.map,
-                                color: stateProvider.pageIndex == 2 ? customStyleClass.primeColor : Colors.white,
-                                size: customStyleClass.getIconSize1(),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              CupertinoIcons.location_solid,
+                              color: stateProvider.pageIndex == 2 ? customStyleClass.primeColor : Colors.white,
+                              size: customStyleClass.getIconSize1(),
+                            ),
+                            Text(
+                              "Karte",
+                              style: TextStyle(
+                                  color: stateProvider.pageIndex == 2 ? customStyleClass.primeColor : Colors.white,
+                                  fontSize: customStyleClass.getNavIconTextSize()
                               ),
-                              Text(
-                                "Karte",
-                                style: TextStyle(
-                                    color: stateProvider.pageIndex == 2 ? customStyleClass.primeColor : Colors.white
-                                ),
-                              )
-                            ],
-                          ),
+                            )
+                          ],
                         ),
                       ),
                       onTap: (){
@@ -145,28 +131,22 @@ class CustomBottomNavigationBar extends StatelessWidget {
                     GestureDetector(
                       child: AnimatedContainer(
                         duration: colorTransitionDuration,
-                        // padding: const EdgeInsets.all(3),
-                        // decoration: BoxDecoration(
-                        //     borderRadius: BorderRadius.circular(10),
-                        //     color: stateProvider.pageIndex == 3 ? iconBackgroundColor : Colors.transparent
-                        // ),
-                        child: Container(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.percent,
-                                color: stateProvider.pageIndex == 3 ? customStyleClass.primeColor : Colors.white,
-                                size: customStyleClass.getIconSize1(),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.percent,
+                              color: stateProvider.pageIndex == 3 ? customStyleClass.primeColor : Colors.white,
+                              size: customStyleClass.getIconSize1(),
+                            ),
+                            Text(
+                              "Coupons",
+                              style: TextStyle(
+                                  color: stateProvider.pageIndex == 3 ? customStyleClass.primeColor : Colors.white,
+                                  fontSize: customStyleClass.getNavIconTextSize()
                               ),
-                              Text(
-                                "Coupons",
-                                style: TextStyle(
-                                    color: stateProvider.pageIndex == 3 ? customStyleClass.primeColor : Colors.white
-                                ),
-                              )
-                            ],
-                          ),
+                            )
+                          ],
                         )
                       ),
                       onTap: (){
@@ -178,11 +158,6 @@ class CustomBottomNavigationBar extends StatelessWidget {
                     GestureDetector(
                       child: AnimatedContainer(
                         duration: colorTransitionDuration,
-                        // padding: const EdgeInsets.all(3),
-                        // decoration: BoxDecoration(
-                        //     borderRadius: BorderRadius.circular(10),
-                        //     color: stateProvider.pageIndex == 4 ? iconBackgroundColor : Colors.transparent
-                        // ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -194,7 +169,8 @@ class CustomBottomNavigationBar extends StatelessWidget {
                             Text(
                               "Profil",
                               style: TextStyle(
-                                  color: stateProvider.pageIndex == 4 ? customStyleClass.primeColor : Colors.white
+                                  color: stateProvider.pageIndex == 4 ? customStyleClass.primeColor : Colors.white,
+                                  fontSize: customStyleClass.getNavIconTextSize()
                               ),
                             )
                           ],

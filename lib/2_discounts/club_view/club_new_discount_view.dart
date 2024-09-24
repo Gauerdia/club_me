@@ -165,14 +165,15 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
   AppBar _buildAppBar(){
     return AppBar(
       automaticallyImplyLeading: false,
-      backgroundColor: Colors.transparent,
+      backgroundColor: customStyleClass.backgroundColorMain,
+      surfaceTintColor: customStyleClass.backgroundColorMain,
       title: SizedBox(
           width: screenWidth,
           child: Stack(
             children: [
 
               Container(
-                alignment: Alignment.centerLeft,
+                alignment: Alignment.centerRight,
                 child: IconButton(
                   icon: const Icon(
                     Icons.clear_rounded,
@@ -191,7 +192,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                       Text(
                         headLine,
                         textAlign: TextAlign.center,
-                        style: customStyleClass.getFontStyle1(),
+                        style: customStyleClass.getFontStyleHeadline1Bold(),
                       ),
                     ],
                   )
@@ -276,7 +277,8 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                           children: [
 
                             // Datepicker
-                            SizedBox(
+                            Container(
+                              alignment: Alignment.centerLeft,
                               height: screenHeight*0.12,
                               width: screenWidth*0.3,
                               child: Column(
@@ -289,10 +291,6 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                                       style: customStyleClass.getFontStyle3(),
                                       textAlign: TextAlign.left,
                                     ),
-                                  ),
-
-                                  SizedBox(
-                                    height: screenHeight*0.01,
                                   ),
 
                                   SizedBox(
@@ -336,7 +334,8 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                             ),
 
                             // Column: Text,ToggleSwitch: TimeLimit
-                            SizedBox(
+                            Container(
+                              // color: Colors.red,
                                 height: screenHeight*0.12,
                                 width: screenWidth*0.3,
                                 child: Column(
@@ -352,11 +351,6 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                                         ),
                                       ),
 
-                                      // Spacer
-                                      SizedBox(
-                                        height: screenHeight*0.01,
-                                      ),
-
                                       // TOGGLE SWITCH
                                       SizedBox(
                                         width: screenWidth*0.28,
@@ -367,7 +361,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                                             totalSwitches: 2,
                                             activeBgColor: [customStyleClass.primeColor],
                                             activeFgColor: Colors.white,
-                                            inactiveBgColor: const Color(0xff11181f),
+                                            inactiveBgColor: customStyleClass.backgroundColorEventTile,
                                             inactiveFgColor: Colors.white,
                                             labels: const [
                                               'Nein',
@@ -399,15 +393,16 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
 
                             // Column: Button: Hour and minute
                             if(hasTimeLimit != 0)
-                              SizedBox(
+                              Container(
+                                alignment: Alignment.centerRight,
                                 height: screenHeight*0.12,
                                 width: screenWidth*0.3,
                                 child: Column(
                                   children: [
 
                                     // Text: Time
-                                    Container(
-                                      width: screenWidth*0.22,
+                                    SizedBox(
+                                      width: screenWidth*0.28,
                                       child: Text(
                                         "Uhrzeit",
                                         style: customStyleClass.getFontStyle3(),
@@ -415,14 +410,9 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                                       ),
                                     ),
 
-                                    // Spacer
-                                    SizedBox(
-                                      height: screenHeight*0.01,
-                                    ),
-
                                     // Button: Time
                                     SizedBox(
-                                      width: screenWidth*0.25,
+                                      width: screenWidth*0.28,
                                       child: OutlinedButton(
                                           onPressed: () => {
                                             setState(() {
@@ -468,237 +458,278 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                       // ToggleSwitch: Gender
                       SizedBox(
                         width: screenWidth*0.9,
-                        height: screenHeight*0.1,
+                        // height: screenHeight*0.1,
                         child:  Center(
                           child: ToggleSwitch(
                             minHeight: screenHeight*0.07,
                             initialLabelIndex: targetGender,
                             totalSwitches: 3,
                             activeBgColor: [customStyleClass.primeColor],
-                            activeFgColor: Colors.black,
-                            inactiveFgColor: customStyleClass.primeColor,
-                            inactiveBgColor: const Color(0xff11181f),
+                            activeFgColor: Colors.white,
+                            inactiveFgColor: Colors.white,
+                            inactiveBgColor: customStyleClass.backgroundColorEventTile,
                             labels: const [
                               'Alle',
                               'Männer',
                               'Frauen',
                             ],
-                            fontSize:
-                            customStyleClass.getFontSize4(),
+                            fontSize: customStyleClass.getFontSize4(),
                             minWidth: screenWidth*0.9,
                             onToggle: (index) {
                               setState(() {
                                 targetGender = index!;
-                                print('switched taget gender to: $index');
                               });
                             },
                           ),
                         ),
                       ),
 
-                      // Text: AgeLimit
-                      Container(
-                        width: screenWidth*0.9,
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          "Alterbeschränkung",
-                          style: customStyleClass.getFontStyle3(),
-                        ),
-                      ),
 
                       // Row: ToggleSwitch, TextField - AgeLimit
-                      SizedBox(
+                      Container(
+                        padding: EdgeInsets.only(
+                            top:30
+                        ),
                         width: screenWidth*0.9,
+                        height: screenHeight*0.18,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
 
-                            SizedBox(
-                              width: screenWidth*0.4,
-                              height: screenHeight*0.12,
-                              child:  Center(
-                                child: ToggleSwitch(
-                                  minHeight: screenHeight*0.07,
-                                  initialLabelIndex: hasAgeLimit,
-                                  totalSwitches: 2,
-                                  activeBgColor: [customStyleClass.primeColor],
-                                  activeFgColor: Colors.black,
-                                  inactiveFgColor: customStyleClass.primeColor,
-                                  inactiveBgColor: const Color(0xff11181f),
-                                  labels: const [
-                                    'Nein',
-                                    'Ja',
+                            Container(
+                                width: screenWidth*0.4,
+                                // height: screenHeight*0.12,
+                                alignment: Alignment.centerLeft,
+                                child: Column(
+                                  children: [
+
+                                    // Text: AgeLimit
+                                    Container(
+                                      // width: screenWidth*0.9,
+                                      alignment: Alignment.centerLeft,
+                                      padding: EdgeInsets.only(
+                                          top: 20
+                                      ),
+                                      child: Text(
+                                        "Alterbeschränkung",
+                                        style: customStyleClass.getFontStyle3(),
+                                      ),
+                                    ),
+
+                                    Container(
+                                      width: screenWidth*0.45,
+                                      alignment: Alignment.centerLeft,
+                                      child: ToggleSwitch(
+                                        minHeight: screenHeight*0.07,
+                                        initialLabelIndex: hasAgeLimit,
+                                        totalSwitches: 2,
+                                        activeBgColor: [customStyleClass.primeColor],
+                                        activeFgColor: Colors.white,
+                                        inactiveFgColor: Colors.white,
+                                        inactiveBgColor:customStyleClass.backgroundColorEventTile,
+                                        labels: const [
+                                          'Nein',
+                                          'Ja',
+                                        ],
+                                        onToggle: (index) {
+                                          setState(() {
+                                            if(hasAgeLimit == 0){
+                                              setState(() {
+                                                hasAgeLimit = 1;
+                                                // ageLimitTileHeightFactor = originalDateTileHeightFactor*7.5;
+                                              });
+                                            }else{
+                                              setState(() {
+                                                hasAgeLimit = 0;
+                                                // ageLimitTileHeightFactor = originalDateTileHeightFactor*3.5;
+                                              });
+                                            }
+                                          });
+                                        },
+                                      ),
+                                    ),
+
                                   ],
-                                  onToggle: (index) {
-                                    setState(() {
-                                      if(hasAgeLimit == 0){
-                                        setState(() {
-                                          hasAgeLimit = 1;
-                                          // ageLimitTileHeightFactor = originalDateTileHeightFactor*7.5;
-                                        });
-                                      }else{
-                                        setState(() {
-                                          hasAgeLimit = 0;
-                                          // ageLimitTileHeightFactor = originalDateTileHeightFactor*3.5;
-                                        });
-                                      }
-                                    });
-                                  },
-                                ),
-                              ),
+                                )
                             ),
 
                             // TextField, Text: AgeLimit
                             if(hasAgeLimit != 0)
-                              Row(
-                                children: [
-                                  // Text, Textfield: From
-                                  SizedBox(
-                                    width: screenWidth*0.15,
-                                    child: Column(
-                                      children: [
+                              Container(
+                                padding: const EdgeInsets.only(
+                                    top:25
+                                ),
+                                alignment: Alignment.centerRight,
+                                width: screenWidth*0.45,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    // Text, Textfield: From
+                                    SizedBox(
+                                      width: screenWidth*0.15,
+                                      child: Column(
+                                        children: [
 
-                                        SizedBox(
-                                          width: screenWidth*0.15,
-                                          child: Text(
-                                            "von",
-                                            textAlign: TextAlign.left,
-                                            style: customStyleClass.getFontStyle3(),
-                                          ),
-                                        ),
-
-                                        TextField(
-                                          controller: _ageLimitLowerLimitController,
-                                          cursorColor: customStyleClass.primeColor,
-                                          keyboardType: TextInputType.number,
-                                          decoration: InputDecoration(
-                                            border: OutlineInputBorder(),
-                                            focusedBorder: OutlineInputBorder(
-                                                borderSide: BorderSide(
-                                                    color: customStyleClass.primeColor
-                                                )
+                                          SizedBox(
+                                            width: screenWidth*0.15,
+                                            child: Text(
+                                              "von",
+                                              textAlign: TextAlign.left,
+                                              style: customStyleClass.getFontStyle3(),
                                             ),
                                           ),
-                                          inputFormatters: <TextInputFormatter>[
-                                            FilteringTextInputFormatter.allow(RegExp("[0-9]")),
-                                          ], //
-                                          style: customStyleClass.getFontStyle4(),
-                                          maxLength: 2,
-                                        )
-                                      ],
+
+                                          TextField(
+                                            controller: _ageLimitLowerLimitController,
+                                            cursorColor: customStyleClass.primeColor,
+                                            keyboardType: TextInputType.number,
+                                            decoration: InputDecoration(
+                                              border: OutlineInputBorder(),
+                                              focusedBorder: OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                      color: customStyleClass.primeColor
+                                                  )
+                                              ),
+                                            ),
+                                            inputFormatters: <TextInputFormatter>[
+                                              FilteringTextInputFormatter.allow(RegExp("[0-9]")),
+                                            ], //
+                                            style: customStyleClass.getFontStyle4(),
+                                            maxLength: 2,
+                                          )
+                                        ],
+                                      ),
                                     ),
-                                  ),
 
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10
+                                      ),
+                                      child: Text(
+                                        "-",
+                                        style: customStyleClass.getFontStyle3(),
+                                      ),
                                     ),
-                                    child: Text(
-                                      "-",
-                                      style: customStyleClass.getFontStyle3(),
-                                    ),
-                                  ),
 
-                                  // Text, Textfield: From
-                                  SizedBox(
-                                    width: screenWidth*0.15,
-                                    child: Column(
-                                      children: [
+                                    // Text, Textfield: From
+                                    SizedBox(
+                                      width: screenWidth*0.15,
+                                      child: Column(
+                                        children: [
 
-                                        SizedBox(
-                                          width: screenWidth*0.15,
-                                          child: Text(
-                                            "Bis",
-                                            textAlign: TextAlign.left,
-                                            style: customStyleClass.getFontStyle3(),
-                                          ),
-                                        ),
-
-                                        TextField(
-                                          controller: _ageLimitUpperLimitController,
-                                          cursorColor: customStyleClass.primeColor,
-                                          keyboardType: TextInputType.number,
-                                          decoration: InputDecoration(
-                                            border: OutlineInputBorder(),
-                                            focusedBorder: OutlineInputBorder(
-                                                borderSide: BorderSide(
-                                                    color: customStyleClass.primeColor
-                                                )
+                                          SizedBox(
+                                            width: screenWidth*0.15,
+                                            child: Text(
+                                              "Bis",
+                                              textAlign: TextAlign.left,
+                                              style: customStyleClass.getFontStyle3(),
                                             ),
                                           ),
-                                          inputFormatters: <TextInputFormatter>[
-                                            FilteringTextInputFormatter.allow(RegExp("[0-9]")),
-                                          ], //
-                                          style: customStyleClass.getFontStyle4(),
-                                          maxLength: 2,
-                                        )
-                                      ],
+
+                                          TextField(
+                                            controller: _ageLimitUpperLimitController,
+                                            cursorColor: customStyleClass.primeColor,
+                                            keyboardType: TextInputType.number,
+                                            decoration: InputDecoration(
+                                              border: OutlineInputBorder(),
+                                              focusedBorder: OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                      color: customStyleClass.primeColor
+                                                  )
+                                              ),
+                                            ),
+                                            inputFormatters: <TextInputFormatter>[
+                                              FilteringTextInputFormatter.allow(RegExp("[0-9]")),
+                                            ], //
+                                            style: customStyleClass.getFontStyle4(),
+                                            maxLength: 2,
+                                          )
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               )
 
                           ],
                         ),
                       ),
 
-                      // Text: UsageLimit
-                      Container(
-                        width: screenWidth*0.9,
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          "Nutzungsbeschränkung",
-                          style: customStyleClass.getFontStyle3(),
-                        ),
-                      ),
-
                       // Row: ToggleSwitch, TextField - UsageLimit
                       SizedBox(
                         width: screenWidth*0.9,
+                        height: screenHeight*0.16,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
 
-                            SizedBox(
-                              width: screenWidth*0.4,
-                              height: screenHeight*0.12,
-                              child:  Center(
-                                child: ToggleSwitch(
-                                  minHeight: screenHeight*0.07,
-                                  initialLabelIndex: hasUsageLimit,
-                                  totalSwitches: 2,
-                                  activeBgColor: [customStyleClass.primeColor],
-                                  activeFgColor: Colors.black,
-                                  inactiveFgColor: customStyleClass.primeColor,
-                                  inactiveBgColor: const Color(0xff11181f),
-                                  labels: const [
-                                    'Nein',
-                                    'Ja',
-                                  ],
-                                  onToggle: (index) {
-                                    setState(() {
-                                      if(hasUsageLimit == 0){
+
+                            Container(
+                              width: screenWidth*0.45,
+                              padding: EdgeInsets.only(
+                                  top:15
+                              ),
+                              child: Column(
+                                children: [
+
+                                  // Text: UsageLimit
+                                  Container(
+                                    width: screenWidth*0.45,
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      "Nutzungsbeschränkung",
+                                      style: customStyleClass.getFontStyle3(),
+                                    ),
+                                  ),
+
+                                  Container(
+                                    width: screenWidth*0.45,
+                                    // height: screenHeight*0.12,
+                                    alignment: Alignment.centerLeft,
+                                    child: ToggleSwitch(
+                                      minHeight: screenHeight*0.07,
+                                      initialLabelIndex: hasUsageLimit,
+                                      totalSwitches: 2,
+                                      activeBgColor: [customStyleClass.primeColor],
+                                      activeFgColor: Colors.white,
+                                      inactiveFgColor: Colors.white,
+                                      inactiveBgColor:customStyleClass.backgroundColorEventTile,
+                                      labels: const [
+                                        'Nein',
+                                        'Ja',
+                                      ],
+                                      onToggle: (index) {
                                         setState(() {
-                                          hasUsageLimit = 1;
-                                          // ageLimitTileHeightFactor = originalDateTileHeightFactor*7.5;
+                                          if(hasUsageLimit == 0){
+                                            setState(() {
+                                              hasUsageLimit = 1;
+                                              // ageLimitTileHeightFactor = originalDateTileHeightFactor*7.5;
+                                            });
+                                          }else{
+                                            setState(() {
+                                              hasUsageLimit = 0;
+                                              // ageLimitTileHeightFactor = originalDateTileHeightFactor*3.5;
+                                            });
+                                          }
                                         });
-                                      }else{
-                                        setState(() {
-                                          hasUsageLimit = 0;
-                                          // ageLimitTileHeightFactor = originalDateTileHeightFactor*3.5;
-                                        });
-                                      }
-                                    });
-                                  },
-                                ),
+                                      },
+                                    ),
+                                  ),
+
+                                ],
                               ),
                             ),
 
+
                             // TextField, Text: AgeLimit
                             if(hasUsageLimit != 0)
-                              SizedBox(
-                                width: screenWidth*0.4,
-                                height: screenHeight*0.12,
+                              Container(
+                                padding: const EdgeInsets.only(
+                                  // top: 20
+                                ),
+                                alignment: Alignment.centerRight,
+                                width: screenWidth*0.45,
+                                // height: screenHeight*0.12,
                                 child: CupertinoPicker(
                                     itemExtent: 50,
                                     onSelectedItemChanged: (int index){
@@ -721,6 +752,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                         ),
                       ),
 
+
                       // Text: Description
                       Container(
                         width: screenWidth*0.9,
@@ -740,6 +772,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                           keyboardType: TextInputType.multiline,
                           maxLines: null,
                           decoration: InputDecoration(
+                            hintText: "Erzähle deinen Kunden etwas über den Coupon!",
                             border: const OutlineInputBorder(),
                             focusedBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
@@ -753,15 +786,6 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                         ),
                       ),
 
-                      // Text: "repeat coupon"
-                      Container(
-                        width: screenWidth*0.9,
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          "Coupon wiederholen",
-                          style: customStyleClass.getFontStyle3(),
-                        ),
-                      ),
 
                       // ToggleSwitch: isRepeated
                       Container(
@@ -772,30 +796,53 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
 
-                            SizedBox(
-                                child: ToggleSwitch(
-                                  minHeight: screenHeight*0.07,
-                                  initialLabelIndex: isRepeated,
-                                  totalSwitches: 2,
-                                  activeBgColor: [customStyleClass.primeColor],
-                                  activeFgColor: Colors.black,
-                                  inactiveFgColor: customStyleClass.primeColor,
-                                  inactiveBgColor: const Color(0xff11181f),
-                                  labels: const [
-                                    'Nein',
-                                    'Ja',
-                                  ],
-                                  onToggle: (index) {
-                                    setState(() {
-                                      isRepeated == 0 ? isRepeated = 1 : isRepeated = 0;
-                                    });
-                                  },
-                                )
+                            Container(
+                              child:Column(
+                                children: [
+
+                                  // Text: "repeat coupon"
+                                  Container(
+                                    width: screenWidth*0.45,
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      "Coupon wiederholen",
+                                      style: customStyleClass.getFontStyle3(),
+                                    ),
+                                  ),
+
+                                  Container(
+                                      width: screenWidth*0.45,
+                                      alignment: Alignment.centerLeft,
+                                      child: ToggleSwitch(
+                                        minHeight: screenHeight*0.07,
+                                        initialLabelIndex: isRepeated,
+                                        totalSwitches: 2,
+                                        activeBgColor: [customStyleClass.primeColor],
+                                        activeFgColor: Colors.white,
+                                        inactiveFgColor: Colors.white,
+                                        inactiveBgColor: customStyleClass.backgroundColorEventTile,
+                                        labels: const [
+                                          'Nein',
+                                          'Ja',
+                                        ],
+                                        onToggle: (index) {
+                                          setState(() {
+                                            isRepeated == 0 ? isRepeated = 1 : isRepeated = 0;
+                                          });
+                                        },
+                                      )
+                                  ),
+
+                                ],
+                              ),
                             ),
 
                             if(isRepeated != 0)
-                              SizedBox(
-                                width: screenWidth*0.4,
+                              Container(
+                                // padding: const EdgeInsets.only(
+                                //     top: 20
+                                // ),
+                                width: screenWidth*0.45,
                                 child: CupertinoPicker(
                                     scrollController: _fixedExtentScrollController1,
                                     itemExtent: 50,
@@ -820,41 +867,49 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                       ),
 
                       // Text: "Save as template"
-                      isTemplate == 1 ? Container()
-                        :Container(
+                      if(isTemplate != 1)
+                        Container(
                           width: screenWidth*0.9,
                           alignment: Alignment.centerLeft,
-                          child: Text(
-                            "Als Vorlage speichern",
-                            style: customStyleClass.getFontStyle3(),
+                          child: Column(
+                            children: [
+
+                              Container(
+                                  width: screenWidth*0.9,
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    "Als Vorlage speichern",
+                                    style: customStyleClass.getFontStyle3(),
+                                  )
+                              ),
+
+                              Container(
+                                width: screenWidth*0.9,
+                                alignment: Alignment.centerLeft,
+                                child: ToggleSwitch(
+                                  minHeight: screenHeight*0.07,
+                                  initialLabelIndex: isSupposedToBeTemplate,
+                                  totalSwitches: 2,
+                                  activeBgColor: [customStyleClass.primeColor],
+                                  activeFgColor: Colors.white,
+                                  inactiveFgColor: Colors.white,
+                                  inactiveBgColor: customStyleClass.backgroundColorEventTile,
+                                  labels: const [
+                                    'Nein',
+                                    'Ja',
+                                  ],
+                                  onToggle: (index) {
+                                    setState(() {
+                                      isSupposedToBeTemplate == 0 ? isSupposedToBeTemplate = 1 : isSupposedToBeTemplate = 0;
+                                    });
+                                  },
+                                ),
+                              )
+
+                            ],
                           ),
                         ),
 
-                      // ToggleSwitch: isSupposedToBeTemplate
-                      isTemplate == 1 ? Container()
-                          :Container(
-                            width: screenWidth*0.9,
-                            height: screenHeight*0.12,
-                            alignment: Alignment.centerLeft,
-                            child:  ToggleSwitch(
-                              minHeight: screenHeight*0.07,
-                              initialLabelIndex: isSupposedToBeTemplate,
-                              totalSwitches: 2,
-                              activeBgColor: [customStyleClass.primeColor],
-                              activeFgColor: Colors.black,
-                              inactiveFgColor: customStyleClass.primeColor,
-                              inactiveBgColor: const Color(0xff11181f),
-                              labels: const [
-                                'Nein',
-                                'Ja',
-                              ],
-                              onToggle: (index) {
-                                setState(() {
-                                  isSupposedToBeTemplate == 0 ? isSupposedToBeTemplate = 1 : isSupposedToBeTemplate = 0;
-                                });
-                              },
-                            )
-                        ),
 
                       // Spacer
                       SizedBox(
@@ -1023,30 +1078,41 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
   Widget _buildBottomNavigationBar2(){
     return Container(
       width: screenWidth,
-      height: screenHeight*0.07,
+      height: screenHeight*0.08,
       decoration: BoxDecoration(
-          color: Colors.black,
+          color: customStyleClass.backgroundColorMain,
           border: Border(
               top: BorderSide(
-                  color: Colors.grey[500]!
+                  color: Colors.grey[900]!
               )
           )
       ),
 
-      // color: Colors.green,
-      alignment: Alignment.bottomRight,
+      alignment: Alignment.centerRight,
       padding: const EdgeInsets.only(
           right: 10,
-          bottom: 10
+          // bottom: 10
       ),
       child: GestureDetector(
         child: Container(
           padding: const EdgeInsets.only(
               bottom: 10
           ),
-          child: Text(
-            "Abschicken!",
-            style: customStyleClass.getFontStyle3BoldPrimeColor(),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+
+              Text(
+                "Abschicken",
+                style: customStyleClass.getFontStyle3BoldPrimeColor(),
+              ),
+
+              Icon(
+                Icons.arrow_forward_outlined,
+                color: customStyleClass.primeColor,
+              )
+
+            ],
           ),
         ),
         onTap: () => clickEventProcessNewDiscount(),
@@ -1187,9 +1253,16 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
   void showDialogOfMissingValue(){
     showDialog(context: context,
         builder: (BuildContext context){
-          return const AlertDialog(
-              title: Text("Fehlende Werte"),
-              content: Text("Bitte fülle die leeren Felder aus, bevor du weitergehst.")
+          return AlertDialog(
+            backgroundColor: Color(0xff121111),
+              title: Text(
+                  "Fehlende Werte",
+                style: customStyleClass.getFontStyle1Bold(),
+              ),
+              content: Text(
+                  "Bitte fülle die leeren Felder aus, bevor du weitergehst.",
+                style: customStyleClass.getFontStyle3(),
+              )
           );
         });
   }
@@ -1200,12 +1273,12 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
         context: context,
         builder: (BuildContext context){
           return AlertDialog(
-              backgroundColor: Colors.black,
+              backgroundColor: Color(0xff121111),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20.0),
-                  side: BorderSide(
-                      color: customStyleClass.primeColor
-                  )
+                  // side: BorderSide(
+                  //     color: customStyleClass.primeColor
+                  // )
               ),
               title: Text(
                 "Abbrechen",
@@ -1349,7 +1422,8 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
       extendBody: true,
 
       appBar: _buildAppBar(),
-      body: SizedBox(
+      body: Container(
+        color: customStyleClass.backgroundColorMain,
           width: screenWidth,
           height: screenHeight,
           child: Center(

@@ -26,7 +26,7 @@ class _UserClubsViewState extends State<UserClubsView>
   with TickerProviderStateMixin{
 
   var log = Logger();
-  String headline = "Deine Clubs";
+  String headline = "Clubs";
 
   late Future getClubs;
   late String dropdownValue;
@@ -52,7 +52,9 @@ class _UserClubsViewState extends State<UserClubsView>
   Color navigationBackgroundColor = const Color(0xff11181f);
 
   List<String> genresDropdownList = [
-    "Alle", "Techno", "90s", "Latin"
+    "Alle", "Latin", "Rock", "Hip-Hop", "Electronic", "Pop", "Reggaeton", "Afrobeats",
+    "R&B", "House", "Techno", "Rap", "90er", "80er", "2000er",
+    "Heavy Metal", "Psychedelic", "Balkan"
   ];
   List<ClubMeClub> clubsToDisplay = [];
 
@@ -128,7 +130,7 @@ class _UserClubsViewState extends State<UserClubsView>
     if(searchValue != "" || dropdownValue != genresDropdownList[0] || onlyFavoritesIsActive){
 
       // set for coloring
-      if(dropdownValue != genresDropdownList[0] || onlyFavoritesIsActive){
+      if(dropdownValue != genresDropdownList[0]){
         isAnyFilterActive = true;
       }else{
         isAnyFilterActive = false;
@@ -213,7 +215,7 @@ class _UserClubsViewState extends State<UserClubsView>
   Widget _buildAppBarShowSearch(){
     return Container(
       width: screenWidth,
-      color: Colors.black,
+      color: customStyleClass.backgroundColorMain,
       child: Stack(
         children: [
           // Headline
@@ -283,8 +285,8 @@ class _UserClubsViewState extends State<UserClubsView>
                 IconButton(
                     onPressed: () => filterForFavorites(),
                     icon: Icon(
-                      Icons.stars,
-                      color: onlyFavoritesIsActive ? customStyleClass.primeColor : Colors.grey,
+                      onlyFavoritesIsActive? Icons.star : Icons.star_border,
+                      color: onlyFavoritesIsActive ? customStyleClass.primeColor : Colors.white,
                     )
                 ),
                 Padding(
@@ -292,13 +294,9 @@ class _UserClubsViewState extends State<UserClubsView>
                     child: GestureDetector(
                       child: Container(
                           padding: const EdgeInsets.all(7),
-                          decoration: BoxDecoration(
-                            color: const Color(0xff11181f),
-                            borderRadius: BorderRadius.circular(45),
-                          ),
                           child: Icon(
-                            Icons.filter_list_sharp,
-                            color: isAnyFilterActive ? customStyleClass.primeColor : Colors.grey,
+                            Icons.filter_alt_outlined,
+                            color: isAnyFilterActive ? customStyleClass.primeColor : Colors.white,
                           )
                       ),
                       onTap: (){
@@ -317,7 +315,7 @@ class _UserClubsViewState extends State<UserClubsView>
   Widget _buildAppBarShowHeadline(){
     return Container(
       width: screenWidth,
-      color: Colors.black,
+      color: customStyleClass.backgroundColorMain,
       child: Stack(
         children: [
           // Headline
@@ -328,10 +326,29 @@ class _UserClubsViewState extends State<UserClubsView>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(headline,
-                      textAlign: TextAlign.center,
-                      style: customStyleClass.getFontStyle1()
-                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                              headline,
+                              textAlign: TextAlign.center,
+                              style: customStyleClass.getFontStyleHeadline1Bold()
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                                bottom: 15
+                            ),
+                            child: Text(
+                              "VIP",
+                              style: customStyleClass.getFontStyleVIPGold(),
+                            ),
+                          )
+                        ],
+                      ),
+                    ],
+                  )
                 ],
               )
           ),
@@ -365,8 +382,8 @@ class _UserClubsViewState extends State<UserClubsView>
                 IconButton(
                     onPressed: () => filterForFavorites(),
                     icon: Icon(
-                      Icons.stars,
-                      color: onlyFavoritesIsActive ? customStyleClass.primeColor : Colors.grey,
+                      onlyFavoritesIsActive ? Icons.star : Icons.star_border,
+                      color: onlyFavoritesIsActive ? customStyleClass.primeColor : Colors.white,
                     )
                 ),
                 Padding(
@@ -374,13 +391,13 @@ class _UserClubsViewState extends State<UserClubsView>
                     child: GestureDetector(
                       child: Container(
                           padding: const EdgeInsets.all(7),
-                          decoration: BoxDecoration(
-                            color: const Color(0xff11181f),
-                            borderRadius: BorderRadius.circular(45),
-                          ),
+                          // decoration: BoxDecoration(
+                          //   color: const Color(0xff11181f),
+                          //   borderRadius: BorderRadius.circular(45),
+                          // ),
                           child: Icon(
-                            Icons.filter_list_sharp,
-                            color: isAnyFilterActive ? customStyleClass.primeColor : Colors.grey,
+                            Icons.filter_alt_outlined,
+                            color: isAnyFilterActive || isFilterMenuActive ? customStyleClass.primeColor : Colors.white,
                           )
                       ),
                       onTap: (){
@@ -409,8 +426,10 @@ class _UserClubsViewState extends State<UserClubsView>
             }
 
             if(!snapshot.hasData){
-              return const Center(
-                child: CircularProgressIndicator(),
+              return Center(
+                child: CircularProgressIndicator(
+                  color: customStyleClass.primeColor,
+                ),
               );
             }else{
 
@@ -572,7 +591,7 @@ class _UserClubsViewState extends State<UserClubsView>
       ),
       height: screenHeight*0.12,
       width: screenWidth,
-      color: const Color(0xff2b353d),
+      color: customStyleClass.backgroundColorMain,
       child: Row(
         children: [
           SizedBox(
@@ -587,25 +606,30 @@ class _UserClubsViewState extends State<UserClubsView>
                 ),
 
                 // Dropdown
-                DropdownButton(
-                    value: dropdownValue,
-                    items: genresDropdownList.map<DropdownMenuItem<String>>(
-                            (String value) {
-                          return DropdownMenuItem(
-                              value: value,
-                              child: Text(
-                                  value,
-                                style: customStyleClass.getFontStyle4Grey2(),
-                              )
-                          );
+                Theme(
+                    data: Theme.of(context).copyWith(
+                        canvasColor: Color(0xff121111)
+                    ),
+                    child: DropdownButton(
+                        value: dropdownValue,
+                        items: genresDropdownList.map<DropdownMenuItem<String>>(
+                                (String value) {
+                              return DropdownMenuItem(
+                                  value: value,
+                                  child: Text(
+                                    value,
+                                    style: customStyleClass.getFontStyle4Grey2(),
+                                  )
+                              );
+                            }
+                        ).toList(),
+                        onChanged: (String? value){
+                          setState(() {
+                            dropdownValue = value!;
+                            filterClubs();
+                          });
                         }
-                    ).toList(),
-                    onChanged: (String? value){
-                      setState(() {
-                        dropdownValue = value!;
-                        filterClubs();
-                      });
-                    }
+                    )
                 )
               ],
             ),
@@ -634,18 +658,20 @@ class _UserClubsViewState extends State<UserClubsView>
 
       appBar: isSearchbarActive ?
             AppBar(
-              backgroundColor: Colors.transparent,
+              backgroundColor: customStyleClass.backgroundColorMain,
+              surfaceTintColor: customStyleClass.backgroundColorMain,
               title: _buildAppBarShowSearch(),
             ) :
             AppBar(
-              backgroundColor: Colors.transparent,
+              backgroundColor: customStyleClass.backgroundColorMain,
+              surfaceTintColor: customStyleClass.backgroundColorMain,
               title: _buildAppBarShowHeadline(),
             ),
 
       body: Container(
             width: screenWidth,
             height: screenHeight,
-            decoration: plainBlackDecoration,
+            color: customStyleClass.backgroundColorMain,
             child: Stack(
               children: [
 
@@ -658,8 +684,7 @@ class _UserClubsViewState extends State<UserClubsView>
                 // Progress marker
                 if(clubsToDisplay.isNotEmpty)
                   Container(
-                    height: screenHeight*0.78,
-                    // color: Colors.red,
+                    height: screenHeight*0.77,
                     alignment: Alignment.bottomCenter,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -667,12 +692,12 @@ class _UserClubsViewState extends State<UserClubsView>
                         Icon(
                           Icons.keyboard_arrow_left_sharp,
                           size: 50,
-                          color: _currentPageIndex > 0 ? Colors.white: Colors.grey,
+                          color: _currentPageIndex > 0 ? customStyleClass.primeColor: Colors.grey,
                         ),
                         Icon(
                           Icons.keyboard_arrow_right_sharp,
                           size: 50,
-                          color: _currentPageIndex < (clubsToDisplay.length-1) ? Colors.white: Colors.grey,
+                          color: _currentPageIndex < (clubsToDisplay.length-1) ? customStyleClass.primeColor: Colors.grey,
                         ),
                       ],
                     ),

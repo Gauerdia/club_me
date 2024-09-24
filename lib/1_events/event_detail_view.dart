@@ -4,6 +4,7 @@ import 'package:chewie/chewie.dart';
 import 'package:club_me/shared/custom_bottom_navigation_bar_clubs.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mime/mime.dart';
@@ -40,7 +41,7 @@ class _EventDetailViewState extends State<EventDetailView>{
   bool isContentShown = false;
   String priceFormatted = "";
 
-  double mainInfosContainerHeight = 150;
+  double mainInfosContainerHeight = 110;
 
   late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
   late StateProvider stateProvider;
@@ -99,7 +100,7 @@ class _EventDetailViewState extends State<EventDetailView>{
     Widget okButton = TextButton(
       child: Text(
         "OK",
-        style: customStyleClass.getFontStyle4(),
+        style: customStyleClass.getFontStyle4BoldPrimeColor(),
       ),
       onPressed: () async {
         final Uri url = Uri.parse(currentAndLikedElementsProvider.currentClubMeEvent.getTicketLink());
@@ -113,14 +114,14 @@ class _EventDetailViewState extends State<EventDetailView>{
         context: context,
         builder: (BuildContext context){
           return AlertDialog(
-            backgroundColor: Colors.black,
+            backgroundColor: Colors.grey[900]!,
             title: Text(
               "Ticketbuchuchung",
               style: customStyleClass.getFontStyle1(),
             ),
             content: Text(
               "Dieser Link führt Sie weiter zu der Seite, wo Sie direkt ein Ticket kaufen können."
-                  "Ist das in Ordnung für Sie?",
+                  " Ist das in Ordnung für Sie?",
               style: customStyleClass.getFontStyle4(),
             ),
             actions: [
@@ -143,17 +144,24 @@ class _EventDetailViewState extends State<EventDetailView>{
   void clickedOnImIn(){
     print("clickedOnImIn");
   }
-  void clickedOnShare(BuildContext context){
+  void clickedOnShare(){
     showDialog<String>(
         context: context,
-        builder: (BuildContext context) => const AlertDialog(
-            title: Text("Teilen noch nicht möglich!"),
-            content: Text("Die Funktion, ein Event zu teilen, ist derzeit noch"
-                "nicht implementiert. Wir bitten um Verständnis.")
+        builder: (BuildContext context) =>  AlertDialog(
+            backgroundColor: Colors.grey[900]!,
+            title: Text(
+                "Teilen noch nicht möglich!",
+              style: customStyleClass.getFontStyle1(),
+            ),
+            content: Text(
+                "Die Funktion, ein Event zu teilen, ist derzeit noch"
+                "nicht implementiert. Wir bitten um Verständnis.",
+              style: customStyleClass.getFontStyle4(),
+            )
         )
     );
   }
-  void clickedOnLike(StateProvider stateProvider, String eventId){
+  void clickedOnLike(String eventId){
     if(stateProvider.getIsEventEditable()){
       showDialog<String>(
           context: context,
@@ -268,8 +276,16 @@ class _EventDetailViewState extends State<EventDetailView>{
   AppBar _buildAppBar(){
     return AppBar(
       automaticallyImplyLeading: false,
-      backgroundColor: Colors.transparent,
+      backgroundColor: customStyleClass.backgroundColorMain,
+      surfaceTintColor: customStyleClass.backgroundColorMain,
       centerTitle: true,
+      bottom: PreferredSize(
+          preferredSize: Size.fromHeight(4.0),
+          child: Container(
+            color: Colors.grey[900],
+            height: 1.0,
+          )
+      ),
       title: SizedBox(
         width: screenWidth,
         height: 50,
@@ -297,11 +313,32 @@ class _EventDetailViewState extends State<EventDetailView>{
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    titleToDisplay,
-                    textAlign: TextAlign.center,
-                      style: customStyleClass.getFontStyle1()
+
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                              titleToDisplay,
+                              textAlign: TextAlign.center,
+                              style: customStyleClass.getFontStyleHeadline1Bold()
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                                bottom: 15
+                            ),
+                            child: Text(
+                              "VIP",
+                              style: customStyleClass.getFontStyleVIPGold(),
+                            ),
+                          )
+                        ],
+                      ),
+                    ],
                   )
+
                 ],
               ),
             ),
@@ -328,7 +365,7 @@ class _EventDetailViewState extends State<EventDetailView>{
   }
   Widget _buildIconRow(StateProvider stateProvider, BuildContext context){
     return Padding(
-      padding: EdgeInsets.only(
+      padding: const EdgeInsets.only(
         bottom: 5
       ),
       child: Align(
@@ -368,7 +405,7 @@ class _EventDetailViewState extends State<EventDetailView>{
                         ),
                       ],
                     ),
-                    onTap: () => clickedOnLike(stateProvider, currentAndLikedElementsProvider.currentClubMeEvent.getEventId())
+                    onTap: () => clickedOnLike(currentAndLikedElementsProvider.currentClubMeEvent.getEventId())
                 ),
 
                 SizedBox(
@@ -385,7 +422,7 @@ class _EventDetailViewState extends State<EventDetailView>{
                         ),
                       ],
                     ),
-                    onTap: () => clickedOnShare(context)
+                    onTap: () => clickedOnShare()
                 ),
 
                 SizedBox(
@@ -401,304 +438,414 @@ class _EventDetailViewState extends State<EventDetailView>{
   }
   Widget _buildMainColumn(){
 
-    return Column(
-      children: [
+    return Container(
+      color: customStyleClass.backgroundColorMain,
+      child: Stack(
+        children: [
 
-        // Spacer
-        SizedBox(
-          height: screenHeight*0.14,
-        ),
+          // Main Column
+          Column(
+            children: [
 
-        // Header (image)
-        SizedBox(
-          width: screenWidth,
-          height: screenHeight*0.2,
-          child:
-          Image(
-            image: FileImage(
-                File(
-                    "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeEvent.getBannerId()}"
-                )
-            ),
-            fit: BoxFit.cover,
-          )
-        ),
+              // Spacer
+              SizedBox(
+                height: screenHeight*0.125,
+              ),
 
-        // Main Infos
-        Container(
-            width: screenWidth,
-            height: mainInfosContainerHeight,
-            decoration: BoxDecoration(
-                border: const Border(
-                    bottom: BorderSide(color: Colors.white60)
-                ),
-                gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [Colors.grey[850]!, Colors.grey[700]!],
-                    stops: const [0.4, 0.8]
-                )
-            ),
-            child: Stack(
-              children: [
+              // Header (image)
+              SizedBox(
+                  width: screenWidth,
+                  height: screenHeight*0.165,
+                  child: Image(
+                    image: FileImage(
+                        File(
+                            "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeEvent.getBannerId()}"
+                        )
+                    ),
+                    fit: BoxFit.cover,
+                  )
+              ),
 
-                // Key information
-                Column(
-                  // mainAxisAlignment: MainAxisAlignment.,
-                  children: [
+              // Main Infos
+              Container(
+                  width: screenWidth,
+                  height: screenHeight*0.14,
+                  color: customStyleClass.backgroundColorEventTile,
+                  child: Stack(
+                    children: [
 
-                    // Title + price
-                    Row(
-                      children: [
-                        Container(
-                          alignment: Alignment.centerLeft,
-                          width: screenWidth*0.75,
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                top: 10,
-                                left: 10
-                            ),
-                            child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: GestureDetector(
-                                  child: Text(
-                                    formattedEventTitle,
-                                    style: customStyleClass.getFontStyle1Bold(),
+                      Column(
+                        children: [
+
+                          // Title + Price
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+
+                              // Title
+                              SizedBox(
+                                width: screenWidth*0.7,
+                                child: Padding(
+                                  padding: EdgeInsets.only(
+                                      left: screenWidth*0.02
                                   ),
-                                  onTap: (){
-                                  },
-                                )
-                            ),
-                          ),
-                        ),
-
-                        // Price
-                        SizedBox(
-                          width: screenWidth*0.25,
-                          child:Align(
-                            alignment: Alignment.topRight,
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                  top: 10,
-                                  right: 15
-                              ),
-                              child: Align(
-                                  alignment: Alignment.topRight,
-                                  child: GestureDetector(
-                                    child:Text(
-                                      priceFormatted,
-                                      style: customStyleClass.getFontStyle2BoldLightGrey(),
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      formattedEventTitle,
+                                      style: customStyleClass.getFontStyle3Bold(),
                                     ),
-                                    onTap: (){
-                                    },
-                                  )
-                              ),
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-
-                    // Location
-                    SizedBox(
-                      height: 30.w,//screenHeight*0.035,
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                            left: 10
-                        ),
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: GestureDetector(
-                            child: Text(
-                              currentAndLikedElementsProvider.currentClubMeEvent.getClubName(),
-                              style: customStyleClass.getFontStyle3Bold(),
-                            ),
-                            onTap: (){
-                              // if(stateProvider.getIsEventEditable()){
-                              //   showEditDialog(1, stateProvider, screenHeight, screenWidth);
-                              // }
-                            },
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    // DJ
-                    Row(
-                      children: [
-                        Container(
-                          width: screenWidth*0.7,
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                              // top: 3,
-                                left: 10
-                            ),
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: GestureDetector(
-                                child: Text(
-                                    formattedDjName,
-                                    style: customStyleClass.getFontStyle5BoldGrey()
+                                  ),
                                 ),
-                                onTap: (){
-                                },
                               ),
-                            ),
+
+                              // Price
+                              SizedBox(
+                                width: screenWidth*0.2,
+                                child: Padding(
+                                  padding: EdgeInsets.only(
+                                      top: screenHeight*0.01
+                                  ),
+                                  child: Align(
+                                    child: Text(
+                                        priceFormatted,
+                                        textAlign: TextAlign.center,
+                                        style: customStyleClass.getFontStyle3Bold()
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                            ],
                           ),
-                        )
-                      ],
-                    )
-                  ],
-                ),
-
-                // When
-                Padding(
-                  padding: EdgeInsets.only(
-                      left: screenWidth*0.02,
-                      bottom: screenHeight*0.01
-                  ),
-                  child: Align(
-                    alignment: Alignment.bottomLeft,
-                    child: GestureDetector(
-                      child: Text(
-                        formattedWeekday,
-                        style: customStyleClass.getFontStyle5Bold(),
+                        ],
                       ),
-                      onTap: (){
-                        // if(stateProvider.getIsEventEditable()){
-                        //   showEditDialog(6, stateProvider, screenHeight, screenWidth);
-                        // }
-                      },
-                    ),
-                  ),
-                ),
 
-                // Icons
-                SizedBox(
-                    width: screenWidth,
-                    height: screenHeight*0.21,
-                    child: _buildIconRow(stateProvider, context)
-                ),
-
-              ],
-            )
-        ),
-
-        // Description + event content icon
-        Container(
-            // height: screenHeight*0.4,
-            width: screenWidth,
-            child: Stack(
-              children: [
-
-                // Text Info
-                Container(
-                  padding: const EdgeInsets.only(
-                      top:15,
-                      bottom: 15,
-                      right:15,
-                      left:9
-                  ),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-
-                        // Description headline
-                        GestureDetector(
+                      // Location
+                      Container(
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                              left: screenWidth*0.02,
+                              top: 26
+                          ),
                           child: Align(
                             alignment: Alignment.topLeft,
                             child: Text(
-                              "Beschreibung",
-                              style: customStyleClass.getFontStyle3Bold(),
+                                currentAndLikedElementsProvider.currentClubMeEvent.getClubName(),
+                                style:customStyleClass.getFontStyle5()
                             ),
                           ),
-                          onTap: (){
-                          },
                         ),
+                      ),
 
-                        // Description content
-                        GestureDetector(
+                      // DJ
+                      Container(
+                        // width: screenWidth*0.6,
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                              left: screenWidth*0.02,
+                              top: 46
+                          ),
                           child: Align(
-                              alignment: Alignment.topLeft,
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(
-                                    vertical: screenHeight*0.02
+                            alignment: Alignment.topLeft,
+                            child: Text(
+                                formattedDjName,
+                                textAlign: TextAlign.left,
+                                style: customStyleClass.getFontStyle6Bold()
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      // When
+                      Container(
+                        height: screenHeight*0.14,
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                              left: screenWidth*0.02,
+                              bottom: screenHeight*0.01
+                          ),
+                          child: Align(
+                            alignment: Alignment.bottomLeft,
+                            child: Text(
+                              formattedWeekday,
+                              style: customStyleClass.getFontStyle5BoldPrimeColor(),
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      // Icons
+                      Container(
+                        height: screenHeight*0.14,
+                        alignment: Alignment.bottomRight,
+                        padding: EdgeInsets.only(
+                            bottom: screenHeight*0.01,
+                            right: screenWidth*0.02
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+
+                                // Info
+                                if(currentAndLikedElementsProvider.currentClubMeEvent.getTicketLink().isNotEmpty)
+                                  GestureDetector(
+                                    child: Column(
+                                      children: [
+                                        Icon(
+                                          CupertinoIcons.ticket,
+                                          color: customStyleClass.primeColor,
+                                        ),
+                                      ],
+                                    ),
+                                    onTap: () => clickOnInfo(),
+                                  ),
+                                SizedBox(
+                                  width: screenWidth*0.02,
+                                ),
+
+                                // Like
+                                GestureDetector(
+                                  child: Column(
+                                    children: [
+                                      Icon(
+                                        currentAndLikedElementsProvider.checkIfCurrentEventIsAlreadyLiked() ? Icons.star_outlined : Icons.star_border,
+                                        color: customStyleClass.primeColor,
+                                      ),
+                                    ],
+                                  ),
+                                  onTap: () => clickedOnLike(currentAndLikedElementsProvider.currentClubMeEvent.getEventId()
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: screenWidth*0.02,
+                                ),
+
+                                // Share
+                                GestureDetector(
+                                  child: Column(
+                                    children: [
+                                      Icon(
+                                        Icons.share,
+                                        color: customStyleClass.primeColor,
+                                      ),
+                                    ],
+                                  ),
+                                  onTap: () => clickedOnShare(),
+                                )
+                              ],
+                            )
+                          ],
+                        ),
+                      ),
+                    ],
+                  )
+              ),
+
+              // Description
+              Container(
+                  width: screenWidth,
+                  child: Stack(
+                    children: [
+
+                      // Text Info
+                      Container(
+                        color: customStyleClass.backgroundColorMain,
+                        padding: const EdgeInsets.only(
+                            top:15,
+                            bottom: 15,
+                            right:15,
+                            left:9
+                        ),
+                        child: SingleChildScrollView(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+
+                              // Description headline
+                              Container(
+                                alignment: Alignment.center,
+                                child: Text(
+                                  "Beschreibung",
+                                  style: customStyleClass.getFontStyle3Bold(),
+                                ),
+                              ),
+
+                              // Description content
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 10
                                 ),
                                 child: Text(
                                   currentAndLikedElementsProvider.currentClubMeEvent.getEventDescription(),
-                                  style: customStyleClass.getFontStyle4(),
+                                  style: customStyleClass.getFontStyle6(),
+                                ),
+                              ),
+
+                              // Headline genres
+                              Container(
+                                alignment: Alignment.center,
+                                child: Text(
+                                  "Musikrichtungen",
+                                  style: customStyleClass.getFontStyle3Bold(),
+                                ),
+                              ),
+
+                              // Genres
+                              Container(
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 10
+                                ),
+                                child: Text(
+                                  formattedEventGenres,
+                                  style: customStyleClass.getFontStyle6(),
+                                ),
+                              ),
+
+                              Divider(
+                                color: Color(0xff121111),
+                                indent: 0,
+                                endIndent: 0,
+                              ),
+
+                              Divider(
+                                color: Colors.grey[900],
+                              ),
+
+                              // Headline lounges
+                              Container(
+                                alignment: Alignment.center,
+                                padding: EdgeInsets.only(
+                                    bottom: 20
+                                ),
+                                child: Text(
+                                  "Lounges",
+                                  style: customStyleClass.getFontStyle3Bold(),
+                                ),
+                              ),
+
+
+
+                              // Lounges scrllview
+                              Container(
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: Row(
+                                    children: [
+                                      Stack(
+                                        children: [
+                                          SizedBox(
+                                            width: screenWidth*0.5,
+                                            height: screenHeight*0.17,
+                                            child: Image.asset("assets/images/lounge_blue.png"),
+                                          ),
+                                          SizedBox(
+                                            width: screenWidth*0.5,
+                                            height: screenHeight*0.15,
+                                            child: Center(
+                                              child: Text(
+                                                "Bald verfügbar in der App!",
+                                                style: customStyleClass.getFontStyle5BoldPrimeColor(),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        width: screenWidth*0.05,
+                                      ),
+                                      Stack(
+                                        children: [
+                                          SizedBox(
+                                            width: screenWidth*0.5,
+                                            height: screenHeight*0.17,
+                                            child: Image.asset("assets/images/lounge_grey2.png"),
+                                          ),
+                                          SizedBox(
+                                            width: screenWidth*0.5,
+                                            height: screenHeight*0.15,
+                                            child: Center(
+                                              child: Text(
+                                                "Bald verfügbar in der App!",
+                                                style: customStyleClass.getFontStyle5Bold(),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        width: screenWidth*0.05,
+                                      ),
+                                      Stack(
+                                        children: [
+                                          SizedBox(
+                                            width: screenWidth*0.5,
+                                            height: screenHeight*0.17,
+                                            child: Image.asset("assets/images/lounge_grey2.png"),
+                                          ),
+                                          SizedBox(
+                                            width: screenWidth*0.5,
+                                            height: screenHeight*0.15,
+                                            child: Center(
+                                              child: Text(
+                                                "Bald verfügbar in der App!",
+                                                style: customStyleClass.getFontStyle5Bold(),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               )
-                          ),
-                          onTap: (){
-                          },
-                        ),
 
-                        // Headline genres
-                        GestureDetector(
-                          child: Align(
-                            alignment: Alignment.topLeft,
-                            child: Text(
-                              "Musikrichtungen",
-                              style: customStyleClass.getFontStyle3Bold(),
-                            ),
-                          ),
-                          onTap: (){
-                          },
-                        ),
 
-                        // Genres
-                        GestureDetector(
-                          child: Align(
-                            alignment: Alignment.topLeft,
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: screenHeight*0.02
-                              ),
-                              child: Text(
-                                formattedEventGenres,
-                                style: customStyleClass.getFontStyle4(),
-                              ),
-                            ),
-                          ),
-                          onTap: (){
-                          },
-                        )
-
-                      ],
-                    ),
-                  ),
-                ),
-
-                // Switch Icon
-                currentAndLikedElementsProvider.currentClubMeEvent.getEventMarketingFileName().isNotEmpty ?
-                    GestureDetector(
-                      child: Container(
-                        // color: Colors.grey,
-                        height: screenHeight*0.36, //
-                        width: screenWidth,
-                        alignment: Alignment.bottomRight,
-                        child: ClipRRect(
-                          borderRadius: const BorderRadius.only(
-                              topRight: Radius.circular(15),
-                              topLeft: Radius.circular(15)
-                          ),
-                          child: Image.asset(
-                            "assets/images/club_me_icon_round.png",
-                            scale: 15,
-                            // fit: BoxFit.cover,
+                            ],
                           ),
                         ),
                       ),
-                      onTap: () => clickedOnContent(),
-                    )
-                    : Container(),
 
-              ],
+                    ],
+                  )
+              ),
+
+            ],
+          ),
+
+          // Switch Icon
+          if(currentAndLikedElementsProvider.currentClubMeEvent.getEventMarketingFileName().isNotEmpty)
+            GestureDetector(
+              child: Container(
+                padding: EdgeInsets.only(
+                  top: screenHeight*0.13,
+                ),
+                // color: Colors.grey,
+                // height: screenHeight*0.15,
+                width: screenWidth,
+                alignment: Alignment.topRight,
+                child: ClipRRect(
+                  // borderRadius: const BorderRadius.only(
+                  //     topRight: Radius.circular(15),
+                  //     topLeft: Radius.circular(15)
+                  // ),
+                  child: Image.asset(
+                    "assets/images/club_me_icon_round.png",
+                    scale: 15,
+                    // fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+              onTap: () => clickedOnContent(),
             )
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -876,7 +1023,7 @@ class _EventDetailViewState extends State<EventDetailView>{
 
 
       appBar: _buildAppBar() ,
-      body: isContentShown? _buildContentView(): _buildMainColumn(),
+      body: isContentShown ? _buildContentView() : _buildMainColumn(),
       bottomNavigationBar: isContentShown ? Container() :
         stateProvider.clubUIActive ?
         CustomBottomNavigationBarClubs() :

@@ -87,7 +87,7 @@ class _ClubPastEventsViewState extends State<ClubPastEventsView> {
                 children: [
                   Text(headLine,
                       textAlign: TextAlign.center,
-                      style: customStyleClass.getFontStyle1()
+                      style: customStyleClass.getFontStyleHeadline1Bold()
                   ),
                 ],
               )
@@ -265,9 +265,9 @@ class _ClubPastEventsViewState extends State<ClubPastEventsView> {
 
         bottomNavigationBar: CustomBottomNavigationBarClubs(),
         appBar: AppBar(
-            surfaceTintColor: Colors.black,
+            surfaceTintColor: customStyleClass.backgroundColorMain,
             automaticallyImplyLeading: false,
-            backgroundColor: Colors.transparent,
+            backgroundColor: customStyleClass.backgroundColorMain,
             title: _buildAppBarShowTitle()
         ),
         body: Container(

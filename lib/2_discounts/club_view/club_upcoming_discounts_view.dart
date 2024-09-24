@@ -1,3 +1,4 @@
+import 'package:club_me/2_discounts/club_view/components/coupon_card_club.dart';
 import 'package:club_me/provider/state_provider.dart';
 import 'package:club_me/shared/custom_bottom_navigation_bar_clubs.dart';
 import 'package:flutter/material.dart';
@@ -21,9 +22,10 @@ class ClubUpcomingDiscountsView extends StatefulWidget {
   State<ClubUpcomingDiscountsView> createState() => _ClubUpcomingDiscountsViewState();
 }
 
-class _ClubUpcomingDiscountsViewState extends State<ClubUpcomingDiscountsView> {
+class _ClubUpcomingDiscountsViewState extends State<ClubUpcomingDiscountsView>
+    with TickerProviderStateMixin{
 
-  String headline = "Kommende Coupons";
+  String headline = "Aktuelle Coupons";
 
   late StateProvider stateProvider;
   late CustomStyleClass customStyleClass;
@@ -34,6 +36,53 @@ class _ClubUpcomingDiscountsViewState extends State<ClubUpcomingDiscountsView> {
   List<ClubMeDiscount> upcomingDbDiscounts = [];
   List<ClubMeDiscount> discountsToDisplay = [];
 
+  bool isSearchbarActive = false;
+  String searchValue = "";
+  int _currentPageIndex = 0;
+  late TabController _tabController;
+  late PageController _pageViewController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageViewController = PageController();
+    _tabController = TabController(length: 3, vsync: this);
+
+
+    filterFetchedDiscounts();
+
+  }
+
+
+  void filterFetchedDiscounts(){
+
+    final stateProvider = Provider.of<StateProvider>(context, listen: false);
+    final fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
+
+    for(var discount in fetchedContentProvider.getFetchedDiscounts()){
+
+      // local var to shorten the expressions
+      DateTime discountTimestamp = discount.getDiscountDate();
+
+      // Sort the discounts into the correct arrays
+      if(discountTimestamp.isAfter(stateProvider.getBerlinTime()) || discountTimestamp.isAtSameMomentAs(stateProvider.getBerlinTime())){
+
+          discountsToDisplay.add(discount);
+      }
+    }
+  }
+
+  bool checkIfIsLiked(ClubMeDiscount discount){
+    return false;
+  }
+  void clickedOnShare(){
+
+  }
+  void clickedOnLike(String input){
+
+  }
+
+
   // CLICKED
   void clickedOnTile(){
     // TODO: Implement click event
@@ -41,7 +90,8 @@ class _ClubUpcomingDiscountsViewState extends State<ClubUpcomingDiscountsView> {
 
   // BUILD
   Widget _buildAppBarShowTitle(){
-    return SizedBox(
+    return Container(
+      color: customStyleClass.backgroundColorMain,
       width: screenWidth,
       child: Stack(
         children: [
@@ -55,7 +105,7 @@ class _ClubUpcomingDiscountsViewState extends State<ClubUpcomingDiscountsView> {
                 children: [
                   Text(headline,
                       textAlign: TextAlign.center,
-                      style: customStyleClass.getFontStyle1()
+                      style: customStyleClass.getFontStyleHeadline1Bold()
                   ),
                 ],
               )
@@ -69,7 +119,7 @@ class _ClubUpcomingDiscountsViewState extends State<ClubUpcomingDiscountsView> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   IconButton(
-                    onPressed: () => context.go("/club_discounts"),
+                    onPressed: () => Navigator.pop(context),
                     icon: const Icon(
                       Icons.arrow_back_ios_new_outlined,
                       color: Colors.grey,
@@ -122,6 +172,67 @@ class _ClubUpcomingDiscountsViewState extends State<ClubUpcomingDiscountsView> {
     );
   }
 
+  Widget _buildSwipeView(){
+
+    // If the provider has fetched elements so that the main function in _buildSupabaseDiscounts
+    // is not called, we still need to add the ids to the array to display the banners.
+    for(var discount in discountsToDisplay){
+      if(!fetchedContentProvider.getFetchedBannerImageIds().contains(discount.getBannerId())){
+        fetchedContentProvider.addFetchedBannerImageId(discount.getBannerId());
+      }
+    }
+
+    return GestureDetector(
+      child: Container(
+          color: Colors.transparent,
+          child: SingleChildScrollView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              child: Column(
+                children: [
+                  SizedBox(
+                      height: screenHeight*0.62,
+                      child: PageView(
+                        controller: _pageViewController,
+                        onPageChanged: _handlePageViewChanged,
+                        children: <Widget>[
+
+                          for(var discount in discountsToDisplay)
+                            Center(
+                                child: CouponCardClub(
+                                  clubMeDiscount: discount,
+                                  isLiked: checkIfIsLiked(discount),
+                                  clickedOnShare: clickedOnShare,
+                                  clickedOnLike: clickedOnLike,
+                                  isEditable: true,
+                                )
+                            ),
+                        ],
+                      )
+                  ),
+                ],
+              )
+          )
+      ),
+      onTap: (){
+        setState(() {
+          isSearchbarActive = false;
+        });
+      },
+      onVerticalDragStart: (DragStartDetails){
+        setState(() {
+          isSearchbarActive = false;
+        });
+      },
+    );
+  }
+
+  void _handlePageViewChanged(int currentPageIndex) {
+    _tabController.index = currentPageIndex;
+    setState(() {
+      _currentPageIndex = currentPageIndex;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -137,39 +248,42 @@ class _ClubUpcomingDiscountsViewState extends State<ClubUpcomingDiscountsView> {
       extendBody: true,
 
       appBar: AppBar(
-          surfaceTintColor: Colors.black,
+          surfaceTintColor: customStyleClass.backgroundColorMain,
           automaticallyImplyLeading: false,
-          backgroundColor: Colors.transparent,
+          backgroundColor: customStyleClass.backgroundColorMain,
           title: _buildAppBarShowTitle()
       ),
       body: Container(
+          color: customStyleClass.backgroundColorMain,
             width: screenWidth,
             height: screenHeight,
-            // decoration: const BoxDecoration(
-            //   gradient: LinearGradient(
-            //       begin: Alignment.topLeft,
-            //       end: Alignment.bottomRight,
-            //       colors: [
-            //         Color(0xff2b353d),
-            //         Color(0xff11181f)
-            //       ],
-            //       stops: [0.15, 0.6]
-            //   ),
-            // ),
             child: Stack(
               children: [
-                SingleChildScrollView(
-                    physics: const ScrollPhysics(),
-                    child: Column(
+
+                _buildSwipeView(),
+
+                // Progress marker
+                if(discountsToDisplay.isNotEmpty)
+                  Container(
+                    height: screenHeight*0.7,
+                    alignment: Alignment.bottomCenter,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-
-                        _buildMainView(stateProvider, screenHeight),
-
-                        // Spacer
-                        SizedBox(height: screenHeight*0.1),
+                        Icon(
+                          Icons.keyboard_arrow_left_sharp,
+                          size: 50,
+                          color: _currentPageIndex > 0 ? customStyleClass.primeColor: Colors.grey,
+                        ),
+                        Icon(
+                          Icons.keyboard_arrow_right_sharp,
+                          size: 50,
+                          color: _currentPageIndex < (discountsToDisplay.length-1) ? customStyleClass.primeColor: Colors.grey,
+                        ),
                       ],
-                    )
-                ),
+                    ),
+                  ),
+
               ],
             )
         ),

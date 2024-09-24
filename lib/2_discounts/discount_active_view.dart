@@ -103,17 +103,46 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
   AppBar _buildAppBar(){
     return AppBar(
       automaticallyImplyLeading: false,
-      backgroundColor: Colors.transparent,
+      backgroundColor: customStyleClass.backgroundColorMain,
+      surfaceTintColor: customStyleClass.backgroundColorMain,
       title: Stack(
         children: [
-          SizedBox(
-            width: screenWidth,
-            child: Text(
-              textAlign: TextAlign.center,
-              currentAndLikedElementsProvider.currentClubMeDiscount.getDiscountTitle(),
-              style: customStyleClass.getFontStyle2(),
-            ),
+
+          // Headline
+          Container(
+              alignment: Alignment.bottomCenter,
+              height: 50,
+              width: screenWidth,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                              currentAndLikedElementsProvider.currentClubMeDiscount.getDiscountTitle(),
+                              textAlign: TextAlign.center,
+                              style: customStyleClass.getFontStyleHeadline1Bold()
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                                bottom: 15
+                            ),
+                            child: Text(
+                              "VIP",
+                              style: customStyleClass.getFontStyleVIPGold(),
+                            ),
+                          )
+                        ],
+                      ),
+                    ],
+                  )
+                ],
+              )
           ),
+
           SizedBox(
             width: screenWidth,
             child: Text(
@@ -126,108 +155,83 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
       )
     );
   }
-  Widget _buildContainer(double radius) {
-    return Container(
-      width: radius,
-      height: radius,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: customStyleClass.primeColor.withOpacity(1 - _controller.value),
-      ),
-    );
-  }
+
   Widget _buildBody(double screenWidth, double screenHeight) {
 
     customStyleClass = CustomStyleClass(context: context);
 
-    var currentProgress = null;
+    return Container(
+      width: screenWidth,
+      height: screenHeight,
+      color: customStyleClass.backgroundColorMain,
+      child: Stack(
+        alignment: Alignment.center,
+        children: <Widget>[
 
-    return Stack(
-      alignment: Alignment.center,
-      children: <Widget>[
+          // CircleAvatar
+          Container(
+            color: customStyleClass.backgroundColorMain,
+            height: screenHeight,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
 
-        // CircleAvatar
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+                // COUNTER
+                SizedBox(
+                  child: Text(
+                    _start.toString(),
+                    style: customStyleClass.getFontStyleHeadline1Bold(),
+                  ),
+                ),
 
-            SizedBox(
-              child: Text(
-                _start.toString(),
-                style: customStyleClass.getFontStyleHeadline1Bold(),
-              ),
-            ),
-
-            SizedBox(
-              width: screenWidth,
-              child: SizedBox(
-                child: Center(
-                  child: AnimatedGradientBorder(
-                      borderSize: 2,
-                      glowSize: 10,
-                      gradientColors: [
-                        Colors.transparent,
-                        Colors.transparent,
-                        Colors.transparent,
-                        customStyleClass.primeColor
-                      ],
-                      animationProgress: currentProgress,
-                      borderRadius: const BorderRadius.all(Radius.circular(210)),
-                      child: SizedBox(
-                        // width: 300,
-                        // height: 300,
-                        child:
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(210),
-                            child: Image(
-                              width: 200,
-                              height: 200,
-                              image: FileImage(
-                                  File(
-                                      "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeDiscount.getBannerId()}"
-                                  )
-                              ),
-                              fit: BoxFit.cover,
+                // LOGO
+                SizedBox(
+                    width: screenWidth,
+                    child: SizedBox(
+                      child: Center(
+                          child: AnimatedGradientBorder(
+                            borderSize: 2,
+                            glowSize: 10,
+                            gradientColors: [
+                              Colors.transparent,
+                              Colors.transparent,
+                              Colors.transparent,
+                              customStyleClass.primeColor
+                            ],
+                            borderRadius: const BorderRadius.all(Radius.circular(210)),
+                            child: SizedBox(
+                              // width: 300,
+                              // height: 300,
+                                child:
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(210),
+                                  child: Image(
+                                    width: 200,
+                                    height: 200,
+                                    image: FileImage(
+                                        File(
+                                            "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeDiscount.getBannerId()}"
+                                        )
+                                    ),
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
                             ),
                           )
-
-                        // Container(
-                        //   decoration: const BoxDecoration(
-                        //       borderRadius: BorderRadius.all(Radius.circular(999)),
-                        //       color: Colors.black),
-                        //   child: Column(
-                        //     mainAxisAlignment: MainAxisAlignment.center,
-                        //     children: [
-                        //       Container(
-                        //         decoration: const BoxDecoration(
-                        //             borderRadius: BorderRadius.all(Radius.circular(30)),
-                        //             color: Colors.black),
-                        //         width: 300,
-                        //         height: 300,
-                        //         child: CircleAvatar(
-                        //           radius: 30,
-                        //           backgroundColor: Colors.transparent,
-                        //           child: Image(
-                        //             image: FileImage(
-                        //                 File(
-                        //                     "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeDiscount.getBannerId()}"
-                        //                 )
-                        //             ),
-                        //             fit: BoxFit.cover,
-                        //           ),
-                        //         ),
-                        //       )
-                        //     ],
-                        //   ),
-                        // ),
                       ),
                     )
-              ),
-            )
-            )
-          ],
-        ),
-      ],
+                ),
+
+                // CLUB NAME
+                Text(
+                  currentAndLikedElementsProvider.currentClubMeDiscount.getClubName(),
+                  style: customStyleClass.getFontStyle3Bold(),
+                )
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 

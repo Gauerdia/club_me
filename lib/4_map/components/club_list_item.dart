@@ -428,58 +428,101 @@ class ClubListItem extends StatelessWidget {
 
 
   Widget _buildStackView2(BuildContext context){
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
+    return Column(
 
-        // Left box for logo
-        SizedBox(
-          width: screenWidth*0.17,
-          height: screenHeight*0.07,
-          child: Container(
-            padding: const EdgeInsets.only(
-            ),
-            child: Align(
-                alignment: Alignment.center,
-                child: GestureDetector(
-                    child: Container(
-                      width: screenWidth*0.155,
-                      height: screenHeight*0.1,
-                      decoration: BoxDecoration(
-                          border: Border(
-                              left: BorderSide(
-                                  color: currentClub.getStoryId().isNotEmpty ?
-                                  customStyleClass.primeColor: Colors.grey,
-                                width: 2
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+
+            // Left box for logo
+            SizedBox(
+              width: screenWidth*0.17,
+              height: screenHeight*0.07,
+              child: Container(
+                padding: const EdgeInsets.only(
+                ),
+                child: Align(
+                    alignment: Alignment.center,
+                    child: GestureDetector(
+                        child: Container(
+                          width: screenWidth*0.155,
+                          height: screenHeight*0.1,
+                          decoration: BoxDecoration(
+                              border: Border(
+                                  left: BorderSide(
+                                      color: currentClub.getStoryId().isNotEmpty ?
+                                      customStyleClass.primeColor: Colors.grey,
+                                      width: 2
+                                  ),
+                                  right: BorderSide(
+                                      color: currentClub.getStoryId().isNotEmpty ?
+                                      customStyleClass.primeColor: Colors.grey,
+                                      width: 2
+                                  ),
+                                  top: BorderSide(
+                                      color: currentClub.getStoryId().isNotEmpty ?
+                                      customStyleClass.primeColor: Colors.grey,
+                                      width: 2
+                                  ),
+                                bottom: BorderSide(
+                                    color: currentClub.getStoryId().isNotEmpty ?
+                                    customStyleClass.primeColor: Colors.grey,
+                                    width: 2
+                                ),
                               ),
-                              right: BorderSide(
-                                  color: currentClub.getStoryId().isNotEmpty ?
-                                  customStyleClass.primeColor: Colors.grey,
-                                  width: 2
-                              ),
-                              top: BorderSide(
-                                  color: currentClub.getStoryId().isNotEmpty ?
-                                  customStyleClass.primeColor: Colors.grey,
-                                  width: 2
-                              )
+                              borderRadius: const BorderRadius.all(Radius.circular(45))
                           ),
-                          borderRadius: const BorderRadius.all(Radius.circular(45))
-                      ),
-                      child: CircleAvatar(
-                        // radius: 45,
-                        backgroundColor: Colors.black,
-                        child: currentClub.getStoryId().isNotEmpty?
-                        Stack(
-                          children: [
+                          child: CircleAvatar(
+                            // radius: 45,
+                            backgroundColor: Colors.black,
+                            child: currentClub.getStoryId().isNotEmpty?
+                            Stack(
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.white,
+                                    image: DecorationImage(
+                                      fit: BoxFit.cover,
+                                      opacity: 0.5,
+                                      image:
+                                      FileImage(
+                                          File(
+                                              "${stateProvider.appDocumentsDir.path}/${currentClub.getBannerId()}"
+                                          )
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Center(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                        color: Colors.black,
+                                        borderRadius: const BorderRadius.all(
+                                            Radius.circular(45)
+                                        ),
+                                        border: Border.all(
+                                            color: Colors.white
+                                        )
+                                    ),
+                                    child: Icon(
+                                      Icons.play_arrow,
+                                      size: customStyleClass.getIconSize1(),
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ):
                             Container(
+                              // width: screenWidth*0.4,
+                              // height: screenWidth*0.4,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: Colors.white,
                                 image: DecorationImage(
                                   fit: BoxFit.cover,
-                                  opacity: 0.5,
-                                  image:
-                                  FileImage(
+                                  image: FileImage(
                                       File(
                                           "${stateProvider.appDocumentsDir.path}/${currentClub.getBannerId()}"
                                       )
@@ -487,154 +530,112 @@ class ClubListItem extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Center(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                    color: Colors.black,
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(45)
-                                    ),
-                                    border: Border.all(
-                                        color: Colors.white
-                                    )
-                                ),
-                                child: Icon(
-                                  Icons.play_arrow,
-                                  size: customStyleClass.getIconSize1(),
-                                ),
-                              ),
-                            )
-                          ],
-                        ):
-                        Container(
-                          // width: screenWidth*0.4,
-                          // height: screenWidth*0.4,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white,
-                            image: DecorationImage(
-                              fit: BoxFit.cover,
-                              image: FileImage(
-                                  File(
-                                      "${stateProvider.appDocumentsDir.path}/${currentClub.getBannerId()}"
-                                  )
-                              ),
-                            ),
                           ),
                         ),
+                        onTap: (){
+                          if(currentClub.getStoryId().isNotEmpty){
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => ShowStoryChewie(storyUUID: currentClub.getStoryId(), clubName: currentClub.getClubName(),),
+                              ),
+                            );
+                          }
+                        }
+                    )
+                ),
+              ),
+            ),
+
+            InkWell(
+              child: SizedBox(
+                width: screenWidth*0.7,
+                height: screenHeight*0.07,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+
+                    // TITLE
+                    SizedBox(
+                      width: screenWidth*0.7,
+                      child: Text(
+                        currentClub.getClubName(),
+                        textAlign: TextAlign.left,
+                        style: customStyleClass.getFontStyle1(),
                       ),
                     ),
-                    onTap: (){
-                      if(currentClub.getStoryId().isNotEmpty){
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => ShowStoryChewie(storyUUID: currentClub.getStoryId(), clubName: currentClub.getClubName(),),
-                          ),
-                        );
-                      }
-                    }
-                )
-            ),
-          ),
-        ),
 
-        InkWell(
-          child: SizedBox(
-            width: screenWidth*0.7,
-            height: screenHeight*0.07,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
+                    // ICONS
+                    SizedBox(
+                      width: screenWidth*0.7,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
 
-                // TITLE
-                SizedBox(
-                  width: screenWidth*0.7,
-                  child: Text(
-                    currentClub.getClubName(),
-                    textAlign: TextAlign.left,
-                    style: customStyleClass.getFontStyle1(),
-                  ),
-                ),
 
-                // ICONS
-                SizedBox(
-                  width: screenWidth*0.7,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(right: 10),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.location_on_outlined,
-                              color: customStyleClass.primeColor,
-                              size: customStyleClass.getIconSize2(),
+                          // Distance
+                          Padding(
+                            padding: EdgeInsets.only(right: 10),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.location_on_outlined,
+                                  color: customStyleClass.primeColor,
+                                  size: customStyleClass.getIconSize2(),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 5
+                                  ),
+                                  child: Text(
+                                    calculateDistanceToClub().toStringAsFixed(2),
+                                    style: customStyleClass.getFontStyle5(),
+                                  ),
+                                )
+                              ],
                             ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 5
-                              ),
-                              child: Text(
-                                calculateDistanceToClub().toStringAsFixed(2),
-                                style: customStyleClass.getFontStyle5(),
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                      Padding(
-                          padding: EdgeInsets.only(right: 10),
-                          child: Row(
+                          ),
+
+                          // Genre
+                          Row(
                             children: [
                               Icon(
-                                Icons.group,
+                                Icons.library_music_outlined,
                                 color: customStyleClass.primeColor,
                                 size: customStyleClass.getIconSize2(),
                               ),
                               Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 5
+                                padding: const EdgeInsets.only(
+                                    left: 5
                                 ),
                                 child: Text(
-                                  getRandomNumber().toString(),
-                                  style: customStyleClass.getFontStyle5(),
+                                  getAndFormatMusicGenre(),
+                                  style:customStyleClass.getFontStyle5(),
                                 ),
                               )
                             ],
-                          )),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.library_music_outlined,
-                            color: customStyleClass.primeColor,
-                            size: customStyleClass.getIconSize2(),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.only(
-                                left: 5
-                            ),
-                            child: Text(
-                              getAndFormatMusicGenre(),
-                              style:customStyleClass.getFontStyle5(),
-                            ),
                           )
                         ],
-                      )
-                    ],
-                  ),
-                ),
+                      ),
+                    ),
 
-              ],
-            ),
-          ),
-          onTap: (){
-            currentAndLikedElementsProvider.setCurrentClub(currentClub);
-            stateProvider.setAccessedEventDetailFrom(3);
-            context.push("/club_details");
-          },
+                  ],
+                ),
+              ),
+              onTap: (){
+                currentAndLikedElementsProvider.setCurrentClub(currentClub);
+                stateProvider.setAccessedEventDetailFrom(3);
+                context.push("/club_details");
+              },
+            )
+          ],
+        ),
+
+        Divider(
+          color: Colors.grey[900],
         )
+
       ],
+
     );
   }
 
@@ -650,7 +651,7 @@ class ClubListItem extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.only(
-          bottom: screenHeight*0.03
+          // bottom: screenHeight*0.03
       ),
       child: _buildStackView2(context)
     );

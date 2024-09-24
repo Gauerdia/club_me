@@ -13,6 +13,7 @@ class EventCard extends StatelessWidget {
     Key? key,
     required this.clubMeEvent,
     required this.accessedEventDetailFrom,
+    required this.backgroundColorIndex,
     this.wentFromClubDetailToEventDetail = false
   }) : super(key: key);
 
@@ -23,6 +24,7 @@ class EventCard extends StatelessWidget {
   late CustomStyleClass customStyleClass;
   bool wentFromClubDetailToEventDetail;
   late String formattedEventTitle, formattedEventGenres, formattedWeekDay;
+  int backgroundColorIndex;
 
   String startingHoursFormatted = "";
   List<String> buttonString = ["Erfahre mehr!", "Check it out!"];
@@ -120,136 +122,122 @@ class EventCard extends StatelessWidget {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
-    return SizedBox(
-      height: 130,
-      child: Column(
-        children: [
+    return InkWell(
+      child: SizedBox(
+          height: 130,
+          child: Stack(
+            children: [
 
-          // Weekday
-          Container(
-            width: screenWidth,
-            padding: EdgeInsets.only(
-                left: screenWidth*0.05,
-                bottom: screenHeight*0.01
-            ),
-            child: Text(
-              formattedWeekDay,
-              textAlign: TextAlign.left,
-              style: customStyleClass.getFontStyle5BoldLightGrey(),
-            ),
-          ),
-
-          // Main card
-          Container(
-              width: screenWidth*0.9,
-              padding: const EdgeInsets.only(
-                bottom: 5
-              ),
-              // height: screenHeight*0.14,
-              decoration: BoxDecoration(
-                color: Colors.grey[800],
-                borderRadius: const BorderRadius.all(Radius.circular(10)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey[900]!,
-                    blurRadius: 4,
-                    offset: const Offset(2, 3),
-                  ),
-                ],
-              ),
-              child:Stack(
+              // Main content
+              Column(
                 children: [
 
-                  // Content column
-                  Column(
-                    children: [
-
-                      // Event Title container
-                      Padding(
-                        padding: EdgeInsets.only(
-                          left: screenWidth*0.03,
-                          top: screenHeight*0.01
-                        ),
-                        child: SizedBox(
-                          width: screenWidth*0.9,
-                          child: Align(
-                            alignment: Alignment.topLeft,
-                            child: Text(
-                              textAlign: TextAlign.start,
-                              formattedEventTitle,
-                              style: customStyleClass.getFontStyle3Bold(),
-                            ),
-                          ),
-                        ),
-                      ),
-
-
-                      // eventGenre
-                      SizedBox(
-                        width: screenWidth,
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                              left: screenWidth*0.03
-                          ),
-                          child: Text(
-                            formattedEventGenres,
-                            style: customStyleClass.getFontStyle4(),
-                          ),
-                        ),
-                      ),
-
-                      // eventWhen
-                      SizedBox(
-                        width: screenWidth,
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                              left: screenWidth*0.03
-                          ),
-                          child: Text(
-                            startingHoursFormatted,
-                            style: customStyleClass.getFontStyle5(),
-                          ),
-                        ),
-                      ),
-
-                    ],
+                  // Weekday
+                  Container(
+                    width: screenWidth,
+                    padding: EdgeInsets.only(
+                        left: screenWidth*0.05,
+                        bottom: screenHeight*0.01
+                    ),
+                    child: Text(
+                      formattedWeekDay,
+                      textAlign: TextAlign.left,
+                      style: customStyleClass.getFontStyle5BoldLightGrey(),
+                    ),
                   ),
 
-                  // Check it out button
-                  Padding(
-                    padding: const EdgeInsets.only(right: 7, bottom: 7),
-                    child: Container(
+                  // Main card
+                  Container(
+                      width: screenWidth*0.9,
                       height: 80,
-                      // width: screenWidth*0.92,
-                      alignment: Alignment.bottomRight,
-                      // color: Colors.red,
-                      child: GestureDetector(
-                        child: Container(
-                          decoration: const BoxDecoration(
-                              color: Color(0xff11181f),
-                              borderRadius: BorderRadius.all(
-                                  Radius.circular(10)
-                              )
-                          ),
-                          padding: const EdgeInsets.all(10),
-                          child: Text(
-                            buttonString[0],
-                            style: TextStyle(
-                              color: customStyleClass.primeColor,
-                              fontWeight: FontWeight.bold
-                            ),
-                          ),
-                        ),
-                        onTap: () => clickedOnButton(context),
+                      padding: const EdgeInsets.only(
+                          bottom: 5
                       ),
-                    )
-                  )
+                      decoration: BoxDecoration(
+                        color: backgroundColorIndex == 0 ? customStyleClass.backgroundColorMain : customStyleClass.backgroundColorEventTile,
+                        borderRadius: const BorderRadius.all(Radius.circular(10)),
+                      ),
+                      child:Stack(
+                        children: [
 
+                          // Content column
+                          Column(
+                            children: [
+
+                              // Event Title container
+                              Padding(
+                                padding: EdgeInsets.only(
+                                    left: screenWidth*0.03,
+                                    top: 6
+                                ),
+                                child: SizedBox(
+                                  width: screenWidth*0.9,
+                                  child: Align(
+                                    alignment: Alignment.topLeft,
+                                    child: Text(
+                                      textAlign: TextAlign.start,
+                                      formattedEventTitle,
+                                      style: customStyleClass.getFontStyle3Bold(),
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+
+                              // eventGenre
+                              SizedBox(
+                                width: screenWidth,
+                                child: Padding(
+                                  padding: EdgeInsets.only(
+                                      left: screenWidth*0.03,
+                                      top: 2
+                                  ),
+                                  child: Text(
+                                    formattedEventGenres,
+                                    style: customStyleClass.getFontStyle5(),
+                                  ),
+                                ),
+                              ),
+
+                              // eventWhen
+                              SizedBox(
+                                width: screenWidth,
+                                child: Padding(
+                                  padding: EdgeInsets.only(
+                                      left: screenWidth*0.03,
+                                      top: 6
+                                  ),
+                                  child: Text(
+                                    "$startingHoursFormatted Uhr" ,
+                                    style: customStyleClass.getFontStyle5BoldPrimeColor(),
+                                  ),
+                                ),
+                              ),
+
+                            ],
+                          ),
+
+                        ],
+                      )
+                  )
                 ],
+              ),
+
+              // Icon
+              Container(
+                alignment: Alignment.centerRight,
+                padding: const EdgeInsets.only(
+                  right: 30
+                ),
+                child: const Icon(
+                  Icons.arrow_forward,
+                  color: Colors.white,
+                ),
               )
+            ],
           )
-        ],
       ),
+      onTap: () => clickedOnButton(context),
     );
   }
 }

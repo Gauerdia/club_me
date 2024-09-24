@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -39,8 +40,8 @@ class EventTile extends StatelessWidget {
   String priceFormatted = "";
   String weekDayToDisplay = "";
 
-  double topHeight = 170;
-  double bottomHeight = 120;
+  double topHeight = 140;
+  double bottomHeight = 100;
 
   bool closedToday = true;
   bool alreadyOpen = false;
@@ -68,7 +69,7 @@ class EventTile extends StatelessWidget {
         context: context,
         builder: (BuildContext context){
           return AlertDialog(
-            backgroundColor: Colors.black,
+            backgroundColor: customStyleClass.backgroundColorEventTile,
             title: Text(
                 "Ticketbuchuchung",
               style: customStyleClass.getFontStyle1(),
@@ -141,82 +142,7 @@ class EventTile extends StatelessWidget {
     return Stack(
       children: [
 
-        // Colorful accent
-        Container(
-          width: screenWidth*0.91,
-          height:  topHeight+bottomHeight+6,
-          decoration: BoxDecoration(
-              gradient: LinearGradient(
-                  begin: Alignment.bottomLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.grey[900]!,
-                    customStyleClass.primeColorDark.withOpacity(0.4)
-                  ],
-                  stops: const [0.6, 0.9]
-              ),
-              borderRadius: BorderRadius.circular(15)
-          ),
-        ),
 
-        // Colorful accent
-        Container(
-          width: screenWidth*0.91,
-          height: topHeight+bottomHeight,
-          decoration: BoxDecoration(
-              gradient: LinearGradient(
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.grey[900]!,
-                    customStyleClass.primeColorDark.withOpacity(0.2)
-                  ],
-                  stops: const [0.6, 0.9]
-              ),
-              borderRadius: BorderRadius.circular(
-                  15
-              )
-          ),
-        ),
-
-        // light grey highlight
-        Container(
-          width: screenWidth*0.89,
-          height: topHeight+bottomHeight,
-          decoration: BoxDecoration(
-              gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Colors.grey[600]!, Colors.grey[900]!],
-                  stops: const [0.1, 0.9]
-              ),
-              borderRadius: BorderRadius.circular(
-                  15
-              )
-          ),
-        ),
-
-        // light grey highlight
-        Padding(
-            padding: const EdgeInsets.only(
-                left:2
-            ),
-            child: Container(
-              width: screenWidth*0.9,
-              height: topHeight+bottomHeight,
-              decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.topRight,
-                      colors: [Colors.grey[600]!, Colors.grey[900]!],
-                      stops: const [0.1, 0.9]
-                  ),
-                  borderRadius: BorderRadius.circular(
-                      15
-                  )
-              ),
-            )
-        ),
 
         // main Div
         Padding(
@@ -228,15 +154,7 @@ class EventTile extends StatelessWidget {
             width: screenWidth*0.9,
             height: topHeight+bottomHeight,
             decoration: BoxDecoration(
-                gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Colors.grey[800]!.withOpacity(0.7),
-                      Colors.grey[900]!
-                    ],
-                    stops: const [0.1,0.9]
-                ),
+                color: customStyleClass.backgroundColorEventTile,
                 borderRadius: BorderRadius.circular(
                     15
                 )
@@ -250,20 +168,29 @@ class EventTile extends StatelessWidget {
   }
   Widget _buildStackViewContent(BuildContext context){
 
-
     return Column(
       children: [
 
         // Image container
-        SizedBox(
+        Container(
             height: topHeight,
+            decoration: BoxDecoration(
+              color: customStyleClass.backgroundColorEventTile,
+              border: Border.all(
+                color: customStyleClass.backgroundColorEventTile
+              ),
+              borderRadius: const BorderRadius.only(
+                  topRight: Radius.circular(15),
+                  topLeft: Radius.circular(15)
+              ),
+            ),
             child: Stack(
               children: [
 
                 // Image or loading indicator
                 fetchedContentProvider.getFetchedBannerImageIds().contains(clubMeEvent.getBannerId())?
                 SizedBox(
-                  height: topHeight, //screenHeight*0.15,
+                  height: topHeight,
                   width: screenWidth,
                   child: ClipRRect(
                       borderRadius: const BorderRadius.only(
@@ -295,7 +222,7 @@ class EventTile extends StatelessWidget {
 
                 // Display logo, when content is available
                 clubMeEvent.getEventMarketingFileName().isNotEmpty ? Container(
-                  height: topHeight, //screenHeight*0.15,
+                  height: topHeight,
                   width: screenWidth,
                   alignment: Alignment.topRight,
                   child: ClipRRect(
@@ -311,187 +238,148 @@ class EventTile extends StatelessWidget {
                   ),
                 ): Container(),
 
-                // We decided not to show open or not open
-
-                // Container(
-                //   width: screenWidth*0.95,
-                //   // color: Colors.red,
-                //   padding: const EdgeInsets.only(
-                //       top: 10,
-                //       left: 10
-                //   ),
-                //   alignment: Alignment.topLeft,
-                //   child: Text(
-                //     closedToday ?
-                //       "Geschlossen" :
-                //         alreadyOpen ?
-                //           lessThanThreeMoreHoursOpen ?
-                //             "Geöffnet, schließt um $todaysClosingHour" :
-                //           "Geöffnet" :
-                //         "Öffnet um: $todaysOpeningHour Uhr",
-                //     style: TextStyle(
-                //         color: closedToday ? Colors.red : alreadyOpen ? Colors.green : Colors.yellow
-                //     ),
-                //   ),
-                // )
-
               ],
             )
         ),
 
         // Content container
-        SizedBox(
-          height: bottomHeight,
-          child: Container(
-              height: bottomHeight,
-              width: screenWidth,
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.only(
-                    bottomRight: Radius.circular(12),
-                    bottomLeft: Radius.circular(12)
-                ),
-                gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Colors.grey[700]!,
-                      Colors.grey[850]!
-                    ],
-                    stops: const [0.3, 0.8]
-                ),
+        Container(
+            height: bottomHeight,
+            width: screenWidth,
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.only(
+                  bottomRight: Radius.circular(12),
+                  bottomLeft: Radius.circular(12)
               ),
-              child: Stack(
-                children: [
+              color: customStyleClass.backgroundColorEventTile
+            ),
+            child: Stack(
+              children: [
 
-                  Column(
-                    children: [
+                Column(
+                  children: [
 
-                      // Title + Price
-                      Row(
-                        children: [
-
-                          // Title
-                          Padding(
-                            padding: EdgeInsets.only(
-                              top: screenHeight*0.01,
-                            ),
-                            child: SizedBox(
-                              width: screenWidth*0.7,
-                              child: Padding(
-                                padding: EdgeInsets.only(
-                                    left: screenWidth*0.02
-                                ),
-                                child: Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    eventTitleCut,
-                                    style: customStyleClass.getFontStyle1Bold(),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-
-                          // Price
-                          SizedBox(
-                            width: screenWidth*0.2,
-                            child: Padding(
-                              padding: EdgeInsets.only(
-                                  top: screenHeight*0.01
-                              ),
-                              child: Align(
-                                child: Text(
-                                    priceFormatted,
-                                    textAlign: TextAlign.center,
-                                    style: customStyleClass.getFontStyle2BoldLightGrey()
-                                ),
-                              ),
-                            ),
-                          ),
-
-                        ],
-                      ),
-
-                      // Location
-                      Container(
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                              left: screenWidth*0.02
-                          ),
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                                clubMeEvent.getClubName(),
-                                style:customStyleClass.getFontStyle3Bold()
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      // DJ
-                      Row(
-                        children: [
-                          Container(
-                            width: screenWidth*0.6,
-                            child: Padding(
-                              padding: EdgeInsets.only(
-                                  left: screenWidth*0.02
-                              ),
-                              child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                    eventDjCut,
-                                    textAlign: TextAlign.left,
-                                    style: customStyleClass.getFontStyle4Grey2()
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            width: screenWidth*0.3,
-                          )
-                        ],
-                      )
-
-                    ],
-                  ),
-
-                  // When
-                  Container(
-                    height: bottomHeight,
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                          left: screenWidth*0.02,
-                          bottom: screenHeight*0.01
-                      ),
-                      child: Align(
-                        alignment: Alignment.bottomLeft,
-                        child: Text(
-                          weekDayToDisplay,
-                          style: customStyleClass.getFontStyle5BoldGrey(),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  // Icons
-                  Container(
-                    height: bottomHeight,
-                    alignment: Alignment.bottomRight,
-                    padding: EdgeInsets.only(
-                        bottom: screenHeight*0.01,
-                        right: screenWidth*0.02
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
+                    // Title + Price
+                    Row(
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
 
-                            // Info
-                            if(clubMeEvent.getTicketLink().isNotEmpty)
-                              GestureDetector(
+                        // Title
+                        SizedBox(
+                          width: screenWidth*0.7,
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                                left: screenWidth*0.02
+                            ),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                eventTitleCut,
+                                style: customStyleClass.getFontStyle3Bold(),
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        // Price
+                        SizedBox(
+                          width: screenWidth*0.2,
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                                top: screenHeight*0.01
+                            ),
+                            child: Align(
+                              child: Text(
+                                  priceFormatted,
+                                  textAlign: TextAlign.center,
+                                  style: customStyleClass.getFontStyle3Bold()
+                              ),
+                            ),
+                          ),
+                        ),
+
+                      ],
+                    ),
+                  ],
+                ),
+
+                // Location
+                Container(
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                        left: screenWidth*0.02,
+                        top: 26
+                    ),
+                    child: Align(
+                      alignment: Alignment.topLeft,
+                      child: Text(
+                          clubMeEvent.getClubName(),
+                          style:customStyleClass.getFontStyle5()
+                      ),
+                    ),
+                  ),
+                ),
+
+                // DJ
+                Row(
+                  children: [
+                    Container(
+                      width: screenWidth*0.6,
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                            left: screenWidth*0.02
+                        ),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                              eventDjCut,
+                              textAlign: TextAlign.left,
+                              style: customStyleClass.getFontStyle6Bold()
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: screenWidth*0.3,
+                    )
+                  ],
+                ),
+
+                // When
+                Container(
+                  height: bottomHeight,
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                        left: screenWidth*0.02,
+                        bottom: screenHeight*0.01
+                    ),
+                    child: Align(
+                      alignment: Alignment.bottomLeft,
+                      child: Text(
+                        weekDayToDisplay,
+                        style: customStyleClass.getFontStyle5BoldPrimeColor(),
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Icons
+                Container(
+                  height: bottomHeight,
+                  alignment: Alignment.bottomRight,
+                  padding: EdgeInsets.only(
+                      bottom: screenHeight*0.01,
+                      right: screenWidth*0.02
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+
+                          // Info
+                          if(clubMeEvent.getTicketLink().isNotEmpty)
+                            GestureDetector(
                               child: Column(
                                 children: [
                                   Icon(
@@ -502,47 +390,46 @@ class EventTile extends StatelessWidget {
                               ),
                               onTap: () => clickOnInfo(context),
                             ),
-                            SizedBox(
-                              width: screenWidth*0.02,
-                            ),
+                          SizedBox(
+                            width: screenWidth*0.02,
+                          ),
 
-                            // Like
-                            GestureDetector(
-                              child: Column(
-                                children: [
-                                  Icon(
-                                    isLiked ? Icons.star_outlined : Icons.star_border,
-                                    color: customStyleClass.primeColor,
-                                  ),
-                                ],
-                              ),
-                              onTap: () => clickedOnLike(stateProvider, clubMeEvent.getEventId()),
+                          // Like
+                          GestureDetector(
+                            child: Column(
+                              children: [
+                                Icon(
+                                  isLiked ? Icons.star_outlined : Icons.star_border,
+                                  color: customStyleClass.primeColor,
+                                ),
+                              ],
                             ),
-                            SizedBox(
-                              width: screenWidth*0.02,
-                            ),
+                            onTap: () => clickedOnLike(stateProvider, clubMeEvent.getEventId()),
+                          ),
+                          SizedBox(
+                            width: screenWidth*0.02,
+                          ),
 
-                            // Share
-                            GestureDetector(
-                              child: Column(
-                                children: [
-                                  Icon(
-                                    Icons.share,
-                                    color: customStyleClass.primeColor,
-                                  ),
-                                ],
-                              ),
-                              onTap: () => clickedOnShare(),
-                            )
-                          ],
-                        )
-                      ],
-                    ),
+                          // Share
+                          GestureDetector(
+                            child: Column(
+                              children: [
+                                Icon(
+                                  Icons.share,
+                                  color: customStyleClass.primeColor,
+                                ),
+                              ],
+                            ),
+                            onTap: () => clickedOnShare(),
+                          )
+                        ],
+                      )
+                    ],
                   ),
-                ],
-              )
-          ),
-        )
+                ),
+              ],
+            )
+        ),
 
       ],
     );
@@ -560,8 +447,6 @@ class EventTile extends StatelessWidget {
   }
 
   void checkIfClosed(){
-    // final berlin = tz.getLocation('Europe/Berlin');
-    // final todayTimestamp = tz.TZDateTime.from(DateTime.now(), berlin);
 
     for(var element in clubMeEvent.getOpeningTimes().days!){
 

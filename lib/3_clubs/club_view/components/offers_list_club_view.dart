@@ -342,12 +342,13 @@ class _OffersListClubViewState extends State<OffersListClubView> {
 
 
       appBar: AppBar(
-          surfaceTintColor: Colors.black,
+          surfaceTintColor: customStyleClass.backgroundColorMain,
           automaticallyImplyLeading: false,
-          backgroundColor: Colors.transparent,
+          backgroundColor: customStyleClass.backgroundColorMain,
           title: _buildAppBarShowTitle()
       ),
-      body: SizedBox(
+      body: Container(
+        color: customStyleClass.backgroundColorMain,
           width: screenWidth,
           height: screenHeight,
           child: Stack(
@@ -397,7 +398,7 @@ class _OffersListClubViewState extends State<OffersListClubView> {
         width: screenWidth,
         height: screenHeight*0.07,
         decoration: BoxDecoration(
-          color: Colors.black,
+          color: customStyleClass.backgroundColorMain,
           border: Border(
             top: BorderSide(
               color: Colors.grey[500]!
@@ -405,7 +406,6 @@ class _OffersListClubViewState extends State<OffersListClubView> {
           )
         ),
 
-        // color: Colors.green,
         alignment: Alignment.bottomRight,
         padding: const EdgeInsets.only(
           right: 10,

@@ -41,7 +41,8 @@ class _UpdateContactViewState extends State<UpdateContactView> {
   // BUILD
   AppBar _buildAppBar(){
     return AppBar(
-      backgroundColor: Colors.transparent,
+      backgroundColor: customStyleClass.backgroundColorMain,
+      surfaceTintColor: customStyleClass.backgroundColorMain,
       title: SizedBox(
         width: screenWidth,
         child: Stack(
@@ -266,17 +267,21 @@ class _UpdateContactViewState extends State<UpdateContactView> {
                     vertical: screenHeight*0.015,
                     horizontal: screenWidth*0.03
                 ),
-                decoration: BoxDecoration(
-                    color: Colors.black54,
-                    border: Border.all(
-                        color: customStyleClass.primeColor
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+
+                    Text(
+                      "Kontakt anpassen",
+                      textAlign: TextAlign.center,
+                      style: customStyleClass.getFontStyle4BoldPrimeColor(),
                     ),
-                    borderRadius: BorderRadius.all(Radius.circular(10))
-                ),
-                child: Text(
-                  "Kontakt anpassen!",
-                  textAlign: TextAlign.center,
-                  style: customStyleClass.getFontStyle4BoldPrimeColor(),
+                    Icon(
+                      Icons.arrow_forward_outlined,
+                      color: customStyleClass.primeColor,
+                    )
+
+                  ],
                 ),
               ),
               onTap: () => clickOnUpdateButton(
@@ -390,19 +395,9 @@ class _UpdateContactViewState extends State<UpdateContactView> {
         bottomNavigationBar: CustomBottomNavigationBarClubs(),
         appBar: _buildAppBar(),
         body: Container(
+          color: customStyleClass.backgroundColorMain,
           width: screenWidth,
           height: screenHeight,
-          // decoration: const BoxDecoration(
-          //   gradient: LinearGradient(
-          //       begin: Alignment.topLeft,
-          //       end: Alignment.bottomRight,
-          //       colors: [
-          //         Color(0xff2b353d),
-          //         Color(0xff11181f)
-          //       ],
-          //       stops: [0.15, 0.6]
-          //   ),
-          // ),
           child: SingleChildScrollView(
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             child:_buildMainColumn(),

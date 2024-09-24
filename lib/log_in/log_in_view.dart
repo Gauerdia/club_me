@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'dart:io';
 
 import 'package:club_me/models/club.dart';
 import 'package:club_me/models/club_me_user_data.dart';
@@ -8,7 +8,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:uuid/uuid.dart';
 import '../provider/state_provider.dart';
 import '../provider/user_data_provider.dart';
 import '../services/hive_service.dart';
@@ -60,6 +59,24 @@ class _LogInViewState extends State<LogInView> {
 
   Color primeColorDark = Colors.teal;
   Color primeColor = Colors.tealAccent;
+
+
+  @override
+  void initState() {
+    super.initState();
+    final stateProvider = Provider.of<StateProvider>(context, listen:  false);
+    _determinePosition().then((value) => {
+      userDataProvider.setUserCoordinates(value)
+    });
+    fetchUserDataFromHive();
+  }
+
+  @override
+  void dispose() {
+    // Remove a callback to receive data sent from the TaskHandler.
+    // FlutterForegroundTask.removeTaskDataCallback();
+    super.dispose();
+  }
 
   Widget _buildClubButton(String textToDisplay, String clubId){
     return Padding(
@@ -178,6 +195,7 @@ class _LogInViewState extends State<LogInView> {
   }
 
   Future<Position> _determinePosition() async {
+
     // Check if location services are enabled
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
@@ -255,15 +273,6 @@ class _LogInViewState extends State<LogInView> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    final stateProvider = Provider.of<StateProvider>(context, listen:  false);
-    _determinePosition().then((value) => {
-      userDataProvider.setUserCoordinates(value)
-    });
-    fetchUserDataFromHive();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -526,3 +535,4 @@ class _LogInViewState extends State<LogInView> {
   }
 
 }
+

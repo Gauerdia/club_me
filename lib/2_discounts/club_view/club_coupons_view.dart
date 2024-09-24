@@ -254,7 +254,7 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
           width: screenWidth*0.9,
           child: Text(
             "Neuer Coupon",
-            textAlign: TextAlign.left,
+            textAlign: TextAlign.center,
             style: customStyleClass.getFontStyle1Bold(),
           ),
         ),
@@ -267,10 +267,24 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
                 bottom: 7
             ),
             width: screenWidth*0.9,
-            child: Text(
-              "Neuen Coupon erstellen!",
-              textAlign: TextAlign.left,
-              style: customStyleClass.getFontStyle4BoldPrimeColor(),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      "Neuen Coupon erstellen",
+                      textAlign: TextAlign.left,
+                      style: customStyleClass.getFontStyle4BoldPrimeColor(),
+                    ),
+                    Icon(
+                      Icons.arrow_forward_outlined,
+                      color: customStyleClass.primeColor,
+                    )
+                  ],
+                )
+              ],
+
             ),
           ),
           onTap: () => clickEventNewCoupon(),
@@ -284,10 +298,23 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
                   bottom: 30
               ),
               width: screenWidth*0.9,
-              child: Text(
-                "Coupon aus Vorlage erstellen!",
-                textAlign: TextAlign.left,
-                style: customStyleClass.getFontStyle4BoldPrimeColor(),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        "Coupon aus Vorlage erstellen",
+                        textAlign: TextAlign.left,
+                        style: customStyleClass.getFontStyle4BoldPrimeColor(),
+                      ),
+                      Icon(
+                        Icons.arrow_forward_outlined,
+                        color: customStyleClass.primeColor,
+                      )
+                    ],
+                  )
+                ],
               ),
             ),
             onTap: () => clickEventNewCouponFromTemplate(),
@@ -304,7 +331,7 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
           width: screenWidth*0.9,
           child: Text(
             "Aktuelle Coupons",
-            textAlign: TextAlign.left,
+            textAlign: TextAlign.center,
             style: customStyleClass.getFontStyle1Bold(),
           ),
         ),
@@ -325,49 +352,37 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
               onTap: () => clickedOnCurrentDiscount(),
             ),
 
-            // Shadow to highlight icons
-            Center(
-                child: Padding(
-                  padding: EdgeInsets.only(
-                      top: screenHeight*0.005
-                  ),
-                  child: Container(
-                    height: screenHeight*0.06,
-                    width: screenWidth*0.9,
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [Colors.black, Colors.transparent],
-                      ),
-                      borderRadius: BorderRadius.only(
-                          topRight: Radius.circular(12),
-                          topLeft: Radius.circular(12)
-                      ),
-                    ),
-                  ),
-                )
-            ),
+
 
             // Edit button
             Container(
               padding: EdgeInsets.only(
-                right: screenWidth*0.05,
+                right: screenWidth*0.07,
+                top: screenWidth*0.03
               ),
               alignment: Alignment.topRight,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  IconButton(
-                    icon: Icon(Icons.edit, size: screenWidth*0.08),
-                    color: customStyleClass.primeColor,
-                    onPressed: () => clickOnEditDiscount(),
+
+                  InkWell(
+                    child: Icon(
+                        Icons.edit,
+                      color: customStyleClass.primeColor,
+                        size: screenWidth*0.06
+                    ),
+                    onTap: () => clickOnEditDiscount(),
                   ),
-                  IconButton(
-                    icon: Icon(Icons.clear_rounded, size: screenWidth*0.08),
-                    color: customStyleClass.primeColor,
-                    onPressed: () => clickOnDeleteDiscount(),
+
+                  InkWell(
+                    child: Icon(
+                        Icons.clear_rounded,
+                      color: customStyleClass.primeColor,
+                        size: screenWidth*0.06
+                    ),
+                    onTap: () => clickOnDeleteDiscount(),
                   ),
+
                 ],
               ),
             ),
@@ -393,9 +408,22 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
               padding: const EdgeInsets.only(
                   bottom: 30
               ),
-              child: Text(
-                "Mehr Coupons!",
-                style: customStyleClass.getFontStyle4BoldPrimeColor(),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        "Mehr Coupons",
+                        style: customStyleClass.getFontStyle4BoldPrimeColor(),
+                      ),
+                      Icon(
+                        Icons.arrow_forward_outlined,
+                        color: customStyleClass.primeColor,
+                      )
+                    ],
+                  )
+                ],
               ),
             ),
             onTap: () => clickEventGoToMoreDiscounts(0),
@@ -406,7 +434,7 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
           width: screenWidth*0.9,
           child: Text(
             "Vergangene Coupons",
-            textAlign: TextAlign.left,
+            textAlign: TextAlign.center,
             style: customStyleClass.getFontStyle1Bold(),
           ),
         ),
@@ -426,29 +454,6 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
               },
             ),
 
-            // Shadow to highlight icons
-            Center(
-                child: Padding(
-                  padding: EdgeInsets.only(
-                      top: screenHeight*0.005
-                  ),
-                  child: Container(
-                    height: screenHeight*0.06,
-                    width: screenWidth*0.9,
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [Colors.black, Colors.transparent],
-                      ),
-                      borderRadius: BorderRadius.only(
-                          topRight: Radius.circular(12),
-                          topLeft: Radius.circular(12)
-                      ),
-                    ),
-                  ),
-                )
-            ),
           ],
         ) :Container(
             padding: const EdgeInsets.only(
@@ -470,9 +475,22 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
               padding: const EdgeInsets.only(
                   bottom: 30
               ),
-              child: Text(
-                "Mehr Coupons!",
-                style: customStyleClass.getFontStyle4BoldPrimeColor(),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        "Mehr Coupons",
+                        style: customStyleClass.getFontStyle4BoldPrimeColor(),
+                      ),
+                      Icon(
+                        Icons.arrow_forward_outlined,
+                        color: customStyleClass.primeColor,
+                      )
+                    ],
+                  )
+                ],
               ),
             ),
             onTap: () => clickEventGoToMoreDiscounts(1),
@@ -493,10 +511,11 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
         width: screenWidth,
         child: Text(headLine,
           textAlign: TextAlign.center,
-          style: customStyleClass.getFontStyle1(),
+          style: customStyleClass.getFontStyleHeadline1Bold(),
         ),
       ),
-      backgroundColor: Colors.transparent,
+      backgroundColor: customStyleClass.backgroundColorMain,
+      surfaceTintColor: customStyleClass.backgroundColorMain,
     );
   }
 
@@ -504,10 +523,15 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
   void clickOnDeleteDiscount(){
     showDialog(context: context, builder: (BuildContext context){
       return AlertDialog(
-        title: const Text("Achtung!"),
-        content: const Text(
+        backgroundColor: Color(0xff121111),
+        title:  Text(
+            "Achtung!",
+          style: customStyleClass.getFontStyle1Bold(),
+        ),
+        content:  Text(
           "Bist du sicher, dass du diesen Coupon löschen möchtest?",
           textAlign: TextAlign.left,
+          style: customStyleClass.getFontStyle3(),
         ),
         actions: [
           TextButton(
@@ -522,7 +546,10 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
                   Navigator.pop(context);
                 }
               }),
-              child: Text("Löschen")
+              child: Text(
+                  "Löschen",
+                style: customStyleClass.getFontStyle4BoldPrimeColor(),
+              )
           )
         ],
       );
@@ -604,19 +631,7 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
       body: Container(
             width: screenWidth,
             height: screenHeight,
-            // decoration: const BoxDecoration(
-            //   gradient: LinearGradient(
-            //       begin: Alignment.topLeft,
-            //       end: Alignment.bottomRight,
-            //       colors: [
-            //         // Colors.black,
-            //         // Colors.grey[800]!
-            //         Color(0xff2b353d),
-            //         Color(0xff11181f)
-            //       ],
-            //       stops: [0.15, 0.6]
-            //   ),
-            // ),
+            color: customStyleClass.backgroundColorMain,
             child: SingleChildScrollView(
                 child: fetchDiscountsFromDbAndBuildWidget(stateProvider, screenHeight, screenWidth)
             )

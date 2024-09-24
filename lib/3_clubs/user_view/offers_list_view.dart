@@ -39,10 +39,29 @@ class _OffersListViewState extends State<OffersListView> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(headline,
-                      textAlign: TextAlign.center,
-                      style: customStyleClass.getFontStyle1()
-                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            "Angebote",
+                            textAlign: TextAlign.center,
+                            style: customStyleClass.getFontStyleHeadline1Bold(),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                                bottom: 15
+                            ),
+                            child: Text(
+                              "VIP",
+                              style: customStyleClass.getFontStyleVIPGold(),
+                            ),
+                          )
+                        ],
+                      ),
+                    ],
+                  )
                 ],
               )
           ),
@@ -100,7 +119,7 @@ class _OffersListViewState extends State<OffersListView> {
                     alignment: Alignment.centerLeft,
                     child: Column(
                       children: [
-                        Container(
+                        SizedBox(
                           width: screenWidth*0.7,
                           child: Text(
                             currentAndLikedElementsProvider.currentClubMeClub.clubOffers.offers[index].title.toString(),
@@ -108,7 +127,7 @@ class _OffersListViewState extends State<OffersListView> {
                             textAlign: TextAlign.left,
                           ),
                         ),
-                        Container(
+                        SizedBox(
                           width: screenWidth*0.7,
                           child: Text(
                             currentAndLikedElementsProvider.currentClubMeClub.clubOffers.offers[index].description.toString(),
@@ -169,8 +188,14 @@ class _OffersListViewState extends State<OffersListView> {
                   child: Column(
                     children: [
 
-                      SizedBox(
-                        height: screenHeight*0.05,
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          vertical: 10
+                        ),
+                        child: Text(
+                          currentAndLikedElementsProvider.currentClubMeClub.getClubName(),
+                          style: customStyleClass.getFontStyle1(),
+                        ),
                       ),
 
                       _buildView(),

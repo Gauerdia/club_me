@@ -80,48 +80,56 @@ class _SettingsUserViewState extends State<SettingsUserView> {
 
     return Scaffold(
 
-      // extendBodyBehindAppBar: true,
         extendBody: true,
-
-        bottomNavigationBar: CustomBottomNavigationBar(),
         appBar: AppBar(
             automaticallyImplyLeading: false,
-            backgroundColor: Colors.transparent,
+            backgroundColor: customStyleClass.backgroundColorMain,
+            surfaceTintColor: customStyleClass.backgroundColorMain,
             title: SizedBox(
               width: screenWidth,
               child: Stack(
                 children: [
+
+                  // Headline
                   Container(
+                      alignment: Alignment.bottomCenter,
+                      height: screenHeight*0.2,
                       width: screenWidth,
-                      height: 50,
-                      // color: Colors.red,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(headLine,
-                            textAlign: TextAlign.center,
-                            style: customStyleClass.getFontStyle2(),
-                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                      headLine,
+                                      textAlign: TextAlign.center,
+                                      style: customStyleClass.getFontStyleHeadline1Bold()
+                                  ),
+                                ],
+                              ),
+                            ],
+                          )
                         ],
                       )
                   ),
 
+
                   // back icon
                   Container(
                       width: screenWidth,
+                      height: screenHeight*0.2,
+                      // color: Colors.red,
                       alignment: Alignment.centerLeft,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          IconButton(
-                              onPressed: () => Navigator.pop(context),
-                              icon: const Icon(
-                                Icons.arrow_back_ios,
-                                color: Colors.white,
-                                // size: 20,
-                              )
+                      child: IconButton(
+                          onPressed: () => Navigator.pop(context),
+                          icon: const Icon(
+                            Icons.arrow_back_ios,
+                            color: Colors.white,
+                            // size: 20,
                           )
-                        ],
                       )
                   ),
 
@@ -132,13 +140,17 @@ class _SettingsUserViewState extends State<SettingsUserView> {
         body: Container(
             width: screenWidth,
             height: screenHeight,
+            color: customStyleClass.backgroundColorMain,
             child: SingleChildScrollView(
 
                 child: Column(
                   children: [
 
-                    SizedBox(
+                    Container(
                       width: screenWidth*0.9,
+                      padding: const EdgeInsets.only(
+                        top: 20
+                      ),
                       child: Row(
                         children: [
                           IconButton(onPressed: () => clickEventFAQ(), icon: Icon(

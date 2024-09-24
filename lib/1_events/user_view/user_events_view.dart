@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:club_me/provider/user_data_provider.dart';
 import 'package:club_me/services/hive_service.dart';
 import 'package:club_me/services/supabase_service.dart';
 import 'package:club_me/shared/custom_text_style.dart';
@@ -9,6 +10,7 @@ import 'package:go_router/go_router.dart';
 import 'package:logger/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:workmanager/workmanager.dart';
 import '../../models/event.dart';
 import '../../models/parser/club_me_event_parser.dart';
 import '../../provider/current_and_liked_elements_provider.dart';
@@ -29,7 +31,7 @@ class UserEventsView extends StatefulWidget {
 
 class _UserEventsViewState extends State<UserEventsView> {
 
-  String headLine = "Deine Events";
+  String headLine = "Events";
 
   var log = Logger();
 
@@ -46,7 +48,11 @@ class _UserEventsViewState extends State<UserEventsView> {
 
   List<ClubMeEvent> eventsToDisplay = [];
   List<ClubMeEvent> upcomingDbEvents = [];
-  List<String> genresDropdownList = ["Alle", "Techno", "90s", "Latin"];
+  List<String> genresDropdownList = [
+    "Alle", "Latin", "Rock", "Hip-Hop", "Electronic", "Pop", "Reggaeton", "Afrobeats",
+    "R&B", "House", "Techno", "Rap", "90er", "80er", "2000er",
+    "Heavy Metal", "Psychedelic", "Balkan"
+  ];
 
   String searchValue = "";
   bool isSearchActive = false;
@@ -82,7 +88,18 @@ class _UserEventsViewState extends State<UserEventsView> {
     requestStoragePermission();
     dropdownValue = genresDropdownList.first;
 
-    final stateProvider = Provider.of<StateProvider>(context, listen:  false);
+    final userDataProvider = Provider.of<UserDataProvider>(context, listen:  false);
+
+    Workmanager().registerPeriodicTask(
+        'test',
+        'test1',
+        inputData: <String, dynamic>{
+          'id': userDataProvider.getUserData().getUserId()
+        },
+        frequency: const Duration(minutes: 1)
+    );
+
+
     final fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
 
     if(fetchedContentProvider.getFetchedEvents().isEmpty) {
@@ -342,8 +359,7 @@ class _UserEventsViewState extends State<UserEventsView> {
       // set for coloring
       if(_currentRangeValues.end != maxValueRangeSlider ||
           _currentRangeValues.start != 0 ||
-          dropdownValue != genresDropdownList[0] ||
-          onlyFavoritesIsActive){
+          dropdownValue != genresDropdownList[0]){
         isAnyFilterActive = true;
       }else{
         isAnyFilterActive = false;
@@ -476,9 +492,10 @@ class _UserEventsViewState extends State<UserEventsView> {
   Widget _buildAppBarShowTitle(){
     return Container(
       width: screenWidth,
-      color: Colors.black,
+      color: customStyleClass.backgroundColorMain,
       child: Stack(
         children: [
+
           // Headline
           Container(
               alignment: Alignment.bottomCenter,
@@ -487,11 +504,29 @@ class _UserEventsViewState extends State<UserEventsView> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                      headLine,
-                      textAlign: TextAlign.center,
-                      style: customStyleClass.getFontStyle1()
-                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                              headLine,
+                              textAlign: TextAlign.center,
+                              style: customStyleClass.getFontStyleHeadline1Bold()
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                                bottom: 15
+                            ),
+                            child: Text(
+                              "VIP",
+                              style: customStyleClass.getFontStyleVIPGold(),
+                            ),
+                          )
+                        ],
+                      ),
+                    ],
+                  )
                 ],
               )
           ),
@@ -500,7 +535,6 @@ class _UserEventsViewState extends State<UserEventsView> {
           Container(
               width: screenWidth,
               alignment: Alignment.centerLeft,
-              // color: Colors.grey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -508,7 +542,7 @@ class _UserEventsViewState extends State<UserEventsView> {
                       onPressed: () => toggleIsSearchActive(),
                       icon: Icon(
                         Icons.search,
-                        color: searchValue != "" ? customStyleClass.primeColor : Colors.grey,
+                        color: searchValue != "" ? customStyleClass.primeColor : Colors.white,
                         // size: 20,
                       )
                   )
@@ -520,15 +554,14 @@ class _UserEventsViewState extends State<UserEventsView> {
           Container(
             width: screenWidth,
             alignment: Alignment.centerRight,
-            // color: Colors.red,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 IconButton(
                     onPressed: () => filterForFavorites(),
                     icon: Icon(
-                      Icons.stars,
-                      color: onlyFavoritesIsActive ? customStyleClass.primeColor : Colors.grey,
+                      onlyFavoritesIsActive ? Icons.star : Icons.star_border,
+                      color: onlyFavoritesIsActive ? customStyleClass.primeColor : Colors.white,
                     )
                 ),
                 Padding(
@@ -536,13 +569,9 @@ class _UserEventsViewState extends State<UserEventsView> {
                     child: GestureDetector(
                       child: Container(
                           padding: const EdgeInsets.all(7),
-                          decoration: BoxDecoration(
-                            color: const Color(0xff11181f),
-                            borderRadius: BorderRadius.circular(45),
-                          ),
                           child: Icon(
-                            Icons.filter_list_sharp,
-                            color: isAnyFilterActive ? customStyleClass.primeColor : Colors.grey,
+                            Icons.filter_alt_outlined,
+                            color: isAnyFilterActive || isFilterMenuActive ? customStyleClass.primeColor : Colors.white,
                           )
                       ),
                       onTap: (){
@@ -561,7 +590,7 @@ class _UserEventsViewState extends State<UserEventsView> {
   Widget _buildAppbarShowSearch(){
     return Container(
       width: screenWidth,
-      color: Colors.black,
+      color: customStyleClass.backgroundColorMain,
       child: Stack(
         children: [
           // Headline
@@ -613,7 +642,7 @@ class _UserEventsViewState extends State<UserEventsView> {
                       onPressed: () => toggleIsSearchActive(),
                       icon: Icon(
                         Icons.search,
-                        color: searchValue != "" ? customStyleClass.primeColor : Colors.grey,
+                        color: searchValue != "" ? customStyleClass.primeColor : Colors.white,
                         // size: 20,
                       )
                   )
@@ -631,8 +660,8 @@ class _UserEventsViewState extends State<UserEventsView> {
                 IconButton(
                     onPressed: () => filterForFavorites(),
                     icon: Icon(
-                      Icons.stars,
-                      color: onlyFavoritesIsActive ? customStyleClass.primeColor : Colors.grey,
+                      onlyFavoritesIsActive ? Icons.star: Icons.star_border,
+                      color: onlyFavoritesIsActive ? customStyleClass.primeColor : Colors.white,
                     )
                 ),
                 Padding(
@@ -640,13 +669,9 @@ class _UserEventsViewState extends State<UserEventsView> {
                     child: GestureDetector(
                       child: Container(
                           padding: const EdgeInsets.all(7),
-                          decoration: BoxDecoration(
-                            color: const Color(0xff11181f),
-                            borderRadius: BorderRadius.circular(45),
-                          ),
                           child: Icon(
-                            Icons.filter_list_sharp,
-                            color: isAnyFilterActive ? customStyleClass.primeColor : Colors.grey,
+                            Icons.filter_alt_outlined,
+                            color: isAnyFilterActive || isFilterMenuActive ? customStyleClass.primeColor : Colors.white,
                           )
                       ),
                       onTap: (){
@@ -706,20 +731,20 @@ class _UserEventsViewState extends State<UserEventsView> {
         bottomNavigationBar: CustomBottomNavigationBar(),
         appBar: isSearchActive ?
         AppBar(
-          surfaceTintColor: Colors.black,
-          backgroundColor: Colors.transparent,
+          surfaceTintColor: customStyleClass.backgroundColorMain,
+          backgroundColor: customStyleClass.backgroundColorMain,
           title: _buildAppbarShowSearch(),
         ):
         AppBar(
             // https://stackoverflow.com/questions/72379271/flutter-material3-disable-appbar-color-change-on-scroll
-            surfaceTintColor: Colors.black,
-            backgroundColor: Colors.transparent,
+            surfaceTintColor: customStyleClass.backgroundColorMain,
+            backgroundColor: customStyleClass.backgroundColorMain,
           title: _buildAppBarShowTitle()
         ),
         body: Container(
             width: screenWidth,
             height: screenHeight,
-            decoration: plainBlackDecoration, //gradientDecoration,
+            color: customStyleClass.backgroundColorMain,
             child: Stack(
               children: [
 
@@ -745,7 +770,7 @@ class _UserEventsViewState extends State<UserEventsView> {
                 isFilterMenuActive?Container(
                   height: screenHeight*0.14,
                   width: screenWidth,
-                  color: const Color(0xff2b353d),
+                  color: customStyleClass.backgroundColorMain,
                   child: Row(
                     children: [
 
@@ -805,25 +830,30 @@ class _UserEventsViewState extends State<UserEventsView> {
                             ),
 
                             // Dropdown
-                            DropdownButton(
-                                value: dropdownValue,
-                                items: genresDropdownList.map<DropdownMenuItem<String>>(
-                                        (String value) {
-                                      return DropdownMenuItem(
+                            Theme(
+                              data: Theme.of(context).copyWith(
+                                canvasColor: Color(0xff121111)
+                              ),
+                              child: DropdownButton(
+                                  value: dropdownValue,
+                                  items: genresDropdownList.map<DropdownMenuItem<String>>(
+                                          (String value) {
+                                        return DropdownMenuItem(
                                           value: value,
                                           child: Text(
-                                              value,
+                                            value,
                                             style: customStyleClass.getFontStyle4Grey2(),
-                                          )
-                                      );
-                                    }
-                                ).toList(),
-                                onChanged: (String? value){
-                                  setState(() {
-                                    dropdownValue = value!;
-                                    filterEvents();
-                                  });
-                                }
+                                          ),
+                                        );
+                                      }
+                                  ).toList(),
+                                  onChanged: (String? value){
+                                    setState(() {
+                                      dropdownValue = value!;
+                                      filterEvents();
+                                    });
+                                  }
+                              ),
                             )
 
 

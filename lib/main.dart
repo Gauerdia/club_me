@@ -1,3 +1,7 @@
+
+import 'dart:ui';
+
+import 'package:club_me/1_events/club_view/club_edit_event_view.dart';
 import 'package:club_me/1_events/user_view/user_upcoming_events_view.dart';
 import 'package:club_me/3_clubs/club_view/components/offers_list_club_view.dart';
 import 'package:club_me/3_clubs/user_view/offers_list_view.dart';
@@ -7,18 +11,23 @@ import 'package:club_me/models/club_me_discount_template.dart';
 import 'package:club_me/models/club_me_event_template.dart';
 import 'package:club_me/models/club_me_local_discount.dart';
 import 'package:club_me/models/club_me_user_data.dart';
+import 'package:club_me/models/temp_geo_location_data.dart';
 import 'package:club_me/profile/profile_view.dart';
 import 'package:club_me/provider/current_and_liked_elements_provider.dart';
 import 'package:club_me/provider/fetched_content_provider.dart';
 import 'package:club_me/provider/state_provider.dart';
 import 'package:club_me/provider/user_data_provider.dart';
 import 'package:club_me/register/register_view.dart';
+import 'package:club_me/services/hive_service.dart';
+import 'package:club_me/services/supabase_service.dart';
 import 'package:club_me/settings/club_view/settings_club_view.dart';
 import 'package:club_me/settings/user_view/settings_user_view.dart';
 import 'package:club_me/shared/test.dart';
 import 'package:club_me/stories/video_recorder_screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
@@ -26,6 +35,7 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -34,6 +44,7 @@ import 'package:timezone/data/latest.dart' as tz;
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:workmanager/workmanager.dart';
 
 import '1_events/club_view/club_choose_event_template_view.dart';
 import '1_events/club_view/club_events_view.dart';
@@ -61,28 +72,41 @@ import '4_map/user_map_view.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Set up Hive
+  // Set up Hive, our on device database
   await Hive.initFlutter((await getApplicationDocumentsDirectory()).path);
   Hive.registerAdapter(ClubMeUserDataAdapter());
   Hive.registerAdapter(ClubMeEventTemplateAdapter());
   Hive.registerAdapter(ClubMeDiscountTemplateAdapter());
   Hive.registerAdapter(ClubMeLocalDiscountAdapter());
+  Hive.registerAdapter(TempGeoLocationDataAdapter());
 
   // Used to make sure that coupons and user timezones match
   tz.initializeTimeZones();
 
+  // connect to our backeend
   await Supabase.initialize(
     url: 'https://mssfbflgzkgxyhkkfukh.supabase.co',
     anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zc2ZiZmxnemtneHloa2tmdWtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTUyNTM2MzUsImV4cCI6MjAzMDgyOTYzNX0.aG3TR8A3UrpZNW65qDZ1BXyasQEo65NzgS03FcTebs0'
   );
 
+  Workmanager().initialize(
+    // The top level function, aka callbackDispatcher
+    callbackDispatcher,
+    // If enabled it will post a notification whenever the task is running. Handy for debugging tasks
+    isInDebugMode: true
+  );
+
+  // Get the directory of the app to save images and videos
   var appDocumentsDir = await getApplicationDocumentsDirectory();
 
+  // Get cameras for stories
   final cameras = await availableCameras();
   final firstCamera = cameras.first;
 
+  // Set a logger to make development easier
   Logger.level = Level.debug;
 
+  // No landscape mode because it is not optimised fo rit
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);
@@ -380,6 +404,23 @@ final GoRouter _router = GoRouter(
     ),
 
 
+    GoRoute(
+        path: '/club_edit_event',
+        pageBuilder: (context, state) => buildPageWithoutTransition(
+            context: context,
+            state: state,
+            child: const ClubEditEventView()
+        )
+    ),
+
+    GoRoute(
+        path: '/club_edit_discount',
+        pageBuilder: (context, state) => buildPageWithoutTransition(
+            context: context,
+            state: state,
+            child: const ClubEditDiscountView()
+        )
+    ),
 
     GoRoute(
         path: '/video_recording',
@@ -466,7 +507,7 @@ class MyApp extends StatelessWidget {
 
 
         ThemeData(
-          scaffoldBackgroundColor: Colors.black,
+          scaffoldBackgroundColor: Color(0xff181414),
 
           textTheme: TextTheme(
               displayLarge: const TextStyle(
@@ -482,4 +523,45 @@ class MyApp extends StatelessWidget {
       ),
     );
   }
+}
+
+@pragma('vm:entry-point')
+void callbackDispatcher() {
+  Workmanager().executeTask((task, inputData) async {
+
+    DartPluginRegistrant.ensureInitialized();
+
+    await Geolocator.checkPermission();
+
+    // connect to our backeend
+    await Supabase.initialize(
+        url: 'https://mssfbflgzkgxyhkkfukh.supabase.co',
+        anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zc2ZiZmxnemtneHloa2tmdWtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTUyNTM2MzUsImV4cCI6MjAzMDgyOTYzNX0.aG3TR8A3UrpZNW65qDZ1BXyasQEo65NzgS03FcTebs0'
+    );
+    final supabase = Supabase.instance.client;
+
+    try {
+      Position location = await Geolocator.getCurrentPosition();
+
+      TempGeoLocationData tempGeoLocationData = TempGeoLocationData(
+          longCoord: location.longitude,
+          latCoord: location.latitude,
+          createdAt: DateTime.now()
+      );
+
+      final data = await supabase
+          .from("club_me_user_location")
+          .insert({
+        "lat_coord": tempGeoLocationData.latCoord,
+        'long_coord': tempGeoLocationData.longCoord,
+        'user_id': inputData!['id']
+      });
+
+    } catch(err) {
+      Logger().e(err.toString());
+      throw Exception(err);
+    }
+
+    return Future.value(true);
+  });
 }

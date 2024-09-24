@@ -84,10 +84,14 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
 
   List<String> musicGenresChosen = [];
   List<String> musicGenresOffer = [
-    "90s", "Techno", "Rock", "EDM", "80s", "Metal", "Pop"
+    "Latin", "Rock", "Hip-Hop", "Electronic", "Pop", "Reggaeton", "Afrobeats",
+    "R&B", "House", "Techno", "Rap", "90er", "80er", "2000er",
+    "Heavy Metal", "Psychedelic", "Balkan"
   ];
   List<String> musicGenresToCompare = [
-    "90s", "Techno", "Rock", "EDM", "80s", "Metal", "Pop"
+    "Latin", "Rock", "Hip-Hop", "Electronic", "Pop", "Reggaeton", "Afrobeats",
+    "R&B", "House", "Techno", "Rap", "90er", "80er", "2000er",
+    "Heavy Metal", "Psychedelic", "Balkan"
   ];
 
   File? file;
@@ -187,7 +191,8 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
   AppBar _buildAppBar(){
     return AppBar(
       automaticallyImplyLeading: false,
-      backgroundColor: Colors.transparent,
+      backgroundColor: customStyleClass.backgroundColorMain,
+      surfaceTintColor: customStyleClass.backgroundColorMain,
       title: SizedBox(
         width: screenWidth,
         child: Stack(
@@ -195,7 +200,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
 
             // Icon
             Container(
-              alignment: Alignment.centerLeft,
+              alignment: Alignment.centerRight,
               height: 50,
               child: IconButton(
                 icon: const Icon(
@@ -231,15 +236,18 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
     return (isVideo || isImage) ?
     Container(
       width: screenWidth,
-      height: screenHeight*0.07,
+      height: screenHeight*0.08,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-          color: Colors.black,
+          color: customStyleClass.backgroundColorMain,
           border: Border(
               top: BorderSide(
-                  color: Colors.grey[500]!
+                  color: Colors.grey[900]!
               )
           )
+      ),
+      padding: const EdgeInsets.only(
+        right: 10,
       ),
       child: SizedBox(
         width: screenWidth*0.9,
@@ -248,14 +256,14 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
           children: [
             GestureDetector(
               child: Text(
-                "Abbrechen!",
+                "Abbrechen",
                 style: customStyleClass.getFontStyle3BoldPrimeColor(),
               ),
               onTap: () => deselectContent(),
             ),
             GestureDetector(
               child: Text(
-                "Übernehmen!",
+                "Übernehmen",
                 style: customStyleClass.getFontStyle3BoldPrimeColor(),
               ),
               onTap: () => selectContent(),
@@ -266,12 +274,12 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
     ):
     Container(
       width: screenWidth,
-      height: screenHeight*0.07,
+      height: screenHeight*0.08,
       decoration: BoxDecoration(
-          color: Colors.black,
+          color: customStyleClass.backgroundColorMain,
           border: Border(
               top: BorderSide(
-                  color: Colors.grey[500]!
+                  color: Colors.grey[900]!
               )
           )
       ),
@@ -288,9 +296,18 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
           padding: const EdgeInsets.only(
             bottom: 10
           ),
-          child: Text(
-            "Abschicken!",
-            style: customStyleClass.getFontStyle3BoldPrimeColor(),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text(
+                "Erstellen",
+                style: customStyleClass.getFontStyle3BoldPrimeColor(),
+              ),
+              Icon(
+                Icons.arrow_forward_outlined,
+                color: customStyleClass.primeColor,
+              )
+            ],
           ),
         ),
         onTap: () => clickEventCreateEvent(),
@@ -347,6 +364,11 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                           controller: _eventTitleController,
                           cursorColor: customStyleClass.primeColor,
                           decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.only(
+                                left: 20,
+                                top:20,
+                                bottom:20
+                            ),
                             focusedBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
                                     color: customStyleClass.primeColor
@@ -378,6 +400,11 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                             controller: _eventDJController,
                             cursorColor: customStyleClass.primeColor,
                             decoration: InputDecoration(
+                              contentPadding: const EdgeInsets.only(
+                                  left: 20,
+                                top:20,
+                                bottom:20
+                              ),
                               hintText: "z.B. DJ David Guetta",
                               border: OutlineInputBorder(),
                               focusedBorder: OutlineInputBorder(
@@ -392,7 +419,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                         ),
                       ),
 
-                      // Row: Datepicker, Hour/Minute, Price
+                      // Row: Datepicker, Hour/Minute
                       Container(
                         width: screenWidth*0.9,
                         padding: const EdgeInsets.symmetric(
@@ -409,7 +436,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                                 children: [
 
                                   // Text: Date
-                                  Container(
+                                  SizedBox(
                                     width: screenWidth*0.4,
                                     child: Text(
                                       "Datum",
@@ -418,10 +445,6 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                                     ),
                                   ),
 
-                                  // Spacer
-                                  SizedBox(
-                                    height: screenHeight*0.01,
-                                  ),
 
                                   // OutlinedButton with Text
                                   SizedBox(
@@ -470,7 +493,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                               child: Column(
                                 children: [
 
-                                  Container(
+                                  SizedBox(
                                     width: screenWidth*0.4,
                                     child: Text(
                                       "Uhrzeit",
@@ -479,9 +502,9 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                                     ),
                                   ),
 
-                                  SizedBox(
-                                    height: screenHeight*0.01,
-                                  ),
+                                  // SizedBox(
+                                  //   height: screenHeight*0.01,
+                                  // ),
 
                                   SizedBox(
                                     width: screenWidth*0.4,
@@ -514,9 +537,9 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
 
                       // Price text field
                       Container(
-                        padding: const EdgeInsets.only(
-                            top: 5
-                        ),
+                        // padding: const EdgeInsets.only(
+                        //     top: 5
+                        // ),
                         child: Column(
                           children: [
 
@@ -547,9 +570,11 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                                   keyboardType: TextInputType.number,
                                   cursorColor: customStyleClass.primeColor,
                                   decoration: InputDecoration(
-                                    contentPadding: const EdgeInsets.symmetric(
-                                        vertical: 20,
-                                        horizontal: 10
+                                    hintText: "z.B. 10",
+                                    contentPadding: const EdgeInsets.only(
+                                        left: 20,
+                                        top:20,
+                                        bottom:20
                                     ),
                                     border: const OutlineInputBorder(),
                                     focusedBorder: OutlineInputBorder(
@@ -718,7 +743,12 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                           controller: _eventTicketLinkController,
                           cursorColor: customStyleClass.primeColor,
                           decoration: InputDecoration(
-                            hintText: "https://www.eventbrite.com",
+                            hintText: " z.B. https://www.eventbrite.com",
+                            contentPadding: const EdgeInsets.only(
+                                left: 20,
+                                top:20,
+                                bottom:20
+                            ),
                             border: const OutlineInputBorder(),
                             focusedBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
@@ -748,7 +778,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                       // ToggleSwitch: isRepeated
                       Container(
                         width: screenWidth*0.9,
-                        height: screenHeight*0.12,
+                        height: screenHeight*0.1,
                         alignment: Alignment.centerLeft,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -756,13 +786,13 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                             SizedBox(
                                 width: screenWidth*0.3,
                                 child: ToggleSwitch(
-                                  minHeight: screenHeight*0.07,
+                                  minHeight: screenHeight*0.06,
                                   initialLabelIndex: isRepeated,
                                   totalSwitches: 2,
                                   activeBgColor: [customStyleClass.primeColor],
-                                  activeFgColor: Colors.black,
-                                  inactiveFgColor: customStyleClass.primeColor,
-                                  inactiveBgColor: const Color(0xff11181f),
+                                  activeFgColor: Colors.white,
+                                  inactiveFgColor: Colors.white,
+                                  inactiveBgColor: customStyleClass.backgroundColorEventTile,
                                   labels: const [
                                     'Nein',
                                     'Ja',
@@ -820,7 +850,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                       if(isTemplate == 0)
                         Container(
                         width: screenWidth*0.9,
-                        height: screenHeight*0.12,
+                        height: screenHeight*0.1,
                         alignment: Alignment.centerLeft,
                         child: Container(
                           width: screenWidth*0.45,
@@ -828,13 +858,13 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                           child: SizedBox(
                               width: screenWidth*0.3,
                               child: ToggleSwitch(
-                                minHeight: screenHeight*0.07,
+                                minHeight: screenHeight*0.06,
                                 initialLabelIndex: isSupposedToBeTemplate,
                                 totalSwitches: 2,
                                 activeBgColor: [customStyleClass.primeColor],
-                                activeFgColor: Colors.black,
-                                inactiveFgColor: customStyleClass.primeColor,
-                                inactiveBgColor: const Color(0xff11181f),
+                                activeFgColor: Colors.white,
+                                inactiveFgColor: Colors.white,
+                                inactiveBgColor: customStyleClass.backgroundColorEventTile,
                                 labels: const [
                                   'Nein',
                                   'Ja',
@@ -1020,7 +1050,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                       horizontal: 20
                   ),
                   decoration: BoxDecoration(
-                      color: Colors.black,
+                      color: customStyleClass.backgroundColorMain,
                       border: Border.all(
                           color: Colors.grey[200]!
                       )
@@ -1125,56 +1155,56 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                             ),
 
                           // headline
-                          Text(
-                            "Eigene Musikrichtungen",
-                            style: customStyleClass.getFontStyle4Bold(),
-                          ),
-
-                          // Spacer
-                          const SizedBox(
-                            height: 10,
-                          ),
-
-                          // Textfield: own genres
-                          Row(
-                            children: [
-
-                              // TEXTFIELD
-                              SizedBox(
-                                width: screenWidth*0.5,
-                                child: TextField(
-                                  controller: _eventMusicGenresController,
-                                  cursorColor: customStyleClass.primeColor,
-                                  decoration: InputDecoration(
-                                    border: const OutlineInputBorder(),
-                                    focusedBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                            color: customStyleClass.primeColor
-                                        )
-                                    ),
-                                  ),
-                                  style: customStyleClass.getFontStyle4(),
-                                  maxLength: 15,
-                                ),
-                              ),
-
-                              // ICON
-                              Container(
-                                  height: screenHeight*0.08,
-                                  alignment: Alignment.topCenter,
-                                  child: SizedBox(
-                                      child: IconButton(
-                                          onPressed: () => addOwnGenreToChosenGenres(),
-                                          icon: Icon(
-                                            Icons.add,
-                                            size: 35,
-                                            color: customStyleClass.primeColor,
-                                          )
-                                      )
-                                  )
-                              ),
-                            ],
-                          ),
+                          // Text(
+                          //   "Eigene Musikrichtungen",
+                          //   style: customStyleClass.getFontStyle4Bold(),
+                          // ),
+                          //
+                          // // Spacer
+                          // const SizedBox(
+                          //   height: 10,
+                          // ),
+                          //
+                          // // Textfield: own genres
+                          // Row(
+                          //   children: [
+                          //
+                          //     // TEXTFIELD
+                          //     SizedBox(
+                          //       width: screenWidth*0.5,
+                          //       child: TextField(
+                          //         controller: _eventMusicGenresController,
+                          //         cursorColor: customStyleClass.primeColor,
+                          //         decoration: InputDecoration(
+                          //           border: const OutlineInputBorder(),
+                          //           focusedBorder: OutlineInputBorder(
+                          //               borderSide: BorderSide(
+                          //                   color: customStyleClass.primeColor
+                          //               )
+                          //           ),
+                          //         ),
+                          //         style: customStyleClass.getFontStyle4(),
+                          //         maxLength: 15,
+                          //       ),
+                          //     ),
+                          //
+                          //     // ICON
+                          //     Container(
+                          //         height: screenHeight*0.08,
+                          //         alignment: Alignment.topCenter,
+                          //         child: SizedBox(
+                          //             child: IconButton(
+                          //                 onPressed: () => addOwnGenreToChosenGenres(),
+                          //                 icon: Icon(
+                          //                   Icons.add,
+                          //                   size: 35,
+                          //                   color: customStyleClass.primeColor,
+                          //                 )
+                          //             )
+                          //         )
+                          //     ),
+                          //   ],
+                          // ),
                         ],
                       ),
 
@@ -1594,6 +1624,95 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
       pickGenreIsActive = true;
     });
   }
+  void clickEventCreateEvent(){
+    setState(() {
+      isUploading = true;
+      createNewEvent();
+    });
+  }
+  void clickedOnAbort(){
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context){
+          return AlertDialog(
+              backgroundColor: Color(0xff121111),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.0),
+                // side: BorderSide(
+                //     color: customStyleClass.primeColor
+                // )
+              ),
+              title: Text(
+                "Abbrechen",
+                style: customStyleClass.getFontStyle1Bold(),
+              ),
+              content: Text(
+                "Bist du sicher, dass du abbrechen möchtest?",
+                textAlign: TextAlign.left,
+                style: customStyleClass.getFontStyle4(),
+              ),
+              actions: [
+
+                TextButton(
+                  child: Text(
+                    "Zurück",
+                    style: customStyleClass.getFontStyle5BoldPrimeColor(),
+                  ),
+                  onPressed: (){
+                    Navigator.of(context).pop();
+                  },
+                ),
+
+                TextButton(
+                  child: Text(
+                    "Ja",
+                    style: customStyleClass.getFontStyle5BoldPrimeColor(),
+                  ),
+                  onPressed: (){
+                    stateProvider.resetCurrentEventTemplate();
+                    switch(stateProvider.pageIndex){
+                      case(0): context.go('/club_events');
+                      case(3): context.go('/club_frontpage');
+                      default: context.go('/club_frontpage');
+                    }
+                  },
+                ),
+
+              ]
+          );
+        }
+    );
+  }
+  void clickedOnChooseContent() async{
+
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+        allowMultiple: false
+    );
+    if (result != null) {
+
+      file = File(result.files.single.path!);
+      PlatformFile pFile = result.files.first;
+      String mimeStr = lookupMimeType(file!.path)!;
+      var fileType = mimeStr.split("/");
+      fileExtension = pFile.extension.toString();
+
+      pickedFileNameToDisplay = result.files.single.name;
+
+      if(fileType.contains('image')){
+        isImage = true;
+      }
+      else if(fileType.contains('video')){
+
+        // file = File(result.files.single.path!);
+        _controller = VideoPlayerController.file(file!);
+        await _controller!.initialize();
+        _createChewieController();
+        isVideo = true;
+      }
+      setState(() {});
+    }
+  }
 
   // MISC
   void selectContent() async{
@@ -1649,12 +1768,6 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
 
   }
 
-  void clickEventCreateEvent(){
-    setState(() {
-      isUploading = true;
-      createNewEvent();
-    });
-  }
 
   void createNewEvent(){
 
@@ -1821,95 +1934,20 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
   void showDialogOfMissingValue(){
     showDialog(context: context,
         builder: (BuildContext context){
-          return const AlertDialog(
-              title: Text("Fehlende Werte"),
-              content: Text("Bitte füllen Sie die leeren Felder aus, bevor Sie weitergehen.")
+          return AlertDialog(
+              backgroundColor: Color(0xff121111),
+              title: Text(
+                  "Fehlende Werte",
+                style: customStyleClass.getFontStyle1Bold(),
+              ),
+              content: Text(
+                  "Bitte füllen Sie die leeren Felder aus, bevor Sie weitergehen.",
+                style: customStyleClass.getFontStyle3(),
+              )
           );
         });
   }
-  void clickedOnAbort(){
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context){
-        return AlertDialog(
-            backgroundColor: Colors.black,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20.0),
-                side: BorderSide(
-                    color: customStyleClass.primeColor
-                )
-            ),
-          title: Text(
-              "Abbrechen",
-            style: customStyleClass.getFontStyle1Bold(),
-          ),
-          content: Text(
-              "Bist du sicher, dass du abbrechen möchtest?",
-            textAlign: TextAlign.left,
-            style: customStyleClass.getFontStyle4(),
-          ),
-          actions: [
-
-            TextButton(
-              child: Text(
-                  "Zurück",
-                style: customStyleClass.getFontStyle3(),
-              ),
-              onPressed: (){
-                Navigator.of(context).pop();
-              },
-            ),
-
-            TextButton(
-              child: Text(
-                  "Ja",
-                style: customStyleClass.getFontStyle3(),
-              ),
-              onPressed: (){
-                stateProvider.resetCurrentEventTemplate();
-                switch(stateProvider.pageIndex){
-                  case(0): context.go('/club_events');
-                  case(3): context.go('/club_frontpage');
-                  default: context.go('/club_frontpage');
-                }
-              },
-            ),
-
-          ]
-        );
-      }
-    );
-  }
-  void clickedOnChooseContent() async{
-
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-        allowMultiple: false
-    );
-    if (result != null) {
-
-      file = File(result.files.single.path!);
-      PlatformFile pFile = result.files.first;
-      String mimeStr = lookupMimeType(file!.path)!;
-      var fileType = mimeStr.split("/");
-      fileExtension = pFile.extension.toString();
-
-      pickedFileNameToDisplay = result.files.single.name;
-
-      if(fileType.contains('image')){
-        isImage = true;
-      }
-      else if(fileType.contains('video')){
-
-        // file = File(result.files.single.path!);
-        _controller = VideoPlayerController.file(file!);
-        await _controller!.initialize();
-        _createChewieController();
-        isVideo = true;
-      }
-      setState(() {});
-    }
-  }
 
   _createChewieController() {
     _chewieController = ChewieController(
@@ -1996,7 +2034,8 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
 
       bottomNavigationBar: _buildNavigationBar2(),
       appBar: _buildAppBar(),
-      body: SizedBox(
+      body: Container(
+        color: customStyleClass.backgroundColorMain,
           width: screenWidth,
           height: screenHeight,
           child: Center(

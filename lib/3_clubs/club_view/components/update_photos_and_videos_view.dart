@@ -45,7 +45,8 @@ class _UpdatePhotosAndVideosViewState extends State<UpdatePhotosAndVideosView> {
   // BUILD
   AppBar _buildAppBar(){
     return AppBar(
-      backgroundColor: Colors.transparent,
+      backgroundColor: customStyleClass.backgroundColorMain,
+      surfaceTintColor: customStyleClass.backgroundColorMain,
       title: SizedBox(
         width: screenWidth,
         child: Stack(
@@ -115,7 +116,7 @@ class _UpdatePhotosAndVideosViewState extends State<UpdatePhotosAndVideosView> {
                 child: Container(
                     decoration: const BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Color(0xff11181f)
+                        // color: Color(0xff11181f)
                     ),
                     child: const Padding(
                       padding: EdgeInsets.only(bottom: 15),
@@ -314,9 +315,6 @@ class _UpdatePhotosAndVideosViewState extends State<UpdatePhotosAndVideosView> {
             // "New event" button
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                // width: screenWidth*0.9,
-                // color: Colors.red,
-                // alignment: Alignment.bottomRight,
                 children: [
 
                   // YES
@@ -440,17 +438,7 @@ class _UpdatePhotosAndVideosViewState extends State<UpdatePhotosAndVideosView> {
         body: Container(
             width: screenWidth,
             height: screenHeight,
-            // decoration: const BoxDecoration(
-            //   gradient: LinearGradient(
-            //       begin: Alignment.topLeft,
-            //       end: Alignment.bottomRight,
-            //       colors: [
-            //         Color(0xff2b353d),
-            //         Color(0xff11181f)
-            //       ],
-            //       stops: [0.15, 0.6]
-            //   ),
-            // ),
+            color: customStyleClass.backgroundColorMain,
 
             child: SingleChildScrollView(
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,

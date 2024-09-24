@@ -82,7 +82,7 @@ class DiscountCard extends StatelessWidget {
             // Image container
             Container(
                 width: screenWidth,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   borderRadius: BorderRadius.only(
                       topRight: Radius.circular(12),
                       topLeft: Radius.circular(12)
@@ -95,6 +95,7 @@ class DiscountCard extends StatelessWidget {
                         width: 1, color: Colors.white60
                     ),
                   ),
+                  color: customStyleClass.backgroundColorEventTile
                 ),
                 child: SizedBox(
                     height: screenHeight*0.17,
@@ -128,15 +129,7 @@ class DiscountCard extends StatelessWidget {
                         width: 1, color: Colors.white60
                     ),
                   ),
-                  gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Colors.grey[700]!,
-                        Colors.grey[850]!
-                      ],
-                      stops: const [0.3, 0.8]
-                  ),
+                  color: customStyleClass.backgroundColorEventTile
                 ),
                 child: Stack(
                   children: [

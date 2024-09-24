@@ -17,7 +17,7 @@ class ClubChooseEventTemplateView extends StatefulWidget {
 
 class _ClubChooseEventTemplateViewState extends State<ClubChooseEventTemplateView> {
 
-  String headLine = "Deine Vorlagen";
+  String headLine = "Vorlagen";
 
   final SupabaseService _supabaseService = SupabaseService();
   late StateProvider stateProvider;
@@ -29,7 +29,8 @@ class _ClubChooseEventTemplateViewState extends State<ClubChooseEventTemplateVie
   AppBar _buildAppBar(){
     return AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.transparent,
+        backgroundColor: customStyleClass.backgroundColorMain,
+        surfaceTintColor: customStyleClass.backgroundColorMain,
         title: Stack(
           children: [
 
@@ -38,7 +39,7 @@ class _ClubChooseEventTemplateViewState extends State<ClubChooseEventTemplateVie
               height: 50,
               child: IconButton(
                   icon: const Icon(
-                    Icons.clear_rounded,
+                    Icons.arrow_back_ios,
                     color: Colors.white,
                   ),
                   onPressed: () => clickedOnAbort()
@@ -53,7 +54,7 @@ class _ClubChooseEventTemplateViewState extends State<ClubChooseEventTemplateVie
                 children: [
                   Text(headLine,
                     textAlign: TextAlign.center,
-                    style: customStyleClass.getFontStyle1(),
+                    style: customStyleClass.getFontStyleHeadline1Bold(),
                   )
                 ],
               ),
@@ -69,12 +70,12 @@ class _ClubChooseEventTemplateViewState extends State<ClubChooseEventTemplateVie
         context: context,
         builder: (BuildContext context){
           return AlertDialog(
-              backgroundColor: Colors.black,
+              backgroundColor: Color(0xff121111),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20.0),
-                  side: BorderSide(
-                      color: customStyleClass.primeColor
-                  )
+                  // side: BorderSide(
+                  //     color: customStyleClass.primeColor
+                  // )
               ),
               title: Text(
                 "Abbrechen",
@@ -138,6 +139,7 @@ class _ClubChooseEventTemplateViewState extends State<ClubChooseEventTemplateVie
         body: Container(
             width: screenWidth,
             height: screenHeight,
+            color: customStyleClass.backgroundColorMain,
             child: SingleChildScrollView(
                 child: Column(
                   children: [
@@ -148,7 +150,7 @@ class _ClubChooseEventTemplateViewState extends State<ClubChooseEventTemplateVie
                             top: 10
                           ),
                           child: Card(
-                            color: Colors.black,
+                            color: customStyleClass.backgroundColorEventTile,
                             child: Column(
                               children: [
                                 ListTile(

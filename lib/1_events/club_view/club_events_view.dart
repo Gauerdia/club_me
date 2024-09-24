@@ -120,7 +120,7 @@ class _ClubEventsViewState extends State<ClubEventsView> {
           width: screenWidth*0.9,
           child: Text(
             "Neues Event",
-            textAlign: TextAlign.left,
+            textAlign: TextAlign.center,
             style: customStyleClass.getFontStyle1Bold(),
           ),
         ),
@@ -133,10 +133,25 @@ class _ClubEventsViewState extends State<ClubEventsView> {
                 bottom: 7
             ),
             width: screenWidth*0.9,
-            child: Text(
-              "Neues Event erstellen!",
-              textAlign: TextAlign.left,
-              style: customStyleClass.getFontStyle4BoldPrimeColor(),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+
+                Row(
+                  children: [
+                    Text(
+                      "Neues Event erstellen",
+                      // textAlign: TextAlign.center,
+                      style: customStyleClass.getFontStyle4BoldPrimeColor(),
+                    ),
+                    Icon(
+                      Icons.arrow_forward_outlined,
+                      color: customStyleClass.primeColor,
+                    )
+                  ],
+                )
+
+              ],
             ),
           ),
           onTap: () => clickEventNewEvent(),
@@ -150,11 +165,25 @@ class _ClubEventsViewState extends State<ClubEventsView> {
                 bottom: 30
             ),
             width: screenWidth*0.9,
-            child: Text(
-              "Event aus Vorlage erstellen!",
-              textAlign: TextAlign.left,
-              style: customStyleClass.getFontStyle4BoldPrimeColor(),
-            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      "Event aus Vorlage erstellen",
+                      // textAlign: TextAlign.left,
+                      style: customStyleClass.getFontStyle4BoldPrimeColor(),
+                    ),
+                    Icon(
+                      Icons.arrow_forward_outlined,
+                      color: customStyleClass.primeColor,
+                    )
+                  ],
+                )
+
+              ],
+            )
           ),
           onTap: () => clickEventEventFromTemplate(),
         ),
@@ -169,7 +198,7 @@ class _ClubEventsViewState extends State<ClubEventsView> {
           width: screenWidth*0.9,
           child: Text(
             "Aktuelle Events",
-            textAlign: TextAlign.left,
+            textAlign: TextAlign.center,
             style: customStyleClass.getFontStyle1Bold(),
           ),
         ),
@@ -190,28 +219,7 @@ class _ClubEventsViewState extends State<ClubEventsView> {
             ),
 
             // Shadow to highlight icons
-            Center(
-                child: Padding(
-                  padding: EdgeInsets.only(
-                      top: screenHeight*0.005
-                  ),
-                  child: Container(
-                    height: screenHeight*0.06,
-                    width: screenWidth*0.9,
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [Colors.black, Colors.transparent],
-                      ),
-                      borderRadius: BorderRadius.only(
-                          topRight: Radius.circular(12),
-                          topLeft: Radius.circular(12)
-                      ),
-                    ),
-                  ),
-                )
-            ),
+
 
             // Edit button
             Container(
@@ -257,9 +265,22 @@ class _ClubEventsViewState extends State<ClubEventsView> {
             padding: const EdgeInsets.only(
                 bottom: 30
             ),
-            child: Text(
-              "Mehr Events!",
-              style: customStyleClass.getFontStyle4BoldPrimeColor(),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      "Mehr Events",
+                      style: customStyleClass.getFontStyle4BoldPrimeColor(),
+                    ),
+                    Icon(
+                      Icons.arrow_forward_outlined,
+                      color: customStyleClass.primeColor,
+                    )
+                  ],
+                )
+              ],
             ),
           ),
           onTap: () => clickEventGoToMoreEvents(0),
@@ -270,7 +291,7 @@ class _ClubEventsViewState extends State<ClubEventsView> {
           width: screenWidth*0.9,
           child: Text(
             "Vergangene Events",
-            textAlign: TextAlign.left,
+            textAlign: TextAlign.center,
             style: customStyleClass.getFontStyle1Bold(),
           ),
         ),
@@ -293,28 +314,7 @@ class _ClubEventsViewState extends State<ClubEventsView> {
             ),
 
             // Shadow to highlight icons
-            Center(
-                child: Padding(
-                  padding: EdgeInsets.only(
-                      top: screenHeight*0.005
-                  ),
-                  child: Container(
-                    height: screenHeight*0.06,
-                    width: screenWidth*0.9,
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [Colors.black, Colors.transparent],
-                      ),
-                      borderRadius: BorderRadius.only(
-                          topRight: Radius.circular(12),
-                          topLeft: Radius.circular(12)
-                      ),
-                    ),
-                  ),
-                )
-            ),
+
           ],
         ) :Container(
             padding: const EdgeInsets.only(
@@ -336,9 +336,24 @@ class _ClubEventsViewState extends State<ClubEventsView> {
               padding: const EdgeInsets.only(
                   bottom: 30
               ),
-              child: Text(
-                "Mehr Events!",
-                style: customStyleClass.getFontStyle4BoldPrimeColor(),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+
+                  Row(
+                    children: [
+                      Text(
+                        "Mehr Events",
+                        style: customStyleClass.getFontStyle4BoldPrimeColor(),
+                      ),
+                      Icon(
+                        Icons.arrow_forward_outlined,
+                        color: customStyleClass.primeColor,
+                      )
+                    ],
+                  )
+
+                ],
               ),
             ),
             onTap: () => clickEventGoToMoreEvents(1),
@@ -351,717 +366,18 @@ class _ClubEventsViewState extends State<ClubEventsView> {
       ],
     );
   }
-  Widget buildNewEventWidget(
-      BuildContext context, StateProvider stateProvider,
-      double screenHeight, double screenWidth
-      ){
-    return SizedBox(
-      child: SizedBox(
-        child: Stack(
-          children: [
 
-            // Bottom accent
-            Container(
-              width: screenWidth*0.91,
-              height: screenHeight*(newDiscountContainerHeightFactor+0.005),
-              decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                      begin: Alignment.bottomLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Colors.grey[900]!,
-                        customStyleClass.primeColorDark.withOpacity(0.4)
-                      ],
-                      stops: const [0.6, 0.9]
-                  ),
-                  borderRadius: BorderRadius.circular(
-                      15
-                  )
-              ),
-            ),
 
-            // Top accent
-            Container(
-              width: screenWidth*0.91,
-              height: screenHeight*newDiscountContainerHeightFactor,
-              decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                      begin: Alignment.topRight,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Colors.grey[900]!,
-                        customStyleClass.primeColorDark.withOpacity(0.2)
-                      ],
-                      stops: const [0.6, 0.9]
-                  ),
-                  borderRadius: BorderRadius.circular(
-                      15
-                  )
-              ),
-            ),
-
-            // left highlight
-            Container(
-              width: screenWidth*0.89,
-              height: screenHeight*newDiscountContainerHeightFactor,
-              decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [Colors.grey[600]!, Colors.grey[900]!],
-                      stops: const [0.1, 0.9]
-                  ),
-                  borderRadius: BorderRadius.circular(
-                      15
-                  )
-              ),
-            ),
-
-            // Top accent
-            Padding(
-                padding: const EdgeInsets.only(
-                    left:2
-                ),
-                child: Container(
-                  width: screenWidth*0.9,
-                  height: screenHeight*newDiscountContainerHeightFactor,
-                  decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.topRight,
-                          colors: [Colors.grey[600]!, Colors.grey[900]!],
-                          stops: const [0.1, 0.9]
-                      ),
-                      borderRadius: BorderRadius.circular(
-                          15
-                      )
-                  ),
-                )
-            ),
-
-            // main Div
-            Padding(
-              padding: const EdgeInsets.only(
-                  left:2,
-                  top: 2
-              ),
-              child: Container(
-                width: screenWidth*0.9,
-                height: screenHeight*newDiscountContainerHeightFactor,
-                decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Colors.grey[800]!.withOpacity(0.7),
-                          Colors.grey[900]!
-                        ],
-                        stops: const [0.1,0.9]
-                    ),
-                    borderRadius: BorderRadius.circular(
-                        15
-                    )
-                ),
-                child: Column(
-                  children: [
-
-                    // "New Event" headline
-                    Container(
-                      width: screenWidth,
-                      // color: Colors.red,
-                      padding: EdgeInsets.only(
-                          left: screenWidth*0.05,
-                          top: screenHeight*0.03
-                      ),
-                      child: Text(
-                        "Neues Event",
-                        textAlign: TextAlign.left,
-                        style: customStyleClass.getFontStyle1Bold(),
-                      ),
-                    ),
-
-                    // 'Create new event' button
-                    Padding(
-                      padding: EdgeInsets.only(
-                        top:screenHeight*0.015,
-                        right: 7,
-                        bottom: 7,
-                      ),
-                      child: Align(
-                        child: GestureDetector(
-                          child: Container(
-                              width: screenWidth*0.8,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                    colors: [
-                                      customStyleClass.primeColorDark,
-                                      customStyleClass.primeColor,
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                    stops: const [0.2, 0.9]
-                                ),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Colors.black54,
-                                    spreadRadius: 1,
-                                    blurRadius: 7,
-                                    offset: Offset(3, 3), // changes position of shadow
-                                  ),
-                                ],
-                                borderRadius: const BorderRadius.all(
-                                    Radius.circular(10)
-                                ),
-                              ),
-                              padding: const EdgeInsets.all(18),
-                              child: Center(
-                                child: Text(
-                                  "Neues Event erstellen!",
-                                  style: customStyleClass.getFontStyle4Bold(),
-                                ),
-                              )
-                          ),
-                          onTap: (){
-                            context.push("/club_new_event");
-                          },
-                        ),
-                      ),
-                    ),
-
-                    // 'From template' button
-                    stateProvider.getClubMeEventTemplates().isNotEmpty ?
-                    Padding(
-                      padding: EdgeInsets.only(
-                        top:screenHeight*0.015,
-                        right: 7,
-                        bottom: 7,
-                      ),
-                      child: Align(
-                        child: GestureDetector(
-                          child: Container(
-                              width: screenWidth*0.8,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                    colors: [
-                                      customStyleClass.primeColorDark,
-                                      customStyleClass.primeColor,
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                    stops: const [0.2, 0.9]
-                                ),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Colors.black54,
-                                    spreadRadius: 1,
-                                    blurRadius: 7,
-                                    offset: Offset(3, 3), // changes position of shadow
-                                  ),
-                                ],
-                                borderRadius: const BorderRadius.all(
-                                    Radius.circular(10)
-                                ),
-                              ),
-                              padding: const EdgeInsets.all(18),
-                              child: Center(
-                                child: Text(
-                                  "Event aus Vorlage erstellen!",
-                                  style: customStyleClass.getFontStyle4Bold(),
-                                ),
-                              )
-                          ),
-                          onTap: (){
-                            context.push("/club_event_templates");
-                          },
-                        ),
-                      ),
-                    ):Container(),
-                  ],
-                ),
-              ),
-            )
-          ],
-        ),
-      ),
-    );
-  }
-  Widget buildCurrentEventsWidget(
-      StateProvider stateProvider,double screenHeight, double screenWidth){
-
-    double discountContainerHeightFactor;
-
-    upcomingEvents.isNotEmpty?
-    discountContainerHeightFactor = 0.52
-        : discountContainerHeightFactor = 0.26;
-
-    return Stack(
-      children: [
-
-        // gradient from bottom left to bottom right
-        Container(
-          width: screenWidth*0.91,
-          height: screenHeight*(discountContainerHeightFactor+0.006),
-          decoration: BoxDecoration(
-              gradient: LinearGradient(
-                  begin: Alignment.bottomLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.grey[900]!,
-                    customStyleClass.primeColorDark.withOpacity(0.4)
-                  ],
-                  stops: const [0.6, 0.9]
-              ),
-              borderRadius: BorderRadius.circular(
-                  15
-              )
-          ),
-        ),
-
-        // gradient from top right to bottom right
-        Container(
-          width: screenWidth*0.91,
-          height: screenHeight*discountContainerHeightFactor,
-          decoration: BoxDecoration(
-              gradient: LinearGradient(
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.grey[900]!,
-                    customStyleClass.primeColorDark.withOpacity(0.2)
-                  ],
-                  stops: const [0.6, 0.9]
-              ),
-              borderRadius: BorderRadius.circular(
-                  15
-              )
-          ),
-        ),
-
-        // left highlight
-        Container(
-          width: screenWidth*0.89,
-          height: screenHeight*discountContainerHeightFactor,
-          decoration: BoxDecoration(
-              gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Colors.grey[600]!, Colors.grey[900]!],
-                  stops: const [0.1, 0.9]
-              ),
-              borderRadius: BorderRadius.circular(
-                  15
-              )
-          ),
-        ),
-
-        // top left to top right
-        Padding(
-            padding: const EdgeInsets.only(
-                left:2
-            ),
-            child: Container(
-              width: screenWidth*0.9,
-              height: screenHeight*discountContainerHeightFactor,
-              decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.topRight,
-                      colors: [Colors.grey[600]!, Colors.grey[900]!],
-                      stops: const [0.1, 0.9]
-                  ),
-                  borderRadius: BorderRadius.circular(
-                      15
-                  )
-              ),
-            )
-        ),
-
-        // MAIN CONTENT
-        Padding(
-          padding: const EdgeInsets.only(
-              left:2,
-              top: 2
-          ),
-          child: Container(
-            width: screenWidth*0.9,
-            height: screenHeight*discountContainerHeightFactor,
-            decoration: BoxDecoration(
-                gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Colors.grey[800]!.withOpacity(0.7),
-                      Colors.grey[900]!
-                    ],
-                    stops: const [0.1,0.7]
-                ),
-                borderRadius: BorderRadius.circular(
-                    15
-                )
-            ),
-            child: Column(
-              children: [
-
-                // "Aktuelle Events"
-                Container(
-                  width: screenWidth,
-                  padding: EdgeInsets.only(
-                      left: screenWidth*0.05,
-                      top: screenHeight*0.03
-                  ),
-                  child: Text(
-                    "Aktuelle Events",
-                    textAlign: TextAlign.left,
-                    style: customStyleClass.getFontStyle1Bold(),
-                  ),
-                ),
-
-                // Spacer
-                SizedBox(
-                  height: screenHeight*0.03,
-                ),
-
-                // Show fetched discounts
-                upcomingEvents.isNotEmpty
-                    ? Stack(
-                        children: [
-
-                          // Event Tile
-                          GestureDetector(
-                            child: Center(
-                              child: SmallEventTile(
-                                  clubMeEvent: upcomingEvents[0],
-                              ),
-                            ),
-                            onTap: () => clickedOnCurrentEvent(stateProvider),
-                          ),
-
-                          // Shadow to highlight icons
-                          Center(
-                            child: Padding(
-                              padding: EdgeInsets.only(
-                                top: screenHeight*0.005
-                              ),
-                              child: Container(
-                                height: screenHeight*0.07,
-                                width: screenWidth*0.8,
-                                decoration: const BoxDecoration(
-                                  gradient: LinearGradient(
-                                      begin: Alignment.topCenter,
-                                      end: Alignment.bottomCenter,
-                                      colors: [Colors.black, Colors.transparent],
-                                  ),
-                                  borderRadius: BorderRadius.only(
-                                      topRight: Radius.circular(12),
-                                      topLeft: Radius.circular(12)
-                                  ),
-                                ),
-                              ),
-                            )
-                          ),
-
-                          // Edit button
-                          Padding(
-                            padding: EdgeInsets.only(
-                              right: screenWidth*0.05,
-                            ),
-                            child: Align(
-                              alignment: Alignment.topRight,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  IconButton(
-                                    icon: Icon(Icons.edit, size: screenWidth*0.08),
-                                    color: customStyleClass.primeColor,
-                                    onPressed: () => clickOnEditEvent(),
-                                  ),
-                                  IconButton(
-                                    icon: Icon(Icons.clear_rounded, size: screenWidth*0.08),
-                                    color: customStyleClass.primeColor,
-                                    onPressed: () => clickOnDeleteEvent(),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      )
-                    :Text(
-                      "Keine Events verfügbar",
-                        style: customStyleClass.getFontStyle3(),
-                ),
-
-                // Spacer
-                fetchedContentProvider.getFetchedDiscounts().isEmpty ? SizedBox(
-                  height: screenHeight*0.03,
-                ):Container(),
-              ],
-            ),
-          ),
-        ),
-
-        // "More Discounts" Buttons
-        Container(
-          width: screenWidth*0.9,
-          height: screenHeight*discountContainerHeightFactor,
-          alignment: Alignment.bottomRight,
-          child: GestureDetector(
-            child: Padding(
-              padding: EdgeInsets.only(
-                  bottom: screenHeight*0.015,
-                  right: screenWidth*0.02
-              ),
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient:LinearGradient(
-                      colors: [
-                        customStyleClass.primeColorDark,
-                        customStyleClass.primeColor,
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      stops: const [0.2, 0.9]
-                  ),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black54,
-                      spreadRadius: 1,
-                      blurRadius: 7,
-                      offset: Offset(3, 3),
-                    ),
-                  ],
-                  borderRadius: const BorderRadius.all(
-                      Radius.circular(10)
-                  ),
-                ),
-                padding: const EdgeInsets.all(18),
-                child: Text(
-                  "Mehr Events!",
-                  style: customStyleClass.getFontStyle4Bold(),
-                ),
-              ),
-            ),
-            onTap: () => clickEventGoToMoreEvents(0),
-          ),
-        ),
-      ],
-    );
-  }
-  Widget buildPastEventsWidget(
-      StateProvider stateProvider, double screenHeight, double screenWidth){
-
-    double discountContainerHeightFactor;
-
-    pastEvents.isNotEmpty?
-    discountContainerHeightFactor = 0.52
-        : discountContainerHeightFactor = 0.26;
-
-    return Stack(
-      children: [
-
-        // gradient from bottom left to bottom right
-        Container(
-          width: screenWidth*0.91,
-          height: screenHeight*(discountContainerHeightFactor+0.006),
-          decoration: BoxDecoration(
-              gradient: LinearGradient(
-                  begin: Alignment.bottomLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.grey[900]!,
-                    customStyleClass.primeColorDark.withOpacity(0.4)
-                  ],
-                  stops: const [0.6, 0.9]
-              ),
-              borderRadius: BorderRadius.circular(
-                  15
-              )
-          ),
-        ),
-
-        // gradient from top right to bottom right
-        Container(
-          width: screenWidth*0.91,
-          height: screenHeight*discountContainerHeightFactor,
-          decoration: BoxDecoration(
-              gradient: LinearGradient(
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.grey[900]!,
-                    customStyleClass.primeColorDark.withOpacity(0.2)
-                  ],
-                  stops: const [0.6, 0.9]
-              ),
-              borderRadius: BorderRadius.circular(
-                  15
-              )
-          ),
-        ),
-
-        // left highlight
-        Container(
-          width: screenWidth*0.89,
-          height: screenHeight*discountContainerHeightFactor,
-          decoration: BoxDecoration(
-              gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Colors.grey[600]!, Colors.grey[900]!],
-                  stops: const [0.1, 0.9]
-              ),
-              borderRadius: BorderRadius.circular(
-                  15
-              )
-          ),
-        ),
-
-        // top left to top right
-        Padding(
-            padding: const EdgeInsets.only(
-                left:2
-            ),
-            child: Container(
-              width: screenWidth*0.9,
-              height: screenHeight*discountContainerHeightFactor,
-              decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.topRight,
-                      colors: [Colors.grey[600]!, Colors.grey[900]!],
-                      stops: const [0.1, 0.9]
-                  ),
-                  borderRadius: BorderRadius.circular(
-                      15
-                  )
-              ),
-            )
-        ),
-
-        // MAIN CONTENT
-        Padding(
-          padding: const EdgeInsets.only(
-              left:2,
-              top: 2
-          ),
-          child: Container(
-            width: screenWidth*0.9,
-            height:
-            screenHeight*discountContainerHeightFactor,
-            decoration: BoxDecoration(
-                gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Colors.grey[800]!.withOpacity(0.7),
-                      Colors.grey[900]!
-                    ],
-                    stops: const [0.1,0.7]
-                ),
-                borderRadius: BorderRadius.circular(
-                    15
-                )
-            ),
-            child: Column(
-              children: [
-
-                // "Past Events"
-                Container(
-                  width: screenWidth,
-                  padding: EdgeInsets.only(
-                      left: screenWidth*0.05,
-                      top: screenHeight*0.03
-                  ),
-                  child: Text(
-                    "Vergangene Events",
-                    textAlign: TextAlign.left,
-                    style: customStyleClass.getFontStyle1Bold(),
-                  ),
-                ),
-
-                // Spacer
-                SizedBox(
-                  height: screenHeight*0.03,
-                ),
-
-                // Show fetched discounts
-                pastEvents.isNotEmpty
-                    ? GestureDetector(
-                        child: SmallEventTile(
-                            clubMeEvent: pastEvents[0],
-                        ),
-                        onTap: (){
-                          currentAndLikedElementsProvider.setCurrentEvent(pastEvents[0]);
-                          stateProvider.setAccessedEventDetailFrom(5);
-                          context.go("/event_details");
-                        },
-                      )
-                    :Text(
-                    "Keine Events verfügbar",
-                  style: customStyleClass.getFontStyle4(),
-                ),
-              ],
-            ),
-          ),
-        ),
-
-        // "More Discounts" Buttons
-        Container(
-          width: screenWidth*0.9,
-          height: screenHeight*discountContainerHeightFactor,
-          alignment: Alignment.bottomRight,
-          child: GestureDetector(
-            child: Padding(
-              padding: EdgeInsets.only(
-                  bottom: screenHeight*0.015,
-                  right: screenWidth*0.02
-              ),
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient:LinearGradient(
-                      colors: [
-                        customStyleClass.primeColorDark,
-                        customStyleClass.primeColor,
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      stops: const [0.2, 0.9]
-                  ),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black54,
-                      spreadRadius: 1,
-                      blurRadius: 7,
-                      offset: Offset(3, 3),
-                    ),
-                  ],
-                  borderRadius: const BorderRadius.all(
-                      Radius.circular(10)
-                  ),
-                ),
-                padding: const EdgeInsets.all(18),
-                child: Text(
-                  "Mehr Events!",
-                  style: customStyleClass.getFontStyle4Bold(),
-                ),
-              ),
-            ),
-            onTap: () => clickEventGoToMoreEvents(1),
-          ),
-        ),
-      ],
-    );
-  }
   AppBar _buildAppBar(){
     return AppBar(
       automaticallyImplyLeading: false,
-        surfaceTintColor: Colors.black,
-        backgroundColor: Colors.transparent,
+        backgroundColor: customStyleClass.backgroundColorMain,
+        surfaceTintColor: customStyleClass.backgroundColorMain,
         title: SizedBox(
           width: screenWidth,
           child: Text(headLine,
             textAlign: TextAlign.center,
-            style: customStyleClass.getFontStyle1(),
+            style: customStyleClass.getFontStyleHeadline1Bold(),
           ),
         )
     );
@@ -1209,9 +525,14 @@ class _ClubEventsViewState extends State<ClubEventsView> {
   void clickOnDeleteEvent(){
     showDialog(context: context, builder: (BuildContext context){
       return AlertDialog(
-        title: const Text("Achtung!"),
-        content: const Text(
+        backgroundColor: Color(0xff121111),
+        title:  Text(
+            "Achtung!",
+          style: customStyleClass.getFontStyle1Bold(),
+        ),
+        content: Text(
           "Bist du sicher, dass du dieses Event löschen möchtest?",
+          style: customStyleClass.getFontStyle3(),
           textAlign: TextAlign.left,
         ),
         actions: [
@@ -1227,7 +548,10 @@ class _ClubEventsViewState extends State<ClubEventsView> {
                   Navigator.pop(context);
                 }
               }),
-              child: const Text("Löschen")
+              child: Text(
+                  "Löschen",
+                style: customStyleClass.getFontStyle3BoldPrimeColor(),
+              )
           )
         ],
       );
@@ -1308,7 +632,8 @@ class _ClubEventsViewState extends State<ClubEventsView> {
 
         bottomNavigationBar: CustomBottomNavigationBarClubs(),
         appBar: _buildAppBar(),
-        body: SizedBox(
+        body: Container(
+          color: customStyleClass.backgroundColorMain,
             width: screenWidth,
             height: screenHeight,
             child: SingleChildScrollView(

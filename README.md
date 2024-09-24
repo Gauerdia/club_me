@@ -12,3 +12,7 @@ https://javiercbk.github.io/json_to_dart/
 ## Erstellung der Hive-spezifischen Dateien und Verlinkungen
 - flutter packages pub run build_runner build
 
+# iOS Privacy
+
+I added the ios/PrivacyInfo.xcprivacy file because flutter_background_geolocation said that 
+apple requires it

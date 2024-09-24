@@ -29,12 +29,13 @@ class _ClubChooseDiscountTemplateViewState extends State<ClubChooseDiscountTempl
   AppBar _buildAppBar(){
     return AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.transparent,
+        backgroundColor: customStyleClass.backgroundColorMain,
+        surfaceTintColor: customStyleClass.backgroundColorMain,
         title: Stack(
           children: [
 
             Container(
-              alignment: Alignment.centerLeft,
+              alignment: Alignment.centerRight,
               height: 50,
               child: IconButton(
                   icon: const Icon(
@@ -45,7 +46,7 @@ class _ClubChooseDiscountTemplateViewState extends State<ClubChooseDiscountTempl
               ),
             ),
 
-            Container(
+            SizedBox(
               height: 50,
               width: screenWidth,
               child: Column(
@@ -132,6 +133,7 @@ class _ClubChooseDiscountTemplateViewState extends State<ClubChooseDiscountTempl
         body: Container(
             width: screenWidth,
             height: screenHeight,
+            color: customStyleClass.backgroundColorMain,
             child: SingleChildScrollView(
                 child: Column(
                   children: [
@@ -142,25 +144,28 @@ class _ClubChooseDiscountTemplateViewState extends State<ClubChooseDiscountTempl
                               top: 10
                           ),
                           child: Card(
-                            color: Colors.black,
+                            color: customStyleClass.backgroundColorEventTile,
                             child: Column(
                               children: [
-                                ListTile(
-                                  shape: RoundedRectangleBorder(
-                                    side: const BorderSide(color: Colors.grey, width: 1),
-                                    borderRadius: BorderRadius.circular(5),
-                                  ),
-                                  title: Text(
-                                    discountTemplate.getDiscountTitle(),
-                                    style: customStyleClass.getFontStyle3(),
-                                  ),
-                                  trailing: Wrap(
-                                    children: [
-                                      Icon(
-                                        Icons.delete,
-                                        color: customStyleClass.primeColor,
-                                      )
-                                    ],
+                                Container(
+                                  width: screenWidth*0.9,
+                                  child: ListTile(
+                                    shape: RoundedRectangleBorder(
+                                      side: const BorderSide(color: Colors.grey, width: 1),
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    title: Text(
+                                      discountTemplate.getDiscountTitle(),
+                                      style: customStyleClass.getFontStyle3(),
+                                    ),
+                                    trailing: Wrap(
+                                      children: [
+                                        Icon(
+                                          Icons.delete,
+                                          color: customStyleClass.primeColor,
+                                        )
+                                      ],
+                                    ),
                                   ),
                                 )
                               ],

@@ -32,6 +32,7 @@ class UserDataProvider extends ChangeNotifier{
   void setUserData(ClubMeUserData clubMeUserData){
     userData = clubMeUserData;
   }
+
   ClubMeUserData getUserData(){
     return userData;
   }
@@ -39,8 +40,6 @@ class UserDataProvider extends ChangeNotifier{
   String getUserDataId(){
     return userData.getUserId();
   }
-
-
 
   ClubMeClub getUserClub(){
     return userClub;
@@ -65,6 +64,7 @@ class UserDataProvider extends ChangeNotifier{
   int getUserClubBackgroundColorId(){
     return userClub.getBackgroundColorId();
   }
+
   String getUserClubMusicGenres(){
     return userClub.getMusicGenres();
   }

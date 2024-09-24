@@ -39,7 +39,24 @@ class SmallEventTile extends StatelessWidget {
       case(7): weekDayToDisplay = "Sonntag, $weekDayToDisplay";
     }
 
-    formattedWeekday = weekDayToDisplay;
+    var startingHour = clubMeEvent.getEventDate().hour;
+    var startingMinute = clubMeEvent.getEventDate().minute;
+
+    String startingHourToDisplay = "";
+    String startingMinuteToDisplay = "";
+
+    if(startingHour < 10 ){
+      startingHourToDisplay = "0$startingHour";
+    }else{
+      startingHourToDisplay = startingHour.toString();
+    }
+    if(startingMinute < 10 ){
+      startingMinuteToDisplay = "0$startingMinute";
+    }else{
+      startingMinuteToDisplay = startingMinute.toString();
+    }
+
+    formattedWeekday = "$weekDayToDisplay, $startingHourToDisplay:$startingMinuteToDisplay Uhr";
   }
   void formatEventTitle(){
     if(clubMeEvent.getEventTitle().length >= 22){
@@ -77,27 +94,21 @@ class SmallEventTile extends StatelessWidget {
     return Container(
       padding: EdgeInsets.only(bottom: screenHeight*0.02),
       child: Card(
+        color: customStyleClass.backgroundColorEventTile,
         child: Column(
           children: [
 
             // Image container
             Container(
-              // width: screenWidth*0.9,
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.only(
+                decoration: BoxDecoration(
+                  color: customStyleClass.backgroundColorEventTile,
+                  border: Border.all(
+                      color: customStyleClass.backgroundColorEventTile,
+                    width: 2
+                  ),
+                  borderRadius: const BorderRadius.only(
                       topRight: Radius.circular(12),
                       topLeft: Radius.circular(12)
-                  ),
-                  border: Border(
-                    top: BorderSide(
-                        width: 1, color: Colors.white60
-                    ),
-                    left: BorderSide(
-                        width: 1, color: Colors.white60
-                    ),
-                    right: BorderSide(
-                        width: 1, color: Colors.white60
-                    ),
                   ),
                 ),
                 child: SizedBox(
@@ -105,8 +116,8 @@ class SmallEventTile extends StatelessWidget {
                     height: screenHeight*0.2,
                     child: ClipRRect(
                       borderRadius: const BorderRadius.only(
-                          topRight: Radius.circular(12),
-                          topLeft: Radius.circular(12)
+                          topRight: Radius.circular(10),
+                          topLeft: Radius.circular(10)
                       ),
                       child:fetchedContentProvider.getFetchedBannerImageIds().contains(clubMeEvent.getBannerId())?
                       Image(
@@ -129,30 +140,15 @@ class SmallEventTile extends StatelessWidget {
                 height: screenHeight*0.12,
                 width: screenWidth*0.905,
                 decoration: BoxDecoration(
+                  color: customStyleClass.backgroundColorEventTile,
                   borderRadius: const BorderRadius.only(
                       bottomRight: Radius.circular(12),
                       bottomLeft: Radius.circular(12)
                   ),
-                  border: const Border(
-                    bottom: BorderSide(
-                        width: 1, color: Colors.white60
-                    ),
-                    left: BorderSide(
-                        width: 1, color: Colors.white60
-                    ),
-                    right: BorderSide(
-                        width: 1, color: Colors.white60
-                    ),
-                  ),
-                  gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Colors.grey[700]!,
-                        Colors.grey[850]!
-                      ],
-                      stops: const [0.3, 0.8]
-                  ),
+                  border: Border.all(
+                    color: customStyleClass.backgroundColorEventTile,
+                    width: 2
+                  )
                 ),
                 child: Stack(
                   children: [
@@ -168,8 +164,8 @@ class SmallEventTile extends StatelessWidget {
                           child: Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                              formattedEventTitle,
-                              style: customStyleClass.getFontStyle2Bold()
+                                formattedEventTitle,
+                                style: customStyleClass.getFontStyle2Bold()
                             ),
                           ),
                         ),
@@ -194,13 +190,13 @@ class SmallEventTile extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(
                           left: 10,
-                        bottom: 8
+                          bottom: 8
                       ),
                       child: Align(
                         alignment: Alignment.bottomLeft,
                         child: Text(
                             formattedWeekday,
-                            style: customStyleClass.getFontStyle5Bold()
+                            style: customStyleClass.getFontStyle5BoldPrimeColor()
                         ),
                       ),
                     ),
