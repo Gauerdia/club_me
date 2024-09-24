@@ -112,7 +112,10 @@ dependencies:
 
   glowy_borders: ^1.0.2
 
-  workmanager: ^0.5.2
+  workmanager:
+    git:
+      url: https://github.com/absar/flutter_workmanager.git
+      ref: b783000
   shared_preferences: ^2.3.2
 
   #  flutter_background_geolocation: ^4.12.0
