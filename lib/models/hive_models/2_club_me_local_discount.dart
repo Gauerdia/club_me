@@ -1,62 +1,79 @@
 import 'package:hive/hive.dart';
-part 'club_me_discount_template.g.dart';
+part '2_club_me_local_discount.g.dart';
 
-@HiveType(typeId:  3)
-class ClubMeDiscountTemplate{
+@HiveType(typeId:  2)
+class ClubMeLocalDiscount{
 
-  ClubMeDiscountTemplate({
+
+  ClubMeLocalDiscount({
+    required this.discountId,
+    required this.clubId,
+    required this.clubName,
     required this.discountTitle,
     required this.numberOfUsages,
     required this.discountDate,
+    required this.bannerId,
+    required this.howOftenRedeemed,
     required this.hasTimeLimit,
     required this.hasUsageLimit,
     required this.discountDescription,
     required this.targetGender,
+    required this.priorityScore,
     required this.hasAgeLimit,
-    required this.ageLimitLowerLimit,
     required this.ageLimitUpperLimit,
-    required this.isRepeatedDays,
-    required this.templateId
+    required this.ageLimitLowerLimit,
+    required this.isRepeatedDays
   });
 
   @HiveField(0)
-  String discountTitle;
+  String clubId;
   @HiveField(1)
-  DateTime discountDate;
+  String clubName;
   @HiveField(2)
-  String discountDescription;
+  String discountId;
+
   @HiveField(3)
-  bool hasTimeLimit;
+  String discountTitle;
   @HiveField(4)
-  bool hasUsageLimit;
+  DateTime discountDate;
   @HiveField(5)
-  int numberOfUsages;
+  String discountDescription;
+
   @HiveField(6)
-  int targetGender;
+  bool hasTimeLimit;
   @HiveField(7)
+  bool hasUsageLimit;
+  @HiveField(8)
   bool hasAgeLimit;
+
   @HiveField(9)
-  int ageLimitLowerLimit;
+  int numberOfUsages;
   @HiveField(10)
-  int ageLimitUpperLimit;
+  String bannerId;
   @HiveField(11)
-  int isRepeatedDays;
+  int howOftenRedeemed;
+
   @HiveField(12)
-  String templateId;
+  int targetGender;
+  @HiveField(13)
+  int priorityScore;
 
-  String getTemplateId(){
-    return templateId;
+  @HiveField(14)
+  int ageLimitLowerLimit;
+  @HiveField(15)
+  int ageLimitUpperLimit;
+
+  @HiveField(16)
+  int isRepeatedDays;
+
+  bool getIsRepeated(){
+    return isRepeatedDays != 0 ? true : false;
   }
 
-  bool getHasAgeLimit(){
-    return hasAgeLimit;
-  }
   int getIsRepeatedDays(){
     return isRepeatedDays;
   }
-  bool getIsRepeated(){
-    return isRepeatedDays != 0 ? true:false;
-  }
+
 
   int getAgeLimitLowerLimit(){
     return ageLimitLowerLimit;
@@ -65,45 +82,93 @@ class ClubMeDiscountTemplate{
     return ageLimitUpperLimit;
   }
 
+  bool getHasAgeLimit(){
+    return hasAgeLimit;
+  }
 
+  int getPriorityScore(){
+    return priorityScore;
+  }
 
   int getTargetGender(){
     return targetGender;
   }
+
   String getDiscountDescription(){
     return discountDescription;
   }
   void setDiscountDescription(String newValue){
     discountDescription = newValue;
   }
+
   bool getHasUsageLimit(){
     return hasUsageLimit;
   }
   void setHasUsageLimit(bool newValue){
     hasUsageLimit = newValue;
   }
+
   bool getHasTimeLimit(){
     return hasTimeLimit;
   }
   void setHasTimeLimit(bool newValue){
     hasTimeLimit = newValue;
   }
+
+  String getClubId(){
+    return clubId;
+  }
+  void setClubId(String newValue){
+    clubName = newValue;
+  }
+
+  int getHowOftenRedeemed(){
+    return howOftenRedeemed;
+  }
+  void setHowOftenRedeemed(int newValue){
+    howOftenRedeemed = newValue;
+  }
+
+  String getDiscountId(){
+    return discountId;
+  }
+  void setDiscountId(String newValue){
+    discountId = newValue;
+  }
+
   String getDiscountTitle(){
     return discountTitle;
   }
   void setDiscountTitle(String newValue){
     discountTitle = newValue;
   }
+
+  String getClubName(){
+    return clubName;
+  }
+  void setClubName(String newValue){
+    clubName = newValue;
+  }
+
   int getNumberOfUsages(){
     return numberOfUsages;
   }
   void setNumberOfUsages(int newValue){
     numberOfUsages = newValue;
   }
+
   DateTime getDiscountDate(){
     return discountDate;
   }
   void setDiscountDate(DateTime newValue){
     discountDate = newValue;
   }
+
+  String getBannerId(){
+    return bannerId;
+  }
+  void setBannerId(String newValue){
+    bannerId = newValue;
+  }
+
 }

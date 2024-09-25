@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:club_me/main.dart';
-import 'package:club_me/models/club_me_user_data.dart';
+import 'package:club_me/models/hive_models/0_club_me_user_data.dart';
 import 'package:club_me/models/club_offers.dart';
 import 'package:club_me/models/event.dart';
 import 'package:club_me/models/front_page_images.dart';

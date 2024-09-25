@@ -263,12 +263,19 @@ class _EventDetailViewState extends State<EventDetailView>{
   }
   void formatEventGenres(){
     String genresToDisplay = "";
-    if(currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenres().substring(currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenres().length-1) == ","){
-      genresToDisplay = currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenres().substring(0, currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenres().length-1);
+
+    if(currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenres().isNotEmpty){
+      if(
+      currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenres().substring(currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenres().length-1) == ","){
+        genresToDisplay = currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenres().substring(0, currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenres().length-1);
+      }else{
+        genresToDisplay = currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenres();
+      }
+      formattedEventGenres = genresToDisplay;
     }else{
-      genresToDisplay = currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenres();
+      formattedEventGenres = "Es wurden keine Musikrichtungen angegeben";
     }
-    formattedEventGenres = genresToDisplay;
+
   }
 
 

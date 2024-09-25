@@ -4,7 +4,7 @@ import 'package:geolocator/geolocator.dart';
 
 import '../mock_ups/class_mock_ups.dart';
 import '../models/club.dart';
-import '../models/club_me_user_data.dart';
+import '../models/hive_models/0_club_me_user_data.dart';
 
 class UserDataProvider extends ChangeNotifier{
 

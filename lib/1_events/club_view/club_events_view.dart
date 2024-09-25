@@ -62,6 +62,32 @@ class _ClubEventsViewState extends State<ClubEventsView> {
     }
   }
 
+  void initGeneralSettings(){
+
+    stateProvider = Provider.of<StateProvider>(context);
+    userDataProvider = Provider.of<UserDataProvider>(context);
+    screenWidth = MediaQuery.of(context).size.width;
+    screenHeight = MediaQuery.of(context).size.height;
+    currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context);
+    fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
+
+    customStyleClass = CustomStyleClass(context: context);
+
+    if(upcomingEvents.isEmpty && pastEvents.isEmpty){
+      filterEventsFromProvider(stateProvider);
+    }
+    if(upcomingEvents.isNotEmpty && !identical(upcomingEvents[0], fetchedContentProvider.getFetchedEvents().where((element) => element.getEventId() == upcomingEvents[0].getEventId()))){
+      filterEventsFromProvider(stateProvider);
+    }
+
+    if(stateProvider.getClubMeEventTemplates().isEmpty){
+      getAllEventTemplates(stateProvider);
+    }else{
+      newDiscountContainerHeightFactor = 0.3;
+    }
+
+  }
+
   // BUILD
   Widget fetchEventsFromDbAndBuildWidget(
       StateProvider stateProvider,
@@ -575,13 +601,8 @@ class _ClubEventsViewState extends State<ClubEventsView> {
     try{
       var eventTemplates = await _hiveService.getAllClubMeEventTemplates();
       stateProvider.setClubMeEventTemplates(eventTemplates);
-      // if(eventTemplates.isNotEmpty){
-      //   setState(() {
-      //     newDiscountContainerHeightFactor = 0.3;
-      //   });
-      // }
     }catch(e){
-      _supabaseService.createErrorLog("getAllEventTemplates: $e");
+      _supabaseService.createErrorLog("ClubEventsView, getAllEventTemplates: $e");
     }
   }
   Future<bool> checkIfImageExistsLocally(String fileName) async{
@@ -604,27 +625,7 @@ class _ClubEventsViewState extends State<ClubEventsView> {
   @override
   Widget build(BuildContext context) {
 
-    stateProvider = Provider.of<StateProvider>(context);
-    userDataProvider = Provider.of<UserDataProvider>(context);
-    screenWidth = MediaQuery.of(context).size.width;
-    screenHeight = MediaQuery.of(context).size.height;
-    currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context);
-    fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
-
-    customStyleClass = CustomStyleClass(context: context);
-
-    if(upcomingEvents.isEmpty && pastEvents.isEmpty){
-      filterEventsFromProvider(stateProvider);
-    }
-    if(upcomingEvents.isNotEmpty && !identical(upcomingEvents[0], fetchedContentProvider.getFetchedEvents().where((element) => element.getEventId() == upcomingEvents[0].getEventId()))){
-      filterEventsFromProvider(stateProvider);
-    }
-
-    if(stateProvider.getClubMeEventTemplates().isEmpty){
-      getAllEventTemplates(stateProvider);
-    }else{
-      newDiscountContainerHeightFactor = 0.3;
-    }
+    initGeneralSettings();
 
     return Scaffold(
 

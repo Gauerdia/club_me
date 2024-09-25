@@ -7,24 +7,17 @@ import 'package:club_me/3_clubs/club_view/components/offers_list_club_view.dart'
 import 'package:club_me/3_clubs/user_view/offers_list_view.dart';
 import 'package:club_me/club_statistics/club_statistics_view.dart';
 import 'package:club_me/log_in/log_in_view.dart';
-import 'package:club_me/models/club_me_discount_template.dart';
-import 'package:club_me/models/club_me_event_template.dart';
-import 'package:club_me/models/club_me_local_discount.dart';
-import 'package:club_me/models/club_me_user_data.dart';
-import 'package:club_me/models/temp_geo_location_data.dart';
+import 'package:club_me/models/hive_models/0_club_me_user_data.dart';
 import 'package:club_me/profile/profile_view.dart';
 import 'package:club_me/provider/current_and_liked_elements_provider.dart';
 import 'package:club_me/provider/fetched_content_provider.dart';
 import 'package:club_me/provider/state_provider.dart';
 import 'package:club_me/provider/user_data_provider.dart';
 import 'package:club_me/register/register_view.dart';
-import 'package:club_me/services/hive_service.dart';
-import 'package:club_me/services/supabase_service.dart';
 import 'package:club_me/settings/club_view/settings_club_view.dart';
 import 'package:club_me/settings/user_view/settings_user_view.dart';
 import 'package:club_me/shared/test.dart';
 import 'package:club_me/stories/video_recorder_screen.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
@@ -35,8 +28,6 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:camera/camera.dart';
@@ -68,6 +59,10 @@ import '3_clubs/club_view/components/update_news_view.dart';
 import '3_clubs/club_view/components/update_photos_and_videos_view.dart';
 import '3_clubs/user_view/user_clubs_view.dart';
 import '4_map/user_map_view.dart';
+import 'models/hive_models/1_club_me_discount_template.dart';
+import 'models/hive_models/2_club_me_local_discount.dart';
+import 'models/hive_models/3_club_me_event_template.dart';
+import 'models/hive_models/4_temp_geo_location_data.dart';
 
 
 const rescheduledTaskKey = "be.szymendera.workmanager.rescheduledTask";
@@ -86,7 +81,7 @@ Future<void> main() async {
   // Used to make sure that coupons and user timezones match
   tz.initializeTimeZones();
 
-  // connect to our backeend
+  // connect to our backend
   await Supabase.initialize(
     url: 'https://mssfbflgzkgxyhkkfukh.supabase.co',
     anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zc2ZiZmxnemtneHloa2tmdWtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTUyNTM2MzUsImV4cCI6MjAzMDgyOTYzNX0.aG3TR8A3UrpZNW65qDZ1BXyasQEo65NzgS03FcTebs0'
@@ -109,7 +104,7 @@ Future<void> main() async {
   // Set a logger to make development easier
   Logger.level = Level.debug;
 
-  // No landscape mode because it is not optimised fo rit
+  // No landscape mode because it is not optimised for it
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);
@@ -510,7 +505,7 @@ class MyApp extends StatelessWidget {
 
 
         ThemeData(
-          scaffoldBackgroundColor: Color(0xff181414),
+          scaffoldBackgroundColor: const Color(0xff121111),
 
           textTheme: TextTheme(
               displayLarge: const TextStyle(

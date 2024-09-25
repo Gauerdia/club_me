@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'club_me_discount_template.dart';
+part of '1_club_me_discount_template.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
@@ -9,7 +9,7 @@ part of 'club_me_discount_template.dart';
 class ClubMeDiscountTemplateAdapter
     extends TypeAdapter<ClubMeDiscountTemplate> {
   @override
-  final int typeId = 3;
+  final int typeId = 1;
 
   @override
   ClubMeDiscountTemplate read(BinaryReader reader) {

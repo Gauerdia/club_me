@@ -1,5 +1,6 @@
-import 'package:club_me/models/club_me_local_discount.dart';
 import 'package:club_me/models/discount.dart';
+
+import '../hive_models/2_club_me_local_discount.dart';
 
 ClubMeLocalDiscount discountToLocalDiscountParser(ClubMeDiscount clubMeDiscount){
   return ClubMeLocalDiscount(

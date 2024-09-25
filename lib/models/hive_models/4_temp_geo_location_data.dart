@@ -1,8 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-part 'temp_geo_location_data.g.dart';
+part '4_temp_geo_location_data.g.dart';
 
-@HiveType(typeId:  6)
+@HiveType(typeId:  4)
 class TempGeoLocationData{
 
   TempGeoLocationData({

@@ -1,14 +1,12 @@
 import 'dart:io';
 import 'package:camera/camera.dart';
-import 'package:club_me/models/club_me_discount_template.dart';
-import 'package:club_me/models/club_me_event_hive.dart';
-import 'package:club_me/models/club_me_event_template.dart';
-import 'package:club_me/models/event_template.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-// import 'package:timezone/browser.dart';
 import 'package:timezone/standalone.dart' as tz;
+
+import '../models/hive_models/1_club_me_discount_template.dart';
+import '../models/hive_models/3_club_me_event_template.dart';
 
 class StateProvider extends ChangeNotifier{
 
@@ -29,7 +27,6 @@ class StateProvider extends ChangeNotifier{
   int _pageIndex = 0;
   int get pageIndex => _pageIndex;
 
-  // ClubMeEventHive? clubMeEventHive;
   ClubMeEventTemplate? currentEventTemplate;
   ClubMeDiscountTemplate? currentDiscountTemplate;
 

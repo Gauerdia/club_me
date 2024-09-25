@@ -1,13 +1,12 @@
-import 'package:club_me/models/club_me_discount_template.dart';
-import 'package:club_me/models/club_me_event_template.dart';
-import 'package:club_me/models/club_me_local_discount.dart';
 import 'package:club_me/models/discount.dart';
-import 'package:club_me/models/event_template.dart';
 import 'package:club_me/models/parser/discount_to_local_discount_parser.dart';
-import 'package:club_me/models/temp_geo_location_data.dart';
 import 'package:club_me/services/supabase_service.dart';
 import 'package:hive/hive.dart';
-import '../models/club_me_user_data.dart';
+import '../models/hive_models/0_club_me_user_data.dart';
+import '../models/hive_models/1_club_me_discount_template.dart';
+import '../models/hive_models/2_club_me_local_discount.dart';
+import '../models/hive_models/3_club_me_event_template.dart';
+import '../models/hive_models/4_temp_geo_location_data.dart';
 import '../shared/logger.util.dart';
 
 class HiveService{
@@ -42,7 +41,6 @@ class HiveService{
   Future<void> addTempGeoLocationData(TempGeoLocationData tempGeoLocationData) async{
     var box = await _tempGeoLocationDataBox;
     await box.add(tempGeoLocationData);
-    print("addTempGeoLocationData ended");
   }
 
   // We save all discounts locally so that bad internet connection doesn't impede

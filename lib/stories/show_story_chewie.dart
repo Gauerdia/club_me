@@ -100,105 +100,67 @@ class _ShowStoryChewieState extends State<ShowStoryChewie>
     }
   }
 
-  Widget test1(){
-    return Material(
-      child: Stack(
-        children: [
+  // Widget test1(){
+  //   return Material(
+  //     child: Stack(
+  //       children: [
+  //
+  //         // Video screen
+  //         Container(
+  //             width: screenWidth,
+  //             height: screenHeight,
+  //             padding: EdgeInsets.only(top:screenHeight*0.02),
+  //             child:
+  //
+  //             _chewieController != null &&
+  //                 _chewieController!
+  //                     .videoPlayerController.value.isInitialized
+  //                 ? SizedBox(
+  //               width: screenWidth,
+  //               height: screenHeight*0.85, // 0.97
+  //               child: Chewie(
+  //                 controller: _chewieController!,
+  //               ),
+  //             ) : SizedBox(
+  //               width: screenWidth,
+  //               height: screenHeight,
+  //               child: Center(
+  //                 child: CircularProgressIndicator(
+  //                   color: customStyleClass.primeColor,
+  //                 ),
+  //               ),
+  //             )
+  //         ),
+  //
+  //         Container(
+  //           color: Color(0xff11181f),
+  //           width: screenWidth,
+  //           height: screenHeight*0.09,
+  //           alignment: Alignment.bottomRight,
+  //           child: IconButton(
+  //               onPressed: () => goBackClicked(),
+  //               icon: const Icon(
+  //                 Icons.clear,
+  //                 size: 30,
+  //               )
+  //           ),
+  //         )
+  //
+  //       ],
+  //     ),
+  //   );
+  // }
 
-          // Video screen
-          Container(
-              width: screenWidth,
-              height: screenHeight,
-              padding: EdgeInsets.only(top:screenHeight*0.02),
-              child:
-
-              _chewieController != null &&
-                  _chewieController!
-                      .videoPlayerController.value.isInitialized
-                  ? SizedBox(
-                width: screenWidth,
-                height: screenHeight*0.85, // 0.97
-                child: Chewie(
-                  controller: _chewieController!,
-                ),
-              ) : SizedBox(
-                width: screenWidth,
-                height: screenHeight,
-                child: const Center(
-                  child: CircularProgressIndicator(),
-                ),
-              )
-
-
-            // ClipRRect(
-            //     child: FittedBox(
-            //         // fit: BoxFit.cover,
-            //         // alignment: Alignment.center,
-            //         child: _chewieController != null &&
-            //             _chewieController!
-            //                 .videoPlayerController.value.isInitialized
-            //             ? SizedBox(
-            //           width: screenWidth,
-            //           height: screenHeight, // 0.97
-            //           child: Chewie(
-            //             controller: _chewieController!,
-            //           ),
-            //         ) : SizedBox(
-            //           width: screenWidth,
-            //           height: screenHeight,
-            //           child: const Center(
-            //             child: CircularProgressIndicator(),
-            //           ),
-            //         )
-            //     )
-            // ),
-
-
-          ),
-
-          // Club name
-          // Padding(
-          //   padding: EdgeInsets.only(
-          //       top: screenHeight*0.06
-          //   ),
-          //   child: SizedBox(
-          //     width: screenWidth,
-          //     child: Text(
-          //       widget.clubName,
-          //       textAlign: TextAlign.center,
-          //       style: customStyleClass.size2(),
-          //     ),
-          //   ),
-          // ),
-
-          Container(
-            color: Color(0xff11181f),
-            width: screenWidth,
-            height: screenHeight*0.09,
-            alignment: Alignment.bottomRight,
-            child: IconButton(
-                onPressed: () => goBackClicked(),
-                icon: const Icon(
-                  Icons.clear,
-                  size: 30,
-                )
-            ),
-          )
-
-        ],
-      ),
-    );
-  }
   Widget test2(){
     return MaterialApp(
       title: "test",
       theme: ThemeData(
-        scaffoldBackgroundColor: Color(0xff11181f),
+        scaffoldBackgroundColor: customStyleClass.backgroundColorMain,
       ),
       home: Scaffold(
         appBar: AppBar(
-          title: Text(widget.clubName, style: TextStyle(color: Colors.white),),
-          backgroundColor: Color(0xff11181f),
+          title: Text(widget.clubName, style: const TextStyle(color: Colors.white),),
+          backgroundColor: customStyleClass.backgroundColorMain,
           actions: [
             IconButton(
                 onPressed: () => goBackClicked(),
@@ -210,33 +172,39 @@ class _ShowStoryChewieState extends State<ShowStoryChewie>
             )
           ],
         ),
-        body: Column(
-          children: [
-            Expanded(
-                child: Center(
-                  child: _chewieController != null && _chewieController!.videoPlayerController.value.isInitialized ?
-                  Chewie(
-                    controller: _chewieController!,
-                  ) : const Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CircularProgressIndicator(),
-                      SizedBox(height: 20,),
-                      Text("Lädt...")
-                    ],
-                  ),
-                )
-            ),
-            
-            // TextButton(
-            //   onPressed: () {
-            //     _chewieController?.enterFullScreen();
-            //   },
-            //   child: const Text('Fullscreen'),
-            // ),
+        body: Container(
+          width: screenWidth,
+          height: screenHeight,
+          child: Column(
+            children: [
+              Expanded(
+                  child: Center(
+                    child: _chewieController != null && _chewieController!.videoPlayerController.value.isInitialized ?
 
+                    // main video screen
+                    Chewie(
+                      controller: _chewieController!,
+                    ):
 
-          ],
+                    // loading screen
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(
+                          color: customStyleClass.primeColor,
+                        ),
+                        const SizedBox(height: 20,),
+                        Text(
+                          "Lädt...",
+                          style: customStyleClass.getFontStyle3(),
+                        )
+                      ],
+                    ),
+
+                  )
+              ),
+            ],
+          ),
         )
       )
     );

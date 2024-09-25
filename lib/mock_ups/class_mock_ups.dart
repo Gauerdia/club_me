@@ -2,7 +2,7 @@ import 'package:club_me/models/club_offers.dart';
 import 'package:club_me/models/front_page_images.dart';
 
 import '../models/club.dart';
-import '../models/club_me_user_data.dart';
+import '../models/hive_models/0_club_me_user_data.dart';
 import '../models/opening_times.dart';
 
 ClubMeClub mockUpClub = ClubMeClub(

@@ -1,5 +1,5 @@
 import 'package:hive/hive.dart';
-part 'club_me_user_data.g.dart';
+part '0_club_me_user_data.g.dart';
 
 @HiveType(typeId:  0)
 class ClubMeUserData{

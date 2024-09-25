@@ -1,8 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-part 'club_me_event_template.g.dart';
+part '3_club_me_event_template.g.dart';
 
-@HiveType(typeId:  5)
+@HiveType(typeId:  3)
 class ClubMeEventTemplate{
 
   ClubMeEventTemplate({

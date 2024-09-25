@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'club_me_user_data.dart';
+part of '0_club_me_user_data.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator

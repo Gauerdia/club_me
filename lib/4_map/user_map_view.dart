@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:club_me/4_map/components/club_info_bottom_sheet_2.dart';
@@ -7,6 +8,7 @@ import 'package:club_me/shared/custom_bottom_navigation_bar.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:logger/logger.dart';
@@ -57,7 +59,8 @@ class _UserMapViewState extends State<UserMapView>{
   List<ClubMeClub> clubsToDisplay = [];
   List<Widget> listWidgetsToDisplay = [];
 
-  /// TODO: isClubsFetched is not updated properly.
+
+  Timer? _updateTimer;
 
   @override
   void initState() {
@@ -67,6 +70,32 @@ class _UserMapViewState extends State<UserMapView>{
     if(fetchedContentProvider.getFetchedClubs().isEmpty){
       getClubs = _supabaseService.getAllClubs();
     }
+    _determinePosition().then((value) => uploadPositionToSupabase(value));
+
+    _updateTimer = Timer.periodic(const Duration(seconds: 1), (timer){
+
+      const LocationSettings locationSettings = LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 100,
+      );
+
+      var _positionStreamSubscription = Geolocator.getPositionStream(
+          locationSettings: locationSettings).listen((Position position) {
+        print('Location updated: ${position.latitude}, ${position.longitude}');
+        uploadPositionToSupabase(position);
+      });
+    });
+  }
+
+  void initGeneralSettings(){
+    stateProvider = Provider.of<StateProvider>(context);
+    customStyleClass = CustomStyleClass(context: context);
+    fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
+    screenWidth = MediaQuery.of(context).size.width;
+    screenHeight = MediaQuery.of(context).size.height;
+    currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context);
+    userDataProvider = Provider.of<UserDataProvider>(context);
+
   }
 
   // COLOR SCHEME
@@ -387,17 +416,56 @@ class _UserMapViewState extends State<UserMapView>{
     return await File('$dirPath/$fileName').exists();
   }
 
+  Future<Position> _determinePosition() async {
+
+    // Check if location services are enabled
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+
+      log.d("Error in _determinePosition: Location services are disabled.");
+
+      // Location services are not enabled return an error message
+      return Future.error('Location services are disabled.');
+
+    }
+
+    // Check location permissions
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+
+        log.d("Error in _determinePosition: Location permissions are denied.");
+
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      log.d("Error in _determinePosition: Location permissions are permanently denied, we cannot request permissions.");
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
+    log.d("_determinePosition: No error. Returning Location.");
+
+    // If permissions are granted, return the current location
+    return await Geolocator.getCurrentPosition();
+  }
+
+
+  void uploadPositionToSupabase(Position value){
+
+    final userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
+
+    userDataProvider.setUserCoordinates(value);
+    _supabaseService.saveUsersGeoLocation(userDataProvider.getUserDataId(), value.latitude, value.longitude);
+  }
+
   @override
   Widget build(BuildContext context) {
 
-    stateProvider = Provider.of<StateProvider>(context);
-
-    customStyleClass = CustomStyleClass(context: context);
-    fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
-    screenWidth = MediaQuery.of(context).size.width;
-    screenHeight = MediaQuery.of(context).size.height;
-    currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context);
-    userDataProvider = Provider.of<UserDataProvider>(context);
+    initGeneralSettings();
 
     if(isClubsFetched == false && fetchedContentProvider.getFetchedClubs().isNotEmpty) {
       isClubsFetched = true;
@@ -507,7 +575,8 @@ class _UserMapViewState extends State<UserMapView>{
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
 
-                                    SizedBox(
+                                    // Spacer
+                                    const SizedBox(
                                       height: 10,
                                     ),
 

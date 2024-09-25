@@ -7,6 +7,7 @@ import 'package:club_me/services/supabase_service.dart';
 import 'package:club_me/shared/custom_text_style.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logger/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -97,10 +98,11 @@ class _UserEventsViewState extends State<UserEventsView> {
         inputData: <String, dynamic>{
           'id': userDataProvider.getUserData().getUserId()
         },
-        initialDelay: Duration(seconds: 10),
+        initialDelay: const Duration(seconds: 10),
         frequency: const Duration(minutes: 1)
     );
 
+    _determinePosition().then((value) => setPositionLocallyAndInSupabase(value));
 
     final fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
 
@@ -108,6 +110,53 @@ class _UserEventsViewState extends State<UserEventsView> {
       getEvents = _supabaseService.getAllEvents();
     }
   }
+
+
+  Future<Position> _determinePosition() async {
+
+    // Check if location services are enabled
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+
+      log.d("Error in _determinePosition: Location services are disabled.");
+
+      // Location services are not enabled return an error message
+      return Future.error('Location services are disabled.');
+
+    }
+
+    // Check location permissions
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+
+        log.d("Error in _determinePosition: Location permissions are denied.");
+
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      log.d("Error in _determinePosition: Location permissions are permanently denied, we cannot request permissions.");
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
+    log.d("_determinePosition: No error. Returning Location.");
+
+    // If permissions are granted, return the current location
+    return await Geolocator.getCurrentPosition();
+  }
+
+  void setPositionLocallyAndInSupabase(Position value){
+
+    final userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
+
+    userDataProvider.setUserCoordinates(value);
+    _supabaseService.saveUsersGeoLocation(userDataProvider.getUserDataId(), value.latitude, value.longitude);
+  }
+
 
   // FETCH
   void requestStoragePermission() async {

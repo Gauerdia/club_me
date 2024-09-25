@@ -1,8 +1,5 @@
 import 'package:chewie/chewie.dart';
-import 'package:club_me/models/club_me_event_hive.dart';
-import 'package:club_me/models/club_me_event_template.dart';
 import 'package:club_me/models/event.dart';
-import 'package:club_me/models/event_template.dart';
 import 'package:club_me/services/hive_service.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,6 +12,7 @@ import 'package:provider/provider.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 import 'package:uuid/uuid.dart';
 import 'package:video_player/video_player.dart';
+import '../../models/hive_models/3_club_me_event_template.dart';
 import '../../provider/current_and_liked_elements_provider.dart';
 import '../../provider/fetched_content_provider.dart';
 import '../../provider/state_provider.dart';
@@ -290,7 +288,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
           right: 10,
           bottom: 10
       ),
-      child: isUploading ? const CircularProgressIndicator()
+      child: isUploading ? CircularProgressIndicator(color: customStyleClass.primeColor,)
       : GestureDetector(
         child: Container(
           padding: const EdgeInsets.only(
@@ -1625,10 +1623,15 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
     });
   }
   void clickEventCreateEvent(){
-    setState(() {
-      isUploading = true;
-      createNewEvent();
-    });
+
+    if(_eventTitleController.text != "" && _eventPriceController.text != "" && _eventDescriptionController.text != ""){
+      setState(() {
+        isUploading = true;
+        createNewEvent();
+      });
+    }else{
+      showDialogOfMissingValue();
+    }
   }
   void clickedOnAbort(){
 
@@ -1935,13 +1938,13 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
     showDialog(context: context,
         builder: (BuildContext context){
           return AlertDialog(
-              backgroundColor: Color(0xff121111),
+              backgroundColor: customStyleClass.backgroundColorMain,
               title: Text(
                   "Fehlende Werte",
                 style: customStyleClass.getFontStyle1Bold(),
               ),
               content: Text(
-                  "Bitte füllen Sie die leeren Felder aus, bevor Sie weitergehen.",
+                  "Bitte füllen Sie mindestens die folgenden Felder aus, bevor Sie weitergehen: \n Titel \n Eintrittspreis \n Beschreibung",
                 style: customStyleClass.getFontStyle3(),
               )
           );

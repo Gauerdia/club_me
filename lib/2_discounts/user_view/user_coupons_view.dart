@@ -1,11 +1,10 @@
 import 'dart:io';
-
-import 'package:club_me/models/club_me_local_discount.dart';
 import 'package:club_me/models/discount.dart';
 import 'package:club_me/models/parser/local_discount_to_discount_parser.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
+import '../../models/hive_models/2_club_me_local_discount.dart';
 import '../../models/parser/club_me_discount_parser.dart';
 import '../../provider/current_and_liked_elements_provider.dart';
 import '../../provider/fetched_content_provider.dart';

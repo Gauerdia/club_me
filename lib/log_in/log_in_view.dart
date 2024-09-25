@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:club_me/models/club.dart';
-import 'package:club_me/models/club_me_user_data.dart';
+import 'package:club_me/models/hive_models/0_club_me_user_data.dart';
 import 'package:club_me/models/parser/club_me_club_parser.dart';
 import 'package:club_me/shared/custom_text_style.dart';
 import 'package:flutter/cupertino.dart';
@@ -64,10 +64,7 @@ class _LogInViewState extends State<LogInView> {
   @override
   void initState() {
     super.initState();
-    final stateProvider = Provider.of<StateProvider>(context, listen:  false);
-    _determinePosition().then((value) => {
-      userDataProvider.setUserCoordinates(value)
-    });
+    _determinePosition().then((value) => setPositionLocallyAndInSupabase(value));
     fetchUserDataFromHive();
   }
 
@@ -76,92 +73,6 @@ class _LogInViewState extends State<LogInView> {
     // Remove a callback to receive data sent from the TaskHandler.
     // FlutterForegroundTask.removeTaskDataCallback();
     super.dispose();
-  }
-
-  Widget _buildClubButton(String textToDisplay, String clubId){
-    return Padding(
-      padding: EdgeInsets.only(
-        top:screenHeight*0.015,
-        right: 7,
-        bottom: 7,
-      ),
-      child: Align(
-        // alignment: Alignment.bottomRight,
-        child: GestureDetector(
-          child: Container(
-              width: screenWidth*0.8,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                    colors: [
-                      primeColorDark,
-                      primeColor,
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    stops: const [0.2, 0.9]
-                ),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black54,
-                    spreadRadius: 1,
-                    blurRadius: 7,
-                    offset: Offset(3, 3),
-                  ),
-                ],
-                borderRadius: const BorderRadius.all(
-                    Radius.circular(10)
-                ),
-              ),
-              padding: const EdgeInsets.all(18),
-              child: Center(
-                child: Text(
-                  textToDisplay,
-                  style: customStyleClass.getFontStyle5Bold()
-                ),
-              )
-          ),
-          onTap: (){
-            // stateProvider.setClubUiActive(true);
-            // fetchClubAndProceed(clubId);
-          },
-        ),
-      ),
-    );
-  }
-
-
-  Future<bool?> _showBackDialog() {
-    return showDialog<bool>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Are you sure?'),
-          content: const Text(
-            'Are you sure you want to leave this page?',
-          ),
-          actions: <Widget>[
-            TextButton(
-              style: TextButton.styleFrom(
-                textStyle: Theme.of(context).textTheme.labelLarge,
-              ),
-              child: const Text('Nevermind'),
-              onPressed: () {
-                Navigator.pop(context, false);
-              },
-            ),
-            TextButton(
-              style: TextButton.styleFrom(
-                textStyle: Theme.of(context).textTheme.labelLarge,
-              ),
-              child: const Text('Leave'),
-              onPressed: () {
-                Navigator.pop(context, true);
-              },
-            ),
-          ],
-        );
-      },
-    );
   }
 
   void fetchClubAndProceed() async{
@@ -231,6 +142,14 @@ class _LogInViewState extends State<LogInView> {
     return await Geolocator.getCurrentPosition();
   }
 
+  void setPositionLocallyAndInSupabase(Position value){
+
+    final userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
+
+    userDataProvider.setUserCoordinates(value);
+    _supabaseService.saveUsersGeoLocation(userDataProvider.getUserDataId(), value.latitude, value.longitude);
+  }
+
   Future<void> fetchUserDataFromHive() async{
 
     isLoading = true;
@@ -286,9 +205,9 @@ class _LogInViewState extends State<LogInView> {
     customStyleClass = CustomStyleClass(context: context);
 
     return Scaffold(
-      appBar:
-      AppBar(
-          backgroundColor: Colors.transparent,
+      appBar: AppBar(
+          backgroundColor: customStyleClass.backgroundColorMain,
+          surfaceTintColor: customStyleClass.backgroundColorMain,
           title: SizedBox(
             width: screenWidth,
             child: Text(
@@ -308,7 +227,8 @@ class _LogInViewState extends State<LogInView> {
             child: CircularProgressIndicator(
               color: customStyleClass.primeColor,
             ),
-          ):SizedBox(
+          ):Container(
+            color: customStyleClass.backgroundColorMain,
             width: screenWidth,
             height: screenHeight*0.85,
             child: Center(

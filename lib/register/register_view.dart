@@ -1,4 +1,4 @@
-import 'package:club_me/models/club_me_user_data.dart';
+import 'package:club_me/models/hive_models/0_club_me_user_data.dart';
 import 'package:club_me/models/club_password.dart';
 import 'package:club_me/models/parser/club_me_password_parser.dart';
 import 'package:flutter/cupertino.dart';
@@ -44,9 +44,6 @@ class _RegisterViewState extends State<RegisterView> {
 
   bool isLoading = false;
 
-  Color primeColorDark = Colors.teal;
-  Color primeColor = Colors.tealAccent;
-
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _eMailController = TextEditingController();
@@ -67,7 +64,7 @@ class _RegisterViewState extends State<RegisterView> {
           width: screenWidth,
           height: screenHeight*0.06,
           decoration: BoxDecoration(
-              color: Colors.black,
+              color: customStyleClass.backgroundColorMain,
               border: Border(
                   top: BorderSide(
                       color: Colors.grey[500]!
@@ -93,7 +90,7 @@ class _RegisterViewState extends State<RegisterView> {
           width: screenWidth,
           height: screenHeight*0.06,
           decoration: BoxDecoration(
-              color: Colors.black,
+              color: customStyleClass.backgroundColorMain,
               border: Border(
                   top: BorderSide(
                       color: Colors.grey[500]!
@@ -158,9 +155,10 @@ class _RegisterViewState extends State<RegisterView> {
   }
 
   Widget _buildRegisterAsUser(){
-    return SizedBox(
+    return Container(
         height: screenHeight,
         width: screenWidth,
+        color: customStyleClass.backgroundColorMain,
         child: SingleChildScrollView(
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             child: Column(
@@ -293,16 +291,15 @@ class _RegisterViewState extends State<RegisterView> {
                       child: ToggleSwitch(
                         initialLabelIndex: gender,
                         totalSwitches: 3,
-                        activeBgColor: [primeColor],
-                        activeFgColor: Colors.black,
-                        inactiveFgColor: primeColor,
-                        inactiveBgColor: Color(0xff11181f),
+                        activeBgColor: [customStyleClass.primeColor],
+                        activeFgColor: Colors.white,
+                        inactiveFgColor: customStyleClass.primeColor,
+                        inactiveBgColor: customStyleClass.backgroundColorEventTile,
                         labels: const [
                           'Mann',
                           'Frau',
                           "Divers"
                         ],
-                        // fontSize: screenHeight*stateProvider.getFontSizeFactor3(),
                         minWidth: screenWidth*0.9,
                         minHeight: screenHeight*0.07,
                         onToggle: (index) {
@@ -394,6 +391,7 @@ class _RegisterViewState extends State<RegisterView> {
   Widget _buildRegisterAsClub(){
     return Container(
         height: screenHeight,
+        color: customStyleClass.backgroundColorMain,
         child: SingleChildScrollView(
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             child: Column(
@@ -571,6 +569,7 @@ class _RegisterViewState extends State<RegisterView> {
   Widget _buildChooseUserOrClub(){
     return Container(
       height: screenHeight,
+      color: customStyleClass.backgroundColorMain,
       child: SingleChildScrollView(
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         child: Column(
@@ -602,8 +601,8 @@ class _RegisterViewState extends State<RegisterView> {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                         colors: [
-                          primeColorDark,
-                          primeColor,
+                          customStyleClass.primeColorDark,
+                          customStyleClass.primeColor,
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
@@ -632,8 +631,6 @@ class _RegisterViewState extends State<RegisterView> {
               onTap: (){
                 profileType = 0;
                 iterateProgressIndex();
-                // stateProvider.setClubUiActive(true);
-                // fetchClubAndProceed(clubId);
               },
             ),
 
@@ -647,8 +644,8 @@ class _RegisterViewState extends State<RegisterView> {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                         colors: [
-                          primeColorDark,
-                          primeColor,
+                          customStyleClass.primeColorDark,
+                          customStyleClass.primeColor,
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
@@ -677,8 +674,6 @@ class _RegisterViewState extends State<RegisterView> {
               onTap: (){
                 profileType = 1;
                 iterateProgressIndex();
-                // stateProvider.setClubUiActive(true);
-                // fetchClubAndProceed(clubId);
               },
             ),
 
@@ -696,7 +691,8 @@ class _RegisterViewState extends State<RegisterView> {
   AppBar _buildAppBar(){
     return AppBar(
       automaticallyImplyLeading: false,
-        backgroundColor: Colors.transparent,
+        backgroundColor: customStyleClass.backgroundColorMain,
+        surfaceTintColor: customStyleClass.backgroundColorMain,
         title: SizedBox(
           width: screenWidth,
           child: Stack(

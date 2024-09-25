@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'temp_geo_location_data.dart';
+part of '4_temp_geo_location_data.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
@@ -8,7 +8,7 @@ part of 'temp_geo_location_data.dart';
 
 class TempGeoLocationDataAdapter extends TypeAdapter<TempGeoLocationData> {
   @override
-  final int typeId = 6;
+  final int typeId = 4;
 
   @override
   TempGeoLocationData read(BinaryReader reader) {

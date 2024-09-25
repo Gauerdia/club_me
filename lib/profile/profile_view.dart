@@ -1,4 +1,4 @@
-import 'package:club_me/models/club_me_user_data.dart';
+import 'package:club_me/models/hive_models/0_club_me_user_data.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';

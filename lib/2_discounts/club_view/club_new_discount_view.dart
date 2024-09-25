@@ -1,4 +1,3 @@
-import 'package:club_me/models/club_me_discount_template.dart';
 import 'package:club_me/models/discount.dart';
 import 'package:club_me/provider/fetched_content_provider.dart';
 import 'package:club_me/services/hive_service.dart';
@@ -9,6 +8,7 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
+import '../../models/hive_models/1_club_me_discount_template.dart';
 import '../../provider/state_provider.dart';
 import '../../provider/user_data_provider.dart';
 import '../../services/supabase_service.dart';
