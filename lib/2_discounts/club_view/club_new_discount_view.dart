@@ -1202,8 +1202,6 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
     var uuid = const Uuid();
     var uuidV4 = uuid.v4();
 
-    print(uuidV4);
-
     ClubMeDiscountTemplate clubMeDiscountTemplate = ClubMeDiscountTemplate(
         discountTitle: discount.getDiscountTitle(),
         numberOfUsages: discount.getNumberOfUsages(),

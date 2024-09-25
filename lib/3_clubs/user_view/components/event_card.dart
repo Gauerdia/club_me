@@ -76,7 +76,7 @@ class EventCard extends StatelessWidget {
       eventGenresCut = clubMeEvent.getMusicGenres().substring(0, clubMeEvent.getMusicGenres().length);
     }
 
-    if(eventGenresCut.substring(eventGenresCut.length -1) == ","){
+    if(eventGenresCut.isNotEmpty && eventGenresCut.substring(eventGenresCut.length -1) == ","){
       eventGenresCut = eventGenresCut.substring(0, eventGenresCut.length-1);
     }
 

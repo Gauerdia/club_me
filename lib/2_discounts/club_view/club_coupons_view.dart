@@ -60,7 +60,7 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
     if(fetchedContentProvider.getFetchedDiscounts().isEmpty) {
       getDiscounts = _supabaseService.getDiscountsOfSpecificClub(userDataProvider.getUserData().getUserId());
     }
-    getAllDiscountTemplates();
+
   }
 
 
@@ -620,6 +620,10 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
 
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
+
+    if(stateProvider.getDiscountTemplates().isEmpty){
+      getAllDiscountTemplates();
+    }
 
     checkIfFilteringIsNecessary();
 

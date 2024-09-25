@@ -501,10 +501,7 @@ class MyApp extends StatelessWidget {
         routerConfig: _router,
 
         title: 'Club Me Test Version',
-        theme:
-
-
-        ThemeData(
+        theme: ThemeData(
           scaffoldBackgroundColor: const Color(0xff121111),
 
           textTheme: TextTheme(

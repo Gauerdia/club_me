@@ -54,7 +54,6 @@ class _ClubEventsViewState extends State<ClubEventsView> {
   @override
   void initState(){
     super.initState();
-    // final stateProvider = Provider.of<StateProvider>(context, listen:  false);
     final userDataProvder = Provider.of<UserDataProvider>(context, listen: false);
     final fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
     if(fetchedContentProvider.getFetchedEvents().isEmpty){
@@ -63,6 +62,8 @@ class _ClubEventsViewState extends State<ClubEventsView> {
   }
 
   void initGeneralSettings(){
+
+    // TODO: MUSS DAS HIER WIRKLICH BEI JEDEM BUILD GEMACHT WERDEN?
 
     stateProvider = Provider.of<StateProvider>(context);
     userDataProvider = Provider.of<UserDataProvider>(context);
