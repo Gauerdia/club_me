@@ -45,6 +45,14 @@ class ClubMeDiscountTemplate{
   @HiveField(12)
   String templateId;
 
+  DateTime getDiscountDate(){
+    return discountDate;
+  }
+  void setDiscountDate(DateTime newValue){
+    discountDate = newValue;
+  }
+
+
   String getTemplateId(){
     return templateId;
   }
@@ -100,11 +108,5 @@ class ClubMeDiscountTemplate{
   }
   void setNumberOfUsages(int newValue){
     numberOfUsages = newValue;
-  }
-  DateTime getDiscountDate(){
-    return discountDate;
-  }
-  void setDiscountDate(DateTime newValue){
-    discountDate = newValue;
   }
 }

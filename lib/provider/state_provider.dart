@@ -7,6 +7,8 @@ import 'package:timezone/standalone.dart' as tz;
 
 import '../models/hive_models/1_club_me_discount_template.dart';
 import '../models/hive_models/3_club_me_event_template.dart';
+import '../services/supabase_service.dart';
+import '../shared/logger.util.dart';
 
 class StateProvider extends ChangeNotifier{
 
@@ -48,6 +50,10 @@ class StateProvider extends ChangeNotifier{
   // 4: map,
   int accessedEventDetailFrom = 0;
 
+  final SupabaseService _supabaseService = SupabaseService();
+  final log = getLogger();
+
+
   void leaveEventDetailPage(BuildContext context){
     switch(accessedEventDetailFrom){
       case(0): context.go("/user_events");break;
@@ -78,38 +84,93 @@ class StateProvider extends ChangeNotifier{
   // TEMPLATES
 
   void setDiscountTemplates(List<ClubMeDiscountTemplate> newClubMeDiscountTemplates){
-    discountTemplates = newClubMeDiscountTemplates;
+    try{
+      discountTemplates = newClubMeDiscountTemplates;
+    }catch(e){
+      log.d("StateProvider. Function: setDiscountTemplates. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+    }
   }
   List<ClubMeDiscountTemplate> getDiscountTemplates(){
-    return discountTemplates;
+    try{
+      return discountTemplates;
+    }catch(e){
+      log.d("StateProvider. Function: getDiscountTemplates. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+      return [];
+    }
   }
 
   void setCurrentDiscountTemplate(ClubMeDiscountTemplate newClubMeDiscountTemplate){
-    currentDiscountTemplate = newClubMeDiscountTemplate;
+    try{
+      currentDiscountTemplate = newClubMeDiscountTemplate;
+    }catch(e){
+      log.d("StateProvider. Function: setCurrentDiscountTemplate. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+    }
   }
   void resetCurrentDiscountTemplate(){
-    currentDiscountTemplate = null;
+    try{
+      currentDiscountTemplate = null;
+    }catch(e){
+      log.d("StateProvider. Function: resetCurrentDiscountTemplate. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+    }
   }
   ClubMeDiscountTemplate? getCurrentDiscountTemplate(){
-    return currentDiscountTemplate;
+    try{
+      return currentDiscountTemplate;
+    }catch(e){
+      log.d("StateProvider. Function: getCurrentDiscountTemplate. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+      return null;
+    }
   }
 
 
   void setClubMeEventTemplates(List<ClubMeEventTemplate> newClubMeEventTemplates){
-    eventTemplates = newClubMeEventTemplates;
+    try{
+      eventTemplates = newClubMeEventTemplates;
+    }catch(e){
+      log.d("StateProvider. Function: setClubMeEventTemplates. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+    }
   }
   List<ClubMeEventTemplate> getClubMeEventTemplates(){
-    return eventTemplates;
+    try{
+      return eventTemplates;
+    }catch(e){
+      log.d("StateProvider. Function: setClubMeEventTemplates. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+      return [];
+    }
   }
 
   void setCurrentEventTemplate(ClubMeEventTemplate newClubMeEventHive){
-    currentEventTemplate = newClubMeEventHive;
+    try{
+      currentEventTemplate = newClubMeEventHive;
+    }catch(e){
+      log.d("StateProvider. Function: setClubMeEventTemplates. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+    }
   }
   void resetCurrentEventTemplate(){
-    currentEventTemplate = null;
+
+    try{
+      currentEventTemplate = null;
+    }catch(e){
+      log.d("StateProvider. Function: setClubMeEventTemplates. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+    }
   }
   ClubMeEventTemplate? getCurrentEventTemplate(){
-    return currentEventTemplate;
+    try{
+      return currentEventTemplate;
+    }catch(e){
+      log.d("StateProvider. Function: setClubMeEventTemplates. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+      return null;
+    }
   }
 
 

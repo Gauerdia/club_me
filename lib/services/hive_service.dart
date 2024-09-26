@@ -39,43 +39,75 @@ class HiveService{
   Future<Box<TempGeoLocationData>> get _tempGeoLocationDataBox async => await Hive.openBox<TempGeoLocationData>(_tempGeoLocationDataBoxName);
 
   Future<void> addTempGeoLocationData(TempGeoLocationData tempGeoLocationData) async{
-    var box = await _tempGeoLocationDataBox;
-    await box.add(tempGeoLocationData);
+    try{
+      var box = await _tempGeoLocationDataBox;
+      await box.add(tempGeoLocationData);
+    }catch(e){
+      log.d("HiveService. Function: addTempGeoLocationData. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+    }
   }
 
   // We save all discounts locally so that bad internet connection doesn't impede
   // the use of the discounts.
   Future<List<ClubMeLocalDiscount>> getAllLocalDiscounts() async {
-    var box = await _clubMeLocalDiscountsBox;
-    return box.values.toList();
+    try{
+      var box = await _clubMeLocalDiscountsBox;
+      return box.values.toList();
+    }catch(e){
+      log.d("HiveService. Function: getAllLocalDiscounts. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+      return [];
+    }
   }
   Future<void> resetLocalDiscounts() async {
-    var box = await _clubMeLocalDiscountsBox;
-    await box.deleteAll(box.keys);
+    try{
+      var box = await _clubMeLocalDiscountsBox;
+      await box.deleteAll(box.keys);
+    }catch(e){
+      log.d("HiveService. Function: resetLocalDiscounts. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+    }
   }
   Future<void> deleteLocalDiscount(String discountId) async {
-    var discounts = await getAllLocalDiscounts();
-    var index = discounts.indexWhere((element) => element.discountId == discountId);
 
-    var box = await _clubMeLocalDiscountsBox;
-    await box.deleteAt(index);
+    try{
+      var discounts = await getAllLocalDiscounts();
+      var index = discounts.indexWhere((element) => element.discountId == discountId);
+      var box = await _clubMeLocalDiscountsBox;
+      await box.deleteAt(index);
+    }catch(e){
+      log.d("HiveService. Function: deleteLocalDiscount. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+    }
+
   }
+
   Future<void> addLocalDiscount(ClubMeDiscount clubMeDiscount) async {
+    try{
+      ClubMeLocalDiscount clubMeLocalDiscount = discountToLocalDiscountParser(clubMeDiscount);
 
-    ClubMeLocalDiscount clubMeLocalDiscount = discountToLocalDiscountParser(clubMeDiscount);
-
-    var box = await _clubMeLocalDiscountsBox;
-    await box.add(clubMeLocalDiscount);
+      var box = await _clubMeLocalDiscountsBox;
+      await box.add(clubMeLocalDiscount);
+    }catch(e){
+      log.d("HiveService. Function: addLocalDiscount. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+    }
   }
+
   Future<void> updateLocalDiscount(ClubMeDiscount clubMeDiscount) async{
+    try{
+      ClubMeLocalDiscount clubMeLocalDiscount = discountToLocalDiscountParser(clubMeDiscount);
 
-    ClubMeLocalDiscount clubMeLocalDiscount = discountToLocalDiscountParser(clubMeDiscount);
+      var discounts = await getAllLocalDiscounts();
+      var index = discounts.indexWhere((element) => element.discountId == clubMeDiscount.getDiscountId());
 
-    var discounts = await getAllLocalDiscounts();
-    var index = discounts.indexWhere((element) => element.discountId == clubMeDiscount.getDiscountId());
-
-    var box = await _clubMeLocalDiscountsBox;
-    await box.putAt(index, clubMeLocalDiscount);
+      var box = await _clubMeLocalDiscountsBox;
+      await box.putAt(index, clubMeLocalDiscount);
+    }catch(e){
+      log.d("HiveService. Function: updateLocalDiscount. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+    }
   }
 
   // DISCOUNT TEMPLATE
@@ -85,132 +117,235 @@ class HiveService{
       await box.add(discountTemplate);
       log.d("addDiscountTemplate: Finished successfully");
     }catch(e){
-      log.d("Error in addDiscountTemplate: $e");
+      log.d("HiveService. Function: addDiscountTemplate. Error: $e");
       _supabaseService.createErrorLog(e.toString());
     }
   }
   Future<List<ClubMeDiscountTemplate>> getAllDiscountTemplates() async {
-    var box = await _clubMeDiscountTemplatesBox;
-    return box.values.toList();
+    try{
+      var box = await _clubMeDiscountTemplatesBox;
+      return box.values.toList();
+    }catch(e){
+      log.d("HiveService. Function: getAllDiscountTemplates. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+      return [];
+    }
   }
   Future<void> deleteTemplateDiscount(String templateId) async {
+    try{
+      var discounts = await getAllDiscountTemplates();
+      var index = discounts.indexWhere((element) => element.getTemplateId() == templateId);
 
-    var discounts = await getAllDiscountTemplates();
-    var index = discounts.indexWhere((element) => element.getTemplateId() == templateId);
-
-    var box = await _clubMeDiscountBox;
-    await box.deleteAt(index);
+      var box = await _clubMeDiscountBox;
+      await box.deleteAt(index);
+    }catch(e){
+      log.d("HiveService. Function: deleteTemplateDiscount. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+    }
   }
 
   // Event template
   Future<void> addClubMeEventTemplate(ClubMeEventTemplate clubMeEventTemplate) async {
-    var box = await _clubMeEventTemplatesBox;
-    await box.add(clubMeEventTemplate);
+    try{
+      var box = await _clubMeEventTemplatesBox;
+      await box.add(clubMeEventTemplate);
+    }catch(e){
+      log.d("HiveService. Function: addClubMeEventTemplate. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+    }
   }
   Future<List<ClubMeEventTemplate>> getAllClubMeEventTemplates() async {
-    var box = await _clubMeEventTemplatesBox;
-    return box.values.toList();
+    try{
+      var box = await _clubMeEventTemplatesBox;
+      return box.values.toList();
+    }catch(e){
+      log.d("HiveService. Function: getAllClubMeEventTemplates. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+      return [];
+    }
   }
   Future<void> deleteClubMeEventTemplate(String templateId) async {
+    try{
+      var events = await getAllClubMeEventTemplates();
+      var index = events.indexWhere((element) => element.getTemplateId() == templateId);
 
-    var events = await getAllClubMeEventTemplates();
-    var index = events.indexWhere((element) => element.getTemplateId() == templateId);
-
-    var box = await _clubMeDiscountBox;
-    await box.deleteAt(index);
+      var box = await _clubMeDiscountBox;
+      await box.deleteAt(index);
+    }catch(e){
+      log.d("HiveService. Function: deleteClubMeEventTemplate. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+    }
   }
 
   // USER DATA
   Future<List<ClubMeUserData>> getUserData() async{
-    var box = await _clubMeUserClubBox;
-    return box.values.toList();
+    try{
+      var box = await _clubMeUserClubBox;
+      return box.values.toList();
+    }catch(e){
+      log.d("HiveService. Function: getUserData. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+      return [];
+    }
   }
   Future<void> addUserData(ClubMeUserData clubMeUserData) async {
-    var box = await _clubMeUserClubBox;
-    await box.add(clubMeUserData);
+    try{
+      var box = await _clubMeUserClubBox;
+      await box.add(clubMeUserData);
+
+    }catch(e){
+      log.d("HiveService. Function: addUserData. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+    }
   }
 
   Future<void> resetUserData() async {
-    var box = await _clubMeUserClubBox;
-    await box.deleteAll(box.keys);
+
+
+    try{
+      var box = await _clubMeUserClubBox;
+      await box.deleteAll(box.keys);
+    }catch(e){
+      log.d("HiveService. Function: resetUserData. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+    }
+
   }
 
 
   // ATTENDING EVENTS
   Future<List<String>> getAttendingEvents() async{
-    var box = await _clubMeAttendingEventsBox;
-    return box.values.toList();
+    try{
+      var box = await _clubMeAttendingEventsBox;
+      return box.values.toList();
+    }catch(e){
+      log.d("HiveService. Function: getAttendingEvents. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+      return [];
+    }
   }
   Future<void> insertAttendingEvent(String eventId) async{
-    var box = await _clubMeAttendingEventsBox;
-    await box.add(eventId);
+    try{
+      var box = await _clubMeAttendingEventsBox;
+      await box.add(eventId);
+    }catch(e){
+      log.d("HiveService. Function: insertAttendingEvent. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+    }
   }
   Future<void> deleteAttendingEvent(String eventId) async{
+    try{
+      var events = await getAttendingEvents();
+      var index = events.indexWhere((element) => element == eventId);
 
-    var events = await getAttendingEvents();
-    var index = events.indexWhere((element) => element == eventId);
+      var box = await _clubMeAttendingEventsBox;
+      await box.deleteAt(index);
 
-    var box = await _clubMeAttendingEventsBox;
-    await box.deleteAt(index);
-
+    }catch(e){
+      log.d("HiveService. Function: deleteAttendingEvent. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+    }
   }
 
   // FAVORITE EVENTS
   Future<List<String>> getFavoriteEvents() async {
-    var box = await _clubMeEventBox;
-    return box.values.toList();
+    try{
+      var box = await _clubMeEventBox;
+      return box.values.toList();
+    }catch(e){
+      log.d("HiveService. Function: getFavoriteEvents. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+      return [];
+    }
   }
   Future<void> insertFavoriteEvent(String eventId) async{
-    var box = await _clubMeEventBox;
-    await box.add(eventId);
+    try{
+      var box = await _clubMeEventBox;
+      await box.add(eventId);
+    }catch(e){
+      log.d("HiveService. Function: insertFavoriteEvent. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+    }
   }
   Future<void> deleteFavoriteEvent(String eventId) async{
+    try{
+      var events = await getFavoriteEvents();
 
-    var events = await getFavoriteEvents();
+      var index = events.indexWhere((element) => element == eventId);
 
-    var index = events.indexWhere((element) => element == eventId);
+      var box = await _clubMeEventBox;
+      await box.deleteAt(index);
+    }catch(e){
+      log.d("HiveService. Function: deleteFavoriteEvent. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+    }
 
-    var box = await _clubMeEventBox;
-    await box.deleteAt(index);
   }
 
   // DISCOUNTS
   Future<List<String>> getFavoriteDiscounts() async {
-    var box = await _clubMeDiscountBox;
-    return box.values.toList();
+
+    try{
+      var box = await _clubMeDiscountBox;
+      return box.values.toList();
+    }catch(e){
+      log.d("HiveService. Function: getFavoriteDiscounts. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+      return [];
+    }
   }
   Future<void> insertFavoriteDiscount(String discountId) async {
-    var box = await _clubMeDiscountBox;
-    await box.add(discountId);
+    try{
+      var box = await _clubMeDiscountBox;
+      await box.add(discountId);
+    }catch(e){
+      log.d("HiveService. Function: insertFavoriteDiscount. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+    }
   }
   Future<void> deleteFavoriteDiscount(String discountId) async {
+    try{
+      var discounts = await getFavoriteDiscounts();
+      var index = discounts.indexWhere((element) => element == discountId);
 
-    var discounts = await getFavoriteDiscounts();
-    var index = discounts.indexWhere((element) => element == discountId);
-
-    var box = await _clubMeDiscountBox;
-    await box.deleteAt(index);
+      var box = await _clubMeDiscountBox;
+      await box.deleteAt(index);
+    }catch(e){
+      log.d("HiveService. Function: deleteFavoriteDiscount. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+    }
   }
 
   // CLUBS
   Future<List<String>> getFavoriteClubs() async {
-    var box = await _clubMeClubBox;
-    return box.values.toList();
+    try{
+      var box = await _clubMeClubBox;
+      return box.values.toList();
+    }catch(e){
+      log.d("HiveService. Function: getFavoriteClubs. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+      return [];
+    }
   }
   Future<void> insertFavoriteClub(String clubId) async {
-    var box = await _clubMeClubBox;
-    await box.add(clubId);
+    try{
+      var box = await _clubMeClubBox;
+      await box.add(clubId);
+    }catch(e){
+      log.d("HiveService. Function: insertFavoriteClub. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+    }
   }
   Future<void> deleteFavoriteClub(String clubId) async {
+    try{
+      var clubs = await getFavoriteClubs();
+      var index = clubs.indexWhere((element) => element == clubId);
 
-    var clubs = await getFavoriteClubs();
-    var index = clubs.indexWhere((element) => element == clubId);
-
-    var box = await _clubMeClubBox;
-    await box.deleteAt(index);
+      var box = await _clubMeClubBox;
+      await box.deleteAt(index);
+    }catch(e){
+      log.d("HiveService. Function: deleteFavoriteClub. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+    }
   }
-
-
-
-
 }

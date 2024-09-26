@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:club_me/models/discount.dart';
+import 'package:club_me/models/hive_models/1_club_me_discount_template.dart';
 import 'package:club_me/models/parser/club_me_discount_parser.dart';
 import 'package:club_me/provider/current_and_liked_elements_provider.dart';
 import 'package:club_me/provider/fetched_content_provider.dart';
@@ -580,17 +581,29 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
   }
 
   // Fetch content from DB
+
+
+
+
+
+
   void getAllDiscountTemplates() async{
 
     final stateProvider = Provider.of<StateProvider>(context, listen: false);
 
     try{
-      var discountTemplates = await _hiveService.getAllDiscountTemplates();
+      List<ClubMeDiscountTemplate> discountTemplates = await _hiveService.getAllDiscountTemplates();
       stateProvider.setDiscountTemplates(discountTemplates);
     }catch(e){
-      _supabaseService.createErrorLog("getAllDiscountTemplates: $e");
+      _supabaseService.createErrorLog("ClubCouponsView. Function: getAllDiscountTemplates. Error: $e");
     }
   }
+
+
+
+
+
+
   Future<bool> checkIfImageExistsLocally(String fileName) async{
     final String dirPath = stateProvider.appDocumentsDir.path;
     return await File('$dirPath/$fileName').exists();
@@ -620,8 +633,12 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
 
-    if(stateProvider.getDiscountTemplates().isEmpty){
-      getAllDiscountTemplates();
+    try{
+      if(stateProvider.getDiscountTemplates().isEmpty){
+        getAllDiscountTemplates();
+      }
+    }catch(e){
+      _supabaseService.createErrorLog("ClubCouponsView. Function: build. Error: $e");
     }
 
     checkIfFilteringIsNecessary();
