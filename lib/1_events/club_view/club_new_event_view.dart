@@ -111,6 +111,8 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
 
   ByteData? screenshot;
 
+  double distanceBetweenTitleAndTextField = 10;
+
   @override
   void initState(){
     super.initState();
@@ -219,7 +221,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                   Text(
                     headLine,
                     textAlign: TextAlign.center,
-                    style: customStyleClass.getFontStyle1(),
+                    style: customStyleClass.getFontStyleHeadline1Bold(),
                   )
                 ],
               ),
@@ -358,6 +360,9 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                       // Textfield: Title
                       Container(
                         width: screenWidth*0.9,
+                        padding:  EdgeInsets.only(
+                            top: distanceBetweenTitleAndTextField
+                        ),
                         child: TextField(
                           controller: _eventTitleController,
                           cursorColor: customStyleClass.primeColor,
@@ -392,7 +397,10 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
 
                       // Textfield: DJ
                       Center(
-                        child: SizedBox(
+                        child: Container(
+                          padding:  EdgeInsets.only(
+                              top: distanceBetweenTitleAndTextField
+                          ),
                           width: screenWidth*0.9,
                           child: TextField(
                             controller: _eventDJController,
@@ -419,6 +427,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
 
                       // Row: Datepicker, Hour/Minute
                       Container(
+
                         width: screenWidth*0.9,
                         padding: const EdgeInsets.symmetric(
                             vertical: 10
@@ -428,7 +437,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                           children: [
 
                             // Datepicker
-                            SizedBox(
+                            Container(
                               height: screenHeight*0.12,
                               child: Column(
                                 children: [
@@ -445,7 +454,10 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
 
 
                                   // OutlinedButton with Text
-                                  SizedBox(
+                                  Container(
+                                    padding:  EdgeInsets.only(
+                                        top: distanceBetweenTitleAndTextField
+                                    ),
                                     width: screenWidth*0.4,
                                     child:OutlinedButton(
                                         onPressed: (){
@@ -504,7 +516,10 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                                   //   height: screenHeight*0.01,
                                   // ),
 
-                                  SizedBox(
+                                  Container(
+                                    padding:  EdgeInsets.only(
+                                        top: distanceBetweenTitleAndTextField
+                                    ),
                                     width: screenWidth*0.4,
                                     child: OutlinedButton(
                                         onPressed: () => {
@@ -604,7 +619,10 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                       ),
 
                       // Textfield: Description
-                      SizedBox(
+                      Container(
+                        padding:  EdgeInsets.only(
+                            top: distanceBetweenTitleAndTextField
+                        ),
                         width: screenWidth*0.9,
                         child: TextField(
                           controller: _eventDescriptionController,
@@ -686,24 +704,33 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Icon(
-                                Icons.file_present,
-                                size: 32,
-                                color: customStyleClass.primeColor,
+                              SizedBox(
+                                width: screenWidth*0.1,
+                                child: Icon(
+                                  Icons.file_present,
+                                  size: 32,
+                                  color: customStyleClass.primeColor,
+                                ),
                               ),
-                              Text(
-                                pickedFileNameToDisplay,
-                                style: customStyleClass.getFontStyle3(),
+                              SizedBox(
+                                width: screenWidth*0.6,
+                                child: Text(
+                                  pickedFileNameToDisplay,
+                                  style: customStyleClass.getFontStyle3(),
+                                ),
                               ),
-                              IconButton(
-                                  onPressed: () {setState(() {
-                                    file = null;
-                                  });},
-                                  icon: Icon(
+                              SizedBox(
+                                width: screenWidth*0.1,
+                                child: InkWell(
+                                  child: Icon(
                                     Icons.delete,
                                     size: 32,
                                     color: customStyleClass.primeColor,
-                                  )
+                                  ),
+                                  onTap: () {setState(() {
+                                    file = null;
+                                  });},
+                                ),
                               )
                             ],
                           ),
@@ -735,7 +762,10 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                       ),
 
                       // TextField: Ticket
-                      SizedBox(
+                      Container(
+                        padding:  EdgeInsets.only(
+                            top: distanceBetweenTitleAndTextField
+                        ),
                         width: screenWidth*0.9,
                         child: TextField(
                           controller: _eventTicketLinkController,
@@ -778,6 +808,9 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                         width: screenWidth*0.9,
                         height: screenHeight*0.1,
                         alignment: Alignment.centerLeft,
+                        padding:  EdgeInsets.only(
+                            top: distanceBetweenTitleAndTextField
+                        ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -834,6 +867,9 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                         Container(
                           width: screenWidth*0.9,
                           alignment: Alignment.centerLeft,
+                          padding:  EdgeInsets.only(
+                              top: distanceBetweenTitleAndTextField
+                          ),
                           child: SizedBox(
                             width: screenWidth*0.45,
                             child: Text(

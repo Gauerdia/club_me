@@ -325,7 +325,8 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
             shape: BoxShape.circle,
             color: Colors.white,
             border: Border.all(
-                color: Colors.black
+                color: customStyleClass.primeColor,
+              width: 2
             ),
             image: DecorationImage(
               fit: BoxFit.cover,
@@ -369,6 +370,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                 ),
                 child: Icon(
                   Icons.play_arrow,
+                  color: customStyleClass.primeColor,
                   size: customStyleClass.getIconSize1(),
                 ),
               )
@@ -386,7 +388,8 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
         shape: BoxShape.circle,
         color: Colors.white,
         border: Border.all(
-          color: Colors.grey[300]!
+          color: Colors.grey,
+          width: 2
         ),
         image: DecorationImage(
           fit: BoxFit.cover,
@@ -570,6 +573,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
         Padding(
           padding: EdgeInsets.all(18),
           child: Text(
+            textAlign: TextAlign.center,
             userDataProvider.getUserClubNews(),
             style: customStyleClass.getFontStyle4(),
           ),
@@ -823,40 +827,43 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
         ),
 
         // Insta Icon
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            // Social media
-            Padding(
-              padding: EdgeInsets.only(
-                  left: screenWidth*0.03
+        Container(
+          width: screenWidth*0.3,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              // Social media
+              Padding(
+                padding: EdgeInsets.only(
+                    left: screenWidth*0.03
+                ),
+                child: IconButton(
+                    onPressed: () => goToSocialMedia(userDataProvider.getUserClubInstaLink()),
+                    icon: Icon(
+                      FontAwesomeIcons.instagram,
+                      color: customStyleClass.primeColor,
+                    )
+                ),
               ),
-              child: IconButton(
-                  onPressed: () => goToSocialMedia(userDataProvider.getUserClubInstaLink()),
-                  icon: Icon(
-                    FontAwesomeIcons.instagram,
-                    color: customStyleClass.primeColor,
-                  )
-              ),
-            ),
 
-            Padding(
-              padding: EdgeInsets.only(
-                  left: screenWidth*0.03
+              Padding(
+                padding: EdgeInsets.only(
+                    left: screenWidth*0.03
+                ),
+                child: IconButton(
+                    onPressed: () => goToSocialMedia(
+                        userDataProvider.getUserClubWebsiteLink()
+                    ),
+                    icon: Icon(
+                      Icons.home_filled,
+                      color: customStyleClass.primeColor,
+                    )
+                ),
               ),
-              child: IconButton(
-                  onPressed: () => goToSocialMedia(
-                      userDataProvider.getUserClubWebsiteLink()
-                  ),
-                  icon: Icon(
-                    Icons.home_filled,
-                    color: customStyleClass.primeColor,
-                  )
-              ),
-            ),
 
-          ],
-        ),
+            ],
+          ),
+        )
       ],
     );
   }
@@ -907,7 +914,6 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
           ),
         ),
 
-
         // Spacer
         SizedBox(
           height: screenHeight*0.02,
@@ -922,6 +928,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                   left: screenWidth*0.05
               ),
               child: Text(
+                textAlign: TextAlign.center,
                 userDataProvider.getUserClubMusicGenres(),
                 style: customStyleClass.getFontStyle4(),
               ),
@@ -1068,8 +1075,8 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                     SizedBox(
                       width: screenWidth*0.6,
                       child: Text(
-                        userDataProvider.getUserClubContact()[0].length > 17 ?
-                        userDataProvider.getUserClubContact()[0].substring(0,17) :
+                        // userDataProvider.getUserClubContact()[0].length > 17 ?
+                        // userDataProvider.getUserClubContact()[0].substring(0,17) :
                         userDataProvider.getUserClubContact()[0],
                         textAlign: TextAlign.left,
                         style: customStyleClass.getFontStyle4Bold(),
@@ -1085,8 +1092,8 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Text(
-                            userDataProvider.getUserClubContact()[1].length > 19 ?
-                            userDataProvider.getUserClubContact()[1].substring(0,19):
+                            // userDataProvider.getUserClubContact()[1].length > 19 ?
+                            // userDataProvider.getUserClubContact()[1].substring(0,19):
                             userDataProvider.getUserClubContact()[1],
                             textAlign: TextAlign.left,
                             style:customStyleClass.getFontStyle4(),
@@ -1290,7 +1297,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
   void clickOnAddEvent(double screenHeight, double screenWidth){
     showDialog(context: context, builder: (BuildContext context){
       return AlertDialog(
-        backgroundColor: Color(0xff121111),
+        backgroundColor: customStyleClass.backgroundColorMain,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20.0),
             // side: BorderSide(
@@ -1569,15 +1576,16 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
 
     showDialog(context: context, builder: (BuildContext context){
       return AlertDialog(
-        backgroundColor: Colors.black,
+        backgroundColor: customStyleClass.backgroundColorMain,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20.0),
-            side: BorderSide(
-                color: customStyleClass.primeColor
-            )
+            // side: BorderSide(
+            //     color: customStyleClass.primeColor
+            // )
         ),
         title: Text(
             "Story",
+          textAlign: TextAlign.center,
           style: customStyleClass.getFontStyle1Bold(),
         ),
         content: Column(
@@ -1607,30 +1615,26 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                         vertical: screenHeight*0.015,
                         horizontal: screenWidth*0.03
                     ),
-                    decoration: BoxDecoration(
-                        color: Colors.black54,
-                        border: Border.all(
-                          color: customStyleClass.primeColor
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+
+                        Text(
+                          "Neue Story",
+                          textAlign: TextAlign.center,
+                          style: customStyleClass.getFontStyle4BoldPrimeColor(),
                         ),
-                        borderRadius: BorderRadius.all(Radius.circular(10))
-                    ),
-                    child: Text(
-                      "Neue Story!",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
+
+                        Icon(
+                          Icons.arrow_forward_outlined,
                           color: customStyleClass.primeColor,
-                          fontWeight: FontWeight.bold,
-                          fontSize: screenWidth*moreButtonWidthFactor
-                      ),
+                        )
+
+                      ],
                     ),
                   ),
                   onTap: () =>  context.go("/video_recording"),
                 )
-            ),
-
-            // Spacer
-            SizedBox(
-              height: screenHeight*0.01,
             ),
 
             // Does a story exist? Then show a button to play it
@@ -1646,21 +1650,23 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                         vertical: screenHeight*0.015,
                         horizontal: screenWidth*0.03
                     ),
-                    decoration: BoxDecoration(
-                        color: Colors.black54,
-                        border: Border.all(
-                          color: customStyleClass.primeColor
+
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+
+                        Text(
+                          "Story anschauen",
+                          textAlign: TextAlign.center,
+                          style: customStyleClass.getFontStyle4BoldPrimeColor(),
                         ),
-                        borderRadius: BorderRadius.all(Radius.circular(10))
-                    ),
-                    child: Text(
-                      "Story anschauen!",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
+
+                        Icon(
+                          Icons.arrow_forward_outlined,
                           color: customStyleClass.primeColor,
-                          fontWeight: FontWeight.bold,
-                          fontSize: screenWidth*moreButtonWidthFactor
-                      ),
+                        )
+
+                      ],
                     ),
                   ),
                   onTap: () =>  {

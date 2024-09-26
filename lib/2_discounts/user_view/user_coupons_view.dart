@@ -394,6 +394,8 @@ class _UserCouponsViewState extends State<UserCouponsView>
         height: screenHeight*0.7,
         child: Center(
           child: Text(
+            onlyFavoritesIsActive ?
+            "Derzeit sind keine Coupons als Favoriten markiert." :
             "Derzeit sind leider keine Coupons verfügbar.",
             style: customStyleClass.getFontStyle3(),
           ),

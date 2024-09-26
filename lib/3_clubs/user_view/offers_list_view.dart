@@ -28,7 +28,7 @@ class _OffersListViewState extends State<OffersListView> {
   // BUILD
   Widget _buildAppBarShowTitle(){
     return SizedBox(
-      width: screenWidth,
+      width: screenWidth*0.67,
       child: Stack(
         children: [
           // Headline
@@ -67,23 +67,26 @@ class _OffersListViewState extends State<OffersListView> {
           ),
 
           // back icon
-          Container(
-              width: screenWidth,
-              alignment: Alignment.centerLeft,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  IconButton(
-                    onPressed: () => backButtonPressed(),
-                    icon: const Icon(
-                      Icons.arrow_back_ios_new_outlined,
-                      color: Colors.grey,
-                      // size: 20,
-                    ),
-                  )
-                ],
-              )
-          ),
+          // Container(
+          //     width: screenWidth,
+          //     height: 50,
+          //     alignment: Alignment.centerLeft,
+          //     child: Column(
+          //       mainAxisAlignment: MainAxisAlignment.center,
+          //       children: [
+          //
+          //         InkWell(
+          //           child: const Icon(
+          //             Icons.arrow_back_ios_new_outlined,
+          //             color: Colors.white,
+          //             // size: 20,
+          //           ),
+          //           onTap: () => ,
+          //         ),
+          //
+          //       ],
+          //     )
+          // ),
         ],
       ),
     );
@@ -174,7 +177,14 @@ class _OffersListViewState extends State<OffersListView> {
           surfaceTintColor: Colors.black,
           automaticallyImplyLeading: false,
           backgroundColor: Colors.transparent,
-          title: _buildAppBarShowTitle()
+          title: _buildAppBarShowTitle(),
+          leading: InkWell(
+            child: const Icon(
+              Icons.arrow_back_ios,
+              color: Colors.white,
+            ),
+            onTap: () => backButtonPressed(),
+          )
       ),
       body: SizedBox(
           width: screenWidth,

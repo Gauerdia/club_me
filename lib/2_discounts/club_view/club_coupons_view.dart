@@ -352,8 +352,6 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
               onTap: () => clickedOnCurrentDiscount(),
             ),
 
-
-
             // Edit button
             Container(
               padding: EdgeInsets.only(
@@ -386,6 +384,7 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
                 ],
               ),
             ),
+
           ],
         )
             :Container(

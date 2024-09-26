@@ -73,15 +73,16 @@ class ClubMeClub{
     bool closedToday = false, alreadyOpen = false, lessThanThreeMoreHoursOpen = false;
     var todaysClosingHour, todaysOpeningHour;
 
-    for(var element in getOpeningTimes().days!){
+    for(Days element in getOpeningTimes().days!){
 
       // Catching the situation that the user checks the app after midnight.
       // We want him to know that it's open but will close some time.
       if(todayTimestamp.hour < 8){
+
         if(element.day!-1 == todayTimestamp.weekday){
           todaysClosingHour = element.closingHour!;
           closedToday = false;
-          if(todayTimestamp.hour < todaysOpeningHour){
+          if(todayTimestamp.hour < element.closingHour!){
             alreadyOpen = true;
             if(todaysClosingHour - todayTimestamp.hour < 3){
               lessThanThreeMoreHoursOpen = true;

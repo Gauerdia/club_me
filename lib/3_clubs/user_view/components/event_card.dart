@@ -150,8 +150,8 @@ class EventCard extends StatelessWidget {
                   Container(
                       width: screenWidth*0.9,
                       height: 80,
-                      padding: const EdgeInsets.only(
-                          bottom: 5
+                      padding: EdgeInsets.only(
+                        left: screenWidth*0.03,
                       ),
                       decoration: BoxDecoration(
                         color: backgroundColorIndex == 0 ? customStyleClass.backgroundColorMain : customStyleClass.backgroundColorEventTile,
@@ -162,55 +162,37 @@ class EventCard extends StatelessWidget {
 
                           // Content column
                           Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
 
                               // Event Title container
-                              Padding(
-                                padding: EdgeInsets.only(
-                                    left: screenWidth*0.03,
-                                    top: 6
-                                ),
-                                child: SizedBox(
-                                  width: screenWidth*0.9,
-                                  child: Align(
-                                    alignment: Alignment.topLeft,
-                                    child: Text(
-                                      textAlign: TextAlign.start,
-                                      formattedEventTitle,
-                                      style: customStyleClass.getFontStyle3Bold(),
-                                    ),
+                              SizedBox(
+                                width: screenWidth*0.9,
+                                child: Align(
+                                  alignment: Alignment.topLeft,
+                                  child: Text(
+                                    textAlign: TextAlign.start,
+                                    formattedEventTitle,
+                                    style: customStyleClass.getFontStyle3Bold(),
                                   ),
                                 ),
                               ),
 
-
                               // eventGenre
                               SizedBox(
                                 width: screenWidth,
-                                child: Padding(
-                                  padding: EdgeInsets.only(
-                                      left: screenWidth*0.03,
-                                      top: 2
-                                  ),
-                                  child: Text(
-                                    formattedEventGenres,
-                                    style: customStyleClass.getFontStyle5(),
-                                  ),
+                                child: Text(
+                                  formattedEventGenres,
+                                  style: customStyleClass.getFontStyle5(),
                                 ),
                               ),
 
                               // eventWhen
                               SizedBox(
                                 width: screenWidth,
-                                child: Padding(
-                                  padding: EdgeInsets.only(
-                                      left: screenWidth*0.03,
-                                      top: 6
-                                  ),
-                                  child: Text(
-                                    "$startingHoursFormatted Uhr" ,
-                                    style: customStyleClass.getFontStyle5BoldPrimeColor(),
-                                  ),
+                                child: Text(
+                                  "$startingHoursFormatted Uhr" ,
+                                  style: customStyleClass.getFontStyle5BoldPrimeColor(),
                                 ),
                               ),
 

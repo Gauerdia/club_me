@@ -77,6 +77,9 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
 
   bool pickHourAndMinuteIsActive = false;
 
+
+  double distanceBetweenTitleAndTextField = 10;
+
   @override
   void initState() {
     super.initState();
@@ -247,8 +250,11 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                       ),
 
                       // TextField: Title
-                      SizedBox(
+                      Container(
                         width: screenWidth*0.9,
+                        padding:  EdgeInsets.only(
+                            top: distanceBetweenTitleAndTextField
+                        ),
                         child: TextField(
                           controller: _discountTitleController,
                           cursorColor: customStyleClass.primeColor,
@@ -293,7 +299,10 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                                     ),
                                   ),
 
-                                  SizedBox(
+                                  Container(
+                                    padding:  EdgeInsets.only(
+                                        top: distanceBetweenTitleAndTextField
+                                    ),
                                     width: screenWidth*0.28,
                                     child:OutlinedButton(
                                         onPressed: (){
@@ -352,7 +361,10 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                                       ),
 
                                       // TOGGLE SWITCH
-                                      SizedBox(
+                                      Container(
+                                        padding:  EdgeInsets.only(
+                                            top: distanceBetweenTitleAndTextField
+                                        ),
                                         width: screenWidth*0.28,
                                         child:  Center(
                                           child: ToggleSwitch(
@@ -411,8 +423,11 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                                     ),
 
                                     // Button: Time
-                                    SizedBox(
+                                    Container(
                                       width: screenWidth*0.28,
+                                      padding:  EdgeInsets.only(
+                                          top: distanceBetweenTitleAndTextField
+                                      ),
                                       child: OutlinedButton(
                                           onPressed: () => {
                                             setState(() {
@@ -456,7 +471,10 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                       ),
 
                       // ToggleSwitch: Gender
-                      SizedBox(
+                      Container(
+                        padding:  EdgeInsets.only(
+                            top: distanceBetweenTitleAndTextField
+                        ),
                         width: screenWidth*0.9,
                         // height: screenHeight*0.1,
                         child:  Center(
@@ -498,7 +516,6 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
 
                             Container(
                                 width: screenWidth*0.4,
-                                // height: screenHeight*0.12,
                                 alignment: Alignment.centerLeft,
                                 child: Column(
                                   children: [
@@ -508,7 +525,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                                       // width: screenWidth*0.9,
                                       alignment: Alignment.centerLeft,
                                       padding: EdgeInsets.only(
-                                          top: 20
+                                          top: 0
                                       ),
                                       child: Text(
                                         "Alterbeschränkung",
@@ -516,7 +533,11 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                                       ),
                                     ),
 
+                                    // Toggle switch
                                     Container(
+                                      padding:  EdgeInsets.only(
+                                          top: distanceBetweenTitleAndTextField
+                                      ),
                                       width: screenWidth*0.45,
                                       alignment: Alignment.centerLeft,
                                       child: ToggleSwitch(
@@ -553,11 +574,11 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                                 )
                             ),
 
-                            // TextField, Text: AgeLimit
+                            // Text, TextField: From - To
                             if(hasAgeLimit != 0)
                               Container(
-                                padding: const EdgeInsets.only(
-                                    top:25
+                                padding:  EdgeInsets.only(
+                                    top: distanceBetweenTitleAndTextField
                                 ),
                                 alignment: Alignment.centerRight,
                                 width: screenWidth*0.45,
@@ -573,7 +594,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                                           SizedBox(
                                             width: screenWidth*0.15,
                                             child: Text(
-                                              "von",
+                                              "Von",
                                               textAlign: TextAlign.left,
                                               style: customStyleClass.getFontStyle3(),
                                             ),
@@ -667,7 +688,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                             Container(
                               width: screenWidth*0.45,
                               padding: EdgeInsets.only(
-                                  top:15
+                                  // top:15
                               ),
                               child: Column(
                                 children: [
@@ -683,6 +704,9 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                                   ),
 
                                   Container(
+                                    padding:  EdgeInsets.only(
+                                        top: distanceBetweenTitleAndTextField
+                                    ),
                                     width: screenWidth*0.45,
                                     // height: screenHeight*0.12,
                                     alignment: Alignment.centerLeft,
@@ -764,8 +788,11 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                       ),
 
                       // TextField: Description
-                      SizedBox(
+                      Container(
                         width: screenWidth*0.9,
+                        padding:  EdgeInsets.only(
+                            top: distanceBetweenTitleAndTextField
+                        ),
                         child: TextField(
                           controller: _discountDescriptionController,
                           cursorColor: customStyleClass.primeColor,
@@ -792,6 +819,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                         width: screenWidth*0.9,
                         height: screenHeight*0.12,
                         alignment: Alignment.centerLeft,
+
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -811,6 +839,9 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                                   ),
 
                                   Container(
+                                      padding:  EdgeInsets.only(
+                                          top: distanceBetweenTitleAndTextField
+                                      ),
                                       width: screenWidth*0.45,
                                       alignment: Alignment.centerLeft,
                                       child: ToggleSwitch(
@@ -874,6 +905,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                           child: Column(
                             children: [
 
+                              // TEXT
                               Container(
                                   width: screenWidth*0.9,
                                   alignment: Alignment.centerLeft,
@@ -883,7 +915,11 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                                   )
                               ),
 
+                              // TOGGLESWITCH
                               Container(
+                                padding:  EdgeInsets.only(
+                                    top: distanceBetweenTitleAndTextField
+                                ),
                                 width: screenWidth*0.9,
                                 alignment: Alignment.centerLeft,
                                 child: ToggleSwitch(

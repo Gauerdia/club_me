@@ -43,9 +43,9 @@ class ClubListItem extends StatelessWidget {
       genreToReturn = currentClub.getMusicGenres();
     }
 
-    if(genreToReturn.length>6){
-      genreToReturn = "${genreToReturn.substring(0, 5)}...";
-    }
+    // if(genreToReturn.length>6){
+    //   genreToReturn = "${genreToReturn.substring(0, 5)}...";
+    // }
     return genreToReturn;
 
   }
@@ -221,7 +221,7 @@ class ClubListItem extends StatelessWidget {
                       child: Text(
                         currentClub.getClubName(),
                         textAlign: TextAlign.left,
-                        style: customStyleClass.getFontStyle1(),
+                        style: customStyleClass.getFontStyle1Bold(),
                       ),
                     ),
 

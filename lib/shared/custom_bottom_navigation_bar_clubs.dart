@@ -27,7 +27,12 @@ class CustomBottomNavigationBarClubs extends StatelessWidget {
         decoration: BoxDecoration(
             borderRadius: const BorderRadius.only(
             ),
-            color: navigationBackgroundColor
+            color: navigationBackgroundColor,
+          border: Border(
+            top: BorderSide(
+              color: Colors.grey[900]!
+            )
+          )
         ),
         child: Stack(
           children: [
@@ -57,7 +62,6 @@ class CustomBottomNavigationBarClubs extends StatelessWidget {
                                     textStyle: TextStyle(
                                       fontSize: customStyleClass.getNavIconTextSize(),
                                       color: stateProvider.pageIndex == 0 ? customStyleClass.primeColor : Colors.white,
-
                                     )
                                 )
                             )

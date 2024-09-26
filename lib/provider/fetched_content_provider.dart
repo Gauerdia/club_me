@@ -45,6 +45,7 @@ class FetchedContentProvider extends ChangeNotifier{
   void addEventToFetchedEvents(ClubMeEvent clubMeEvent){
     fetchedEvents.add(clubMeEvent);
     sortFetchedEvents();
+    notifyListeners();
   }
 
   void updateSpecificEvent(String eventId, ClubMeEvent updatedClubMeEvent){

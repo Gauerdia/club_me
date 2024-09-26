@@ -75,10 +75,12 @@ class _ClubEventsViewState extends State<ClubEventsView> {
     customStyleClass = CustomStyleClass(context: context);
 
     if(upcomingEvents.isEmpty && pastEvents.isEmpty){
-      filterEventsFromProvider(stateProvider);
+      filterEventsFromProvider();
     }
-    if(upcomingEvents.isNotEmpty && !identical(upcomingEvents[0], fetchedContentProvider.getFetchedEvents().where((element) => element.getEventId() == upcomingEvents[0].getEventId()))){
-      filterEventsFromProvider(stateProvider);
+    if(upcomingEvents.isNotEmpty &&
+        !identical(upcomingEvents[0], fetchedContentProvider.getFetchedEvents().where(
+                (element) => element.getEventId() == upcomingEvents[0].getEventId()))){
+      filterEventsFromProvider();
     }
 
     if(stateProvider.getClubMeEventTemplates().isEmpty){
@@ -245,27 +247,31 @@ class _ClubEventsViewState extends State<ClubEventsView> {
               onTap: () => clickedOnCurrentEvent(stateProvider),
             ),
 
-            // Shadow to highlight icons
-
-
             // Edit button
             Container(
               padding: EdgeInsets.only(
-                right: screenWidth*0.05,
+                  right: screenWidth*0.07,
+                  top: screenWidth*0.03
               ),
               alignment: Alignment.topRight,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  IconButton(
-                    icon: Icon(Icons.edit, size: screenWidth*0.08),
-                    color: customStyleClass.primeColor,
-                    onPressed: () => clickOnEditEvent(),
+                  InkWell(
+                    child: Icon(
+                        Icons.edit,
+                        color: customStyleClass.primeColor,
+                        size: screenWidth*0.06
+                    ),
+                    onTap: () => clickOnEditEvent(),
                   ),
-                  IconButton(
-                    icon: Icon(Icons.clear_rounded, size: screenWidth*0.08),
-                    color: customStyleClass.primeColor,
-                    onPressed: () => clickOnDeleteEvent(),
+                  InkWell(
+                    child: Icon(
+                        Icons.clear_rounded,
+                        color: customStyleClass.primeColor,
+                        size: screenWidth*0.06
+                    ),
+                    onTap: () => clickOnDeleteEvent(),
                   ),
                 ],
               ),
@@ -421,7 +427,7 @@ class _ClubEventsViewState extends State<ClubEventsView> {
 
   // FILTER FUNCTIONS
 
-  void filterEventsFromProvider(StateProvider stateProvider){
+  void filterEventsFromProvider(){
   // Used, when the fetching of the db entries has happened already and we now
   // want to use the temporarily saved data to display events.
 
@@ -621,7 +627,6 @@ class _ClubEventsViewState extends State<ClubEventsView> {
       });
     });
   }
-
 
   @override
   Widget build(BuildContext context) {

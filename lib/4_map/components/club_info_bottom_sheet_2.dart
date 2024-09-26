@@ -288,7 +288,7 @@ class _ClubInfoBottomSheet2State extends State<ClubInfoBottomSheet2> {
                     lessThanThreeMoreHoursOpen ?
                     "Geöffnet, schließt um $todaysClosingHour" :
                     "Geöffnet" :
-                    "Öffnet um $todaysOpeningHour Uhr",
+                    "Öffnet um $todaysOpeningHour:00 Uhr",
                     style: TextStyle(
                         color: closedToday ? Colors.grey : alreadyOpen ?
                         customStyleClass.primeColor : Colors.white,
@@ -507,11 +507,15 @@ class _ClubInfoBottomSheet2State extends State<ClubInfoBottomSheet2> {
       clubMeEvent = widget.clubMeEvent;
     }
 
+
     userDataProvider = Provider.of<UserDataProvider>(context);
     stateProvider = Provider.of<StateProvider>(context);
     currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context);
     fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
     customStyleClass = CustomStyleClass(context: context);
+
+
+    checkIfClosed();
 
     return Container(
         padding: EdgeInsets.only(

@@ -9,14 +9,9 @@ import 'package:club_me/models/price_list.dart';
 import 'package:club_me/provider/state_provider.dart';
 import 'package:club_me/provider/user_data_provider.dart';
 import 'package:club_me/shared/logger.util.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/club.dart';
 import '../models/discount.dart';
-import 'package:logging/logging.dart';
 
 class SupabaseService{
 
@@ -37,8 +32,8 @@ class SupabaseService{
       log.d("saveUsersGeoLocation: Finished successfully. Response: $data");
       return 0;
     }catch(e){
-      log.d("Error in saveUsersGeoLocation: $e");
-      createErrorLog(e.toString());
+      log.d("Error in SupabaseService. Function: saveUsersGeoLocation. Error: $e");
+      createErrorLog("Error in SupabaseService. Function: saveUsersGeoLocation. Error: ${e.toString()}");
       return 1;
     }
   }
@@ -54,8 +49,8 @@ class SupabaseService{
       return data;
     }
     catch(e){
-      log.d("Error in getAllEvents: $e");
-      createErrorLog(e.toString());
+      log.d("Error in SupabaseService. Function: getAllEvents. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: getAllEvents. Error: ${e.toString()}");
       return [];
     }
   }
@@ -69,8 +64,8 @@ class SupabaseService{
             'club_id': clubId
           });
     }catch(e){
-      log.d("Error in getEventsOfSpecificClub: $e");
-      createErrorLog(e.toString());
+      log.d("Error in SupabaseService. Function: getEventsOfSpecificClub. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: getEventsOfSpecificClub. Error: ${e.toString()}");
       return [];
     }
   }
@@ -107,8 +102,8 @@ class SupabaseService{
       log.d("insertEvent: Finished successfully. Response: $data");
       return 0;
     }catch(e){
-      log.d("Error in insertEvent: $e");
-      createErrorLog(e.toString());
+      log.d("Error in SupabaseService. Function: insertEvent. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: insertEvent. Error: ${e.toString()}");
       return 1;
     }
 
@@ -136,8 +131,8 @@ class SupabaseService{
       });
       log.d("updateEvent: Finished successfully. Response: $data");
     }catch(e){
-      log.d("Error in updateEvent: $e");
-      createErrorLog(e.toString());
+      log.d("Error in SupabaseService. Function: updateEvent. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: updateEvent. Error: ${e.toString()}");
     }
   }
 
@@ -149,13 +144,17 @@ class SupabaseService{
           'event_title': updatedEvent.getEventTitle(),
           'dj_name': updatedEvent.getDjName(),
           'event_date': updatedEvent.getEventDate().toString(),
-          'music_genres': updatedEvent.getMusicGenres(),
-          'event_price': updatedEvent.getEventPrice(),
           'event_description': updatedEvent.getEventDescription(),
+          'event_price': updatedEvent.getEventPrice(),
+
+          'music_genres': updatedEvent.getMusicGenres(),
+
           'event_marketing_file_name': updatedEvent.getEventMarketingFileName(),
           'event_marketing_created_at': updatedEvent.getEventMarketingFileName().isNotEmpty ? DateTime.now().toString() : null,
+
           'ticket_link': updatedEvent.getTicketLink(),
-          'is_repeated': updatedEvent.getIsRepeated()
+          'is_repeated_days': updatedEvent.getIsRepeatedDays()
+
         }).match({
         'event_id' : updatedEvent.getEventId()
       });
@@ -178,8 +177,8 @@ class SupabaseService{
       log.d("deleteEvent: Finished successfully. Response: $data");
       return 0;
     }catch(e){
-      log.d("Error in deleteEvent: $e");
-      createErrorLog(e.toString());
+      log.d("Error in SupabaseService. Function: deleteEvent. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: deleteEvent. Error: ${e.toString()}");
       return 1;
     }
   }
@@ -198,8 +197,8 @@ class SupabaseService{
       log.d("updateClub: Finished successfully. Response: $data");
       return 0;
     }catch(e){
-      log.d("Error in updateClubOffers: $e");
-      createErrorLog(e.toString());
+      log.d("Error in SupabaseService. Function: updateClubOffers. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: updateClubOffers. Error: ${e.toString()}");
       return 1;
     }
   }
@@ -215,8 +214,8 @@ class SupabaseService{
       log.d("checkIfClubPwIsLegit: Finished successfully. Response: $data");
       return data;
     }catch(e){
-      log.d("Error in checkIfClubPwIsLegit: $e");
-      createErrorLog(e.toString());
+      log.d("Error in SupabaseService. Function: checkIfClubPwIsLegit. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: checkIfClubPwIsLegit. Error: ${e.toString()}");
       return [];
     }
   }
@@ -229,8 +228,8 @@ class SupabaseService{
       log.d("getAllClubs: Finished successfully. Response: $data");
       return data;
     }catch(e){
-      log.d("Error in getAllClubs: $e");
-      createErrorLog(e.toString());
+      log.d("Error in SupabaseService. Function: getAllClubs. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: getAllClubs. Error: ${e.toString()}");
       return [];
     }
   }
@@ -247,8 +246,8 @@ class SupabaseService{
       log.d("getSpecificClub: Finished successfully. Fetched Club with Id: $fetchedClubId");
       return data;
     }catch(e){
-      log.d("Error in getSpecificClub: $e");
-      createErrorLog(e.toString());
+      log.d("Error in SupabaseService. Function: getSpecificClub. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: getSpecificClub. Error: ${e.toString()}");
       return [];
     }
   }
@@ -290,8 +289,8 @@ class SupabaseService{
       }).select();
       log.d("insertClub: Finished successfully. Response: $data");
     }catch(e){
-      log.d("Error in insertClub: $e");
-      createErrorLog(e.toString());
+      log.d("Error in SupabaseService. Function: insertClub. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: insertClub. Error: ${e.toString()}");
     }
   }
 
@@ -317,8 +316,8 @@ class SupabaseService{
       log.d("updateClub: Finished successfully. Response: $data");
       return 0;
     }catch(e){
-      log.d("Error in updateClub: $e");
-      createErrorLog(e.toString());
+      log.d("Error in SupabaseService. Function: updateClub. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: updateClub. Error: ${e.toString()}");
       return 1;
     }
   }
@@ -336,8 +335,8 @@ class SupabaseService{
       userDataProvider.setUserClubStoryId(uuid);
       log.d("addVideoPathToClub: Finished successfully. Response: $data");
     }catch(e){
-      log.d("Error in addVideoPathToClub: $e");
-      createErrorLog(e.toString());
+      log.d("Error in SupabaseService. Function: addVideoPathToClub. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: addVideoPathToClub. Error: ${e.toString()}");
     }
   }
 
@@ -353,8 +352,8 @@ class SupabaseService{
       });
       log.d("addContentPathToEvent: Finished successfully. Response: $data");
     }catch(e){
-      log.d("Error in addContentPathToEvent: $e");
-      createErrorLog(e.toString());
+      log.d("Error in SupabaseService. Function: addContentPathToEvent. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: addContentPathToEvent. Error: ${e.toString()}");
     }
   }
 
@@ -371,8 +370,8 @@ class SupabaseService{
           });
       log.d("addEventMarketingToEvent: Finished successfully. Response: $data");
     }catch(e){
-      log.d("Error in addEventMarketingToEvent: $e");
-      createErrorLog(e.toString());
+      log.d("Error in SupabaseService. Function: addEventMarketingToEvent. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: addEventMarketingToEvent. Error: ${e.toString()}");
     }
 
   }
@@ -400,8 +399,8 @@ class SupabaseService{
       log.d("updateClubContactInfo: Finished successfully. Response: $data");
       return 0;
     }catch(e){
-      log.d("Error in updateClubContactInfo: $e");
-      createErrorLog(e.toString());
+      log.d("Error in SupabaseService. Function: updateClubContactInfo. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: updateClubContactInfo. Error: ${e.toString()}");
       return 1;
     }
   }
@@ -418,8 +417,8 @@ class SupabaseService{
       log.d("deleteDiscount: Finished successfully. Response: $data");
       return 0;
     }catch(e){
-      log.d("Error in deleteDiscount: $e");
-      createErrorLog(e.toString());
+      log.d("Error in SupabaseService. Function: deleteDiscount. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: deleteDiscount. Error: ${e.toString()}");
       return 1;
     }
   }
@@ -432,8 +431,8 @@ class SupabaseService{
       log.d("getAllDiscounts: Finished successfully. Response: $data");
       return data;
     }catch(e){
-      log.d("Error in getAllDiscounts: $e");
-      createErrorLog(e.toString());
+      log.d("Error in SupabaseService. Function: getAllDiscounts. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: getAllDiscounts. Error: ${e.toString()}");
       return [];
     }
   }
@@ -473,8 +472,8 @@ class SupabaseService{
       log.d("insertDiscount: Finished successfully. Response: $data");
       return 0;
     }catch(e){
-      log.d("Error in insertDiscount: $e");
-      createErrorLog(e.toString());
+      log.d("Error in SupabaseService. Function: insertDiscount. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: insertDiscount. Error: ${e.toString()}");
       return 1;
     }
   }
@@ -490,8 +489,8 @@ class SupabaseService{
       log.d("getDiscountsOfSpecificClub: Finished successfully. Response: $data");
       return data;
     }catch(e){
-      log.d("Error in getDiscountsOfSpecificClub: $e");
-      createErrorLog(e.toString());
+      log.d("Error in SupabaseService. Function: getDiscountsOfSpecificClub. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: getDiscountsOfSpecificClub. Error: ${e.toString()}");
       return [];
     }
   }
@@ -507,8 +506,8 @@ class SupabaseService{
       });
       log.d("updateDiscount: Finished successfully. Response: $data");
     }catch(e){
-      log.d("Error in updateDiscount: $e");
-      createErrorLog(e.toString());
+      log.d("Error in SupabaseService. Function: updateDiscount. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: updateDiscount. Error: ${e.toString()}");
     }
   }
 
@@ -544,8 +543,8 @@ class SupabaseService{
       log.d("updateCompleteDiscount: Finished successfully. Response: $data");
       return 0;
     }catch(e){
-      log.d("Error in updateCompleteDiscount: $e");
-      createErrorLog(e.toString());
+      log.d("Error in SupabaseService. Function: updateCompleteDiscount. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: updateCompleteDiscount. Error: ${e.toString()}");
       return 1;
     }
   }
@@ -562,8 +561,8 @@ class SupabaseService{
       log.d("getFrontPageImage: Finished successfully. Response: $data");
       return data;
     }catch(e){
-      log.d("Error in getFrontPageImage: $e");
-      createErrorLog(e.toString());
+      log.d("Error in SupabaseService. Function: getFrontPageImage. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: getFrontPageImage. Error: ${e.toString()}");
       return Uint8List(0);
     }
   }
@@ -584,8 +583,8 @@ class SupabaseService{
       log.d("uploadEventContent: Finished successfully. Response: $data");
       return 0;
     }catch(e){
-      log.d("Error in uploadFrontPageImage: $e");
-      createErrorLog(e.toString());
+      log.d("Error in SupabaseService. Function: uploadFrontPageImage. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: uploadFrontPageImage. Error: ${e.toString()}");
       return 1;
     }
   }
@@ -602,8 +601,8 @@ class SupabaseService{
       log.d("updateFrontPageImageInClub: Finished successfully. Response: $data");
       return 0;
     }catch(e){
-      log.d("Error in updateFrontPageImageInClub: $e");
-      createErrorLog(e.toString());
+      log.d("Error in SupabaseService. Function: updateFrontPageImageInClub. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: updateFrontPageImageInClub. Error: ${e.toString()}");
       return 1;
     }
   }
@@ -617,8 +616,8 @@ class SupabaseService{
       log.d("deleteFrontPageFromStorage: Finished successfully. Response: $data");
       return 0;
     }catch(e){
-      log.d("Error in deleteFrontPageFromStorage: $e");
-      createErrorLog(e.toString());
+      log.d("Error in SupabaseService. Function: deleteFrontPageFromStorage. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: deleteFrontPageFromStorage. Error: ${e.toString()}");
       return 1;
     }
   }
@@ -641,8 +640,8 @@ class SupabaseService{
       log.d("insertUserDate: Finished successfully. Response: $data");
       return 0;
     }catch(e){
-      log.d("Error in insertUserDate: $e");
-      createErrorLog(e.toString());
+      log.d("Error in SupabaseService. Function: insertUserDate. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: insertUserDate. Error: ${e.toString()}");
       return 1;
     }
   }
@@ -663,8 +662,8 @@ class SupabaseService{
       log.d("updateUserData: Finished successfully. Response: $data");
       return 0;
     }catch(e){
-      log.d("Error in updateUserData: $e");
-      createErrorLog(e.toString());
+      log.d("Error in SupabaseService. Function: updateUserData. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: updateUserData. Error: ${e.toString()}");
       return 1;
     }
   }
@@ -679,8 +678,8 @@ class SupabaseService{
       log.d("markToDeleteUserData: Finished successfully. Response: $data");
       return 0;
     }catch(e){
-      log.d("Error in markToDeleteUserData: $e");
-      createErrorLog(e.toString());
+      log.d("Error in SupabaseService. Function: markToDeleteUserData. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: markToDeleteUserData. Error: ${e.toString()}");
       return 1;
     }
   }
@@ -696,8 +695,8 @@ class SupabaseService{
       log.d("getVideo: Finished successfully. Response: $data");
       return data;
     }catch(e){
-      log.d("Error in getVideo: $e");
-      createErrorLog(e.toString());
+      log.d("Error in SupabaseService. Function: getEventContent. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: getEventContent. Error: ${e.toString()}");
       return Uint8List(0);
     }
 
@@ -710,8 +709,8 @@ class SupabaseService{
       log.d("getBannerImage: Finished successfully. Response: $data");
       return data;
     }catch(e){
-      log.d("Error in getBannerImage: $e");
-      createErrorLog(e.toString());
+      log.d("Error in SupabaseService. Function: getBannerImage. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: getBannerImage. Error: ${e.toString()}");
       return Uint8List(0);
     }
   }
@@ -725,8 +724,8 @@ class SupabaseService{
       log.d("getVideo: Finished successfully. Response: $data");
       return data;
     }catch(e){
-      log.d("Error in getVideo: $e");
-      createErrorLog(e.toString());
+      log.d("Error in SupabaseService. Function: getClubVideo. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: getClubVideo. Error: ${e.toString()}");
       return Uint8List(0);
     }
   }
@@ -742,8 +741,8 @@ class SupabaseService{
       log.d("uploadEventContent: Finished successfully. Response: $data");
       return 0;
     }catch(e){
-      log.d("Error in uploadEventContent: $e");
-      createErrorLog(e.toString());
+      log.d("Error in SupabaseService. Function: uploadEventContent. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: uploadEventContent. Error: ${e.toString()}");
       return 1;
     }
   }
@@ -759,8 +758,8 @@ class SupabaseService{
       log.d("insertVideo: Finished successfully. Response: $data");
       return 0;
     }catch(e){
-      log.d("Error in insertVideo: $e");
-      createErrorLog(e.toString());
+      log.d("Error in SupabaseService. Function: insertClubVideo. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: insertClubVideo. Error: ${e.toString()}");
       return 1;
     }
   }
@@ -774,12 +773,11 @@ class SupabaseService{
         content,
         fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
       );
-      // addEventMarketingToEvent(eventId, fileName, stateProvider);
       log.d("insertEventContent: Finished successfully. Response: $data");
       return 0;
     }catch(e){
-      log.d("Error in insertEventContent: $e");
-      createErrorLog(e.toString());
+      log.d("Error in SupabaseService. Function: insertEventContent. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: insertEventContent. Error: ${e.toString()}");
       return 1;
     }
   }

@@ -47,7 +47,7 @@ class _OffersListClubViewState extends State<OffersListClubView> {
                 children: [
                   Text(headline,
                       textAlign: TextAlign.center,
-                      style: customStyleClass.getFontStyle1()
+                      style: customStyleClass.getFontStyleHeadline1Bold()
                   ),
                 ],
               )
@@ -56,17 +56,19 @@ class _OffersListClubViewState extends State<OffersListClubView> {
           // back icon
           Container(
               width: screenWidth,
+              height: 50,
               alignment: Alignment.centerLeft,
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  IconButton(
-                    onPressed: () => backButtonPressed(),
-                    icon: const Icon(
+
+                  InkWell(
+                    child: const Icon(
                       Icons.arrow_back_ios_new_outlined,
-                      color: Colors.grey,
+                      color: Colors.white,
                       // size: 20,
                     ),
+                    onTap: () => backButtonPressed(),
                   )
                 ],
               )
@@ -115,7 +117,7 @@ class _OffersListClubViewState extends State<OffersListClubView> {
                     children: [
                       Text(
                           "Angebot ${index+1}",
-                        style: customStyleClass.getFontStyle2(),
+                        style: customStyleClass.getFontStyle2Bold(),
                       ),
                       IconButton(
                           onPressed: () => deleteOffer(index),
@@ -374,10 +376,11 @@ class _OffersListClubViewState extends State<OffersListClubView> {
                             children: [
                               Text(
                                 "Weiteres Angebot",
-                                style: customStyleClass.getFontStyle4Bold(),
+                                style: customStyleClass.getFontStyle2Bold(),
                               ),
                               Icon(
                                 Icons.add,
+                                size: 28,
                                 color: customStyleClass.primeColor,
                               )
                             ],
@@ -412,9 +415,21 @@ class _OffersListClubViewState extends State<OffersListClubView> {
           bottom: 20
         ),
         child: GestureDetector(
-          child: Text(
-            "Angebote aktualisieren!",
-            style: customStyleClass.getFontStyle3BoldPrimeColor(),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+
+              Text(
+                "Angebote aktualisieren",
+                style: customStyleClass.getFontStyle4BoldPrimeColor(),
+              ),
+
+              Icon(
+                Icons.arrow_forward_outlined,
+                color: customStyleClass.primeColor,
+              )
+
+            ],
           ),
           onTap: () => updateOffers(),
         ),

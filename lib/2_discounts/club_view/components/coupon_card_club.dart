@@ -208,8 +208,8 @@ class CouponCardClub extends StatelessWidget {
                   InkWell(
                     child: Icon(
                       Icons.edit,
-                      color: customStyleClass.primeColor,
-                      size: 32,
+                        color: customStyleClass.primeColor,
+                        size: screenWidth*0.06
                     ),
                     onTap: () => clickEventEditDiscount(context, clubMeDiscount),
                   ),
@@ -217,8 +217,8 @@ class CouponCardClub extends StatelessWidget {
                   InkWell(
                     child: Icon(
                       Icons.delete,
-                      color: customStyleClass.primeColor,
-                      size: 32,
+                        color: customStyleClass.primeColor,
+                        size: screenWidth*0.06
                     ),
                     onTap: () => clickEventDeleteDiscount(context, clubMeDiscount),
                   )
@@ -356,6 +356,18 @@ class CouponCardClub extends StatelessWidget {
                             ),
                           ),
                         ),
+                      Container(
+                        padding: const EdgeInsets.only(
+                            left: 10,
+                          top: 3
+                        ),
+                        width: screenWidth*0.9,
+                        child: Text(
+                          textAlign: TextAlign.left,
+                          "${clubMeDiscount.getHowOftenRedeemed()} mal aufgerufen",
+                          style: customStyleClass.getFontStyle5(),
+                        ),
+                      )
 
                     ],
                   ),

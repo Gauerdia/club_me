@@ -180,7 +180,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
         automaticallyImplyLeading: false,
         backgroundColor: customStyleClass.backgroundColorMain,
         title: Container(
-          width: screenWidth*0.6,
+          width: screenWidth*0.67,
           child: Stack(
             children: [
 
@@ -263,8 +263,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                 child: Center(
                     child: SizedBox(
                       height: screenHeight,
-                      child:
-                      Image(
+                      child: Image(
                         image: FileImage(
                             File(
                                 "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeClub.getBannerId()}"
@@ -283,12 +282,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
               child: Container(
                 width: screenWidth,
                 height: screenHeight*0.6,
-                decoration: BoxDecoration(
-                    border: Border(
-                        top: BorderSide(color: Colors.grey)
-                    ),
-                  color: customStyleClass.backgroundColorMain
-                ),
+                color: customStyleClass.backgroundColorMain,
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
@@ -415,15 +409,17 @@ class _ClubDetailViewState extends State<ClubDetailView> {
     return currentAndLikedElementsProvider.currentClubMeClub.getStoryId().isNotEmpty?
     Stack(
       children: [
+
+        // Logo image
         Container(
-          // alignment: Alignment.center,
           width: screenWidth*0.25,
           height: screenWidth*0.25,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: Colors.white,
             border: Border.all(
-              color: Colors.black
+              color: customStyleClass.primeColor,
+              width: 2
             ),
             image: DecorationImage(
               fit: BoxFit.cover,
@@ -436,6 +432,8 @@ class _ClubDetailViewState extends State<ClubDetailView> {
             ),
           ),
         ),
+
+        // Play button
         SizedBox(
           width: screenWidth*0.25,
           height: screenWidth*0.25,
@@ -444,17 +442,18 @@ class _ClubDetailViewState extends State<ClubDetailView> {
             children: [
               Container(
                 decoration: BoxDecoration(
-                    color: Colors.black,
+                    color: customStyleClass.backgroundColorMain,
                     borderRadius: const BorderRadius.all(
                         Radius.circular(45)
                     ),
                     border: Border.all(
-                        color: Colors.white
-                    )
+                        color: Colors.white,
+                    ),
                 ),
                 child: Icon(
                   Icons.play_arrow,
                   size: customStyleClass.getIconSize1(),
+                  color: customStyleClass.primeColor,
                 ),
               )
             ],
@@ -469,7 +468,8 @@ class _ClubDetailViewState extends State<ClubDetailView> {
         shape: BoxShape.circle,
         color: Colors.white,
         border: Border.all(
-            color: Colors.black
+            color: Colors.grey,
+          width: 2
         ),
         image: DecorationImage(
           fit: BoxFit.cover,
@@ -506,6 +506,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
         Padding(
           padding: const EdgeInsets.all(18),
           child: Text(
+            textAlign: TextAlign.center,
             currentAndLikedElementsProvider.currentClubMeClub.getNews(),
             style: customStyleClass.getFontStyle4(),
           ),
@@ -613,7 +614,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
           child: Text(
             "Öffnungszeiten",
             textAlign: TextAlign.left,
-            style: customStyleClass.getFontStyle2BoldLightGrey(),
+            style: customStyleClass.getFontStyle1Bold(),
           ),
         ),
 
@@ -638,12 +639,12 @@ class _ClubDetailViewState extends State<ClubDetailView> {
     String ContactZipToDisplay = "";
     String ContactCityToDisplay = "";
 
-    currentAndLikedElementsProvider.currentClubMeClub.getContactZip().length > 6 ?
-    ContactZipToDisplay = currentAndLikedElementsProvider.currentClubMeClub.getContactZip().substring(0, 6) :
+    // currentAndLikedElementsProvider.currentClubMeClub.getContactZip().length > 6 ?
+    // ContactZipToDisplay = currentAndLikedElementsProvider.currentClubMeClub.getContactZip().substring(0, 6) :
     ContactZipToDisplay = currentAndLikedElementsProvider.currentClubMeClub.getContactZip();
 
-    currentAndLikedElementsProvider.currentClubMeClub.getContactCity().length > 10 ?
-    ContactCityToDisplay = currentAndLikedElementsProvider.currentClubMeClub.getContactCity().substring(0, 10) :
+    // currentAndLikedElementsProvider.currentClubMeClub.getContactCity().length > 15 ?
+    // ContactCityToDisplay = currentAndLikedElementsProvider.currentClubMeClub.getContactCity().substring(0, 15) :
     ContactCityToDisplay = currentAndLikedElementsProvider.currentClubMeClub.getContactCity();
 
     return Column(
@@ -677,8 +678,6 @@ class _ClubDetailViewState extends State<ClubDetailView> {
 
               // Anschrift
               Container(
-                // color: Colors.red,
-                // width: screenWidth*0.55,
                 child: Column(
                   children: [
 
@@ -686,8 +685,8 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                     SizedBox(
                       width: screenWidth*0.6,
                       child: Text(
-                        currentAndLikedElementsProvider.currentClubMeClub.getContactName().length > 17 ?
-                        currentAndLikedElementsProvider.currentClubMeClub.getContactName().substring(0,17) :
+                        // currentAndLikedElementsProvider.currentClubMeClub.getContactName().length > 17 ?
+                        // currentAndLikedElementsProvider.currentClubMeClub.getContactName().substring(0,17) :
                         currentAndLikedElementsProvider.currentClubMeClub.getContactName(),
                         textAlign: TextAlign.left,
                         style: customStyleClass.getFontStyle4Bold(),
@@ -703,8 +702,8 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Text(
-                            currentAndLikedElementsProvider.currentClubMeClub.getContactStreet().length > 19 ?
-                            currentAndLikedElementsProvider.currentClubMeClub.getContactStreet().substring(0,19):
+                            // currentAndLikedElementsProvider.currentClubMeClub.getContactStreet().length > 30 ?
+                            // currentAndLikedElementsProvider.currentClubMeClub.getContactStreet().substring(0,30):
                             currentAndLikedElementsProvider.currentClubMeClub.getContactStreet(),
                             textAlign: TextAlign.left,
                             style:customStyleClass.getFontStyle4(),
@@ -820,6 +819,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                   vertical: 10
               ),
               child: Text(
+                textAlign: TextAlign.center,
                 currentAndLikedElementsProvider.currentClubMeClub.getMusicGenres(),
                 style: customStyleClass.getFontStyle4(),
               ),
@@ -855,7 +855,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
 
         // Insta Icon
         Container(
-          width: screenWidth*0.7,
+          width: screenWidth*0.3,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [

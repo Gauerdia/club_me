@@ -373,13 +373,6 @@ class _UserMapViewState extends State<UserMapView>{
                 ),
                 child: Container(
                   padding: const EdgeInsets.all(7),
-                  decoration: const BoxDecoration(
-                      color: Color(0xff11181f),
-                      borderRadius: BorderRadius.all(
-                          Radius.circular(45)
-                      )
-                  ),
-
                   child:  Icon(
                     Icons.list_alt,
                     color: showListIsActive ? customStyleClass.primeColor : Colors.grey,

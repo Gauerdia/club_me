@@ -306,7 +306,9 @@ class _UserEventsViewState extends State<UserEventsView> {
                 width: screenWidth,
                 child: Center(
                   child: Text(
-                      "Derzeit sind keine Events geplant!",
+                      onlyFavoritesIsActive ?
+                      "Derzeit sind keine Events als Favoriten markiert." :
+                      "Derzeit sind keine Events geplant.",
                     style: customStyleClass.getFontStyle3(),
                   ),
                 ),
@@ -372,7 +374,9 @@ class _UserEventsViewState extends State<UserEventsView> {
         width: screenWidth,
         child: Center(
           child: Text(
-              "Derzeit sind keine Events geplant!",
+              onlyFavoritesIsActive ?
+              "Derzeit sind keine Events als Favoriten markiert." :
+              "Derzeit sind keine Events geplant.",
             style: customStyleClass.getFontStyle3(),
           ),
         ),
@@ -887,6 +891,7 @@ class _UserEventsViewState extends State<UserEventsView> {
                               ),
                               child: DropdownButton(
                                   value: dropdownValue,
+                                  menuMaxHeight: 300,
                                   items: genresDropdownList.map<DropdownMenuItem<String>>(
                                           (String value) {
                                         return DropdownMenuItem(

@@ -101,7 +101,7 @@ class ClubCard extends StatelessWidget {
         if(element.day!-1 == stateProvider.getBerlinTime().weekday){
           todaysClosingHour = element.closingHour!;
           closedToday = false;
-          if(stateProvider.getBerlinTime().hour < todaysOpeningHour){
+          if(stateProvider.getBerlinTime().hour < element.closingHour!){
             alreadyOpen = true;
             if(todaysClosingHour - stateProvider.getBerlinTime().hour < 3){
               lessThanThreeMoreHoursOpen = true;
@@ -298,7 +298,8 @@ class ClubCard extends StatelessWidget {
               ),
 
               // Header: name, icons
-              SizedBox(
+              Container(
+                color: Colors.red,
                 height: screenHeight*headerContainerFactor,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -693,7 +694,7 @@ class ClubCard extends StatelessWidget {
                           lessThanThreeMoreHoursOpen ?
                           "Geöffnet, schließt um $todaysClosingHour" :
                           "Geöffnet" :
-                          "Öffnet um $todaysOpeningHour Uhr",
+                          "Öffnet um $todaysOpeningHour:00 Uhr",
                           style: TextStyle(
                               color: closedToday ?
                               Colors.grey : alreadyOpen ?
@@ -724,24 +725,19 @@ class ClubCard extends StatelessWidget {
 
                   // Title
                   GestureDetector(
-                    child: Padding(
+                    child: Container(
+                      alignment: Alignment.centerLeft,
                       padding: const EdgeInsets.only(
-                          top: 10,
-                          left: 10,
-                          bottom: 10
+
+                        left: 10,
+
                       ),
-                      child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: SizedBox(
-                            width: screenWidth*0.5,
-                            height: screenHeight*0.05,
-                            child: Text(
-                              clubMeClub.getClubName().length > 20 ?
-                              "${clubMeClub.getClubName().substring(0,18)}...":
-                              clubMeClub.getClubName(),
-                              style: customStyleClass.getFontStyle1Bold(),
-                            ),
-                          )
+                      width: screenWidth*0.5,
+                      child: Text(
+                        clubMeClub.getClubName().length > 20 ?
+                        "${clubMeClub.getClubName().substring(0,18)}...":
+                        clubMeClub.getClubName(),
+                        style: customStyleClass.getFontStyle1Bold(),
                       ),
                     ),
                     onTap: (){
@@ -750,12 +746,6 @@ class ClubCard extends StatelessWidget {
                     },
                   ),
 
-                  // Container(
-                  //   // color: Colors.green,
-                  //   child: Text(
-                  //       "wfeefwf"
-                  //   ),
-                  // ),
 
                   Container(
                     // color: Colors.grey,

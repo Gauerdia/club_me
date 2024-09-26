@@ -143,7 +143,11 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
               )
           ),
 
-          SizedBox(
+          // Clock
+          Container(
+            padding: EdgeInsets.only(
+              left: screenWidth*0.1
+            ),
             width: screenWidth,
             child: Text(
               formatClock(),
@@ -162,7 +166,7 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
 
     return Container(
       width: screenWidth,
-      height: screenHeight,
+      height: screenHeight*0.8,
       color: customStyleClass.backgroundColorMain,
       child: Stack(
         alignment: Alignment.center,

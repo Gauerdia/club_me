@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../provider/state_provider.dart';
 import 'custom_text_style.dart';
@@ -60,10 +61,12 @@ class CustomBottomNavigationBar extends StatelessWidget {
                             ),
                             Text(
                                 "Events",
-                              style: TextStyle(
-                                  color: stateProvider.pageIndex == 0 ? customStyleClass.primeColor : Colors.white,
-                                  fontSize: customStyleClass.getNavIconTextSize()
-                              ),
+                              style: GoogleFonts.inter(
+                                  textStyle: TextStyle(
+                                      color: stateProvider.pageIndex == 0 ? customStyleClass.primeColor : Colors.white,
+                                      fontSize: customStyleClass.getNavIconTextSize()
+                                  )
+                              )
                             )
                           ],
                         )
@@ -87,10 +90,12 @@ class CustomBottomNavigationBar extends StatelessWidget {
                             ),
                             Text(
                               "Clubs",
-                              style: TextStyle(
-                                  color: stateProvider.pageIndex == 1 ? customStyleClass.primeColor : Colors.white,
-                                  fontSize: customStyleClass.getNavIconTextSize()
-                              ),
+                                style: GoogleFonts.inter(
+                                    textStyle: TextStyle(
+                                        color: stateProvider.pageIndex == 1 ? customStyleClass.primeColor : Colors.white,
+                                        fontSize: customStyleClass.getNavIconTextSize()
+                                    )
+                                )
                             )
                           ],
                         ),
@@ -114,10 +119,12 @@ class CustomBottomNavigationBar extends StatelessWidget {
                             ),
                             Text(
                               "Karte",
-                              style: TextStyle(
-                                  color: stateProvider.pageIndex == 2 ? customStyleClass.primeColor : Colors.white,
-                                  fontSize: customStyleClass.getNavIconTextSize()
-                              ),
+                                style: GoogleFonts.inter(
+                                    textStyle: TextStyle(
+                                        color: stateProvider.pageIndex == 2 ? customStyleClass.primeColor : Colors.white,
+                                        fontSize: customStyleClass.getNavIconTextSize()
+                                    )
+                                )
                             )
                           ],
                         ),
@@ -141,10 +148,12 @@ class CustomBottomNavigationBar extends StatelessWidget {
                             ),
                             Text(
                               "Coupons",
-                              style: TextStyle(
-                                  color: stateProvider.pageIndex == 3 ? customStyleClass.primeColor : Colors.white,
-                                  fontSize: customStyleClass.getNavIconTextSize()
-                              ),
+                                style: GoogleFonts.inter(
+                                    textStyle: TextStyle(
+                                        color: stateProvider.pageIndex == 3 ? customStyleClass.primeColor : Colors.white,
+                                        fontSize: customStyleClass.getNavIconTextSize()
+                                    )
+                                )
                             )
                           ],
                         )
@@ -168,10 +177,12 @@ class CustomBottomNavigationBar extends StatelessWidget {
                             ),
                             Text(
                               "Profil",
-                              style: TextStyle(
-                                  color: stateProvider.pageIndex == 4 ? customStyleClass.primeColor : Colors.white,
-                                  fontSize: customStyleClass.getNavIconTextSize()
-                              ),
+                                style: GoogleFonts.inter(
+                                    textStyle: TextStyle(
+                                        color: stateProvider.pageIndex == 4 ? customStyleClass.primeColor : Colors.white,
+                                        fontSize: customStyleClass.getNavIconTextSize()
+                                    )
+                                )
                             )
                           ],
                         ),

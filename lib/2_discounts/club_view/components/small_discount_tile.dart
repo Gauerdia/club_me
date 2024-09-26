@@ -43,7 +43,7 @@ class SmallDiscountTile extends StatelessWidget {
       var minuteToDisplay = clubMeDiscount.getDiscountDate().minute < 10 ?
       "0${clubMeDiscount.getDiscountDate().minute}" : clubMeDiscount.getDiscountDate().minute.toString();
 
-      weekDayToDisplay = "$weekDayToDisplay, bis $hourToDisplay:$minuteToDisplay";
+      weekDayToDisplay = "$weekDayToDisplay, bis $hourToDisplay:$minuteToDisplay Uhr";
     }
 
     formattedWeekday = weekDayToDisplay;

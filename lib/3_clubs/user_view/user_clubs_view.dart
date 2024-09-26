@@ -464,26 +464,41 @@ class _UserClubsViewState extends State<UserClubsView>
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    SizedBox(
-                      height: screenHeight*0.73,
-                      width: screenWidth,
-                      child: PageView(
-                        controller: _pageViewController,
-                        onPageChanged: _handlePageViewChanged,
-                        children: <Widget>[
 
-                          for(var club in clubsToDisplay)
-                            ClubCard(
-                              events: fetchedContentProvider.getFetchedEvents().where((event){
-                                return (event.getClubId() == club.getClubId() && checkIfIsEventIsAfterToday(event));
-                              }).toList(),
-                              clubMeClub: club,
-                              triggerSetState: triggerSetState,
-                              clickedOnShare: clickedOnShare,
-                            )
-                        ],
+                    if(clubsToDisplay.isNotEmpty)
+                      SizedBox(
+                        height: screenHeight*0.73,
+                        width: screenWidth,
+                        child: PageView(
+                          controller: _pageViewController,
+                          onPageChanged: _handlePageViewChanged,
+                          children: <Widget>[
+
+                            for(var club in clubsToDisplay)
+                              ClubCard(
+                                events: fetchedContentProvider.getFetchedEvents().where((event){
+                                  return (event.getClubId() == club.getClubId() && checkIfIsEventIsAfterToday(event));
+                                }).toList(),
+                                clubMeClub: club,
+                                triggerSetState: triggerSetState,
+                                clickedOnShare: clickedOnShare,
+                              )
+                          ],
+                        ),
                       ),
-                    )
+                    if(clubsToDisplay.isEmpty)
+                      SizedBox(
+                        height: screenHeight*0.8,
+                        width: screenWidth,
+                        child: Center(
+                          child: Text(
+                            onlyFavoritesIsActive ? "Derzeit sind keine Clubs als Favoriten markiert.":
+                              "Derzeit sind keine Clubs verfügbar.",
+                            style: customStyleClass.getFontStyle3(),
+                          )
+                          ,
+                        ),
+                      ),
 
                   ],
                 ),
@@ -536,6 +551,7 @@ class _UserClubsViewState extends State<UserClubsView>
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
 
+            if(clubsToDisplay.isNotEmpty)
             Container(
               height: screenHeight*0.73,
               width: screenWidth,
@@ -558,7 +574,18 @@ class _UserClubsViewState extends State<UserClubsView>
                 ],
               ),
             ),
-
+            if(clubsToDisplay.isEmpty)
+              SizedBox(
+                height: screenHeight*0.8,
+                width: screenWidth,
+                child: Center(
+                  child: Text(
+                    onlyFavoritesIsActive ? "Derzeit sind keine Clubs als Favoriten markiert.":
+                    "Derzeit sind keine Clubs verfügbar.",
+                    style: customStyleClass.getFontStyle3(),
+                  ),
+                ),
+              ),
           ],
         ),
       );
@@ -589,9 +616,18 @@ class _UserClubsViewState extends State<UserClubsView>
       padding: EdgeInsets.only(
           top: screenHeight*0.02
       ),
+      decoration: BoxDecoration(
+        color: customStyleClass.backgroundColorMain,
+        border: Border(
+          bottom: BorderSide(
+            color: Colors.grey[900]!,
+            width: 1
+          )
+        )
+      ),
       height: screenHeight*0.12,
       width: screenWidth,
-      color: customStyleClass.backgroundColorMain,
+
       child: Row(
         children: [
           SizedBox(
@@ -612,6 +648,7 @@ class _UserClubsViewState extends State<UserClubsView>
                     ),
                     child: DropdownButton(
                         value: dropdownValue,
+                        menuMaxHeight: 200,
                         items: genresDropdownList.map<DropdownMenuItem<String>>(
                                 (String value) {
                               return DropdownMenuItem(

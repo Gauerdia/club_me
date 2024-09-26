@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:chewie/chewie.dart';
 import 'package:club_me/models/event.dart';
-import 'package:club_me/models/opening_times.dart';
 import 'package:club_me/provider/state_provider.dart';
 import 'package:club_me/shared/custom_text_style.dart';
 import 'package:file_picker/file_picker.dart';

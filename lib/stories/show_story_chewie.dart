@@ -159,7 +159,16 @@ class _ShowStoryChewieState extends State<ShowStoryChewie>
       ),
       home: Scaffold(
         appBar: AppBar(
-          title: Text(widget.clubName, style: const TextStyle(color: Colors.white),),
+          title: Container(
+            width: screenWidth,
+            child: Center(
+              child: Text(
+                  textAlign: TextAlign.center,
+                  widget.clubName,
+                  style: customStyleClass.getFontStyleHeadline1Bold()
+              ),
+            ),
+          ),
           backgroundColor: customStyleClass.backgroundColorMain,
           actions: [
             IconButton(
