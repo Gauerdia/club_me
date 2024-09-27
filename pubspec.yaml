@@ -118,7 +118,7 @@ dependencies:
       ref: ios-bg-tasks-enh-final
 
   shared_preferences: ^2.3.2
-  google_maps_flutter: ^2.9.0
+#  google_maps_flutter: ^2.9.0
 
   flutter_faq: ^1.0.1+1
 
