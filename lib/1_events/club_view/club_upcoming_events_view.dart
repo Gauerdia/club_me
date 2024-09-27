@@ -216,7 +216,7 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
                 onTap: (){
                   currentAndLikedElementsProvider.setCurrentEvent(currentEvent);
                   stateProvider.setAccessedEventDetailFrom(6);
-                  context.go('/event_details');
+                  context.push('/event_details');
                 },
               ),
 
@@ -224,22 +224,31 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
               // Edit button
               Container(
                 padding: EdgeInsets.only(
-                  right: screenWidth*0.05,
+                    right: screenWidth*0.07,
+                    top: screenWidth*0.03
                 ),
                 alignment: Alignment.topRight,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    IconButton(
-                      icon: Icon(Icons.edit, size: screenWidth*0.08),
-                      color: customStyleClass.primeColor,
-                      onPressed: () => clickOnEditEvent(currentEvent),
+
+                    InkWell(
+                      child: Icon(
+                          Icons.edit,
+                          size: screenWidth*0.06,
+                        color: customStyleClass.primeColor,
+                      ),
+                      onTap: () => clickOnEditEvent(currentEvent),
                     ),
-                    IconButton(
-                      icon: Icon(Icons.clear_rounded, size: screenWidth*0.08),
-                      color: customStyleClass.primeColor,
-                      onPressed: () => clickOnDeleteEvent(currentEvent),
+                    InkWell(
+                      child: Icon(
+                          Icons.clear_rounded,
+                          size: screenWidth*0.06,
+                        color: customStyleClass.primeColor,
+                      ),
+                      onTap: () => clickOnDeleteEvent(currentEvent),
                     ),
+
                   ],
                 ),
               ),

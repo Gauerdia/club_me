@@ -311,7 +311,6 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
 
 
     return userDataProvider.getUserClubStoryId().isNotEmpty?
-    // If there is a story available, we want to emphasise that with a play button
     Stack(
       children: [
 
@@ -330,7 +329,6 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
             ),
             image: DecorationImage(
               fit: BoxFit.cover,
-              opacity: 0.5,
               image: Image.file(
                   File("${stateProvider.appDocumentsDir.path}/${userDataProvider.getUserClubBannerId()}")
               ).image
@@ -351,32 +349,6 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
           ),
         ),
 
-        // Play icon when story is available
-        SizedBox(
-          width: screenWidth*0.25,
-          height: screenWidth*0.25,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: const BorderRadius.all(
-                        Radius.circular(45)
-                    ),
-                    border: Border.all(
-                        color: Colors.white
-                    )
-                ),
-                child: Icon(
-                  Icons.play_arrow,
-                  color: customStyleClass.primeColor,
-                  size: customStyleClass.getIconSize1(),
-                ),
-              )
-            ],
-          ),
-        )
       ],
     ):
     // If no story is available we just show the logo
@@ -923,16 +895,11 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            Padding(
-              padding: EdgeInsets.only(
-                  left: screenWidth*0.05
-              ),
-              child: Text(
-                textAlign: TextAlign.center,
-                userDataProvider.getUserClubMusicGenres(),
-                style: customStyleClass.getFontStyle4(),
-              ),
-            )
+            Text(
+              textAlign: TextAlign.center,
+              userDataProvider.getUserClubMusicGenres(),
+              style: customStyleClass.getFontStyle4(),
+            ),
           ],
         ),
 
@@ -1820,7 +1787,10 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                         child: SizedBox(
                           child: Image(
                               image: FileImage(
-                                  File("${stateProvider.appDocumentsDir.path}/${userDataProvider.getUserClubBannerId()}")),
+                                  File(
+                                      "${stateProvider.appDocumentsDir.path}/${userDataProvider.getUserClubBannerId()}"
+                                  )
+                              ),
                               fit: BoxFit.cover,
                         ),
                       )
@@ -1843,9 +1813,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                       width: screenWidth,
                       height: screenHeight*0.6,
                       decoration: BoxDecoration(
-                          border: const Border(
-                              top: BorderSide(color: Colors.grey)
-                          ),
+
                         color: customStyleClass.backgroundColorMain
                       ),
                       child: SingleChildScrollView(

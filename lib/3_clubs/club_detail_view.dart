@@ -423,8 +423,8 @@ class _ClubDetailViewState extends State<ClubDetailView> {
             ),
             image: DecorationImage(
               fit: BoxFit.cover,
-              opacity: 0.5,
-              image:FileImage(
+              // opacity: 0.5,
+              image: FileImage(
                   File(
                       "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeClub.getBannerId()}"
                   )
@@ -434,31 +434,31 @@ class _ClubDetailViewState extends State<ClubDetailView> {
         ),
 
         // Play button
-        SizedBox(
-          width: screenWidth*0.25,
-          height: screenWidth*0.25,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                    color: customStyleClass.backgroundColorMain,
-                    borderRadius: const BorderRadius.all(
-                        Radius.circular(45)
-                    ),
-                    border: Border.all(
-                        color: Colors.white,
-                    ),
-                ),
-                child: Icon(
-                  Icons.play_arrow,
-                  size: customStyleClass.getIconSize1(),
-                  color: customStyleClass.primeColor,
-                ),
-              )
-            ],
-          ),
-        )
+        // SizedBox(
+        //   width: screenWidth*0.25,
+        //   height: screenWidth*0.25,
+        //   child: Row(
+        //     mainAxisAlignment: MainAxisAlignment.spaceAround,
+        //     children: [
+        //       Container(
+        //         decoration: BoxDecoration(
+        //             color: customStyleClass.backgroundColorMain,
+        //             borderRadius: const BorderRadius.all(
+        //                 Radius.circular(45)
+        //             ),
+        //             border: Border.all(
+        //                 color: Colors.white,
+        //             ),
+        //         ),
+        //         child: Icon(
+        //           Icons.play_arrow,
+        //           size: customStyleClass.getIconSize1(),
+        //           color: customStyleClass.primeColor,
+        //         ),
+        //       )
+        //     ],
+        //   ),
+        // )
       ],
     ):
     Container(
@@ -466,21 +466,24 @@ class _ClubDetailViewState extends State<ClubDetailView> {
       height: screenWidth*0.25,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Colors.white,
+        color: Colors.black,
         border: Border.all(
             color: Colors.grey,
           width: 2
         ),
+
         image: DecorationImage(
           fit: BoxFit.cover,
-          image:
-          FileImage(
+          image: FileImage(
               File(
                   "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeClub.getBannerId()}"
               )
           ),
         ),
       ),
+      // child: Image.asset(
+      //     "assets/images/WONDERS_100x100px.png"
+      // ),
     );
   }
   Widget _buildNewsSection(){
@@ -992,7 +995,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                     Image(
                       image: FileImage(
                           File(
-                              "${stateProvider.appDocumentsDir.path}/${alreadyFetchedFrontPageImages[2]}"
+                              "${stateProvider.appDocumentsDir.path}/${alreadyFetchedFrontPageImages[3]}"
                           )
                       ),
                       fit: BoxFit.cover,
@@ -1007,7 +1010,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                     Image(
                       image: FileImage(
                           File(
-                              "${stateProvider.appDocumentsDir.path}/${alreadyFetchedFrontPageImages[2]}"
+                              "${stateProvider.appDocumentsDir.path}/${alreadyFetchedFrontPageImages[4]}"
                           )
                       ),
                       fit: BoxFit.cover,
@@ -1022,7 +1025,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                     Image(
                       image: FileImage(
                           File(
-                              "${stateProvider.appDocumentsDir.path}/${alreadyFetchedFrontPageImages[2]}"
+                              "${stateProvider.appDocumentsDir.path}/${alreadyFetchedFrontPageImages[5]}"
                           )
                       ),
                       fit: BoxFit.cover,

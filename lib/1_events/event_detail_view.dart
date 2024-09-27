@@ -5,10 +5,7 @@ import 'package:club_me/shared/custom_bottom_navigation_bar_clubs.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
 import 'package:mime/mime.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
@@ -41,6 +38,8 @@ class _EventDetailViewState extends State<EventDetailView>{
   bool isContentShown = false;
   String priceFormatted = "";
 
+  bool showVIP = true;
+
   double mainInfosContainerHeight = 110;
 
   late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
@@ -64,6 +63,13 @@ class _EventDetailViewState extends State<EventDetailView>{
     super.initState();
     stateProvider = Provider.of<StateProvider>(context, listen:  false);
     prepareContent();
+
+    // Check if we access the event from the club view
+    if(stateProvider.accessedEventDetailFrom == 5 ||
+        stateProvider.accessedEventDetailFrom == 6 ||
+        stateProvider.accessedEventDetailFrom == 7){
+      showVIP = false;
+    }
   }
 
   @override
@@ -332,15 +338,16 @@ class _EventDetailViewState extends State<EventDetailView>{
                               textAlign: TextAlign.center,
                               style: customStyleClass.getFontStyleHeadline1Bold()
                           ),
-                          Padding(
-                            padding: const EdgeInsets.only(
-                                bottom: 15
-                            ),
-                            child: Text(
-                              "VIP",
-                              style: customStyleClass.getFontStyleVIPGold(),
-                            ),
-                          )
+                          if(showVIP)
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  bottom: 15
+                              ),
+                              child: Text(
+                                "VIP",
+                                style: customStyleClass.getFontStyleVIPGold(),
+                              ),
+                            )
                         ],
                       ),
                     ],

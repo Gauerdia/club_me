@@ -14,7 +14,9 @@ import 'package:club_me/provider/fetched_content_provider.dart';
 import 'package:club_me/provider/state_provider.dart';
 import 'package:club_me/provider/user_data_provider.dart';
 import 'package:club_me/register/register_view.dart';
+import 'package:club_me/settings/club_view/components/faq_club_view.dart';
 import 'package:club_me/settings/club_view/settings_club_view.dart';
+import 'package:club_me/settings/user_view/components/faq_user_view.dart';
 import 'package:club_me/settings/user_view/settings_user_view.dart';
 import 'package:club_me/shared/test.dart';
 import 'package:club_me/stories/video_recorder_screen.dart';
@@ -437,6 +439,17 @@ final GoRouter _router = GoRouter(
     GoRoute(
         path: '/register',
         builder: (context, state) => const RegisterView()
+    ),
+
+    GoRoute(
+        path: '/club_faq',
+        builder: (context, state) => const FaqClubView()
+    ),
+
+
+    GoRoute(
+        path: '/user_faq',
+        builder: (context, state) => const FaqUserView()
     ),
 
     GoRoute(

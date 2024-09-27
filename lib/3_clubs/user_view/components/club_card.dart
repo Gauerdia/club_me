@@ -138,447 +138,7 @@ class ClubCard extends StatelessWidget {
 
 
   // BUILD
-  Widget _buildStackView(BuildContext context){
 
-    return Stack(
-      children: [
-
-        Container(
-          width: screenWidth*(widthFactor - 0.01),
-          height: topHeight+bottomHeight,
-          decoration: BoxDecoration(
-              color: Colors.black,
-              borderRadius: BorderRadius.circular(
-                  15
-              ),
-            border: Border(
-              bottom: BorderSide(
-                color: Colors.grey[900]!
-              )
-            )
-          ),
-        ),
-
-        // light grey highlight
-        Container(
-          width: screenWidth*(widthFactor - 0.01),
-          height: topHeight+bottomHeight-70,
-          decoration: BoxDecoration(
-              color: Colors.grey[900],
-              borderRadius: BorderRadius.circular(
-                  15
-              )
-          ),
-        ),
-
-        // main Div
-        Padding(
-          padding: const EdgeInsets.only(
-              left:2,
-              top: 2
-          ),
-          child: Container(
-            width: screenWidth*(widthFactor-0.02),
-            height: topHeight+bottomHeight,
-            decoration: BoxDecoration(
-                color: const Color(0xff222222),
-                borderRadius: BorderRadius.circular(
-                    15
-                )
-            ),
-            child: _buildNewContentView(context)
-          ),
-        )
-
-      ],
-    );
-  }
-  Widget _buildNewContentView(BuildContext context){
-    return Column(
-      children: [
-
-        // Image part
-        GestureDetector(
-          child: SizedBox(
-            height: screenHeight*0.2,
-            child: Stack(
-              children: [
-
-                Container(
-
-                  // Image background
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                      topRight: Radius.circular(12),
-                      topLeft: Radius.circular(12),
-                    ),
-                  ),
-
-                  // Image + its sides
-                  child: Container(
-                      width: screenWidth*0.95,
-                      decoration: const BoxDecoration(
-                        borderRadius: BorderRadius.only(
-                          topRight: Radius.circular(12),
-                          topLeft: Radius.circular(12),
-                          bottomLeft: Radius.circular(12),
-                          bottomRight: Radius.circular(12),
-                        ),
-                        color: Colors.white,
-                      ),
-                      // height: screenHeight*0.17,
-                      child:
-                      fetchedContentProvider.getFetchedBannerImageIds().contains(clubMeClub.getBannerId())?
-                      ClipRRect(
-                        borderRadius: const BorderRadius.only(
-                            topRight: Radius.circular(12),
-                            topLeft: Radius.circular(12)
-                        ),
-                        child: Image(
-                          image: FileImage(File("${stateProvider.appDocumentsDir.path}/${clubMeClub.getBannerId()}")),
-                          fit: BoxFit.cover,
-                        )
-                      ) :
-                      SizedBox(
-                        height: screenHeight*0.2,
-                        child: Center(
-                          child: CircularProgressIndicator(
-                            color: customStyleClass.primeColor,
-                          ),
-                        ),
-                      )
-                  ),
-                ),
-
-                Container(
-                  width: screenWidth*0.95,
-                  // color: Colors.red,
-                  padding: const EdgeInsets.only(
-                    top: 10,
-                    left: 10
-                  ),
-                  alignment: Alignment.topLeft,
-                  child: Text(
-                    closedToday ?
-                    "Geschlossen" :
-                    alreadyOpen ?
-                    lessThanThreeMoreHoursOpen ?
-                    "Geöffnet, schließt um $todaysClosingHour" :
-                    "Geöffnet" :
-                    "Öffnet um $todaysOpeningHour:00 Uhr",
-                    style: TextStyle(
-                        color: closedToday ?
-                        Colors.grey : alreadyOpen ?
-                        customStyleClass.primeColor : Colors.white,
-                      fontSize: customStyleClass.getFontSize6()
-                    ),
-                  ),
-                )
-
-              ],
-            ),
-          ),
-          onTap: (){
-            currentAndLikedElementsProvider.setCurrentClub(clubMeClub);
-            context.push("/club_details");
-          },
-        ),
-
-        // Content
-        Container(
-          height: screenHeight*contentHeightFactor,
-          width: screenWidth*0.95,
-          // color: Colors.red,
-          child: Column(
-            children: [
-
-              // Spacer
-              SizedBox(
-                height: screenHeight*0.01,
-              ),
-
-              // Header: name, icons
-              Container(
-                color: Colors.red,
-                height: screenHeight*headerContainerFactor,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-
-                    // Title
-                    GestureDetector(
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                            top: 10,
-                            left: 10,
-                            bottom: 10
-                        ),
-                        child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: SizedBox(
-                              width: screenWidth*0.5,
-                              height: screenHeight*0.05,
-                              child: Text(
-                                clubMeClub.getClubName().length > 20 ?
-                                "${clubMeClub.getClubName().substring(0,18)}...":
-                                clubMeClub.getClubName(),
-                                style: customStyleClass.getFontStyleHeadline1Bold(),
-                              ),
-                            )
-                        ),
-                      ),
-                      onTap: (){
-                        currentAndLikedElementsProvider.setCurrentClub(clubMeClub);
-                        context.push("/club_details");
-                      },
-                    ),
-
-                    // Icon row
-                    SizedBox(
-                      height: screenHeight*0.08,
-                      child: Align(
-                          alignment: Alignment.centerRight,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              // Icons
-                              Row(
-                                children: [
-
-                                  GestureDetector(
-                                      child:Column(
-                                        children: [
-                                          Icon(
-                                            Icons.info_outline,
-                                            color: customStyleClass.primeColor,
-                                          ),
-                                        ],
-                                      ),
-                                      onTap: (){
-                                        currentAndLikedElementsProvider.setCurrentClub(clubMeClub);
-                                        context.push("/club_details");
-                                      }
-                                  ),
-                                  SizedBox(
-                                    width: screenWidth*0.02,
-                                  ),
-
-                                  GestureDetector(
-                                      child:Column(
-                                        children: [
-                                          Icon(
-                                            currentAndLikedElementsProvider.checkIfSpecificCLubIsAlreadyLiked(clubMeClub.getClubId()) ? Icons.star_outlined : Icons.star_border,
-                                            color: customStyleClass.primeColor,
-                                          ),
-                                        ],
-                                      ),
-                                      onTap: () => likeIconClicked(stateProvider, clubMeClub.getClubId())
-                                  ),
-
-                                  SizedBox(
-                                    width: screenWidth*0.02,
-                                  ),
-
-                                  GestureDetector(
-                                      child:Column(
-                                        children: [
-                                          Icon(
-                                            Icons.share,
-                                            color: customStyleClass.primeColor,
-                                          ),
-                                        ],
-                                      ),
-                                      onTap: () => clickedOnShare()
-                                  ),
-
-                                  SizedBox(
-                                    width: screenWidth*0.02,
-                                  ),
-
-
-                                ],
-                              ),
-                              // Spacer
-                              SizedBox(
-                                height: screenHeight*0.01,
-                              ),
-                            ],
-                          )
-                      ),
-                    )
-
-                  ],
-                ),
-              ),
-
-              // White line
-              const Divider(
-                height:10 ,
-                thickness: 1,
-                color: Colors.white,
-                indent: 10,
-                endIndent: 10,
-              ),
-
-              // Middle part: next two events
-              SizedBox(
-                  height: screenHeight*eventsContainerFactor,
-                  // color: Colors.red,
-                  child: SingleChildScrollView(
-                    child:Column(
-                      children: [
-
-                        // Spacer
-                        SizedBox(
-                          height: screenHeight*0.01,
-                        ),
-
-                        // Card
-                        events.isNotEmpty ?
-                        GestureDetector(
-                          child: EventCard(
-                              clubMeEvent: events[0],
-                            accessedEventDetailFrom: 1,
-                            backgroundColorIndex: 0,
-                          ),
-                          onTap: (){
-                            currentAndLikedElementsProvider.setCurrentEvent(events[0]);
-                            stateProvider.setAccessedEventDetailFrom(1);
-                            context.push('/event_details');
-                          },
-                        ):SizedBox(
-                          height: screenHeight*0.3,
-                          child: Center(
-                            child: Text(
-                                noEventsPlanned[0],
-                              style: customStyleClass.getFontStyle3(),
-                            ),
-                          ),
-                        ),
-
-                        // Spacer
-                        SizedBox(
-                          height: screenHeight*0.01,
-                        ),
-
-                        // Card
-                        events.length > 1 ?
-                        GestureDetector(
-                          child: EventCard(
-                              clubMeEvent: events[1],
-                            accessedEventDetailFrom: 1,
-                            backgroundColorIndex: 0,
-                          ),
-                          onTap: (){
-                            currentAndLikedElementsProvider.setCurrentEvent(events[1]);
-                            stateProvider.setAccessedEventDetailFrom(1);
-                            context.push('/event_details');
-                          },
-                        ):Container(),
-
-                      ],
-                    ),
-                  )
-              ),
-
-              // White line
-              const Divider(
-                height:10,
-                thickness: 1,
-                color: Colors.white,
-                indent: 10,
-                endIndent: 10,
-              ),
-
-              // Bottom part
-              Container(
-                  // color: Colors.black,
-                  height: screenHeight*bottomContainerFactor,
-                  // width: screenWidth*0.85,
-                  child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-
-                        // Distance to club
-                        calculateDistanceToClub() == 0 ?
-                        const CircularProgressIndicator():
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                              vertical: screenHeight*0.01,
-                              horizontal: screenWidth*0.03
-                          ),
-                          child: Row(
-                            children: [
-
-                              // Genres icon
-                              Container(
-                                padding: const EdgeInsets.all(
-                                    4
-                                ),
-                                child: Icon(
-                                    Icons.location_on_outlined,
-                                    color: customStyleClass.primeColor,
-
-                                ),
-                              ),
-
-                              // Spacer
-                              SizedBox(
-                                width: screenWidth*0.01,
-                              ),
-
-                              Text(
-                                calculateDistanceToClub().toStringAsFixed(2),
-                                style: customStyleClass.getFontStyle3(),
-                              ),
-
-                            ],
-                          ),
-                        ),
-
-                        // Music Genre
-                        Align(
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                                vertical: screenHeight*0.01,
-                                horizontal: screenWidth*0.03
-                            ),
-                            child: Row(
-                              children: [
-                                // Genres icon
-                                Container(
-                                  padding: const EdgeInsets.all(
-                                      4
-                                  ),
-                                  child: Icon(
-                                      Icons.music_note,
-                                      color: customStyleClass.primeColor,
-                                  ),
-                                ),
-
-                                // Spacer
-                                SizedBox(
-                                  width: screenWidth*0.01,
-                                ),
-
-                                Text(
-                                  getAndFormatMusicGenre(),
-                                  style: customStyleClass.getFontStyle3(),
-                                ),
-
-                              ],
-                            ),
-                          ),
-                        ),
-                      ]
-                  )
-              )
-            ],
-          ),
-        ),
-      ],
-    );
-  }
 
   Widget _buildStackView2(BuildContext context){
     return Stack(
@@ -786,7 +346,8 @@ class ClubCard extends StatelessWidget {
               ),
             ),
 
-            events.isNotEmpty ?
+            // First Event
+            if( events.isNotEmpty)
             GestureDetector(
               child: EventCard(
                 clubMeEvent: events[0],
@@ -798,18 +359,10 @@ class ClubCard extends StatelessWidget {
                 stateProvider.setAccessedEventDetailFrom(1);
                 context.push('/event_details');
               },
-            ):SizedBox(
-              height: screenHeight*0.3,
-              child: Center(
-                child: Text(
-                  noEventsPlanned[0],
-                  style: customStyleClass.getFontStyle3(),
-                ),
-              ),
             ),
 
             // Card
-            events.length > 1 ?
+            if(events.length > 1)
             GestureDetector(
               child: EventCard(
                 clubMeEvent: events[1],
@@ -821,21 +374,20 @@ class ClubCard extends StatelessWidget {
                 stateProvider.setAccessedEventDetailFrom(1);
                 context.push('/event_details');
               },
-            ):Container(),
+            ),
 
-            events.length > 1 ? Container(
-              height: screenHeight*0.035,
-            ) : events.length == 1 ?
-            Container(height: screenHeight*0.18) :
-            Container(height: screenHeight*0.024),
 
-            // Bottom part
-            Container(
-              // color: Colors.blue,
-                // alignment: Alignment.bottomCenter,
-                height: screenHeight*bottomContainerFactor,
-                // width: screenWidth*0.85,
-                child: Row(
+          ],
+        ),
+
+        // Bottom part
+        Container(
+          height: screenHeight*0.685,
+            alignment: Alignment.bottomCenter,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
 
@@ -844,8 +396,8 @@ class ClubCard extends StatelessWidget {
                       const CircularProgressIndicator():
                       Container(
                         padding: EdgeInsets.symmetric(
-                            vertical: screenHeight*0.01,
-                            horizontal: screenWidth*0.03
+                          // vertical: screenHeight*0.01,
+                          // horizontal: screenWidth*0.03
                         ),
                         child: Row(
                           children: [
@@ -880,8 +432,8 @@ class ClubCard extends StatelessWidget {
                       Align(
                         child: Container(
                           padding: EdgeInsets.symmetric(
-                              vertical: screenHeight*0.01,
-                              horizontal: screenWidth*0.03
+                            // vertical: screenHeight*0.01,
+                            // horizontal: screenWidth*0.03
                           ),
                           child: Row(
                             children: [
@@ -912,9 +464,8 @@ class ClubCard extends StatelessWidget {
                       ),
                     ]
                 )
+              ],
             )
-
-          ],
         )
 
       ],

@@ -30,7 +30,7 @@ class _SettingsUserViewState extends State<SettingsUserView> {
   late CustomStyleClass customStyleClass;
 
   void clickEventFAQ(){
-
+    context.push("/user_faq");
   }
   void clickEventContact(){
 
@@ -118,19 +118,19 @@ class _SettingsUserViewState extends State<SettingsUserView> {
 
 
                   // back icon
-                  Container(
-                      width: screenWidth,
-                      height: screenHeight*0.2,
-                      // color: Colors.red,
-                      alignment: Alignment.centerLeft,
-                      child: IconButton(
-                          onPressed: () => Navigator.pop(context),
-                          icon: const Icon(
-                            Icons.arrow_back_ios,
-                            color: Colors.white,
-                            // size: 20,
-                          )
-                      )
+                  InkWell(
+                    child: Container(
+                        width: screenWidth,
+                        height: screenHeight*0.2,
+                        // color: Colors.red,
+                        alignment: Alignment.centerLeft,
+                        child: const Icon(
+                          Icons.arrow_back_ios,
+                          color: Colors.white,
+                          // size: 20,
+                        )
+                    ),
+                    onTap: () => Navigator.pop(context),
                   ),
 
                 ],
@@ -146,27 +146,30 @@ class _SettingsUserViewState extends State<SettingsUserView> {
                 child: Column(
                   children: [
 
-                    Container(
-                      width: screenWidth*0.9,
-                      padding: const EdgeInsets.only(
-                        top: 20
+                    InkWell(
+                      child: Container(
+                        width: screenWidth*0.9,
+                        padding: const EdgeInsets.only(
+                            top: 20
+                        ),
+                        child: Row(
+                          children: [
+                            IconButton(onPressed: () => clickEventFAQ(), icon: Icon(
+                              Icons.question_mark,
+                              color: customStyleClass.primeColor,
+                              size: 25,
+                            )),
+                            SizedBox(
+                              width: screenWidth*0.02,
+                            ),
+                            Text(
+                              "FAQ",
+                              style: customStyleClass.getFontStyle1(),
+                            )
+                          ],
+                        ),
                       ),
-                      child: Row(
-                        children: [
-                          IconButton(onPressed: () => clickEventFAQ(), icon: Icon(
-                            Icons.question_mark,
-                            color: customStyleClass.primeColor,
-                            size: 25,
-                          )),
-                          SizedBox(
-                            width: screenWidth*0.02,
-                          ),
-                          Text(
-                            "FAQ",
-                            style: customStyleClass.getFontStyle1(),
-                          )
-                        ],
-                      ),
+                      onTap: () => clickEventFAQ(),
                     ),
 
                     SizedBox(

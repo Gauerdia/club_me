@@ -250,7 +250,9 @@ class _ClubInfoBottomSheet2State extends State<ClubInfoBottomSheet2> {
                             topLeft: Radius.circular(15)
                         ),
                         child: Image(
-                          image: FileImage(
+                          image:
+
+                          FileImage(
                               File(
                                   "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeClub.getBannerId()}"
                               )

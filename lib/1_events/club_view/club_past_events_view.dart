@@ -157,7 +157,7 @@ class _ClubPastEventsViewState extends State<ClubPastEventsView> {
             onTap: (){
               currentAndLikedElementsProvider.setCurrentEvent(currentEvent);
               stateProvider.setAccessedEventDetailFrom(7);
-              context.go('/event_details');
+              context.push('/event_details');
             },
           );
         })

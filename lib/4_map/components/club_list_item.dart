@@ -133,47 +133,20 @@ class ClubListItem extends StatelessWidget {
                             // radius: 45,
                             backgroundColor: Colors.black,
                             child: currentClub.getStoryId().isNotEmpty?
-                            Stack(
-                              children: [
-
-                                // rounded image
-                                Container(
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors.white,
-                                    image: DecorationImage(
-                                      fit: BoxFit.cover,
-                                      opacity: 0.5,
-                                      image:
-                                      FileImage(
-                                          File(
-                                              "${stateProvider.appDocumentsDir.path}/${currentClub.getBannerId()}"
-                                          )
-                                      ),
-                                    ),
+                            Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white,
+                                image: DecorationImage(
+                                  fit: BoxFit.cover,
+                                  image:
+                                  FileImage(
+                                      File(
+                                          "${stateProvider.appDocumentsDir.path}/${currentClub.getBannerId()}"
+                                      )
                                   ),
                                 ),
-
-                                // arrow
-                                Center(
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                        color: Colors.black,
-                                        borderRadius: const BorderRadius.all(
-                                            Radius.circular(45)
-                                        ),
-                                        border: Border.all(
-                                            color: Colors.white
-                                        )
-                                    ),
-                                    child: Icon(
-                                      Icons.play_arrow,
-                                      size: customStyleClass.getIconSize1(),
-                                      color: customStyleClass.primeColor,
-                                    ),
-                                  ),
-                                )
-                              ],
+                              ),
                             ):
                                 // rounded image
                             Container(

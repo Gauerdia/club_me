@@ -146,13 +146,13 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
           // Clock
           Container(
             padding: EdgeInsets.only(
-              left: screenWidth*0.1
+              // left: screenWidth*0.1
             ),
             width: screenWidth,
             child: Text(
               formatClock(),
               textAlign: TextAlign.left,
-              style: customStyleClass.getFontStyle3BoldPrimeColor(),
+              style: customStyleClass.getFontStyle4BoldPrimeColor(),
             ),
           )
         ],

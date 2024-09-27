@@ -404,7 +404,7 @@ class _OffersListClubViewState extends State<OffersListClubView> {
           color: customStyleClass.backgroundColorMain,
           border: Border(
             top: BorderSide(
-              color: Colors.grey[500]!
+              color: Colors.grey[900]!
             )
           )
         ),

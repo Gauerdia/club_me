@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import '../../provider/fetched_content_provider.dart';
 import '../../provider/state_provider.dart';
 import '../../services/hive_service.dart';
-import '../../shared/custom_bottom_navigation_bar_clubs.dart';
 import '../../shared/custom_text_style.dart';
 
 class SettingsClubView extends StatefulWidget {
@@ -29,7 +28,7 @@ class _SettingsClubViewState extends State<SettingsClubView> {
 
 
   void clickEventFAQ(){
-
+    context.push("/club_faq");
   }
   void clickEventContact(){
 
@@ -133,27 +132,30 @@ class _SettingsClubViewState extends State<SettingsClubView> {
                 child: Column(
                   children: [
 
-                    Container(
-                      padding: const EdgeInsets.only(
-                        top:20
+                    InkWell(
+                      child: Container(
+                        width: screenWidth*0.9,
+                        padding: const EdgeInsets.only(
+                            top: 20
+                        ),
+                        child: Row(
+                          children: [
+                            IconButton(onPressed: () => clickEventFAQ(), icon: Icon(
+                              Icons.question_mark,
+                              color: customStyleClass.primeColor,
+                              size: 25,
+                            )),
+                            SizedBox(
+                              width: screenWidth*0.02,
+                            ),
+                            Text(
+                              "FAQ",
+                              style: customStyleClass.getFontStyle1(),
+                            )
+                          ],
+                        ),
                       ),
-                      width: screenWidth*0.9,
-                      child: Row(
-                        children: [
-                          IconButton(onPressed: () => clickEventFAQ(), icon: Icon(
-                            Icons.question_mark,
-                            color: customStyleClass.primeColor,
-                            size: 25,
-                          )),
-                          SizedBox(
-                            width: screenWidth*0.02,
-                          ),
-                          Text(
-                            "FAQ",
-                            style: customStyleClass.getFontStyle1(),
-                          )
-                        ],
-                      ),
+                      onTap: () => clickEventFAQ(),
                     ),
 
                     SizedBox(

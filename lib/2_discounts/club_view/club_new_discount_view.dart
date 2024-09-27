@@ -259,6 +259,11 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                           controller: _discountTitleController,
                           cursorColor: customStyleClass.primeColor,
                           decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.only(
+                                left: 20,
+                                top:20,
+                                bottom:20
+                            ),
                             focusedBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
                                     color: customStyleClass.primeColor
@@ -605,6 +610,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                                             cursorColor: customStyleClass.primeColor,
                                             keyboardType: TextInputType.number,
                                             decoration: InputDecoration(
+
                                               border: OutlineInputBorder(),
                                               focusedBorder: OutlineInputBorder(
                                                   borderSide: BorderSide(

@@ -644,7 +644,7 @@ class _UserClubsViewState extends State<UserClubsView>
                 // Dropdown
                 Theme(
                     data: Theme.of(context).copyWith(
-                        canvasColor: Color(0xff121111)
+                        canvasColor: customStyleClass.backgroundColorMain
                     ),
                     child: DropdownButton(
                         value: dropdownValue,

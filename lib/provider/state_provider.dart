@@ -62,8 +62,8 @@ class StateProvider extends ChangeNotifier{
       case(3): context.go("/user_map");break;
       case(4): context.go("/user_upcoming_events");break;
       case(5): context.go("/club_events");break;
-      case(6): context.go("/club_upcoming_events");break;
-      case(7): context.go("/club_past_events");break;
+      case(6): Navigator.pop(context);break;
+      case(7): Navigator.pop(context);break;
       case(8): context.go("/club_frontpage");break;
 
     }

@@ -378,7 +378,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                                 )
                             ),
                             hintText: "z.B. Mixed Music",
-                            border: OutlineInputBorder(),
+                            border: const OutlineInputBorder(),
                           ),
                           style: customStyleClass.getFontStyle4(),
                           maxLength: 35,

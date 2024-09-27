@@ -594,7 +594,7 @@ class _ClubEventsViewState extends State<ClubEventsView> {
     currentAndLikedElementsProvider.setCurrentEvent(upcomingEvents[0]);
     stateProvider.setAccessedEventDetailFrom(5);
     stateProvider.setClubUiActive(true);
-    context.go("/event_details");
+    context.push("/event_details");
   }
   void clickEventNewEvent(){
     context.push("/club_new_event");

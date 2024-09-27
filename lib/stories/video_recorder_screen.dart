@@ -35,15 +35,6 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
   List<String> pictureSizes = <String>[];
   String? imagePath;
 
-  // _onCameraCreated(AdvCameraController controller) {
-  //   this.cameraController = controller;
-  //
-  //   this.cameraController!.getPictureSizes().then((pictureSizes) {
-  //     setState(() {
-  //       this.pictureSizes = pictureSizes ?? <String>[];
-  //     });
-  //   });
-  // }
 
   @override
   void initState() {
@@ -361,14 +352,14 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
                 ),
               );
             } else {
-              return const Center(child: CircularProgressIndicator());
+              return Center(child: CircularProgressIndicator(color: customStyleClass.primeColor,));
             }
           }else{
-            return const Center(child: CircularProgressIndicator());
+            return  Center(child: CircularProgressIndicator(color: customStyleClass.primeColor));
           }
         },
       ):
-      const Center(child: CircularProgressIndicator()),
+      Center(child: CircularProgressIndicator(color: customStyleClass.primeColor)),
     );
   }
 }

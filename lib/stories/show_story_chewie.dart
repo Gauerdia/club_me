@@ -161,25 +161,38 @@ class _ShowStoryChewieState extends State<ShowStoryChewie>
         appBar: AppBar(
           title: Container(
             width: screenWidth,
-            child: Center(
-              child: Text(
-                  textAlign: TextAlign.center,
-                  widget.clubName,
-                  style: customStyleClass.getFontStyleHeadline1Bold()
-              ),
-            ),
+            child:
+            Stack(
+              children: [
+                Container(
+                  width: screenWidth,
+                  child: Center(
+                    child: Text(
+                        textAlign: TextAlign.center,
+                        widget.clubName,
+                        style: customStyleClass.getFontStyleHeadline1Bold()
+                    ),
+                  ),
+                ),
+
+                Container(
+                  alignment: Alignment.centerRight,
+                  width: screenWidth,
+                  child: InkWell(
+                    child: const Icon(
+                      Icons.clear,
+                      size: 30,
+                      color: Colors.white,
+                    ),
+                    onTap: () => goBackClicked(),
+                  ),
+                )
+
+              ],
+            )
+
           ),
           backgroundColor: customStyleClass.backgroundColorMain,
-          actions: [
-            IconButton(
-                onPressed: () => goBackClicked(),
-                icon: const Icon(
-                  Icons.clear,
-                  size: 30,
-                  color: Colors.white,
-                )
-            )
-          ],
         ),
         body: Container(
           width: screenWidth,
