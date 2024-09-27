@@ -127,8 +127,8 @@ class SmallEventTile extends StatelessWidget {
                       ): SizedBox(
                         height: screenHeight*0.1,
                         width: screenWidth*0.5,
-                        child: const Center(
-                          child: CircularProgressIndicator(),
+                        child: Center(
+                          child: CircularProgressIndicator(color: customStyleClass.primeColor,),
                         ),
                       )
                     )

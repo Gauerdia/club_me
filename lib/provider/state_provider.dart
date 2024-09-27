@@ -83,6 +83,10 @@ class StateProvider extends ChangeNotifier{
 
   // TEMPLATES
 
+  void resetDiscountTemplates(){
+    discountTemplates = [];
+  }
+
   void setDiscountTemplates(List<ClubMeDiscountTemplate> newClubMeDiscountTemplates){
     try{
       discountTemplates = newClubMeDiscountTemplates;
@@ -99,6 +103,10 @@ class StateProvider extends ChangeNotifier{
       _supabaseService.createErrorLog(e.toString());
       return [];
     }
+  }
+  void removeDiscountTemplateFromProvider(String templateId){
+    discountTemplates.remove(templateId);
+    notifyListeners();
   }
 
   void setCurrentDiscountTemplate(ClubMeDiscountTemplate newClubMeDiscountTemplate){
@@ -128,6 +136,10 @@ class StateProvider extends ChangeNotifier{
   }
 
 
+  void resetEventTemplates(){
+    eventTemplates = [];
+  }
+
   void setClubMeEventTemplates(List<ClubMeEventTemplate> newClubMeEventTemplates){
     try{
       eventTemplates = newClubMeEventTemplates;
@@ -140,7 +152,7 @@ class StateProvider extends ChangeNotifier{
     try{
       return eventTemplates;
     }catch(e){
-      log.d("StateProvider. Function: setClubMeEventTemplates. Error: $e");
+      log.d("StateProvider. Function: getClubMeEventTemplates. Error: $e");
       _supabaseService.createErrorLog(e.toString());
       return [];
     }
@@ -150,7 +162,7 @@ class StateProvider extends ChangeNotifier{
     try{
       currentEventTemplate = newClubMeEventHive;
     }catch(e){
-      log.d("StateProvider. Function: setClubMeEventTemplates. Error: $e");
+      log.d("StateProvider. Function: setCurrentEventTemplate. Error: $e");
       _supabaseService.createErrorLog(e.toString());
     }
   }
@@ -159,7 +171,7 @@ class StateProvider extends ChangeNotifier{
     try{
       currentEventTemplate = null;
     }catch(e){
-      log.d("StateProvider. Function: setClubMeEventTemplates. Error: $e");
+      log.d("StateProvider. Function: resetCurrentEventTemplate. Error: $e");
       _supabaseService.createErrorLog(e.toString());
     }
   }
@@ -167,7 +179,7 @@ class StateProvider extends ChangeNotifier{
     try{
       return currentEventTemplate;
     }catch(e){
-      log.d("StateProvider. Function: setClubMeEventTemplates. Error: $e");
+      log.d("StateProvider. Function: getCurrentEventTemplate. Error: $e");
       _supabaseService.createErrorLog(e.toString());
       return null;
     }

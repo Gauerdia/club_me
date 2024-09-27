@@ -35,11 +35,11 @@ class _ClubChooseDiscountTemplateViewState extends State<ClubChooseDiscountTempl
           children: [
 
             Container(
-              alignment: Alignment.centerRight,
+              alignment: Alignment.centerLeft,
               height: 50,
               child: IconButton(
                   icon: const Icon(
-                    Icons.clear_rounded,
+                    Icons.arrow_back_ios,
                     color: Colors.white,
                   ),
                   onPressed: () => clickedOnAbort()
@@ -65,53 +65,26 @@ class _ClubChooseDiscountTemplateViewState extends State<ClubChooseDiscountTempl
   }
 
   void clickedOnAbort(){
+    Navigator.pop(context);
+  }
 
-    showDialog(
-        context: context,
-        builder: (BuildContext context){
-          return AlertDialog(
-              backgroundColor: Colors.black,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20.0),
-                  side: BorderSide(
-                      color: customStyleClass.primeColor
-                  )
-              ),
-              title: Text(
-                "Abbrechen",
-                style: customStyleClass.getFontStyle1Bold(),
-              ),
-              content: Text(
-                "Bist du sicher, dass du abbrechen möchtest?",
-                textAlign: TextAlign.left,
-                style: customStyleClass.getFontStyle4(),
-              ),
-              actions: [
+  void deleteDiscountTemplate(String templateId){
+    setState(() {
+      _hiveService.deleteClubMeDiscountTemplate(templateId).then((response) => {
+        if(response == 0){
+          afterSuccessfulDeletion(templateId)
+        }else{
 
-                TextButton(
-                  child: Text(
-                    "Zurück",
-                    style: customStyleClass.getFontStyle3(),
-                  ),
-                  onPressed: (){
-                    Navigator.of(context).pop();
-                  },
-                ),
-
-                TextButton(
-                  child: Text(
-                    "Ja",
-                    style: customStyleClass.getFontStyle3(),
-                  ),
-                  onPressed: (){
-                    context.go('/club_discounts');
-                  },
-                ),
-
-              ]
-          );
         }
-    );
+      });
+    });
+  }
+
+  void afterSuccessfulDeletion(String templateId){
+    setState(() {
+      stateProvider.resetDiscountTemplates();
+      Navigator.pop(context);
+    });
   }
 
   @override
@@ -160,9 +133,12 @@ class _ClubChooseDiscountTemplateViewState extends State<ClubChooseDiscountTempl
                                     ),
                                     trailing: Wrap(
                                       children: [
-                                        Icon(
-                                          Icons.delete,
-                                          color: customStyleClass.primeColor,
+                                        InkWell(
+                                          child: Icon(
+                                            Icons.delete,
+                                            color: customStyleClass.primeColor,
+                                          ),
+                                          onTap: () => deleteDiscountTemplate(discountTemplate.getTemplateId()),
                                         )
                                       ],
                                     ),

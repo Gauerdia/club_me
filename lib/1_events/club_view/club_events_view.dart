@@ -417,7 +417,6 @@ class _ClubEventsViewState extends State<ClubEventsView> {
   }
 
   void clickEventGoToMoreEvents(int routeIndex){
-    // fetchedContentProvider.setFetchedEventBannerImageIds(imageFileNamesAlreadyFetched);
     switch(routeIndex){
       case 0 : context.push("/club_upcoming_events"); break;
       case 1 : context.push("/club_past_events"); break;

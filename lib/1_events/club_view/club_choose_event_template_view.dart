@@ -65,58 +65,25 @@ class _ClubChooseEventTemplateViewState extends State<ClubChooseEventTemplateVie
   }
 
   void clickedOnAbort(){
-
-    showDialog(
-        context: context,
-        builder: (BuildContext context){
-          return AlertDialog(
-              backgroundColor: Color(0xff121111),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20.0),
-                  // side: BorderSide(
-                  //     color: customStyleClass.primeColor
-                  // )
-              ),
-              title: Text(
-                "Abbrechen",
-                style: customStyleClass.getFontStyle1Bold(),
-              ),
-              content: Text(
-                "Bist du sicher, dass du abbrechen möchtest?",
-                textAlign: TextAlign.left,
-                style: customStyleClass.getFontStyle4(),
-              ),
-              actions: [
-
-                TextButton(
-                  child: Text(
-                    "Zurück",
-                    style: customStyleClass.getFontStyle3(),
-                  ),
-                  onPressed: (){
-                    Navigator.of(context).pop();
-                  },
-                ),
-
-                TextButton(
-                  child: Text(
-                    "Ja",
-                    style: customStyleClass.getFontStyle3(),
-                  ),
-                  onPressed: (){
-                    context.go('/club_events');
-                  },
-                ),
-
-              ]
-          );
-        }
-    );
+    Navigator.of(context).pop();
   }
 
-  void deleteTemplate(String templateId){
+  void deleteEventTemplate(String templateId){
     setState(() {
-      _hiveService.deleteTemplateDiscount(templateId);
+      _hiveService.deleteClubMeEventTemplate(templateId).then((response) => {
+        if(response == 0){
+          afterSuccessfulDeletion(templateId)
+        }else{
+
+        }
+      });
+    });
+  }
+
+  void afterSuccessfulDeletion(String templateId){
+    setState(() {
+      stateProvider.resetEventTemplates();
+      Navigator.pop(context);
     });
   }
 
@@ -153,27 +120,33 @@ class _ClubChooseEventTemplateViewState extends State<ClubChooseEventTemplateVie
                             color: customStyleClass.backgroundColorEventTile,
                             child: Column(
                               children: [
-                                ListTile(
-                                  shape: RoundedRectangleBorder(
-                                    side: BorderSide(color: Colors.grey, width: 1),
-                                    borderRadius: BorderRadius.circular(5),
-                                  ),
-                                  title: Text(
-                                    eventTemplate.getEventTitle(),
-                                    style: customStyleClass.getFontStyle3(),
-                                  ),
-                                  trailing: Wrap(
-                                    children: [
-                                      IconButton(
-                                          onPressed: () => deleteTemplate(eventTemplate.getTemplateId()),
-                                          icon: Icon(
+
+                                SizedBox(
+                                  width: screenWidth*0.9,
+                                  child: ListTile(
+                                    shape: RoundedRectangleBorder(
+                                      side: const BorderSide(color: Colors.grey, width: 1),
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    title: Text(
+                                      eventTemplate.getEventTitle(),
+                                      style: customStyleClass.getFontStyle3(),
+                                    ),
+                                    trailing: Wrap(
+                                      children: [
+
+                                        InkWell(
+                                          child: Icon(
                                             Icons.delete,
                                             color: customStyleClass.primeColor,
-                                          )
-                                      )
-                                    ],
+                                          ),
+                                          onTap: ()=> deleteEventTemplate(eventTemplate.getTemplateId()),
+                                        )
+                                      ],
+                                    ),
                                   ),
                                 )
+
                               ],
                             ),
                           ),

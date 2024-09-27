@@ -583,10 +583,6 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
   // Fetch content from DB
 
 
-
-
-
-
   void getAllDiscountTemplates() async{
 
     final stateProvider = Provider.of<StateProvider>(context, listen: false);
@@ -598,10 +594,6 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
       _supabaseService.createErrorLog("ClubCouponsView. Function: getAllDiscountTemplates. Error: $e");
     }
   }
-
-
-
-
 
 
   Future<bool> checkIfImageExistsLocally(String fileName) async{
@@ -633,12 +625,8 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
 
-    try{
-      if(stateProvider.getDiscountTemplates().isEmpty){
-        getAllDiscountTemplates();
-      }
-    }catch(e){
-      _supabaseService.createErrorLog("ClubCouponsView. Function: build. Error: $e");
+    if(stateProvider.getDiscountTemplates().isEmpty){
+      getAllDiscountTemplates();
     }
 
     checkIfFilteringIsNecessary();

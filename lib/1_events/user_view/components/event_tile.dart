@@ -20,6 +20,7 @@ class EventTile extends StatelessWidget {
     required this.isLiked,
     required this.clickedOnLike,
     required this.clickedOnShare,
+    this.showMaterialButton = false
   }) : super(key: key);
 
   File? bannerToDisplay;
@@ -48,6 +49,8 @@ class EventTile extends StatelessWidget {
   bool lessThanThreeMoreHoursOpen = false;
   int todaysOpeningHour = 0;
   int todaysClosingHour = 0;
+
+  bool showMaterialButton;
 
 
   // CLICK
@@ -142,8 +145,6 @@ class EventTile extends StatelessWidget {
     return Stack(
       children: [
 
-
-
         // main Div
         Padding(
           padding: const EdgeInsets.only(
@@ -221,7 +222,7 @@ class EventTile extends StatelessWidget {
                 ),
 
                 // Display logo, when content is available
-                clubMeEvent.getEventMarketingFileName().isNotEmpty ? Container(
+                clubMeEvent.getEventMarketingFileName().isNotEmpty && showMaterialButton ? Container(
                   height: topHeight,
                   width: screenWidth,
                   alignment: Alignment.topRight,

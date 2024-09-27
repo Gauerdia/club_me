@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import '../models/club.dart';
 import '../models/discount.dart';
 import '../models/event.dart';
+import 'package:timezone/standalone.dart' as tz;
 
 class FetchedContentProvider extends ChangeNotifier{
 
@@ -38,9 +39,41 @@ class FetchedContentProvider extends ChangeNotifier{
     return fetchedEvents;
   }
 
+  List<ClubMeEvent> getFetchedUpcomingEvents(String userClubId){
+
+    final berlin = tz.getLocation('Europe/Berlin');
+    final todayTimestamp = tz.TZDateTime.from(DateTime.now(), berlin);
+
+    List<ClubMeEvent> fetchedUpcomingEvents = [];
+
+    for(var element in fetchedEvents){
+      if(element.getEventDate().isAfter(todayTimestamp) && element.getClubId() == userClubId){
+        fetchedUpcomingEvents.add(element);
+      }
+    }
+    return fetchedUpcomingEvents;
+  }
+
+  List<ClubMeDiscount> getFetchedUpcomingDiscounts(String userClubId){
+
+    final berlin = tz.getLocation('Europe/Berlin');
+    final todayTimestamp = tz.TZDateTime.from(DateTime.now(), berlin);
+
+    List<ClubMeDiscount> fetchedUpcomingDiscounts = [];
+
+    for(var element in fetchedDiscounts){
+      if(element.getDiscountDate().isAfter(todayTimestamp) && element.getClubId() == userClubId){
+        fetchedUpcomingDiscounts.add(element);
+      }
+    }
+    return fetchedUpcomingDiscounts;
+  }
+
+
   void setFetchedEvents(List<ClubMeEvent> fetchedEvents){
     this.fetchedEvents = fetchedEvents;
   }
+
 
   void addEventToFetchedEvents(ClubMeEvent clubMeEvent){
     fetchedEvents.add(clubMeEvent);
@@ -85,6 +118,11 @@ class FetchedContentProvider extends ChangeNotifier{
 
   void setFetchedDiscounts(List<ClubMeDiscount> fetchedDiscounts){
     this.fetchedDiscounts = fetchedDiscounts;
+  }
+
+  void removeFetchedDiscount(ClubMeDiscount clubMeDiscount){
+    fetchedDiscounts.remove(clubMeDiscount);
+    notifyListeners();
   }
 
   void addDiscountToFetchedDiscounts(ClubMeDiscount clubMeDiscount){

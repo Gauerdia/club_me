@@ -153,6 +153,7 @@ class _ClubPastEventsViewState extends State<ClubPastEventsView> {
                 isLiked: isLiked,
                 clickedOnLike: clickedOnLike,
                 clickedOnShare: clickedOnShare,
+              showMaterialButton: false,
             ),
             onTap: (){
               currentAndLikedElementsProvider.setCurrentEvent(currentEvent);

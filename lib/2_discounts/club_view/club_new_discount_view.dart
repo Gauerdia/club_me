@@ -1224,6 +1224,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
           fetchedContentProvider.addDiscountToFetchedDiscounts(clubMeDiscount);
           fetchedContentProvider.sortFetchedDiscounts();
           stateProvider.resetCurrentDiscountTemplate();
+          stateProvider.resetDiscountTemplates();
           context.go('/club_coupons');
         }else{
           showModalBottomSheet(

@@ -2,7 +2,6 @@ import 'package:club_me/2_discounts/club_view/components/coupon_card_club.dart';
 import 'package:club_me/provider/state_provider.dart';
 import 'package:club_me/shared/custom_bottom_navigation_bar_clubs.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/discount.dart';
@@ -133,54 +132,20 @@ class _ClubUpcomingDiscountsViewState extends State<ClubUpcomingDiscountsView>
       ),
     );
   }
-  Widget _buildMainView(StateProvider stateProvider, double screenHeight){
-
-    // get today in correct format to check which events are upcoming
-    var todayRaw = DateTime.now();
-    var today = DateFormat('yyyy-MM-dd').format(todayRaw);
-    var todayFormatted = DateTime.parse(today);
-
-    if(upcomingDbDiscounts.isEmpty){
-      for(var currentDiscount in fetchedContentProvider.getFetchedDiscounts()){
-        if( currentDiscount.getClubId() == userDataProvider.getUserClubId() &&
-            (currentDiscount.getDiscountDate().isAfter(todayFormatted)
-                || currentDiscount.getDiscountDate().isAtSameMomentAs(todayFormatted))){
-          upcomingDbDiscounts.add(currentDiscount);
-        }
-      }
-    }
-
-    return ListView.builder(
-        shrinkWrap: true,
-        padding: EdgeInsets.symmetric(
-          vertical: screenHeight*0.02
-        ),
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: upcomingDbDiscounts.length,
-        itemBuilder: ((context, index){
-
-          ClubMeDiscount currentDiscount = upcomingDbDiscounts[index];
-
-          return GestureDetector(
-            child:
-            DiscountTile2(
-              clubMeDiscount: currentDiscount,
-            ),
-            onTap: () => clickedOnTile(),
-          );
-        })
-    );
-  }
 
   Widget _buildSwipeView(){
 
     // If the provider has fetched elements so that the main function in _buildSupabaseDiscounts
     // is not called, we still need to add the ids to the array to display the banners.
-    for(var discount in discountsToDisplay){
-      if(!fetchedContentProvider.getFetchedBannerImageIds().contains(discount.getBannerId())){
-        fetchedContentProvider.addFetchedBannerImageId(discount.getBannerId());
-      }
-    }
+    // for(var discount in discountsToDisplay){
+    //   if(!fetchedContentProvider.getFetchedBannerImageIds().contains(discount.getBannerId())){
+    //     fetchedContentProvider.addFetchedBannerImageId(discount.getBannerId());
+    //   }
+    // }
+
+    List<ClubMeDiscount> fetchedUpcomingDiscounts = fetchedContentProvider.getFetchedUpcomingDiscounts(
+        userDataProvider.getUserClubId()
+    );
 
     return GestureDetector(
       child: Container(
@@ -196,7 +161,7 @@ class _ClubUpcomingDiscountsViewState extends State<ClubUpcomingDiscountsView>
                         onPageChanged: _handlePageViewChanged,
                         children: <Widget>[
 
-                          for(var discount in discountsToDisplay)
+                          for(var discount in fetchedUpcomingDiscounts)
                             Center(
                                 child: CouponCardClub(
                                   clubMeDiscount: discount,
@@ -243,6 +208,9 @@ class _ClubUpcomingDiscountsViewState extends State<ClubUpcomingDiscountsView>
     fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
     customStyleClass = CustomStyleClass(context: context);
 
+
+    var fetchedUpcomingDiscounts = fetchedContentProvider.getFetchedUpcomingDiscounts(userDataProvider.getUserClubId());
+
     return Scaffold(
 
       extendBody: true,
@@ -263,7 +231,7 @@ class _ClubUpcomingDiscountsViewState extends State<ClubUpcomingDiscountsView>
                 _buildSwipeView(),
 
                 // Progress marker
-                if(discountsToDisplay.isNotEmpty)
+                if(fetchedUpcomingDiscounts.isNotEmpty)
                   Container(
                     height: screenHeight*0.7,
                     alignment: Alignment.bottomCenter,
@@ -278,7 +246,7 @@ class _ClubUpcomingDiscountsViewState extends State<ClubUpcomingDiscountsView>
                         Icon(
                           Icons.keyboard_arrow_right_sharp,
                           size: 50,
-                          color: _currentPageIndex < (discountsToDisplay.length-1) ? customStyleClass.primeColor: Colors.grey,
+                          color: _currentPageIndex < (fetchedUpcomingDiscounts.length-1) ? customStyleClass.primeColor: Colors.grey,
                         ),
                       ],
                     ),

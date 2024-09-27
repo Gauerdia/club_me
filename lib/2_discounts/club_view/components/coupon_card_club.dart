@@ -100,9 +100,7 @@ class CouponCardClub extends StatelessWidget {
           TextButton(
               onPressed: () => _supabaseService.deleteDiscount(discount.getDiscountId()).then((value){
                 if(value == 0){
-                    fetchedContentProvider.fetchedDiscounts.removeWhere(
-                            (element) => element.getDiscountId() == discount.getDiscountId()
-                    );
+                  fetchedContentProvider.removeFetchedDiscount(discount);
                   Navigator.pop(context);
                 }else{
                   Navigator.pop(context);
@@ -120,8 +118,6 @@ class CouponCardClub extends StatelessWidget {
 
   // BUILD
   Widget _buildStackView(BuildContext context){
-
-    double newDiscountContainerHeightFactor = 0.6;
 
     return Stack(
       children: [

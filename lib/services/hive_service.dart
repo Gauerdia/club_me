@@ -131,18 +131,26 @@ class HiveService{
       return [];
     }
   }
-  Future<void> deleteTemplateDiscount(String templateId) async {
+
+  Future<int> deleteClubMeDiscountTemplate(String templateId) async {
     try{
       var discounts = await getAllDiscountTemplates();
-      var index = discounts.indexWhere((element) => element.getTemplateId() == templateId);
+      var index = discounts.indexWhere(
+              (element) => element.getTemplateId() == templateId
+      );
 
-      var box = await _clubMeDiscountBox;
+      var box = await _clubMeDiscountTemplatesBox;
       await box.deleteAt(index);
+      log.d("deleteClubMeDiscountTemplate: Finished successfully");
+      return 0;
     }catch(e){
-      log.d("HiveService. Function: deleteTemplateDiscount. Error: $e");
+      log.d("HiveService. Function: deleteClubMeDiscountTemplate. Error: $e");
       _supabaseService.createErrorLog(e.toString());
+      return 1;
     }
   }
+
+
 
   // Event template
   Future<void> addClubMeEventTemplate(ClubMeEventTemplate clubMeEventTemplate) async {
@@ -164,18 +172,24 @@ class HiveService{
       return [];
     }
   }
-  Future<void> deleteClubMeEventTemplate(String templateId) async {
+  Future<int> deleteClubMeEventTemplate(String templateId) async {
     try{
       var events = await getAllClubMeEventTemplates();
-      var index = events.indexWhere((element) => element.getTemplateId() == templateId);
+      var index = events.indexWhere(
+              (element) => element.getTemplateId() == templateId
+      );
 
-      var box = await _clubMeDiscountBox;
+      var box = await _clubMeEventTemplatesBox;
       await box.deleteAt(index);
+      return 0;
     }catch(e){
       log.d("HiveService. Function: deleteClubMeEventTemplate. Error: $e");
       _supabaseService.createErrorLog(e.toString());
+      return 1;
     }
   }
+
+
 
   // USER DATA
   Future<List<ClubMeUserData>> getUserData() async{

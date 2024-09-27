@@ -189,13 +189,19 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
 
     filterEvents();
 
+
+
+    List<ClubMeEvent> fetchedUpcomingEvents = fetchedContentProvider.getFetchedUpcomingEvents(
+        userDataProvider.getUserClubId()
+    );
+
     return ListView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        itemCount: eventsToDisplay.length,
+        itemCount: fetchedUpcomingEvents.length,
         itemBuilder: ((context, index){
 
-          ClubMeEvent currentEvent = eventsToDisplay[index];
+          ClubMeEvent currentEvent = fetchedUpcomingEvents[index];
 
           var isLiked = false;
           if(currentAndLikedElementsProvider.getLikedEvents().contains(currentEvent.getEventId())){
@@ -212,6 +218,7 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
                   isLiked: isLiked,
                   clickedOnLike: clickedOnLike,
                   clickedOnShare: clickedOnShare,
+                  showMaterialButton: false,
                 ),
                 onTap: (){
                   currentAndLikedElementsProvider.setCurrentEvent(currentEvent);

@@ -374,7 +374,7 @@ class _UserMapViewState extends State<UserMapView>{
                 child: Container(
                   padding: const EdgeInsets.all(7),
                   child:  Icon(
-                    Icons.list_alt,
+                    Icons.format_list_bulleted,
                     color: showListIsActive ? customStyleClass.primeColor : Colors.grey,
                   ),
                 ),

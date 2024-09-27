@@ -1896,6 +1896,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
             currentAndLikedElementsProvider.setCurrentEvent(newEvent);
             fetchedContentProvider.addEventToFetchedEvents(newEvent);
             stateProvider.setAccessedEventDetailFrom(5);
+            stateProvider.resetEventTemplates();
             context.go('/event_details');
           })
         }else{
@@ -1921,6 +1922,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
             currentAndLikedElementsProvider.setCurrentEvent(newEvent);
             fetchedContentProvider.addEventToFetchedEvents(newEvent);
             stateProvider.setAccessedEventDetailFrom(5);
+            stateProvider.resetEventTemplates();
             context.go('/event_details');
           })
         }else{
