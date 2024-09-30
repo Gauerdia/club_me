@@ -135,6 +135,7 @@ dependencies:
   # Cannot weaken access privilege 'public' for 'lifecycle' in 'LifecycleOwner'
   # 'lifecycle' hides member of supertype 'LifecycleOwner' and needs 'override' modifier
 
+  webview_flutter: ^4.9.0
 
 flutter_localizations:
   sdk: flutter
