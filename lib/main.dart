@@ -70,6 +70,7 @@ import 'models/hive_models/4_temp_geo_location_data.dart';
 const rescheduledTaskKey = "be.szymendera.workmanager.rescheduledTask";
 
 Future<void> main() async {
+
   WidgetsFlutterBinding.ensureInitialized();
 
   // Set up Hive, our on device database

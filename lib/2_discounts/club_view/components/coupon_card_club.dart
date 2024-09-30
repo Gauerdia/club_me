@@ -159,7 +159,7 @@ class CouponCardClub extends StatelessWidget {
               children: [
 
                 fetchedContentProvider.getFetchedBannerImageIds()
-                    .contains(clubMeDiscount.getBannerId()) ?
+                    .contains(clubMeDiscount.getBigBannerFileName()) ?
                 SizedBox(
                   height: screenHeight*0.35,
                   width: screenWidth,
@@ -170,7 +170,7 @@ class CouponCardClub extends StatelessWidget {
                       ),
                       child: Image(
                         image: FileImage(
-                            File("${stateProvider.appDocumentsDir.path}/${clubMeDiscount.getBannerId()}")
+                            File("${stateProvider.appDocumentsDir.path}/${clubMeDiscount.getBigBannerFileName()}")
                         ),
                         fit: BoxFit.cover,
                       )

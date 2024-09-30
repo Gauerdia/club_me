@@ -28,5 +28,7 @@ ClubMeDiscount localDiscountToDiscountParser(ClubMeLocalDiscount clubMeLocalDisc
 
       ageLimitLowerLimit: clubMeLocalDiscount.getAgeLimitLowerLimit(),
       ageLimitUpperLimit: clubMeLocalDiscount.getAgeLimitUpperLimit(),
+
+      bigBannerFileName: clubMeLocalDiscount.getBigBannerFileName()
   );
 }

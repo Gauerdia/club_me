@@ -1265,6 +1265,9 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView> {
 
         ageLimitLowerLimit: int.parse(_ageLimitLowerLimitController.text),
         ageLimitUpperLimit: int.parse(_ageLimitUpperLimitController.text),
+
+      bigBannerFileName: ""
+
     );
 
     // Update the in-app elements to display the updated values correctly

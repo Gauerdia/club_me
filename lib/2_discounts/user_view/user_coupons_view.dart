@@ -130,8 +130,8 @@ class _UserCouponsViewState extends State<UserCouponsView>
     // If the provider has fetched elements so that the main function in _buildSupabaseDiscounts
     // is not called, we still need to add the ids to the array to display the banners.
     for(var discount in discountsToDisplay){
-      if(!fetchedContentProvider.getFetchedBannerImageIds().contains(discount.getBannerId())){
-        fetchedContentProvider.addFetchedBannerImageId(discount.getBannerId());
+      if(!fetchedContentProvider.getFetchedBannerImageIds().contains(discount.getBigBannerFileName())){
+        // fetchedContentProvider.addFetchedBannerImageId(discount.getBigBannerFileName());
       }
     }
 
@@ -194,6 +194,7 @@ class _UserCouponsViewState extends State<UserCouponsView>
 
           if(!snapshot.hasData){
 
+
             // Check if there is anything local to display
             if(discountsToDisplay.isNotEmpty){
               return _buildSwipeView();
@@ -213,8 +214,7 @@ class _UserCouponsViewState extends State<UserCouponsView>
             var today = DateFormat('yyyy-MM-dd').format(todayRaw);
             var todayFormatted = DateTime.parse(today);
 
-            // The function will be called twice after the response.
-            // Here, we avoid to fill the array twice as well.
+            // The function will be called twice after the response. Here, we avoid to fill the array twice as well.
             if(!dbFetchComplete){
               for(var element in data){
 
@@ -222,22 +222,25 @@ class _UserCouponsViewState extends State<UserCouponsView>
 
                 // Show only events that are not yet in the past.
                 if(
-                currentDiscount.getDiscountDate().isAfter(todayFormatted)
+                  currentDiscount.getDiscountDate().isAfter(todayFormatted)
                     || currentDiscount.getDiscountDate().isAtSameMomentAs(todayFormatted)
                 ){
 
                   // Check if we need to fetch the image
-                  checkIfImageExistsLocally(currentDiscount.getBannerId()).then((exists){
+                  checkIfImageExistsLocally(currentDiscount.getBigBannerFileName()).then((exists){
                     if(!exists){
 
                         // Save the name so that we don't fetch the same image several times
-                        // imageFileNamesToBeFetched.add(currentDiscount.getBannerId());
-                        fetchAndSaveBannerImage(currentDiscount.getBannerId());
+                        fetchAndSaveBannerImage(currentDiscount.getBigBannerFileName(), "discount_banner_images");
 
                     // If already exists, we still check if it has been logged
                     }else{
-                      if(!fetchedContentProvider.getFetchedBannerImageIds().contains(currentDiscount.getBannerId())){
-                        fetchedContentProvider.addFetchedBannerImageId(currentDiscount.getBannerId());
+                      if(
+                      !fetchedContentProvider
+                          .getFetchedBannerImageIds()
+                          .contains(currentDiscount.getBigBannerFileName())
+                      ){
+                        fetchedContentProvider.addFetchedBannerImageId(currentDiscount.getBigBannerFileName());
                       }
                     }
                   });
@@ -259,24 +262,32 @@ class _UserCouponsViewState extends State<UserCouponsView>
 
               // Sort so that the next events come up earliest
               sortUpcomingDiscounts();
-              fetchedContentProvider.sortFetchedDiscounts();
               dbFetchComplete = true;
             }
 
             discountsToDisplay = upcomingDiscounts;
 
-            // Display someone if there is anything
+            // Display something if there is anything
             return discountsToDisplay.isNotEmpty ?
             _buildSwipeView()
             // Text, when no discounts available
             : _buildNothingToDisplay();
           }
         }
-    )
-        : discountsToDisplay.isNotEmpty ?
-    _buildSwipeView() :
-    _buildNothingToDisplay();
+    ) : _getDiscountsFromProviderAndBuildSwipeView();
   }
+
+  Widget _getDiscountsFromProviderAndBuildSwipeView(){
+
+      discountsToDisplay = [];
+      for(var discount in fetchedContentProvider.getFetchedDiscounts()){
+        discountsToDisplay.add(discount);
+      }
+
+      return discountsToDisplay.isNotEmpty ? _buildSwipeView(): _buildNothingToDisplay();
+
+  }
+
   AppBar _buildAppBarWithSearch(){
     return AppBar(
       backgroundColor: customStyleClass.backgroundColorMain,
@@ -418,14 +429,17 @@ class _UserCouponsViewState extends State<UserCouponsView>
     final String dirPath = stateProvider.appDocumentsDir.path;
     return await File('$dirPath/$fileName').exists();
   }
-  void fetchAndSaveBannerImage(String fileName) async {
-    var imageFile = await _supabaseService.getBannerImage(fileName);
+
+
+  void fetchAndSaveBannerImage(String fileName, String folder) async {
+    var imageFile = await _supabaseService.getBannerImage(fileName, folder);
 
     final String dirPath = stateProvider.appDocumentsDir.path;
 
     await File("$dirPath/$fileName").writeAsBytes(imageFile).then((onValue){
       setState(() {
         log.d("fetchAndSaveBannerImage: Finished successfully. Path: $dirPath/$fileName");
+        sleep(const Duration(seconds: 2));
         fetchedContentProvider.addFetchedBannerImageId(fileName);
       });
     });
@@ -548,18 +562,15 @@ class _UserCouponsViewState extends State<UserCouponsView>
             ){
 
               // Check if we need to fetch the image
-              checkIfImageExistsLocally(tempDiscount.getBannerId()).then((exists){
+              checkIfImageExistsLocally(tempDiscount.getBigBannerFileName()).then((exists){
                 if(!exists){
 
-                  print("doesnt exist: ${tempDiscount.getBannerId()}");
-
                   // If we haven't started to fetch the image yet, we ought to
-                  if(!fetchedContentProvider.getFetchedBannerImageIds().contains(tempDiscount.getBannerId())){
-                    fetchAndSaveBannerImage(tempDiscount.getBannerId());
+                  if(!fetchedContentProvider.getFetchedBannerImageIds().contains(tempDiscount.getBigBannerFileName())){
+                    fetchAndSaveBannerImage(tempDiscount.getBannerId(), "discount_banner_images");
                   }
                 }else{
-                  print("Exists: ${tempDiscount.getBannerId()}");
-                  fetchedContentProvider.addFetchedBannerImageId(tempDiscount.getBannerId());
+                  fetchedContentProvider.addFetchedBannerImageId(tempDiscount.getBigBannerFileName());
                 }
               });
 

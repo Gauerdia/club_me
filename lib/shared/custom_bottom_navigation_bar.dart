@@ -37,11 +37,14 @@ class CustomBottomNavigationBar extends StatelessWidget {
         child: Stack(
           children: [
             Container(
+              padding: const EdgeInsets.only(
+                top: 8
+              ),
               decoration: const BoxDecoration(
                 borderRadius: BorderRadius.only(
                 ),
               ),
-              height: 90,
+              height: 70,
               child: Center(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -52,7 +55,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
                       child: AnimatedContainer(
                         duration: colorTransitionDuration,
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Icon(
                               Icons.calendar_month_outlined,
@@ -81,7 +84,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
                       child: AnimatedContainer(
                         duration: colorTransitionDuration,
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Icon(
                               Icons.wine_bar_rounded,
@@ -110,7 +113,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
                       child: AnimatedContainer(
                         duration: colorTransitionDuration,
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Icon(
                               CupertinoIcons.location_solid,
@@ -139,7 +142,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
                       child: AnimatedContainer(
                         duration: colorTransitionDuration,
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Icon(
                               Icons.percent,
@@ -168,7 +171,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
                       child: AnimatedContainer(
                         duration: colorTransitionDuration,
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Icon(
                               Icons.person,

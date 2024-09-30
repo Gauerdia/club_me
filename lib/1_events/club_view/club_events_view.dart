@@ -488,9 +488,6 @@ class _ClubEventsViewState extends State<ClubEventsView> {
       // local var to shorten the expressions
       DateTime eventTimestamp = currentEvent.getEventDate();
 
-      // Get current time for germany
-      // final berlin = tz.getLocation('Europe/Berlin');
-      // final todayTimestamp = tz.TZDateTime.from(DateTime.now(), berlin).subtract(const Duration(hours:5));
 
       // Make sure we can show the corresponding image(s)
       checkIfImageExistsLocally(currentEvent.getBannerId()).then((exists){
@@ -499,15 +496,11 @@ class _ClubEventsViewState extends State<ClubEventsView> {
           // If we haven't started to fetch the image yet, we ought to
           if(!fetchedContentProvider.getFetchedBannerImageIds().contains(currentEvent.getBannerId())){
 
-            // Save the name so that we don't fetch the same image several times
-            // imageFileNamesToBeFetched.add(currentEvent.getBannerId());
-
             fetchAndSaveBannerImage(currentEvent.getBannerId());
           }
         }else{
           setState(() {
             fetchedContentProvider.addFetchedBannerImageId(currentEvent.getBannerId());
-            // imageFileNamesAlreadyFetched.add(currentEvent.getBannerId());
           });
         }
       });
@@ -616,7 +609,7 @@ class _ClubEventsViewState extends State<ClubEventsView> {
     return await File('$dirPath/$fileName').exists();
   }
   void fetchAndSaveBannerImage(String fileName) async {
-    var imageFile = await _supabaseService.getBannerImage(fileName);
+    var imageFile = await _supabaseService.getBannerImage(fileName, "");
     final String dirPath = stateProvider.appDocumentsDir.path;
 
     await File("$dirPath/$fileName").writeAsBytes(imageFile).then((onValue){

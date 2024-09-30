@@ -27,6 +27,7 @@ ClubMeLocalDiscount discountToLocalDiscountParser(ClubMeDiscount clubMeDiscount)
       priorityScore: clubMeDiscount.getPriorityScore(),
 
       ageLimitUpperLimit: clubMeDiscount.getAgeLimitUpperLimit(),
-      ageLimitLowerLimit: clubMeDiscount.getAgeLimitLowerLimit()
+      ageLimitLowerLimit: clubMeDiscount.getAgeLimitLowerLimit(),
+    bigBannerFileName: clubMeDiscount.getBigBannerFileName()
   );
 }

@@ -130,7 +130,7 @@ class CouponCard extends StatelessWidget {
 
 
                 fetchedContentProvider.getFetchedBannerImageIds()
-                    .contains(clubMeDiscount.getBannerId()) ?
+                    .contains(clubMeDiscount.getBigBannerFileName()) ?
                 SizedBox(
                   height: screenHeight*0.35,
                   width: screenWidth,
@@ -139,9 +139,14 @@ class CouponCard extends StatelessWidget {
                         topRight: Radius.circular(15),
                         topLeft: Radius.circular(15)
                     ),
-                    child: Image(
+                    child:
+                    // Image.asset(
+                    //   "assets/images/Free_ClubMe_500x400.png",
+                    //   fit: BoxFit.cover,
+                    // )
+                    Image(
                       image: FileImage(
-                          File("${stateProvider.appDocumentsDir.path}/${clubMeDiscount.getBannerId()}")
+                          File("${stateProvider.appDocumentsDir.path}/${clubMeDiscount.getBigBannerFileName()}")
                       ),
                       fit: BoxFit.cover,
                     )
@@ -171,7 +176,7 @@ class CouponCard extends StatelessWidget {
               width: screenWidth,
               decoration: BoxDecoration(
                 color: customStyleClass.backgroundColorEventTile,
-                borderRadius: BorderRadius.only(
+                borderRadius: const BorderRadius.only(
                     bottomRight: Radius.circular(12),
                     bottomLeft: Radius.circular(12)
                 ),

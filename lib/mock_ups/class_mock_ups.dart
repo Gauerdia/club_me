@@ -26,7 +26,10 @@ ClubMeClub mockUpClub = ClubMeClub(
     priorityScore: 0,
     openingTimes: OpeningTimes(),
     frontPageImages: FrontPageImages(),
-    clubOffers: ClubOffers()
+    clubOffers: ClubOffers(),
+  smallLogoFileName: "",
+  bigLogoFileName: "",
+  frontpageBannerFileName: ""
 );
 
 ClubMeUserData mockUpUserData = ClubMeUserData(

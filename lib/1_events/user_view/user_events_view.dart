@@ -176,7 +176,7 @@ class _UserEventsViewState extends State<UserEventsView> {
     }
   }
   void fetchAndSaveBannerImage(String fileName) async {
-    var imageFile = await _supabaseService.getBannerImage(fileName);
+    var imageFile = await _supabaseService.getBannerImage(fileName, "");
     final String dirPath = stateProvider.appDocumentsDir.path;
 
     await File("$dirPath/$fileName").writeAsBytes(imageFile).then((onValue){

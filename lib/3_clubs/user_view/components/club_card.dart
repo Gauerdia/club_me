@@ -212,18 +212,21 @@ class ClubCard extends StatelessWidget {
                                 bottomLeft: Radius.circular(12),
                                 bottomRight: Radius.circular(12),
                               ),
-                              color: Colors.white,
+                              color: Colors.black,
                             ),
                             // height: screenHeight*0.17,
                             child:
-                            fetchedContentProvider.getFetchedBannerImageIds().contains(clubMeClub.getBannerId())?
+                            fetchedContentProvider
+                                .getFetchedBannerImageIds()
+                                .contains(clubMeClub.getBigLogoFileName()) ?
                             ClipRRect(
                                 borderRadius: const BorderRadius.only(
                                     topRight: Radius.circular(12),
                                     topLeft: Radius.circular(12)
                                 ),
                                 child: Image(
-                                  image: FileImage(File("${stateProvider.appDocumentsDir.path}/${clubMeClub.getBannerId()}")),
+                                  image:
+                                  FileImage(File("${stateProvider.appDocumentsDir.path}/${clubMeClub.getBigLogoFileName()}")),
                                   fit: BoxFit.cover,
                                 )
                             ) :
@@ -395,7 +398,7 @@ class ClubCard extends StatelessWidget {
                       calculateDistanceToClub() == 0 ?
                       const CircularProgressIndicator():
                       Container(
-                        padding: EdgeInsets.symmetric(
+                        padding: const EdgeInsets.symmetric(
                           // vertical: screenHeight*0.01,
                           // horizontal: screenWidth*0.03
                         ),
@@ -431,7 +434,7 @@ class ClubCard extends StatelessWidget {
                       // Music Genre
                       Align(
                         child: Container(
-                          padding: EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                             // vertical: screenHeight*0.01,
                             // horizontal: screenWidth*0.03
                           ),

@@ -37,19 +37,23 @@ class CustomBottomNavigationBarClubs extends StatelessWidget {
         child: Stack(
           children: [
             Container(
+              padding: const EdgeInsets.only(
+                top: 8
+              ),
               decoration: const BoxDecoration(
                 borderRadius: BorderRadius.only(
                 ),
               ),
-              height: 90,
+              height: 70,
               child: Center(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     GestureDetector(
                       child: SizedBox(
-                        height: 60,
+                        height: 70,
                         child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Icon(
                               Icons.calendar_month_outlined,
@@ -77,8 +81,9 @@ class CustomBottomNavigationBarClubs extends StatelessWidget {
 
                     GestureDetector(
                       child: SizedBox(
-                        height: 60,
+                        height: 70,
                         child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Icon(
                               Icons.bar_chart,
@@ -106,8 +111,9 @@ class CustomBottomNavigationBarClubs extends StatelessWidget {
 
                     GestureDetector(
                       child: SizedBox(
-                        height: 60,
+                        height: 70,
                         child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Icon(
                               Icons.percent,
@@ -135,8 +141,9 @@ class CustomBottomNavigationBarClubs extends StatelessWidget {
 
                     GestureDetector(
                       child: SizedBox(
-                        height: 60,
+                        height: 70,
                         child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Icon(
                               Icons.person,

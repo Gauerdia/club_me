@@ -22,7 +22,8 @@ class ClubMeLocalDiscount{
     required this.hasAgeLimit,
     required this.ageLimitUpperLimit,
     required this.ageLimitLowerLimit,
-    required this.isRepeatedDays
+    required this.isRepeatedDays,
+    required this.bigBannerFileName
   });
 
   @HiveField(0)
@@ -65,6 +66,13 @@ class ClubMeLocalDiscount{
 
   @HiveField(16)
   int isRepeatedDays;
+
+  @HiveField(17)
+  String bigBannerFileName;
+
+  String getBigBannerFileName(){
+    return bigBannerFileName;
+  }
 
   bool getIsRepeated(){
     return isRepeatedDays != 0 ? true : false;

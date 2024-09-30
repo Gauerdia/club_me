@@ -1,6 +1,7 @@
 import UIKit
 import Flutter
 import workmanager
+import GoogleMaps
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
@@ -9,6 +10,8 @@ import workmanager
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
     GeneratedPluginRegistrant.register(with: self)
+
+    GMSServices.provideAPIKey("AIzaSyB3DEyasr0mp7UJVlajTOdLIe7pyLLpUwQ")
 
            WorkmanagerPlugin.setPluginRegistrantCallback { registry in
                // Registry in this case is the FlutterEngine that is created in Workmanager's

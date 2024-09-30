@@ -3,6 +3,10 @@
         android:label="club_me"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
+
+        <meta-data android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyB3DEyasr0mp7UJVlajTOdLIe7pyLLpUwQ"/>
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

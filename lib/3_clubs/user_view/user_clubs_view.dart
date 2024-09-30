@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:club_me/models/club.dart';
 import 'package:club_me/models/event.dart';
+import 'package:club_me/services/check_and_fetch_service.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
@@ -39,6 +40,7 @@ class _UserClubsViewState extends State<UserClubsView>
 
   final SupabaseService _supabaseService = SupabaseService();
   final TextEditingController _textEditingController = TextEditingController();
+  final CheckAndFetchService checkAndFetchService = CheckAndFetchService();
 
   String searchValue = "";
   int _currentPageIndex = 0;
@@ -435,29 +437,23 @@ class _UserClubsViewState extends State<UserClubsView>
 
               final data = snapshot.data!;
 
+              List<ClubMeClub> fetchedClubMeClubs = [];
+
+              for(var element in data){
+                ClubMeClub currentClub = parseClubMeClub(element);
+                fetchedClubMeClubs.add(currentClub);
+              }
+
               if(clubsToDisplay.isEmpty){
-                for(var element in data){
-
-                  ClubMeClub currentClub = parseClubMeClub(element);
-
-                  clubsToDisplay.add(currentClub);
-
-                  // Check if we need to fetch the image
-                  checkIfImageExistsLocally(currentClub.getBannerId()).then((exists){
-                    if(!exists){
-                        fetchAndSaveBannerImage(currentClub.getBannerId());
-                    }else{
-                      if(!fetchedContentProvider.getFetchedBannerImageIds().contains(currentClub.getBannerId())){
-                        fetchedContentProvider.addFetchedBannerImageId(currentClub.getBannerId());
-                      }
-                    }
-                  });
-                }
+                checkAndFetchService.checkAndFetchClubImages(
+                    fetchedClubMeClubs,
+                    stateProvider,
+                    fetchedContentProvider);
               }
 
               filterClubs();
 
-              fetchedContentProvider.setFetchedClubs(clubsToDisplay);
+              fetchedContentProvider.setFetchedClubs(fetchedClubMeClubs);
 
               return SingleChildScrollView(
                 keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -509,38 +505,17 @@ class _UserClubsViewState extends State<UserClubsView>
     }else{
 
       if(clubsToDisplay.isEmpty){
-        for(var currentClub in fetchedContentProvider.getFetchedClubs()){
-          clubsToDisplay.add(currentClub);
-          if(!fetchedContentProvider.getFetchedBannerImageIds().contains(currentClub.getBannerId()))
-            {
-              // Check if we need to fetch the image
-              checkIfImageExistsLocally(currentClub.getBannerId()).then((exists){
-                if(!exists){
-                  fetchAndSaveBannerImage(currentClub.getBannerId());
-                }else{
-                  if(!fetchedContentProvider.getFetchedBannerImageIds().contains(currentClub.getBannerId())){
-                    fetchedContentProvider.addFetchedBannerImageId(currentClub.getBannerId());
-                  }
-                }
-              });
-            }
-        }
+        checkAndFetchService.checkAndFetchClubImages(
+            fetchedContentProvider.getFetchedClubs(),
+            stateProvider,
+            fetchedContentProvider
+        );
       }else{
-        for(var currentClub in clubsToDisplay){
-          if(!fetchedContentProvider.getFetchedBannerImageIds().contains(currentClub.getBannerId()))
-          {
-            // Check if we need to fetch the image
-            checkIfImageExistsLocally(currentClub.getBannerId()).then((exists){
-              if(!exists){
-                fetchAndSaveBannerImage(currentClub.getBannerId());
-              }else{
-                if(!fetchedContentProvider.getFetchedBannerImageIds().contains(currentClub.getBannerId())){
-                  fetchedContentProvider.addFetchedBannerImageId(currentClub.getBannerId());
-                }
-              }
-            });
-          }
-        }
+        checkAndFetchService.checkAndFetchClubImages(
+            clubsToDisplay,
+            stateProvider,
+            fetchedContentProvider
+        );
       }
 
       filterClubs();
@@ -590,25 +565,6 @@ class _UserClubsViewState extends State<UserClubsView>
         ),
       );
     }
-  }
-
-  void fetchAndSaveBannerImage(String fileName) async {
-    var imageFile = await _supabaseService.getBannerImage(fileName);
-
-    final String dirPath = stateProvider.appDocumentsDir.path;
-
-    await File("$dirPath/$fileName").writeAsBytes(imageFile).then((onValue){
-      setState(() {
-        print("_buildSupabaseClubs: fetchAndSaveBannerImage");
-        log.d("fetchAndSaveBannerImage: Finished successfully. Path: $dirPath/$fileName");
-        fetchedContentProvider.addFetchedBannerImageId(fileName);
-      });
-    });
-  }
-
-  Future<bool> checkIfImageExistsLocally(String fileName) async{
-    final String dirPath = stateProvider.appDocumentsDir.path;
-    return await File('$dirPath/$fileName').exists();
   }
 
   Widget _buildFilterMenu(){

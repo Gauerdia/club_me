@@ -239,7 +239,7 @@ class _ClubInfoBottomSheet2State extends State<ClubInfoBottomSheet2> {
 
                 // Image or loading indicator
                 fetchedContentProvider.getFetchedBannerImageIds().contains(
-                    currentAndLikedElementsProvider.currentClubMeClub.getBannerId()
+                    currentAndLikedElementsProvider.currentClubMeClub.getBigLogoFileName()
                 )?
                 SizedBox(
                     height: topHeight,
@@ -254,7 +254,7 @@ class _ClubInfoBottomSheet2State extends State<ClubInfoBottomSheet2> {
 
                           FileImage(
                               File(
-                                  "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeClub.getBannerId()}"
+                                  "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeClub.getBigLogoFileName()}"
                               )
                           ),
                           fit: BoxFit.cover,

@@ -466,7 +466,8 @@ class SupabaseService{
         'age_limit_lower_limit': clubMeDiscount.getAgeLimitLowerLimit(),
         'age_limit_upper_limit': clubMeDiscount.getAgeLimitUpperLimit(),
 
-        'is_repeated_days': clubMeDiscount.getIsRepeatedDays()
+        'is_repeated_days': clubMeDiscount.getIsRepeatedDays(),
+        'big_banner_file_name': clubMeDiscount.getBigBannerFileName()
 
       }).select();
       log.d("insertDiscount: Finished successfully. Response: $data");
@@ -702,14 +703,23 @@ class SupabaseService{
 
   }
 
-  Future<Uint8List> getBannerImage(String fileName) async {
+  Future<Uint8List> getBannerImage(String fileName, String folder) async {
+
+    String finalPath = "";
+
+    if(folder.isEmpty){
+      finalPath = fileName;
+    }else{
+      finalPath = "$folder/$fileName";
+    }
+
 
     try{
-      var data = await supabase.storage.from('club_me_banner_images').download(fileName);
-      log.d("getBannerImage: Finished successfully. Response: $data");
+      var data = await supabase.storage.from('club_me_banner_images').download(finalPath);
+      log.d("getBannerImage: Finished successfully. File: $folder/$fileName");
       return data;
     }catch(e){
-      log.d("Error in SupabaseService. Function: getBannerImage. Error: ${e.toString()}");
+      log.d("Error in SupabaseService. Function: getBannerImage. Error: ${e.toString()}. finalPath: $finalPath");
       createErrorLog("Error in SupabaseService. Function: getBannerImage. Error: ${e.toString()}");
       return Uint8List(0);
     }

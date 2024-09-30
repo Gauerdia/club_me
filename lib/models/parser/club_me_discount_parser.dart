@@ -27,5 +27,7 @@ ClubMeDiscount parseClubMeDiscount(var data){
       ageLimitUpperLimit: data['age_limit_upper_limit'],
 
       isRepeatedDays: data['is_repeated_days'],
+
+      bigBannerFileName: data['big_banner_file_name']
   );
 }

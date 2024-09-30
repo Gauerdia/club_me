@@ -32,7 +32,12 @@ class ClubMeClub{
     required this.priorityScore,
     required this.openingTimes,
     required this.frontPageImages,
-    required this.clubOffers
+    required this.clubOffers,
+
+    required this.smallLogoFileName,
+    required this.bigLogoFileName,
+    required this.frontpageBannerFileName
+
   });
 
   String clubId;
@@ -64,6 +69,18 @@ class ClubMeClub{
   OpeningTimes openingTimes;
   FrontPageImages frontPageImages;
   ClubOffers clubOffers;
+
+  String smallLogoFileName, bigLogoFileName, frontpageBannerFileName;
+
+  String getSmallLogoFileName(){
+    return smallLogoFileName;
+  }
+  String getBigLogoFileName(){
+    return bigLogoFileName;
+  }
+  String getFrontpageBannerFileName(){
+    return frontpageBannerFileName;
+  }
 
 
   bool clubIsOpen(){

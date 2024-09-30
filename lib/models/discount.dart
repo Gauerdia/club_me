@@ -18,7 +18,8 @@ class ClubMeDiscount{
     required this.ageLimitUpperLimit,
     required this.ageLimitLowerLimit,
     required this.hasAgeLimit,
-    required this.isRepeatedDays
+    required this.isRepeatedDays,
+    required this.bigBannerFileName
   });
 
   String clubId;
@@ -44,6 +45,12 @@ class ClubMeDiscount{
   int ageLimitLowerLimit, ageLimitUpperLimit;
 
   int isRepeatedDays;
+
+  String bigBannerFileName;
+
+  String getBigBannerFileName(){
+    return bigBannerFileName;
+  }
 
   int getIsRepeatedDays(){
     return isRepeatedDays;

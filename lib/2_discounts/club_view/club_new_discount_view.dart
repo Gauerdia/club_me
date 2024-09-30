@@ -1,3 +1,4 @@
+import 'package:club_me/2_discounts/club_view/components/cover_image_card.dart';
 import 'package:club_me/models/discount.dart';
 import 'package:club_me/provider/fetched_content_provider.dart';
 import 'package:club_me/services/hive_service.dart';
@@ -24,7 +25,8 @@ class ClubNewDiscountView extends StatefulWidget {
   State<ClubNewDiscountView> createState() => _ClubNewDiscountViewState();
 }
 
-class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
+class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
+    with TickerProviderStateMixin{
 
   String headLine = "Neuer Coupon";
 
@@ -55,6 +57,8 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
   bool isUploading = false;
   bool isDateSelected = false;
 
+  bool showGallery = false;
+
   int isTemplate = 0;
   int isSupposedToBeTemplate = 0;
 
@@ -77,13 +81,35 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
 
   bool pickHourAndMinuteIsActive = false;
 
-
   double distanceBetweenTitleAndTextField = 10;
+
+
+  int _currentPageIndex = 0;
+  late TabController _tabController;
+  late PageController _pageViewController;
+
+  List<String> imageNames = [
+    "Free_ClubMe_500x400.png",
+    "Free_Eintritt_500x400.png",
+    "Free_Getraenk_500x400.png",
+    "Free_Shots_500x400.png",
+    "Free_Sonstiges_500x400.png",
+    "Special_Offer_ClubMe_500x400.png",
+    "Special_Offer_Eintritt_500x400.png",
+    "Special_Offer_Flaschen_500x400.png",
+    "Special_Offer_Getraenk_500x400.png",
+    "Special_Offer_Getraenke_500x400.png",
+    "Special_Offer_Sonstiges_500x400.png",
+  ];
 
   @override
   void initState() {
     super.initState();
     initControllers();
+
+    _pageViewController = PageController();
+    _tabController = TabController(length: imageNames.length, vsync: this);
+
   }
 
   void initControllers(){
@@ -206,7 +232,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
     );
   }
 
-  Widget _buildFinalOverview3(){
+  Widget _buildFinalOverview(){
 
     return SizedBox(
         height: screenHeight,
@@ -819,6 +845,44 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
                         ),
                       ),
 
+                      // Text: Description
+                      Container(
+                        width: screenWidth*0.9,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          "Auswahl des Bildes",
+                          style: customStyleClass.getFontStyle3(),
+                        ),
+                      ),
+
+                      InkWell(
+                        child: Container(
+                          width: screenWidth*0.9,
+                          alignment: Alignment.centerLeft,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 10
+                            ),
+                            child: Row(
+                              children: [
+                                Text(
+                                  "Zur Galerie",
+                                  style: customStyleClass.getFontStyle3BoldPrimeColor(),
+                                ),
+                                Icon(
+                                  Icons.arrow_forward_outlined,
+                                  color: customStyleClass.primeColor,
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                        onTap: (){
+                          setState(() {
+                            showGallery = true;
+                          });
+                        },
+                      ),
 
                       // ToggleSwitch: isRepeated
                       Container(
@@ -1117,7 +1181,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
     );
   }
 
-  Widget _buildBottomNavigationBar2(){
+  Widget _buildBottomNavigationBar(){
     return Container(
       width: screenWidth,
       height: screenHeight*0.08,
@@ -1135,7 +1199,32 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
           right: 10,
           // bottom: 10
       ),
-      child: GestureDetector(
+      child: showGallery ?
+          GestureDetector(
+            child: Container(
+              padding: const EdgeInsets.only(
+                  bottom: 10
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+
+                  Text(
+                    "Bild auswählen",
+                    style: customStyleClass.getFontStyle3BoldPrimeColor(),
+                  ),
+
+                  Icon(
+                    Icons.arrow_forward_outlined,
+                    color: customStyleClass.primeColor,
+                  )
+
+                ],
+              ),
+            ),
+            onTap: () => clickEventChooseImage(),
+          ):
+      GestureDetector(
         child: Container(
           padding: const EdgeInsets.only(
               bottom: 10
@@ -1160,6 +1249,13 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
         onTap: () => clickEventProcessNewDiscount(),
       ),
     );
+  }
+
+  void clickEventChooseImage(){
+    setState(() {
+      print(_currentPageIndex);
+      showGallery = false;
+    });
   }
 
   void buildNewDiscount(
@@ -1211,7 +1307,8 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
         ageLimitLowerLimit: int.parse(_ageLimitLowerLimitController.text),
         ageLimitUpperLimit: int.parse(_ageLimitUpperLimitController.text),
 
-         isRepeatedDays: isRepeatedDaysToSave
+         isRepeatedDays: isRepeatedDaysToSave,
+      bigBannerFileName: imageNames[_currentPageIndex]
     );
 
     if(isSupposedToBeTemplate == 1){
@@ -1445,6 +1542,72 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
     return "$hourToDisplay:$minuteToDisplay";
   }
 
+  Widget _buildGalleryView(){
+
+
+
+    return SizedBox(
+      width: screenWidth,
+      height: screenHeight,
+      child: Column(
+        children: [
+
+          Text(
+            "Bitte wähle ein Coverbild aus",
+            style: customStyleClass.getFontStyle1Bold(),
+          ),
+
+          Container(
+            // color: Colors.red,
+            width: screenWidth,
+            height: screenHeight*0.65,
+            child: PageView(
+              controller: _pageViewController,
+              onPageChanged: _handlePageViewChanged,
+              children: <Widget>[
+
+                for(var i = 0; i<imageNames.length;i++)
+                  Center(
+                      child: CoverImageCard(fileName: imageNames[i])
+                  ),
+              ],
+            ),
+          ),
+
+          Container(
+            // color: Colors.green,
+            height: screenHeight*0.15,
+            alignment: Alignment.topCenter,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.keyboard_arrow_left_sharp,
+                  size: 50,
+                  color: _currentPageIndex > 0 ? customStyleClass.primeColor: Colors.grey,
+                ),
+                Icon(
+                  Icons.keyboard_arrow_right_sharp,
+                  size: 50,
+                  color: _currentPageIndex < (imageNames.length-1) ? customStyleClass.primeColor: Colors.grey,
+                ),
+              ],
+            ),
+          ),
+
+
+        ],
+      ),
+    );
+  }
+
+  void _handlePageViewChanged(int currentPageIndex) {
+    _tabController.index = currentPageIndex;
+    setState(() {
+      _currentPageIndex = currentPageIndex;
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -1468,11 +1631,11 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>{
           width: screenWidth,
           height: screenHeight,
           child: Center(
-            child: _buildFinalOverview3()
+            child: showGallery ? _buildGalleryView() : _buildFinalOverview()
           )
 
       ),
-      bottomNavigationBar: _buildBottomNavigationBar2(),
+      bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
 }

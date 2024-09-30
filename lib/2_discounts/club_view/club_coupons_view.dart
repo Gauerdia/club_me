@@ -99,25 +99,11 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
       // add 23 so that we can still find it as upcoming even though it's the same day
       DateTime discountTimestamp = currentDiscount.getDiscountDate();
 
-      // Get current time for germany
-      // final berlin = tz.getLocation('Europe/Berlin');
-      // final todayTimestamp = tz.TZDateTime.from(DateTime.now(), berlin);
-
-      checkIfImageExistsLocally(currentDiscount.getBannerId()).then((exists){
+      checkIfImageExistsLocally(currentDiscount.getBigBannerFileName()).then((exists){
         if(!exists){
-
-          // If we haven't started to fetch the image yet, we ought to
-          if(!imageFileNamesToBeFetched.contains(currentDiscount.getBannerId())){
-
-            // Save the name so that we don't fetch the same image several times
-            imageFileNamesToBeFetched.add(currentDiscount.getBannerId());
-
-            fetchAndSaveBannerImage(currentDiscount.getBannerId());
-          }
+            fetchAndSaveBannerImage(currentDiscount.getBigBannerFileName(), "discount_banner_images");
         }else{
-          setState(() {
-            imageFileNamesAlreadyFetched.add(currentDiscount.getBannerId());
-          });
+          fetchedContentProvider.addFetchedBannerImageId(currentDiscount.getBigBannerFileName());
         }
       });
 
@@ -144,20 +130,20 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
       DateTime discountTimestamp = currentDiscount.getDiscountDate();
 
       // Make sure we can show the corresponding image(s)
-      checkIfImageExistsLocally(currentDiscount.getBannerId()).then((exists){
+      checkIfImageExistsLocally(currentDiscount.getBigBannerFileName()).then((exists){
         if(!exists){
 
           // If we haven't started to fetch the image yet, we ought to
-          if(!imageFileNamesToBeFetched.contains(currentDiscount.getBannerId())){
+          if(!imageFileNamesToBeFetched.contains(currentDiscount.getBigBannerFileName())){
 
             // Save the name so that we don't fetch the same image several times
-            imageFileNamesToBeFetched.add(currentDiscount.getBannerId());
+            imageFileNamesToBeFetched.add(currentDiscount.getBigBannerFileName());
 
-            fetchAndSaveBannerImage(currentDiscount.getBannerId());
+            fetchAndSaveBannerImage(currentDiscount.getBigBannerFileName(), "discount_banner_images");
           }
         }else{
           setState(() {
-            imageFileNamesAlreadyFetched.add(currentDiscount.getBannerId());
+            imageFileNamesAlreadyFetched.add(currentDiscount.getBigBannerFileName());
           });
         }
       });
@@ -346,8 +332,7 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
             GestureDetector(
               child: Center(
                 child: SmallDiscountTile(
-                  clubMeDiscount: upcomingDiscounts[0],
-                  imageFileNamesAlreadyFetched: imageFileNamesAlreadyFetched,
+                  clubMeDiscount: upcomingDiscounts[0]
                 ),
               ),
               onTap: () => clickedOnCurrentDiscount(),
@@ -446,8 +431,7 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
             GestureDetector(
               child: Center(
                 child: SmallDiscountTile(
-                  clubMeDiscount: pastDiscounts[0],
-                  imageFileNamesAlreadyFetched: imageFileNamesAlreadyFetched,
+                  clubMeDiscount: pastDiscounts[0]
                 ),
               ),
               onTap: (){
@@ -600,14 +584,14 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
     final String dirPath = stateProvider.appDocumentsDir.path;
     return await File('$dirPath/$fileName').exists();
   }
-  void fetchAndSaveBannerImage(String fileName) async {
-    var imageFile = await _supabaseService.getBannerImage(fileName);
+  void fetchAndSaveBannerImage(String fileName, String folder) async {
+    var imageFile = await _supabaseService.getBannerImage(fileName, folder);
     final String dirPath = stateProvider.appDocumentsDir.path;
 
     await File("$dirPath/$fileName").writeAsBytes(imageFile).then((onValue){
       setState(() {
         log.d("fetchAndSaveBannerImage: Finished successfully. Path: $dirPath/$fileName");
-        imageFileNamesAlreadyFetched.add(fileName);
+        fetchedContentProvider.addFetchedBannerImageId(fileName);
       });
     });
   }

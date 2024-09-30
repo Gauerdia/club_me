@@ -28,7 +28,11 @@ ClubMeClub parseClubMeClub(var data){
       priorityScore: data['priority_score'],
       openingTimes: OpeningTimes.fromJson(data['opening_times']),
       frontPageImages: FrontPageImages.fromJson(data['front_page_images']),
-      clubOffers: ClubOffers.fromJson(data['club_offers'])
+      clubOffers: ClubOffers.fromJson(data['club_offers']),
+
+      smallLogoFileName: data['small_logo_file_name'],
+      bigLogoFileName: data['big_logo_file_name'],
+      frontpageBannerFileName: data['frontpage_banner_file_name']
   );
 
   return clubMeClub;

@@ -5,15 +5,16 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
 import '../../../models/discount.dart';
+import '../../../provider/fetched_content_provider.dart';
 import '../../../provider/state_provider.dart';
 import '../../../shared/custom_text_style.dart';
 
 class SmallDiscountTile extends StatelessWidget {
-  SmallDiscountTile({Key? key, required this.clubMeDiscount, required this.imageFileNamesAlreadyFetched}) : super(key: key);
+  SmallDiscountTile({Key? key, required this.clubMeDiscount}) : super(key: key);
 
-  List<String> imageFileNamesAlreadyFetched;
   ClubMeDiscount clubMeDiscount;
   late StateProvider stateProvider;
+  late FetchedContentProvider fetchedContentProvider;
   late CustomStyleClass customStyleClass;
   late double screenHeight, screenWidth;
   late String formattedWeekday;
@@ -75,16 +76,18 @@ class SmallDiscountTile extends StatelessWidget {
                   ),
                   child:
 
-                  imageFileNamesAlreadyFetched.contains(clubMeDiscount.getBannerId())?
+                  fetchedContentProvider.getFetchedBannerImageIds().contains(clubMeDiscount.getBigBannerFileName())?
                   Image(
                     image: FileImage(
-                        File("${stateProvider.appDocumentsDir.path}/${clubMeDiscount.getBannerId()}")),
+                        File("${stateProvider.appDocumentsDir.path}/${clubMeDiscount.getBigBannerFileName()}")),
                     fit: BoxFit.cover,
                   ): SizedBox(
                     height: screenHeight*0.1,
                     width: screenWidth*0.5,
-                    child: const Center(
-                      child: CircularProgressIndicator(),
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: customStyleClass.primeColor,
+                      ),
                     ),
                   )
                 )
@@ -185,6 +188,7 @@ class SmallDiscountTile extends StatelessWidget {
     screenHeight = MediaQuery.of(context).size.height;
     stateProvider = Provider.of<StateProvider>(context);
     customStyleClass = CustomStyleClass(context: context);
+    fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
 
     formatWeekday();
 

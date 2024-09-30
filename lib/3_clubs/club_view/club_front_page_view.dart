@@ -1713,7 +1713,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
     await File(filePath).exists().then((exists) async {
       if(!exists){
 
-        await _supabaseService.getBannerImage(fileName).then((imageFile) async {
+        await _supabaseService.getBannerImage(fileName, "").then((imageFile) async {
           await File(filePath).writeAsBytes(imageFile).then((onValue){
             setState(() {
               log.d("fetchAndSaveBannerImage: Finished successfully. Path: $dirPath/$fileName");

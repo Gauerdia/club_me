@@ -263,12 +263,14 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                 child: Center(
                     child: SizedBox(
                       height: screenHeight,
+                      width: screenWidth,
                       child: Image(
                         image: FileImage(
                             File(
-                                "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeClub.getBannerId()}"
-                            )
+                                "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeClub.getFrontpageBannerFileName()}",
+                            ),
                         ),
+                        fit:BoxFit.cover,
                       )
                     )
                 )
@@ -426,39 +428,13 @@ class _ClubDetailViewState extends State<ClubDetailView> {
               // opacity: 0.5,
               image: FileImage(
                   File(
-                      "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeClub.getBannerId()}"
+                      "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeClub.getSmallLogoFileName()}"
                   )
               ),
             ),
           ),
         ),
 
-        // Play button
-        // SizedBox(
-        //   width: screenWidth*0.25,
-        //   height: screenWidth*0.25,
-        //   child: Row(
-        //     mainAxisAlignment: MainAxisAlignment.spaceAround,
-        //     children: [
-        //       Container(
-        //         decoration: BoxDecoration(
-        //             color: customStyleClass.backgroundColorMain,
-        //             borderRadius: const BorderRadius.all(
-        //                 Radius.circular(45)
-        //             ),
-        //             border: Border.all(
-        //                 color: Colors.white,
-        //             ),
-        //         ),
-        //         child: Icon(
-        //           Icons.play_arrow,
-        //           size: customStyleClass.getIconSize1(),
-        //           color: customStyleClass.primeColor,
-        //         ),
-        //       )
-        //     ],
-        //   ),
-        // )
       ],
     ):
     Container(
@@ -476,7 +452,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
           fit: BoxFit.cover,
           image: FileImage(
               File(
-                  "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeClub.getBannerId()}"
+                  "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeClub.getSmallLogoFileName()}"
               )
           ),
         ),

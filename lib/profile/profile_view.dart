@@ -94,6 +94,9 @@ class _ProfileViewState extends State<ProfileView> {
             children: [
               // Headline
               Container(
+                padding: const EdgeInsets.only(
+                  right: 20
+                ),
                   alignment: Alignment.bottomCenter,
                   height: 50,
                   width: screenWidth,
