@@ -1,6 +1,5 @@
 import UIKit
 import Flutter
-import workmanager
 import GoogleMaps
 
 @UIApplicationMain

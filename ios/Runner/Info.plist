@@ -73,14 +73,6 @@
     <key>NSMotionUsageDescription</key>
     <string>Needed for the location service</string>
 
-    <key>BGTaskSchedulerPermittedIdentifiers</key>
-    <array>
-        <string>task-identifier</string>
-
-        <!-- Register a periodic task in iOS 13+ -->
-        <string>be.tramckrijte.workmanagerExample.iOSBackgroundAppRefresh</string>
-    </array>
-
     <key>UIBackgroundModes</key>
     <array>
       <string>processing</string>
