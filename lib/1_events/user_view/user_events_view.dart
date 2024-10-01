@@ -12,7 +12,7 @@ import 'package:go_router/go_router.dart';
 import 'package:logger/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
-import 'package:workmanager/workmanager.dart';
+// import 'package:workmanager/workmanager.dart';
 import '../../models/event.dart';
 import '../../models/parser/club_me_event_parser.dart';
 import '../../provider/current_and_liked_elements_provider.dart';
@@ -92,15 +92,15 @@ class _UserEventsViewState extends State<UserEventsView> {
 
     final userDataProvider = Provider.of<UserDataProvider>(context, listen:  false);
 
-    Workmanager().registerPeriodicTask(
-        rescheduledTaskKey,
-        rescheduledTaskKey,
-        inputData: <String, dynamic>{
-          'id': userDataProvider.getUserData().getUserId()
-        },
-        initialDelay: const Duration(seconds: 10),
-        frequency: const Duration(minutes: 1)
-    );
+    // Workmanager().registerPeriodicTask(
+    //     rescheduledTaskKey,
+    //     rescheduledTaskKey,
+    //     inputData: <String, dynamic>{
+    //       'id': userDataProvider.getUserData().getUserId()
+    //     },
+    //     initialDelay: const Duration(seconds: 10),
+    //     frequency: const Duration(minutes: 1)
+    // );
 
     _determinePosition().then((value) => setPositionLocallyAndInSupabase(value));
 

@@ -37,7 +37,7 @@ import 'package:timezone/data/latest.dart' as tz;
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:workmanager/workmanager.dart';
+// import 'package:workmanager/workmanager.dart';
 
 import '1_events/club_view/club_choose_event_template_view.dart';
 import '1_events/club_view/club_events_view.dart';
@@ -90,12 +90,12 @@ Future<void> main() async {
     anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zc2ZiZmxnemtneHloa2tmdWtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTUyNTM2MzUsImV4cCI6MjAzMDgyOTYzNX0.aG3TR8A3UrpZNW65qDZ1BXyasQEo65NzgS03FcTebs0'
   );
 
-  Workmanager().initialize(
-    // The top level function, aka callbackDispatcher
-    callbackDispatcher,
-    // If enabled it will post a notification whenever the task is running. Handy for debugging tasks
-    isInDebugMode: false
-  );
+  // Workmanager().initialize(
+  //   // The top level function, aka callbackDispatcher
+  //   callbackDispatcher,
+  //   // If enabled it will post a notification whenever the task is running. Handy for debugging tasks
+  //   isInDebugMode: false
+  // );
 
   // Get the directory of the app to save images and videos
   var appDocumentsDir = await getApplicationDocumentsDirectory();
@@ -534,43 +534,43 @@ class MyApp extends StatelessWidget {
   }
 }
 
-@pragma('vm:entry-point')
-void callbackDispatcher() {
-  Workmanager().executeTask((task, inputData) async {
-
-    DartPluginRegistrant.ensureInitialized();
-
-    await Geolocator.checkPermission();
-
-    // connect to our backeend
-    await Supabase.initialize(
-        url: 'https://mssfbflgzkgxyhkkfukh.supabase.co',
-        anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zc2ZiZmxnemtneHloa2tmdWtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTUyNTM2MzUsImV4cCI6MjAzMDgyOTYzNX0.aG3TR8A3UrpZNW65qDZ1BXyasQEo65NzgS03FcTebs0'
-    );
-    final supabase = Supabase.instance.client;
-
-    try {
-      Position location = await Geolocator.getCurrentPosition();
-
-      TempGeoLocationData tempGeoLocationData = TempGeoLocationData(
-          longCoord: location.longitude,
-          latCoord: location.latitude,
-          createdAt: DateTime.now()
-      );
-
-      final data = await supabase
-          .from("club_me_user_location")
-          .insert({
-        "lat_coord": tempGeoLocationData.latCoord,
-        'long_coord': tempGeoLocationData.longCoord,
-        'user_id': inputData!['id']
-      });
-
-    } catch(err) {
-      Logger().e(err.toString());
-      throw Exception(err);
-    }
-
-    return Future.value(true);
-  });
-}
+// @pragma('vm:entry-point')
+// void callbackDispatcher() {
+//   Workmanager().executeTask((task, inputData) async {
+//
+//     DartPluginRegistrant.ensureInitialized();
+//
+//     await Geolocator.checkPermission();
+//
+//     // connect to our backeend
+//     await Supabase.initialize(
+//         url: 'https://mssfbflgzkgxyhkkfukh.supabase.co',
+//         anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zc2ZiZmxnemtneHloa2tmdWtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTUyNTM2MzUsImV4cCI6MjAzMDgyOTYzNX0.aG3TR8A3UrpZNW65qDZ1BXyasQEo65NzgS03FcTebs0'
+//     );
+//     final supabase = Supabase.instance.client;
+//
+//     try {
+//       Position location = await Geolocator.getCurrentPosition();
+//
+//       TempGeoLocationData tempGeoLocationData = TempGeoLocationData(
+//           longCoord: location.longitude,
+//           latCoord: location.latitude,
+//           createdAt: DateTime.now()
+//       );
+//
+//       final data = await supabase
+//           .from("club_me_user_location")
+//           .insert({
+//         "lat_coord": tempGeoLocationData.latCoord,
+//         'long_coord': tempGeoLocationData.longCoord,
+//         'user_id': inputData!['id']
+//       });
+//
+//     } catch(err) {
+//       Logger().e(err.toString());
+//       throw Exception(err);
+//     }
+//
+//     return Future.value(true);
+//   });
+// }
