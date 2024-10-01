@@ -73,11 +73,6 @@
     <key>NSMotionUsageDescription</key>
     <string>Needed for the location service</string>
 
-    <key>UIBackgroundModes</key>
-    <array>
-      <string>processing</string>
-      <string>fetch</string>
-      <string>location</string>
-    </array>
+
 </dict>
 </plist>
