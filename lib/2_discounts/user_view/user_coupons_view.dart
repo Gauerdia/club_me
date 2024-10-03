@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:club_me/models/discount.dart';
+import 'package:club_me/models/hive_models/5_club_me_used_discount.dart';
 import 'package:club_me/models/parser/local_discount_to_discount_parser.dart';
+import 'package:club_me/services/check_and_fetch_service.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
@@ -42,6 +44,8 @@ class _UserCouponsViewState extends State<UserCouponsView>
 
   final HiveService _hiveService = HiveService();
   final SupabaseService _supabaseService = SupabaseService();
+  final CheckAndFetchService _checkAndFetchService = CheckAndFetchService();
+
   final TextEditingController _textEditingController = TextEditingController();
 
   bool dbFetchComplete = false;
@@ -51,23 +55,32 @@ class _UserCouponsViewState extends State<UserCouponsView>
   String searchValue = "";
   int _currentPageIndex = 0;
 
-  // All elements that lie in the future and by that are worth to display
-  List<ClubMeDiscount> upcomingDiscounts = [];
   // A dynamic array that considers all filters.
   List<ClubMeDiscount> discountsToDisplay = [];
 
   @override
   void initState() {
     super.initState();
+
+    // Controllers for the swipe view
     _pageViewController = PageController();
     _tabController = TabController(length: 3, vsync: this);
 
     final fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
 
+    _hiveService.getUsedDiscounts().then((usedDiscounts) => fetchedContentProvider.setUsedDiscounts(usedDiscounts));
+
+    // Get and process data
     if(fetchedContentProvider.getFetchedDiscounts().isEmpty) {
       fetchLocalDiscountsFromHive();
-      getDiscounts = _supabaseService.getAllDiscounts();
+      _supabaseService.getAllDiscounts().then((data) => processDiscountsFromQuery(data));
+    }else{
+      processDiscountsFromProvider(fetchedContentProvider);
     }
+
+
+    // Fetch from db or from provider
+    getAllLikedDiscounts();
 
   }
   @override
@@ -76,6 +89,78 @@ class _UserCouponsViewState extends State<UserCouponsView>
     _pageViewController.dispose();
     _tabController.dispose();
   }
+
+  void initGeneralSettings(){
+    stateProvider = Provider.of<StateProvider>(context);
+    userDataProvider = Provider.of<UserDataProvider>(context);
+    fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
+    currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context);
+
+    screenWidth = MediaQuery.of(context).size.width;
+    screenHeight = MediaQuery.of(context).size.height;
+
+    customStyleClass = CustomStyleClass(context: context);
+
+  }
+
+
+  void processDiscountsFromQuery(var data){
+
+    for(var element in data){
+
+      ClubMeDiscount currentDiscount = parseClubMeDiscount(element);
+
+      if(checkIfIsUpcomingDiscount(currentDiscount)){
+        if(!fetchedContentProvider.getFetchedDiscounts().contains(currentDiscount) &&
+           !checkIfAnyRestrictionsApply(currentDiscount)){
+          fetchedContentProvider.addDiscountToFetchedDiscounts(currentDiscount);
+        }
+      }
+    }
+
+    // Check if we need to download the corresponding images
+    _checkAndFetchService.checkAndFetchDiscountImages(
+        fetchedContentProvider.getFetchedDiscounts(),
+        stateProvider,
+        fetchedContentProvider
+    );
+
+
+  }
+  void processDiscountsFromProvider(FetchedContentProvider fetchedContentProvider){
+    // Events in the provider ought to have all images fetched, already. So, we just sort.
+    // checkDiscountsForRestrictions(fetchedContentProvider.getFetchedDiscounts());
+  }
+  void processDiscountsFromHive(var data){
+
+    for(ClubMeLocalDiscount currentLocalDiscount in data){
+
+      ClubMeDiscount currentDiscount = localDiscountToDiscountParser(currentLocalDiscount);
+
+      // If the user didn't open the app for some time, some discounts might
+      // be expired. To check this, we get the current date
+      if(checkIfIsUpcomingDiscount(currentDiscount)){
+        if(!fetchedContentProvider.getFetchedDiscounts().contains(currentDiscount)){
+          fetchedContentProvider.addDiscountToFetchedDiscounts(currentDiscount);
+          discountsToDisplay.add(currentDiscount);
+        }
+      }else{
+        // Cleanse, if not applicable anymore
+        _hiveService.deleteLocalDiscount(currentDiscount.discountId);
+      }
+
+    }
+
+    // Check if we need to download the corresponding images
+    _checkAndFetchService.checkAndFetchDiscountImages(
+        fetchedContentProvider.getFetchedDiscounts(),
+        stateProvider,
+        fetchedContentProvider
+    );
+
+  }
+
+
 
 
   // CLICKED
@@ -176,116 +261,6 @@ class _UserCouponsViewState extends State<UserCouponsView>
         });
       },
     );
-  }
-  Widget _buildSupabaseDiscounts(
-      StateProvider stateProvider,
-      double screenHeight
-      ){
-
-    // Only fetch from web when we have not yet fetched
-    return fetchedContentProvider.getFetchedDiscounts().isEmpty ?
-    FutureBuilder(
-        future: getDiscounts,
-        builder: (context, snapshot){
-
-          if(snapshot.hasError){
-            print("Error: ${snapshot.error}");
-          }
-
-          if(!snapshot.hasData){
-
-
-            // Check if there is anything local to display
-            if(discountsToDisplay.isNotEmpty){
-              return _buildSwipeView();
-            }else{
-              return Center(
-                child: CircularProgressIndicator(
-                    color: customStyleClass.primeColor
-                ),
-              );
-            }
-          }else{
-
-            final data = snapshot.data!;
-
-            // get today in correct format to check which events are upcoming
-            var todayRaw = DateTime.now();
-            var today = DateFormat('yyyy-MM-dd').format(todayRaw);
-            var todayFormatted = DateTime.parse(today);
-
-            // The function will be called twice after the response. Here, we avoid to fill the array twice as well.
-            if(!dbFetchComplete){
-              for(var element in data){
-
-                ClubMeDiscount currentDiscount = parseClubMeDiscount(element);
-
-                // Show only events that are not yet in the past.
-                if(
-                  currentDiscount.getDiscountDate().isAfter(todayFormatted)
-                    || currentDiscount.getDiscountDate().isAtSameMomentAs(todayFormatted)
-                ){
-
-                  // Check if we need to fetch the image
-                  checkIfImageExistsLocally(currentDiscount.getBigBannerFileName()).then((exists){
-                    if(!exists){
-
-                        // Save the name so that we don't fetch the same image several times
-                        fetchAndSaveBannerImage(currentDiscount.getBigBannerFileName(), "discount_banner_images");
-
-                    // If already exists, we still check if it has been logged
-                    }else{
-                      if(
-                      !fetchedContentProvider
-                          .getFetchedBannerImageIds()
-                          .contains(currentDiscount.getBigBannerFileName())
-                      ){
-                        fetchedContentProvider.addFetchedBannerImageId(currentDiscount.getBigBannerFileName());
-                      }
-                    }
-                  });
-
-                  // maybe the discount is already part of the local ones?
-                  if(!checkIfDiscountIsAlreadyPresent(currentDiscount)){
-
-                    // Not yet part of the array? Add it for further processing.
-                    upcomingDiscounts.add(currentDiscount);
-
-                    // Doesn't exist yet on the local array? Add it to hive.
-                    _hiveService.addLocalDiscount(currentDiscount);
-                  }
-                }
-
-                // We collect all events so we don't have to reload them every time
-                fetchedContentProvider.addDiscountToFetchedDiscounts(currentDiscount);
-              }
-
-              // Sort so that the next events come up earliest
-              sortUpcomingDiscounts();
-              dbFetchComplete = true;
-            }
-
-            discountsToDisplay = upcomingDiscounts;
-
-            // Display something if there is anything
-            return discountsToDisplay.isNotEmpty ?
-            _buildSwipeView()
-            // Text, when no discounts available
-            : _buildNothingToDisplay();
-          }
-        }
-    ) : _getDiscountsFromProviderAndBuildSwipeView();
-  }
-
-  Widget _getDiscountsFromProviderAndBuildSwipeView(){
-
-      discountsToDisplay = [];
-      for(var discount in fetchedContentProvider.getFetchedDiscounts()){
-        discountsToDisplay.add(discount);
-      }
-
-      return discountsToDisplay.isNotEmpty ? _buildSwipeView(): _buildNothingToDisplay();
-
   }
 
   AppBar _buildAppBarWithSearch(){
@@ -425,26 +400,6 @@ class _UserCouponsViewState extends State<UserCouponsView>
     );
   }
 
-  Future<bool> checkIfImageExistsLocally(String fileName) async{
-    final String dirPath = stateProvider.appDocumentsDir.path;
-    return await File('$dirPath/$fileName').exists();
-  }
-
-
-  void fetchAndSaveBannerImage(String fileName, String folder) async {
-    var imageFile = await _supabaseService.getBannerImage(fileName, folder);
-
-    final String dirPath = stateProvider.appDocumentsDir.path;
-
-    await File("$dirPath/$fileName").writeAsBytes(imageFile).then((onValue){
-      setState(() {
-        log.d("fetchAndSaveBannerImage: Finished successfully. Path: $dirPath/$fileName");
-        sleep(const Duration(seconds: 2));
-        fetchedContentProvider.addFetchedBannerImageId(fileName);
-      });
-    });
-  }
-
   // FILTER
   void filterDiscounts(){
 
@@ -456,7 +411,7 @@ class _UserCouponsViewState extends State<UserCouponsView>
       discountsToDisplay = [];
 
       // Fetch favorites
-      for(var discount in upcomingDiscounts){
+      for(var discount in fetchedContentProvider.getFetchedDiscounts()){
         if(checkIfIsLiked(discount)){
           favoritesToDisplay.add(discount);
         }
@@ -479,7 +434,7 @@ class _UserCouponsViewState extends State<UserCouponsView>
           }
           // If not: Fill the other array
         }else{
-          for(var discount in upcomingDiscounts){
+          for(var discount in fetchedContentProvider.getFetchedDiscounts()){
 
             String allInformationLowerCase = "${discount.getDiscountTitle()} ${discount
                 .getClubName()}".toLowerCase();
@@ -497,7 +452,7 @@ class _UserCouponsViewState extends State<UserCouponsView>
       }
       // If no fav's and no search results are wanted, we are done already
     }else{
-      discountsToDisplay = upcomingDiscounts;
+      discountsToDisplay = fetchedContentProvider.getFetchedDiscounts();
     }
 
     discountsToDisplay.sort((a,b) => b.priorityScore.compareTo(a.priorityScore));
@@ -509,81 +464,10 @@ class _UserCouponsViewState extends State<UserCouponsView>
       filterDiscounts();
     });
   }
-  void sortUpcomingDiscounts(){
-    upcomingDiscounts.sort((a,b) =>
-        a.getDiscountDate().millisecondsSinceEpoch.compareTo(b.getDiscountDate().millisecondsSinceEpoch)
-    );
-  }
-  void sortDiscountsIntoUpcomingDiscounts(StateProvider stateProvider){
-
-    var todayRaw = DateTime.now();
-    var today = DateFormat('yyyy-MM-dd').format(todayRaw);
-    var todayFormatted = DateTime.parse(today);
-
-    for(var currentDiscount in fetchedContentProvider.getFetchedDiscounts()){
-
-      // Show only events that are yet to come
-      if(
-      currentDiscount.getDiscountDate().isAfter(todayFormatted)
-          || currentDiscount.getDiscountDate().isAtSameMomentAs(todayFormatted)){
-
-        // Check if any gender has been specified
-        if(currentDiscount.getTargetGender() != 0){
-          if(currentDiscount.getTargetGender() == userDataProvider.getUserData().getGender()){
-            upcomingDiscounts.add(currentDiscount);
-          }
-        }else{
-          upcomingDiscounts.add(currentDiscount);
-        }
-      }
-    }
-  }
-
-
-  // MISC FUNCTIONS
   void fetchLocalDiscountsFromHive() async{
 
-      // If the user didn't open the app for some time, some discounts might
-      // be expired. To check this, we get the current date
-      var today = DateFormat('yyyy-MM-dd').format(DateTime.now());
-      var todayFormatted = DateTime.parse(today);
-
       try{
-        _hiveService.getAllLocalDiscounts().then((data){
-
-          for(ClubMeLocalDiscount currentLocalDiscount in data){
-
-            ClubMeDiscount tempDiscount = localDiscountToDiscountParser(currentLocalDiscount);
-
-            // Show only events that are not yet in the past.
-            if(
-            tempDiscount.getDiscountDate().isAfter(todayFormatted)
-                || tempDiscount.getDiscountDate().isAtSameMomentAs(todayFormatted)
-            ){
-
-              // Check if we need to fetch the image
-              checkIfImageExistsLocally(tempDiscount.getBigBannerFileName()).then((exists){
-                if(!exists){
-
-                  // If we haven't started to fetch the image yet, we ought to
-                  if(!fetchedContentProvider.getFetchedBannerImageIds().contains(tempDiscount.getBigBannerFileName())){
-                    fetchAndSaveBannerImage(tempDiscount.getBannerId(), "discount_banner_images");
-                  }
-                }else{
-                  fetchedContentProvider.addFetchedBannerImageId(tempDiscount.getBigBannerFileName());
-                }
-              });
-
-              if(!upcomingDiscounts.contains(tempDiscount)){
-                upcomingDiscounts.add(tempDiscount);
-              }
-            }
-            // Cleanse, if not applicable anymore
-            else{
-              _hiveService.deleteLocalDiscount(tempDiscount.discountId);
-            }
-          }
-        });
+        _hiveService.getAllLocalDiscounts().then((data) => processDiscountsFromHive(data));
         // If db-fetching takes a moment, we want to display the current state.
         setState(() {});
       }catch(e){
@@ -591,26 +475,7 @@ class _UserCouponsViewState extends State<UserCouponsView>
       }
   }
 
-  bool checkIfDiscountIsAlreadyPresent(ClubMeDiscount clubMeDiscount){
 
-    int counter = 0;
-
-    for(var element in upcomingDiscounts){
-
-      // Check, if there is one with the same id
-      if(element.discountId == clubMeDiscount.discountId){
-
-        // Maybe a field changed? We have to update the element
-        if(element != clubMeDiscount){
-          upcomingDiscounts[counter] = clubMeDiscount;
-          _hiveService.updateLocalDiscount(element);
-        }
-        return true;
-      }
-      counter++;
-    }
-    return false;
-  }
 
   void _handlePageViewChanged(int currentPageIndex) {
     _tabController.index = currentPageIndex;
@@ -618,6 +483,9 @@ class _UserCouponsViewState extends State<UserCouponsView>
       _currentPageIndex = currentPageIndex;
     });
   }
+
+
+  // CHECK
 
   bool checkIfIsLiked(ClubMeDiscount currentDiscount) {
     var isLiked = false;
@@ -627,34 +495,90 @@ class _UserCouponsViewState extends State<UserCouponsView>
     }
     return isLiked;
   }
+  bool checkIfDiscountIsAlreadyPresent(ClubMeDiscount clubMeDiscount){
+
+    for(var element in fetchedContentProvider.getFetchedDiscounts()){
+
+      // Check, if there is one with the same id
+      if(element.discountId == clubMeDiscount.discountId){
+
+        // Maybe a field changed? We have to update the element
+        if(element != clubMeDiscount){
+          fetchedContentProvider.updateSpecificDiscount(clubMeDiscount.getDiscountId(), clubMeDiscount);
+          _hiveService.updateLocalDiscount(element);
+        }
+        return true;
+      }
+    }
+    return false;
+  }
+  bool checkIfAnyRestrictionsApply(ClubMeDiscount currentDiscount) {
+
+    print("begin: " + currentDiscount.getDiscountTitle());
+
+      int userAge = userDataProvider.getUserData().getUserAge();
+
+      if(currentDiscount.getTargetGender() != 0 &&
+          currentDiscount.getTargetGender() != userDataProvider.getUserData().getGender()){
+        return true;
+      }
+
+      // age limit
+      if(currentDiscount.hasAgeLimit){
+        if(currentDiscount.getAgeLimitLowerLimit() > userAge ||
+            currentDiscount.getAgeLimitUpperLimit() < userAge){
+          return true;
+        }
+      }
+
+      // usage limit
+      if(currentDiscount.hasUsageLimit){
+        for(ClubMeUsedDiscount usedDiscount in fetchedContentProvider.getUsedDiscounts()){
+          if(currentDiscount.getDiscountId() == usedDiscount.discountId &&
+              usedDiscount.howManyTimes >= currentDiscount.getNumberOfUsages()){
+            return true;
+          }
+        }
+      }
+
+      if(
+      currentDiscount.hasTimeLimit &&
+          !currentDiscount.getDiscountDate().isAfter(stateProvider.getBerlinTime())
+      ){
+        return true;
+      }
 
 
+      return false;
+  }
+
+  bool checkIfIsUpcomingDiscount(ClubMeDiscount currentDiscount){
+
+    // We are only interested in the upcoming events. Here, we sort for them
+    if(currentDiscount.getDiscountDate().isAfter(stateProvider.getBerlinTime()) ||
+        currentDiscount.getDiscountDate().isAtSameMomentAs(stateProvider.getBerlinTime())){
+      return true;
+    }
+    return false;
+  }
 
   @override
   Widget build(BuildContext context) {
 
-    stateProvider = Provider.of<StateProvider>(context);
-    userDataProvider = Provider.of<UserDataProvider>(context);
-    fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
-    currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context);
 
-    screenWidth = MediaQuery.of(context).size.width;
-    screenHeight = MediaQuery.of(context).size.height;
+    initGeneralSettings();
 
-    customStyleClass = CustomStyleClass(context: context);
 
-    // Fetch from db or from provider
-    getAllLikedDiscounts();
-
-    // If no discounts locally available, get from provider
-    if(upcomingDiscounts.isEmpty){
-      sortDiscountsIntoUpcomingDiscounts(stateProvider);
+    if(fetchedContentProvider.getFetchedDiscounts().isNotEmpty){
+      processDiscountsFromProvider(fetchedContentProvider);
     }
 
     // If no discounts fulfill the filters, check if that's still the case
     if(discountsToDisplay.isEmpty){
       filterDiscounts();
     }
+
+
 
     return Scaffold(
 
@@ -675,7 +599,31 @@ class _UserCouponsViewState extends State<UserCouponsView>
               // Spacer
               SizedBox(height: screenHeight*0.05,),
 
-              _buildSupabaseDiscounts(stateProvider, screenHeight),
+              discountsToDisplay.isNotEmpty ?
+                _buildSwipeView() :
+                onlyFavoritesIsActive ?
+                  SizedBox(
+                    width: screenWidth,
+                    height: screenHeight*0.8,
+                    child: Center(
+                      child: Text(
+                        textAlign: TextAlign.center,
+                        "Derzeit sind keine Events als Favoriten markiert.",
+                        style: customStyleClass.getFontStyle3(),
+                      ),
+                    ),
+                  ):
+                isSearchbarActive?
+                      _buildNothingToDisplay():
+                  SizedBox(
+                    width: screenWidth,
+                    height: screenHeight*0.6,
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: customStyleClass.primeColor,
+                      ),
+                    ),
+                  ),
 
 
               // Page arrows

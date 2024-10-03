@@ -29,29 +29,34 @@ class _UserClubsViewState extends State<UserClubsView>
   var log = Logger();
   String headline = "Clubs";
 
-  late Future getClubs;
+  // late Future getClubs;
+
   late String dropdownValue;
+
   late StateProvider stateProvider;
   late FetchedContentProvider fetchedContentProvider;
-  late TabController _tabController;
-  late CustomStyleClass customStyleClass;
+  late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
+
   late double screenHeight, screenWidth;
-  late PageController _pageViewController;
+  late CustomStyleClass customStyleClass;
 
   final SupabaseService _supabaseService = SupabaseService();
+  final CheckAndFetchService _checkAndFetchService = CheckAndFetchService();
+
+  late TabController _tabController;
+  late PageController _pageViewController;
   final TextEditingController _textEditingController = TextEditingController();
-  final CheckAndFetchService checkAndFetchService = CheckAndFetchService();
+
 
   String searchValue = "";
   int _currentPageIndex = 0;
-  late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
+
+  bool dataFetched = false;
 
   bool isSearchbarActive = false;
   bool isAnyFilterActive = false;
   bool isFilterMenuActive = false;
   bool onlyFavoritesIsActive = false;
-
-  Color navigationBackgroundColor = const Color(0xff11181f);
 
   List<String> genresDropdownList = [
     "Alle", "Latin", "Rock", "Hip-Hop", "Electronic", "Pop", "Reggaeton", "Afrobeats",
@@ -60,21 +65,6 @@ class _UserClubsViewState extends State<UserClubsView>
   ];
   List<ClubMeClub> clubsToDisplay = [];
 
-  BoxDecoration gradientDecoration = const BoxDecoration(
-    gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          Color(0xff2b353d),
-          Color(0xff11181f)
-        ],
-        stops: [0.15, 0.6]
-    ),
-  );
-  BoxDecoration plainBlackDecoration = const BoxDecoration(
-      color: Colors.black,
-      // image: DecorationImage(image: AssetImage("assets/images/club_me_icon_round.png"))
-  );
 
   @override
   void initState() {
@@ -87,7 +77,7 @@ class _UserClubsViewState extends State<UserClubsView>
     final stateProvider = Provider.of<StateProvider>(context, listen:  false);
     final fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
     if(fetchedContentProvider.getFetchedClubs().isEmpty) {
-      getClubs = _supabaseService.getAllClubs();
+      _supabaseService.getAllClubs().then((data) => processClubsFromQuery(data));
     }
 
     super.initState();
@@ -97,6 +87,37 @@ class _UserClubsViewState extends State<UserClubsView>
     super.dispose();
     _pageViewController.dispose();
     _tabController.dispose();
+  }
+
+
+  void processClubsFromQuery(var data){
+
+    setState(() {
+      dataFetched = true;
+    });
+
+    for(var element in data){
+
+      ClubMeClub currentClub = parseClubMeClub(element);
+
+      if(!fetchedContentProvider.getFetchedClubs().contains(currentClub)){
+        fetchedContentProvider.addClubToFetchedClubs(currentClub);
+      }
+    }
+
+    // Check if we need to download the corresponding images
+    _checkAndFetchService.checkAndFetchClubImages(
+        fetchedContentProvider.getFetchedClubs(),
+        stateProvider,
+        fetchedContentProvider,
+      false
+    );
+
+    filterClubs();
+
+  }
+  void processClubsFromProvider(){
+
   }
 
 
@@ -415,119 +436,17 @@ class _UserClubsViewState extends State<UserClubsView>
       ),
     );
   }
-  Widget _buildSupabaseClubs(StateProvider stateProvider){
 
-    if(fetchedContentProvider.getFetchedClubs().isEmpty ){
 
-      return FutureBuilder(
-          future: getClubs,
-          builder: (context, snapshot){
+  Widget _buildPageView(){
+    return SingleChildScrollView(
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
 
-            if(snapshot.hasError){
-              print("Error: ${snapshot.error}");
-            }
-
-            if(!snapshot.hasData){
-              return Center(
-                child: CircularProgressIndicator(
-                  color: customStyleClass.primeColor,
-                ),
-              );
-            }else{
-
-              final data = snapshot.data!;
-
-              List<ClubMeClub> fetchedClubMeClubs = [];
-
-              for(var element in data){
-                ClubMeClub currentClub = parseClubMeClub(element);
-                fetchedClubMeClubs.add(currentClub);
-              }
-
-              if(clubsToDisplay.isEmpty){
-                checkAndFetchService.checkAndFetchClubImages(
-                    fetchedClubMeClubs,
-                    stateProvider,
-                    fetchedContentProvider);
-              }
-
-              filterClubs();
-
-              fetchedContentProvider.setFetchedClubs(fetchedClubMeClubs);
-
-              return SingleChildScrollView(
-                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-
-                    if(clubsToDisplay.isNotEmpty)
-                      SizedBox(
-                        height: screenHeight*0.73,
-                        width: screenWidth,
-                        child: PageView(
-                          controller: _pageViewController,
-                          onPageChanged: _handlePageViewChanged,
-                          children: <Widget>[
-
-                            for(var club in clubsToDisplay)
-                              ClubCard(
-                                events: fetchedContentProvider.getFetchedEvents().where((event){
-                                  return (event.getClubId() == club.getClubId() && checkIfIsEventIsAfterToday(event));
-                                }).toList(),
-                                clubMeClub: club,
-                                triggerSetState: triggerSetState,
-                                clickedOnShare: clickedOnShare,
-                              )
-                          ],
-                        ),
-                      ),
-                    if(clubsToDisplay.isEmpty)
-                      SizedBox(
-                        height: screenHeight*0.8,
-                        width: screenWidth,
-                        child: Center(
-                          child: Text(
-                            onlyFavoritesIsActive ? "Derzeit sind keine Clubs als Favoriten markiert.":
-                              "Derzeit sind keine Clubs verfügbar.",
-                            style: customStyleClass.getFontStyle3(),
-                          )
-                          ,
-                        ),
-                      ),
-
-                  ],
-                ),
-              );
-            }
-          }
-      );
-    }else{
-
-      if(clubsToDisplay.isEmpty){
-        checkAndFetchService.checkAndFetchClubImages(
-            fetchedContentProvider.getFetchedClubs(),
-            stateProvider,
-            fetchedContentProvider
-        );
-      }else{
-        checkAndFetchService.checkAndFetchClubImages(
-            clubsToDisplay,
-            stateProvider,
-            fetchedContentProvider
-        );
-      }
-
-      filterClubs();
-
-      return SingleChildScrollView(
-        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-
-            if(clubsToDisplay.isNotEmpty)
-            Container(
+          if(clubsToDisplay.isNotEmpty)
+            SizedBox(
               height: screenHeight*0.73,
               width: screenWidth,
               child: PageView(
@@ -536,36 +455,36 @@ class _UserClubsViewState extends State<UserClubsView>
                 children: <Widget>[
 
                   for(var club in clubsToDisplay)
-                    Center(
-                      child: ClubCard(
-                        events: fetchedContentProvider.getFetchedEvents().where((event){
-                          return (event.getClubId() == club.getClubId() && checkIfIsEventIsAfterToday(event));
-                        }).toList(),
-                        clubMeClub: club,
-                        triggerSetState: triggerSetState,
-                        clickedOnShare: clickedOnShare
-                      ),
-                    ),
+                    ClubCard(
+                      events: fetchedContentProvider.getFetchedEvents().where((event){
+                        return (event.getClubId() == club.getClubId() && checkIfIsEventIsAfterToday(event));
+                      }).toList(),
+                      clubMeClub: club,
+                      triggerSetState: triggerSetState,
+                      clickedOnShare: clickedOnShare,
+                    )
                 ],
               ),
             ),
-            if(clubsToDisplay.isEmpty)
-              SizedBox(
-                height: screenHeight*0.8,
-                width: screenWidth,
-                child: Center(
-                  child: Text(
-                    onlyFavoritesIsActive ? "Derzeit sind keine Clubs als Favoriten markiert.":
-                    "Derzeit sind keine Clubs verfügbar.",
-                    style: customStyleClass.getFontStyle3(),
-                  ),
-                ),
+          if(clubsToDisplay.isEmpty)
+            SizedBox(
+              height: screenHeight*0.8,
+              width: screenWidth,
+              child: Center(
+                child: Text(
+                  onlyFavoritesIsActive ? "Derzeit sind keine Clubs als Favoriten markiert.":
+                  "Derzeit sind keine Clubs verfügbar.",
+                  style: customStyleClass.getFontStyle3(),
+                )
+                ,
               ),
-          ],
-        ),
-      );
-    }
+            ),
+
+        ],
+      ),
+    );
   }
+
 
   Widget _buildFilterMenu(){
     return Container(
@@ -635,14 +554,21 @@ class _UserClubsViewState extends State<UserClubsView>
   @override
   Widget build(BuildContext context) {
 
-    stateProvider = Provider.of<StateProvider>(context);
-    fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
-    screenWidth = MediaQuery.of(context).size.width;
-    screenHeight = MediaQuery.of(context).size.height;
-    currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context);
     customStyleClass = CustomStyleClass(context: context);
 
+    screenWidth = MediaQuery.of(context).size.width;
+    screenHeight = MediaQuery.of(context).size.height;
+
+    stateProvider = Provider.of<StateProvider>(context);
+    fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
+    currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context);
+
     filterClubs();
+
+    // We only want to display the loading at the first launch
+    if(fetchedContentProvider.getFetchedClubs().isNotEmpty){
+      dataFetched = true;
+    }
 
     return Scaffold(
 
@@ -669,15 +595,45 @@ class _UserClubsViewState extends State<UserClubsView>
               children: [
 
                 // Pageview of the club cards
+
                 SizedBox(
                     height: screenHeight*1,
-                    child: _buildSupabaseClubs(stateProvider)
+                    width: screenWidth,
+                    child: clubsToDisplay.isNotEmpty?
+                    _buildPageView() :  (isAnyFilterActive || isSearchbarActive) ?
+                    SizedBox(
+                      width: screenWidth,
+                      height: screenHeight*0.8,
+                      child: Center(
+                        child: Text(
+                          textAlign: TextAlign.center,
+                          "Entschuldigung, im Rahmen dieser Filter sind keine Events verfügbar.",
+                          style: customStyleClass.getFontStyle3(),
+                        ),
+                      ),
+                    ): onlyFavoritesIsActive ?
+                    SizedBox(
+                      width: screenWidth,
+                      height: screenHeight*0.8,
+                      child: Center(
+                        child: Text(
+                          textAlign: TextAlign.center,
+                          "Derzeit sind keine Events als Favoriten markiert.",
+                          style: customStyleClass.getFontStyle3(),
+                        ),
+                      ),
+                    ):
+                    Center(
+                      child: CircularProgressIndicator(
+                        color: customStyleClass.primeColor,
+                      ),
+                    )
                 ),
 
                 // Progress marker
                 if(clubsToDisplay.isNotEmpty)
                   Container(
-                    height: screenHeight*0.77,
+                    height: screenHeight*0.785,
                     alignment: Alignment.bottomCenter,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,

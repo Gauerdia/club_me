@@ -31,7 +31,7 @@ class ClubMeClub{
 
     required this.priorityScore,
     required this.openingTimes,
-    required this.frontPageImages,
+    required this.frontPageGalleryImages,
     required this.clubOffers,
 
     required this.smallLogoFileName,
@@ -67,7 +67,7 @@ class ClubMeClub{
   int priorityScore;
 
   OpeningTimes openingTimes;
-  FrontPageImages frontPageImages;
+  FrontPageGalleryImages frontPageGalleryImages;
   ClubOffers clubOffers;
 
   String smallLogoFileName, bigLogoFileName, frontpageBannerFileName;
@@ -125,11 +125,11 @@ class ClubMeClub{
     return clubOffers;
   }
 
-  FrontPageImages getFrontPageImages(){
-    return frontPageImages;
+  FrontPageGalleryImages getFrontPageGalleryImages(){
+    return frontPageGalleryImages;
   }
-  void setFrontPageImages(FrontPageImages newFrontPageImages){
-    frontPageImages = newFrontPageImages;
+  void setFrontPageImages(FrontPageGalleryImages newFrontPageGalleryImages){
+    frontPageGalleryImages = newFrontPageGalleryImages;
   }
 
 

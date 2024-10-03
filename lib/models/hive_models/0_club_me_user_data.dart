@@ -33,6 +33,12 @@ class ClubMeUserData{
   @HiveField(6)
   int profileType;
 
+  int getUserAge() {
+    Duration parse = DateTime.now().difference(getBirthDate()).abs();
+    return parse.inDays;
+    // return "${parse.inDays~/360} Years ${((parse.inDays%360)~/30)} Month ${(parse.inDays%360)%30} Days";
+  }
+
   String getUserId(){
     return userId;
   }

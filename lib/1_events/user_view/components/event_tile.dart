@@ -18,8 +18,8 @@ class EventTile extends StatelessWidget {
     Key? key,
     required this.clubMeEvent,
     required this.isLiked,
-    required this.clickedOnLike,
-    required this.clickedOnShare,
+    required this.clickEventLike,
+    required this.clickEventShare,
     this.showMaterialButton = false
   }) : super(key: key);
 
@@ -30,11 +30,12 @@ class EventTile extends StatelessWidget {
 
   late StateProvider stateProvider;
   late FetchedContentProvider fetchedContentProvider;
+
   late CustomStyleClass customStyleClass;
   late double screenHeight, screenWidth;
 
-  Function () clickedOnShare;
-  Function (StateProvider, String) clickedOnLike;
+  Function () clickEventShare;
+  Function (StateProvider, String) clickEventLike;
 
   String eventDjCut = "";
   String eventTitleCut = "";
@@ -54,7 +55,8 @@ class EventTile extends StatelessWidget {
 
 
   // CLICK
-  void clickOnInfo(BuildContext context){
+
+  void clickEventTicket(BuildContext context){
     Widget okButton = TextButton(
       child: Text(
           "OK",
@@ -90,7 +92,9 @@ class EventTile extends StatelessWidget {
     );
   }
 
+
   // FORMAT TEXTS
+
   void formatPrice(){
 
     var priceDecimalPosition = clubMeEvent.getEventPrice().toString().indexOf(".");
@@ -140,6 +144,7 @@ class EventTile extends StatelessWidget {
   }
 
   // BUILD
+
   Widget _buildStackView(BuildContext context){
 
     return Stack(
@@ -189,7 +194,7 @@ class EventTile extends StatelessWidget {
               children: [
 
                 // Image or loading indicator
-                fetchedContentProvider.getFetchedBannerImageIds().contains(clubMeEvent.getBannerId())?
+                fetchedContentProvider.getFetchedBannerImageIds().contains(clubMeEvent.getBannerImageFileName())?
                 SizedBox(
                   height: topHeight,
                   width: screenWidth,
@@ -201,7 +206,7 @@ class EventTile extends StatelessWidget {
                       child: Image(
                         image: FileImage(
                             File(
-                                "${stateProvider.appDocumentsDir.path}/${clubMeEvent.getBannerId()}"
+                                "${stateProvider.appDocumentsDir.path}/${clubMeEvent.getBannerImageFileName()}"
                             )
                         ),
                         fit: BoxFit.cover,
@@ -304,18 +309,16 @@ class EventTile extends StatelessWidget {
                 ),
 
                 // Location
-                Container(
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                        left: screenWidth*0.02,
-                        top: 26
-                    ),
-                    child: Align(
-                      alignment: Alignment.topLeft,
-                      child: Text(
-                          clubMeEvent.getClubName(),
-                          style:customStyleClass.getFontStyle5()
-                      ),
+                Padding(
+                  padding: EdgeInsets.only(
+                      left: screenWidth*0.02,
+                      top: 26
+                  ),
+                  child: Align(
+                    alignment: Alignment.topLeft,
+                    child: Text(
+                        clubMeEvent.getClubName(),
+                        style:customStyleClass.getFontStyle5()
                     ),
                   ),
                 ),
@@ -323,7 +326,7 @@ class EventTile extends StatelessWidget {
                 // DJ
                 Row(
                   children: [
-                    Container(
+                    SizedBox(
                       width: screenWidth*0.6,
                       child: Padding(
                         padding: EdgeInsets.only(
@@ -346,7 +349,7 @@ class EventTile extends StatelessWidget {
                 ),
 
                 // When
-                Container(
+                SizedBox(
                   height: bottomHeight,
                   child: Padding(
                     padding: EdgeInsets.only(
@@ -389,7 +392,7 @@ class EventTile extends StatelessWidget {
                                   ),
                                 ],
                               ),
-                              onTap: () => clickOnInfo(context),
+                              onTap: () => clickEventTicket(context),
                             ),
                           SizedBox(
                             width: screenWidth*0.02,
@@ -405,7 +408,7 @@ class EventTile extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            onTap: () => clickedOnLike(stateProvider, clubMeEvent.getEventId()),
+                            onTap: () => clickEventLike(stateProvider, clubMeEvent.getEventId()),
                           ),
                           SizedBox(
                             width: screenWidth*0.02,
@@ -421,7 +424,7 @@ class EventTile extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            onTap: () => clickedOnShare(),
+                            onTap: () => clickEventShare(),
                           )
                         ],
                       )
@@ -436,43 +439,6 @@ class EventTile extends StatelessWidget {
     );
   }
 
-  void fetchAndSaveBannerImage() async {
-
-    final Directory appDocumentsDir = await getApplicationDocumentsDirectory();
-    final String dirPath = appDocumentsDir.path;
-
-    bannerToDisplay =  File("$dirPath/${clubMeEvent.getBannerId()}");
-
-    var test = await File('$dirPath/${clubMeEvent.getBannerId()}').exists();
-
-  }
-
-  void checkIfClosed(){
-
-    for(var element in clubMeEvent.getOpeningTimes().days!){
-
-      // Catching the situation that the user checks the app after midnight.
-      // We want him to know that it's open but will close some time.
-      if(stateProvider.getBerlinTime().hour < 8){
-        if(element.day!-1 == stateProvider.getBerlinTime().weekday){
-          todaysClosingHour = element.closingHour!;
-          closedToday = false;
-          if(stateProvider.getBerlinTime().hour < todaysOpeningHour){
-            alreadyOpen = true;
-            if(todaysClosingHour - stateProvider.getBerlinTime().hour < 3){
-              lessThanThreeMoreHoursOpen = true;
-            }
-          }
-        }
-      }else{
-        if(element.day == stateProvider.getBerlinTime().weekday){
-          todaysOpeningHour = element.openingHour!;
-          closedToday = false;
-          if(stateProvider.getBerlinTime().hour >= todaysOpeningHour) alreadyOpen = true;
-        }
-      }
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -490,8 +456,6 @@ class EventTile extends StatelessWidget {
     formatDJName();
     formatEventTitle();
     formatDateToDisplay();
-
-    checkIfClosed();
 
     return Container(
       padding: EdgeInsets.only(

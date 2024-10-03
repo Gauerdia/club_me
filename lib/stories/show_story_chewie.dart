@@ -1,18 +1,17 @@
 import 'dart:typed_data';
 import 'dart:io' as io;
 import 'package:chewie/chewie.dart';
+import 'package:club_me/provider/current_and_liked_elements_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:no_screenshot/no_screenshot.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 import '../services/supabase_service.dart';
 import '../shared/custom_text_style.dart';
 
 class ShowStoryChewie extends StatefulWidget {
-  ShowStoryChewie({Key? key, required this.storyUUID, required this.clubName}) : super(key: key);
-
-  String storyUUID;
-  String clubName;
+  ShowStoryChewie({Key? key}) : super(key: key);
 
   @override
   State<ShowStoryChewie> createState() => _ShowStoryChewieState();
@@ -27,6 +26,7 @@ class _ShowStoryChewieState extends State<ShowStoryChewie>
   late VideoPlayerController _controller;
   final _noScreenshot = NoScreenshot.instance;
   final SupabaseService _supabaseService = SupabaseService();
+  late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
 
   late double screenHeight, screenWidth;
 
@@ -64,12 +64,14 @@ class _ShowStoryChewieState extends State<ShowStoryChewie>
 
   Future<void> initializePlayer() async {
 
+    currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context, listen:  false);
+
     late io.File file;
     late String filePath;
     late Uint8List? videoFile;
 
     try{
-      videoFile = await _supabaseService.getClubVideo(widget.storyUUID);
+      videoFile = await _supabaseService.getClubVideo(currentAndLikedElementsProvider.getCurrentClubStoryId());
 
       io.Directory tempDir = await getTemporaryDirectory();
       String tempPath = tempDir.path;
@@ -100,58 +102,10 @@ class _ShowStoryChewieState extends State<ShowStoryChewie>
     }
   }
 
-  // Widget test1(){
-  //   return Material(
-  //     child: Stack(
-  //       children: [
-  //
-  //         // Video screen
-  //         Container(
-  //             width: screenWidth,
-  //             height: screenHeight,
-  //             padding: EdgeInsets.only(top:screenHeight*0.02),
-  //             child:
-  //
-  //             _chewieController != null &&
-  //                 _chewieController!
-  //                     .videoPlayerController.value.isInitialized
-  //                 ? SizedBox(
-  //               width: screenWidth,
-  //               height: screenHeight*0.85, // 0.97
-  //               child: Chewie(
-  //                 controller: _chewieController!,
-  //               ),
-  //             ) : SizedBox(
-  //               width: screenWidth,
-  //               height: screenHeight,
-  //               child: Center(
-  //                 child: CircularProgressIndicator(
-  //                   color: customStyleClass.primeColor,
-  //                 ),
-  //               ),
-  //             )
-  //         ),
-  //
-  //         Container(
-  //           color: Color(0xff11181f),
-  //           width: screenWidth,
-  //           height: screenHeight*0.09,
-  //           alignment: Alignment.bottomRight,
-  //           child: IconButton(
-  //               onPressed: () => goBackClicked(),
-  //               icon: const Icon(
-  //                 Icons.clear,
-  //                 size: 30,
-  //               )
-  //           ),
-  //         )
-  //
-  //       ],
-  //     ),
-  //   );
-  // }
-
   Widget test2(){
+
+    currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context, listen:  false);
+
     return MaterialApp(
       title: "test",
       theme: ThemeData(
@@ -169,7 +123,7 @@ class _ShowStoryChewieState extends State<ShowStoryChewie>
                   child: Center(
                     child: Text(
                         textAlign: TextAlign.center,
-                        widget.clubName,
+                        currentAndLikedElementsProvider.currentClubMeClub.getClubName(),
                         style: customStyleClass.getFontStyleHeadline1Bold()
                     ),
                   ),

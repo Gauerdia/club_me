@@ -473,7 +473,7 @@ class _EventDetailViewState extends State<EventDetailView>{
                   child: Image(
                     image: FileImage(
                         File(
-                            "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeEvent.getBannerId()}"
+                            "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeEvent.getBannerImageFileName()}"
                         )
                     ),
                     fit: BoxFit.cover,

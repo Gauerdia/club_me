@@ -1,9 +1,9 @@
-class FrontPageImages {
+class FrontPageGalleryImages {
   List<Images>? images;
 
-  FrontPageImages({this.images});
+  FrontPageGalleryImages({this.images});
 
-  FrontPageImages.fromJson(Map<String, dynamic> json) {
+  FrontPageGalleryImages.fromJson(Map<String, dynamic> json) {
     if (json['images'] != null) {
       images = <Images>[];
       json['images'].forEach((v) {

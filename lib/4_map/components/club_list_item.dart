@@ -43,9 +43,6 @@ class ClubListItem extends StatelessWidget {
       genreToReturn = currentClub.getMusicGenres();
     }
 
-    // if(genreToReturn.length>6){
-    //   genreToReturn = "${genreToReturn.substring(0, 5)}...";
-    // }
     return genreToReturn;
 
   }
@@ -136,13 +133,13 @@ class ClubListItem extends StatelessWidget {
                             Container(
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: Colors.white,
+                                color: Colors.black,
                                 image: DecorationImage(
                                   fit: BoxFit.cover,
                                   image:
                                   FileImage(
                                       File(
-                                          "${stateProvider.appDocumentsDir.path}/${currentClub.getBannerId()}"
+                                          "${stateProvider.appDocumentsDir.path}/${currentClub.getSmallLogoFileName()}"
                                       )
                                   ),
                                 ),
@@ -152,12 +149,12 @@ class ClubListItem extends StatelessWidget {
                             Container(
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: Colors.white,
+                                color: Colors.black,
                                 image: DecorationImage(
                                   fit: BoxFit.cover,
                                   image: FileImage(
                                       File(
-                                          "${stateProvider.appDocumentsDir.path}/${currentClub.getBannerId()}"
+                                          "${stateProvider.appDocumentsDir.path}/${currentClub.getSmallLogoFileName()}"
                                       )
                                   ),
                                 ),
@@ -167,11 +164,8 @@ class ClubListItem extends StatelessWidget {
                         ),
                         onTap: (){
                           if(currentClub.getStoryId().isNotEmpty){
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => ShowStoryChewie(storyUUID: currentClub.getStoryId(), clubName: currentClub.getClubName(),),
-                              ),
-                            );
+                            currentAndLikedElementsProvider.setCurrentClub(currentClub);
+                            context.push("/show_story");
                           }
                         }
                     )

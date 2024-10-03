@@ -25,7 +25,7 @@ ClubMeClub mockUpClub = ClubMeClub(
     clubFrontpageBackgroundColorId: 0,
     priorityScore: 0,
     openingTimes: OpeningTimes(),
-    frontPageImages: FrontPageImages(),
+    frontPageGalleryImages: FrontPageGalleryImages(),
     clubOffers: ClubOffers(),
   smallLogoFileName: "",
   bigLogoFileName: "",
@@ -35,7 +35,7 @@ ClubMeClub mockUpClub = ClubMeClub(
 ClubMeUserData mockUpUserData = ClubMeUserData(
     firstName: "Max",
     lastName: "Mustermann",
-    birthDate: DateTime.now(),
+    birthDate: DateTime(1990, 10, 15),
     eMail: "max@mustermann.de",
     gender: 1,
     userId: "000000",

@@ -10,7 +10,10 @@ class ClubMeEvent{
     required this.djName,
     required this.eventDate,
     required this.eventPrice,
-    required this.bannerId,
+
+    // required this.bannerId,
+    required this.bannerImageFileName,
+
     required this.eventDescription,
     required this.musicGenres,
     required this.clubId,
@@ -34,7 +37,10 @@ class ClubMeEvent{
   DateTime eventDate;
   String eventDescription;
 
-  String bannerId;
+  // String bannerId;
+
+  String bannerImageFileName;
+
   String musicGenres;
 
   String eventMarketingFileName;
@@ -131,8 +137,8 @@ class ClubMeEvent{
   DateTime getEventDate(){
     return eventDate;
   }
-  String getBannerId(){
-    return bannerId;
+  String getBannerImageFileName(){
+    return bannerImageFileName;
   }
   double getEventPrice(){
     return eventPrice;

@@ -45,8 +45,6 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
   List<String> mehrEventsString = ["Mehr Events!", "Get more events"];
   List<String> mehrPhotosButtonString = ["Mehr Fotos!", "Explore more photos"];
 
-  List<String> alreadyFetchedFrontPageImages = [];
-
   bool isLoading = false;
   bool showVideoIsActive = false;
   double moreButtonWidthFactor = 0.04;
@@ -86,65 +84,20 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
 
     userDataProvider.setUserClub(fetchedClub);
 
-    if(fetchedClub.getFrontPageImages().images != null){
-      for(var element in fetchedClub.getFrontPageImages().images!){
-        checkIfFrontPageImageIsFetched(element.id!);
+    if(fetchedClub.getFrontPageGalleryImages().images != null){
+      for(var element in fetchedClub.getFrontPageGalleryImages().images!){
+        checkIfAllImagesAreFetched();
+        // checkIfFrontPageImageIsFetched(element.id!);
       }
     }
   }
 
   // BUILD
-  Widget fetchEventsFromDbAndBuildWidget(
-      StateProvider stateProvider,
-      double screenHeight, double screenWidth
-      ){
 
-    // We check if when reaching the front page there have already been a fetching
-    // of the information we want to display. If not, we have to take care of that.
-    return
-      fetchedContentProvider.getFetchedEvents().isEmpty ||
-          userDataProvider.getUserClubId() == mockUpClub.getClubId() ?
-    FutureBuilder(
-        future: getEvents,
-        builder: (context, snapshot){
-
-          if(snapshot.hasError){
-            print("Error: ${snapshot.error}");
-          }
-
-          if(!snapshot.hasData){
-            return SizedBox(
-              width: screenWidth,
-              height: screenHeight,
-              child: Center(
-                child: CircularProgressIndicator(
-                  color: customStyleClass.primeColor,
-                ),
-              ),
-            );
-          }else{
-
-            try{
-              final data = snapshot.data!;
-
-              filterEventsFromQuery(data, stateProvider);
-
-              return _buildMainView(stateProvider, screenHeight, screenWidth);
-            }catch(e){
-              _supabaseService.createErrorLog("club_frontpage, fetchEventsFromDbAndBuildWidget: " + e.toString());
-              return Container();
-            }
-
-          }
-        }
-    ): _buildMainView(stateProvider, screenHeight, screenWidth);
-  }
-  Widget _buildMainView(
-      StateProvider stateProvider,
-      double screenHeight,
-      double screenWidth){
+  Widget _buildMainView(){
     return Column(
       children: [
+
         // Container for the bg gradient
         Container(
           color: customStyleClass.backgroundColorMain,
@@ -250,6 +203,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
   Widget _buildMapAndPricelistIconSection(){
     return Column(
       children: [
+
         // Spacer
         SizedBox(
           height: screenHeight*0.015,
@@ -280,7 +234,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                   onTap: () => clickEventLounge()
               ),
 
-              // Price list
+              // Offers
               GestureDetector(
                 child: Column(
                   children: [
@@ -294,7 +248,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                     )
                   ],
                 ),
-                onTap: () => clickOnPriceList(screenHeight, screenWidth),
+                onTap: () => clickEventOffersList(screenHeight, screenWidth),
               ),
             ],
           ),
@@ -304,55 +258,34 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
         SizedBox(
           height: screenHeight*0.01,
         ),
+
       ],
     );
   }
   Widget _buildLogoIcon(){
 
-
-    return userDataProvider.getUserClubStoryId().isNotEmpty?
-    Stack(
-      children: [
-
-        // Are we finished with fetching the banner image?
-        bannerImageFetched ?
-        Container(
-          // alignment: Alignment.center,
-          width: screenWidth*0.25,
-          height: screenWidth*0.25,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.white,
-            border: Border.all(
-                color: customStyleClass.primeColor,
+    return fetchedContentProvider
+        .getFetchedBannerImageIds()
+        .contains(userDataProvider.getUserClub().getSmallLogoFileName()) ?
+    Container(
+      width: screenWidth*0.25,
+      height: screenWidth*0.25,
+      decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.white,
+          border: Border.all(
+              color: userDataProvider.getUserClubStoryId().isNotEmpty? customStyleClass.primeColor: Colors.grey,
               width: 2
-            ),
-            image: DecorationImage(
+          ),
+          image: DecorationImage(
               fit: BoxFit.cover,
               image: Image.file(
-                  File("${stateProvider.appDocumentsDir.path}/${userDataProvider.getUserClubBannerId()}")
+                  File("${stateProvider.appDocumentsDir.path}/${userDataProvider.getUserClub().getSmallLogoFileName()}")
               ).image
-            )
-          ),
-        ):
-
-        // Show just the plain color while no image is available
-        Container(
-          width: screenWidth*0.25,
-          height: screenWidth*0.25,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.white,
-            border: Border.all(
-                color: Colors.black
-            ),
-          ),
-        ),
-
-      ],
+          )
+      ),
     ):
-    // If no story is available we just show the logo
-    bannerImageFetched ?
+    // Show the loading indicator while we are waiting
     Container(
       width: screenWidth*0.25,
       height: screenWidth*0.25,
@@ -360,22 +293,13 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
         shape: BoxShape.circle,
         color: Colors.white,
         border: Border.all(
-          color: Colors.grey,
-          width: 2
-        ),
-        image: DecorationImage(
-          fit: BoxFit.cover,
-          image: Image.file(
-              File("${stateProvider.appDocumentsDir.path}/${userDataProvider.getUserClubBannerId()}")
-          ).image,
+            color: Colors.black
         ),
       ),
-    ): Container(
-      width: screenWidth*0.25,
-      height: screenWidth*0.25,
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.white,
+      child: Center(
+        child: CircularProgressIndicator(
+          color: customStyleClass.primeColor,
+        ),
       ),
     );
   }
@@ -418,7 +342,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                             color: customStyleClass.primeColor,
                           )
                       ),
-                      onTap: () => clickOnAddEvent(screenHeight, screenWidth),
+                      onTap: () => clickEventAddEvent(screenHeight, screenWidth),
                     )
                 )
 
@@ -529,7 +453,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                           color: customStyleClass.primeColor,
                         )
                     ),
-                    onTap: () => clickOnEditNews(
+                    onTap: () => clickEventEditNews(
                         screenHeight,
                         screenWidth
                     ),
@@ -554,9 +478,17 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
     );
   }
   Widget _buildPhotosAndVideosSection(){
+
+    // Not necessary. Makes it easier to read the code below
+    List<String> frontPageGalleryImageIds = [];
+    for(var image in userDataProvider.getUserClub().getFrontPageGalleryImages().images!){
+      frontPageGalleryImageIds.add(image.id!);
+    }
+
     return Column(
       children: [
 
+        // TEXT + ICON: Headline
         Container(
           width: screenWidth,
           padding: EdgeInsets.only(
@@ -591,7 +523,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                           color: customStyleClass.primeColor,
                         )
                     ),
-                    onTap: () =>  clickOnAddPhotoOrVideo(screenHeight, screenWidth),
+                    onTap: () =>  clickEventAddPhotoOrVideo(screenHeight, screenWidth),
                   )
               )
             ],
@@ -604,53 +536,58 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
         ),
 
         // First row images
-        Padding(
-          padding: EdgeInsets.only(left: screenWidth*0.05),
+        Container(
+          width: screenWidth*0.95,
+          // padding: EdgeInsets.only(left: screenWidth*0.05),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              if(alreadyFetchedFrontPageImages.isNotEmpty)
+
+              // Is there even one image? Than show loading animation or content
+              if(frontPageGalleryImageIds.isNotEmpty)
                 SizedBox(
                   width: screenWidth*0.29,
                   height: screenWidth*0.29,
-                  child:
+                  child: fetchedContentProvider.getFetchedBannerImageIds().contains(frontPageGalleryImageIds[0]) ?
                   Image(
                     image: FileImage(
                         File(
-                            "${stateProvider.appDocumentsDir.path}/${alreadyFetchedFrontPageImages[0]}"
+                            "${stateProvider.appDocumentsDir.path}/${frontPageGalleryImageIds[0]}"
                         )
                     ),
                     fit: BoxFit.cover,
-                  )
+                  ): Center(child: CircularProgressIndicator(color: customStyleClass.primeColor),)
                 ),
-              SizedBox(width: screenWidth*0.02,),
-              if(alreadyFetchedFrontPageImages.length > 1)
+
+              if(frontPageGalleryImageIds.length > 1)
                 SizedBox(
                     width: screenWidth*0.29,
                     height: screenWidth*0.29,
-                    child:
+                    child: fetchedContentProvider.getFetchedBannerImageIds().contains(frontPageGalleryImageIds[1]) ?
                     Image(
                       image: FileImage(
                           File(
-                              "${stateProvider.appDocumentsDir.path}/${alreadyFetchedFrontPageImages[1]}"
+                              "${stateProvider.appDocumentsDir.path}/${frontPageGalleryImageIds[1]}"
                           )
                       ),
                       fit: BoxFit.cover,
-                    )
+                    ):  Center(child: CircularProgressIndicator(color: customStyleClass.primeColor),)
                 ),
-              SizedBox(width: screenWidth*0.02,),
-              if(alreadyFetchedFrontPageImages.length > 2)
+
+
+              if(frontPageGalleryImageIds.length > 2)
                 SizedBox(
                     width: screenWidth*0.29,
                     height: screenWidth*0.29,
-                    child:
+                    child: fetchedContentProvider.getFetchedBannerImageIds().contains(frontPageGalleryImageIds[2]) ?
                     Image(
                       image: FileImage(
                           File(
-                              "${stateProvider.appDocumentsDir.path}/${alreadyFetchedFrontPageImages[2]}"
+                              "${stateProvider.appDocumentsDir.path}/${frontPageGalleryImageIds[2]}"
                           )
                       ),
                       fit: BoxFit.cover,
-                    )
+                    ):  Center(child: CircularProgressIndicator(color: customStyleClass.primeColor),)
                 ),
             ],
           ),
@@ -662,53 +599,55 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
         ),
 
         // Second row images
-        Padding(
-          padding: EdgeInsets.only(left: screenWidth*0.05),
+        Container(
+          width: screenWidth*0.95,
+          // padding: EdgeInsets.only(left: screenWidth*0.05),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              if(alreadyFetchedFrontPageImages.length > 3)
+              if(frontPageGalleryImageIds.length > 3)
                 SizedBox(
                     width: screenWidth*0.29,
                     height: screenWidth*0.29,
-                    child:
+                    child: fetchedContentProvider.getFetchedBannerImageIds().contains(frontPageGalleryImageIds[3]) ?
                     Image(
                       image: FileImage(
                           File(
-                              "${stateProvider.appDocumentsDir.path}/${alreadyFetchedFrontPageImages[2]}"
+                              "${stateProvider.appDocumentsDir.path}/${frontPageGalleryImageIds[3]}"
                           )
                       ),
                       fit: BoxFit.cover,
-                    )
+                    ): Center(child: CircularProgressIndicator(color: customStyleClass.primeColor),)
                 ),
               SizedBox(width: screenWidth*0.02,),
-              if(alreadyFetchedFrontPageImages.length > 4)
+              if(frontPageGalleryImageIds.length > 4)
                 SizedBox(
                     width: screenWidth*0.29,
                     height: screenWidth*0.29,
-                    child:
+                    child: fetchedContentProvider.getFetchedBannerImageIds().contains(frontPageGalleryImageIds[4]) ?
                     Image(
                       image: FileImage(
                           File(
-                              "${stateProvider.appDocumentsDir.path}/${alreadyFetchedFrontPageImages[2]}"
+                              "${stateProvider.appDocumentsDir.path}/${frontPageGalleryImageIds[4]}"
                           )
                       ),
                       fit: BoxFit.cover,
-                    )
+                    ):  Center(child: CircularProgressIndicator(color: customStyleClass.primeColor),)
                 ),
               SizedBox(width: screenWidth*0.02,),
-              if(alreadyFetchedFrontPageImages.length > 5)
+              if(frontPageGalleryImageIds.length > 5)
                 SizedBox(
                     width: screenWidth*0.29,
                     height: screenWidth*0.29,
-                    child:
+                    child: fetchedContentProvider.getFetchedBannerImageIds().contains(frontPageGalleryImageIds[5]) ?
                     Image(
                       image: FileImage(
                           File(
-                              "${stateProvider.appDocumentsDir.path}/${alreadyFetchedFrontPageImages[2]}"
+                              "${stateProvider.appDocumentsDir.path}/${frontPageGalleryImageIds[5]}"
                           )
                       ),
                       fit: BoxFit.cover,
-                    )
+                    ):  Center(child: CircularProgressIndicator(color: customStyleClass.primeColor),)
                 ),
             ],
           ),
@@ -1011,7 +950,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                           color: customStyleClass.primeColor,
                         )
                     ),
-                    onTap: () =>  clickOnEditContact(screenHeight, screenWidth),
+                    onTap: () =>  clickEventEditContact(screenHeight, screenWidth),
                   )
               )
             ],
@@ -1154,62 +1093,15 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
     );
   }
 
-  Container formatOpeningTime(Days days){
-
-    String dayToDisplay = "";
-    String openingHourToDisplay = "";
-    String closingHourToDisplay = "";
-
-    switch(days.day){
-      case(1):dayToDisplay = "Montag";break;
-      case(2):dayToDisplay = "Dienstag";break;
-      case(3):dayToDisplay = "Mittwoch";break;
-      case(4):dayToDisplay = "Donnerstag";break;
-      case(5):dayToDisplay = "Freitag";break;
-      case(6):dayToDisplay = "Samstag";break;
-      case(7):dayToDisplay = "Sonntag";break;
-    }
-
-    openingHourToDisplay = days.openingHour! < 10 ? "0${days.openingHour}:00": "${days.openingHour}:00";
-    closingHourToDisplay = days.closingHour! < 10 ?  "0${days.closingHour}:00": "${days.closingHour}:00";
-
-    return Container(
-      width: screenWidth*0.9,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            dayToDisplay,
-            style: customStyleClass.getFontStyle3(),
-          ),
-          Row(
-            children: [
-              Text(
-                openingHourToDisplay,
-                style: customStyleClass.getFontStyle3(),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10
-                ),
-                child: Text(
-                  "-",
-                  style: customStyleClass.getFontStyle3(),
-                ),
-              ),
-              Text(
-                closingHourToDisplay,
-                style: customStyleClass.getFontStyle3(),
-              )
-            ],
-          )
-        ],
-      ),
-    );
-
-  }
 
   // FILTER
+
+
+  void checkIfFilteringIsNecessary(){
+    if(upcomingEvents.isEmpty && pastEvents.isEmpty){
+      filterEventsFromProvider(stateProvider);
+    }
+  }
   void filterEventsFromProvider(StateProvider stateProvider){
     for(var currentEvent in fetchedContentProvider.getFetchedEvents()){
 
@@ -1249,7 +1141,10 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
     }
   }
 
+
   // CLICK
+
+
   void toggleShowVideoIsActive(){
     setState(() {
       showVideoIsActive = !showVideoIsActive;
@@ -1260,8 +1155,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
       }
     });
   }
-
-  void clickOnAddEvent(double screenHeight, double screenWidth){
+  void clickEventAddEvent(double screenHeight, double screenWidth){
     showDialog(context: context, builder: (BuildContext context){
       return AlertDialog(
         backgroundColor: customStyleClass.backgroundColorMain,
@@ -1323,10 +1217,10 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
       );
     });
   }
-  void clickOnPriceList(double screenHeight, double screenWidth){
+  void clickEventOffersList(double screenHeight, double screenWidth){
     context.push("/club_offers");
   }
-  void clickOnEditNews(double screenHeight, double screenWidth, ){
+  void clickEventEditNews(double screenHeight, double screenWidth, ){
     showDialog(context: context, builder: (BuildContext context){
       return AlertDialog(
           backgroundColor: Color(0xff121111),
@@ -1387,7 +1281,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
       );
     });
   }
-  void clickOnEditContact(double screenHeight, double screenWidth){
+  void clickEventEditContact(double screenHeight, double screenWidth){
     showDialog(context: context, builder: (BuildContext context){
       return AlertDialog(
           backgroundColor: Color(0xff121111),
@@ -1447,7 +1341,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
       );
     });
   }
-  void clickOnAddPhotoOrVideo(double screenHeight, double screenWidth){
+  void clickEventAddPhotoOrVideo(double screenHeight, double screenWidth){
     showDialog(context: context, builder: (BuildContext context){
       return AlertDialog(
           backgroundColor: Color(0xff121111),
@@ -1508,11 +1402,11 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
       );
     });
   }
-  void clickOnDiscoverMoreEvents(double screenHeight, double screenWidth){
+  void clickEventDiscoverMoreEvents(double screenHeight, double screenWidth){
     stateProvider.toggleWentFromCLubDetailToEventDetail();
     context.push("/club_upcoming_events");
   }
-  void clickOnDiscoverMorePhotos(double screenHeight, double screenWidth){
+  void clickEventDiscoverMorePhotos(double screenHeight, double screenWidth){
     showDialog(context: context, builder: (BuildContext context){
       return AlertDialog(
         backgroundColor: Colors.black,
@@ -1534,7 +1428,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
       );
     });
   }
-  void clickOnStoryButton(
+  void clickEventStoryButton(
       BuildContext context,
       double screenHeight,
       double screenWidth,
@@ -1637,14 +1531,15 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                     ),
                   ),
                   onTap: () =>  {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => ShowStoryChewie(
-                            storyUUID: userDataProvider.getUserClubStoryId(),
-                            clubName:  userDataProvider.getUserClubName(),
-                        ),
-                      ),
-                    )
+                    context.push("/show_story")
+                    // Navigator.of(context).push(
+                    //   MaterialPageRoute(
+                    //     builder: (context) => ShowStoryChewie(
+                    //         storyUUID: userDataProvider.getUserClubStoryId(),
+                    //         clubName:  userDataProvider.getUserClubName(),
+                    //     ),
+                    //   ),
+                    // )
                   },
                 )
             ): Container(),
@@ -1677,7 +1572,10 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
     });
   }
 
+
   // MISC
+
+
   static Future<void> goToSocialMedia(String socialMediaLink) async{
 
     print("Link: $socialMediaLink");
@@ -1688,7 +1586,60 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
         ? await launchUrl(googleUrl)
         : print("Error");
   }
+  Container formatOpeningTime(Days days){
 
+    String dayToDisplay = "";
+    String openingHourToDisplay = "";
+    String closingHourToDisplay = "";
+
+    switch(days.day){
+      case(1):dayToDisplay = "Montag";break;
+      case(2):dayToDisplay = "Dienstag";break;
+      case(3):dayToDisplay = "Mittwoch";break;
+      case(4):dayToDisplay = "Donnerstag";break;
+      case(5):dayToDisplay = "Freitag";break;
+      case(6):dayToDisplay = "Samstag";break;
+      case(7):dayToDisplay = "Sonntag";break;
+    }
+
+    openingHourToDisplay = days.openingHour! < 10 ? "0${days.openingHour}:00": "${days.openingHour}:00";
+    closingHourToDisplay = days.closingHour! < 10 ?  "0${days.closingHour}:00": "${days.closingHour}:00";
+
+    return Container(
+      width: screenWidth*0.9,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            dayToDisplay,
+            style: customStyleClass.getFontStyle3(),
+          ),
+          Row(
+            children: [
+              Text(
+                openingHourToDisplay,
+                style: customStyleClass.getFontStyle3(),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 10
+                ),
+                child: Text(
+                  "-",
+                  style: customStyleClass.getFontStyle3(),
+                ),
+              ),
+              Text(
+                closingHourToDisplay,
+                style: customStyleClass.getFontStyle3(),
+              )
+            ],
+          )
+        ],
+      ),
+    );
+
+  }
   void setFundamentalVariables(){
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
@@ -1699,56 +1650,57 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
 
     zipAndCity = "${userDataProvider.getUserClubContact()[3]} ${userDataProvider.getUserClubContact()[4]}";
   }
-  void checkIfFilteringIsNecessary(){
-    if(upcomingEvents.isEmpty && pastEvents.isEmpty){
-      filterEventsFromProvider(stateProvider);
+  void checkIfAllImagesAreFetched() async{
+
+    final String dirPath = stateProvider.appDocumentsDir.path;
+
+    List<String> imageFileNamesToCheckAndFetch = [];
+    List<String> folderOfImage = [];
+
+
+    imageFileNamesToCheckAndFetch.add(userDataProvider.getUserClub().getSmallLogoFileName());
+    folderOfImage.add("small_banner_images");
+
+    imageFileNamesToCheckAndFetch.add(userDataProvider.getUserClub().getBigLogoFileName());
+    folderOfImage.add("big_banner_images");
+
+    imageFileNamesToCheckAndFetch.add(userDataProvider.getUserClub().getFrontpageBannerFileName());
+    folderOfImage.add("frontpage_banner_images");
+
+    if(userDataProvider.getUserClub().getFrontPageGalleryImages().images != null){
+      for(var element in userDataProvider.getUserClub().getFrontPageGalleryImages().images!){
+
+        imageFileNamesToCheckAndFetch.add(element.id!);
+        folderOfImage.add("frontpage_gallery_images");
+
+        // checkIfFrontPageImageIsFetched(element.id!);
+      }
     }
-  }
-  void checkIfBannerImageIsFetched() async{
 
-    final String dirPath = stateProvider.appDocumentsDir.path;
-    final fileName = userDataProvider.getUserClub().getBannerId();
-    final filePath = '$dirPath/$fileName';
+    for(var i = 0; i<imageFileNamesToCheckAndFetch.length;i++){
 
-    await File(filePath).exists().then((exists) async {
-      if(!exists){
+      final filePath = '$dirPath/${imageFileNamesToCheckAndFetch[i]}';
 
-        await _supabaseService.getBannerImage(fileName, "").then((imageFile) async {
-          await File(filePath).writeAsBytes(imageFile).then((onValue){
-            setState(() {
-              log.d("fetchAndSaveBannerImage: Finished successfully. Path: $dirPath/$fileName");
-              bannerImageFetched = true;
+      File(filePath).exists().then((exists) async {
+        if(!exists){
+          await _supabaseService.getClubImagesByFolder(imageFileNamesToCheckAndFetch[i], folderOfImage[i]).then((imageFile) async {
+            await File(filePath).writeAsBytes(imageFile).then((onValue){
+              setState(() {
+                log.d("checkIfFrontPageImageIsFetched: Finished successfully. Path: $dirPath/${imageFileNamesToCheckAndFetch[i]}");
+                fetchedContentProvider.addFetchedBannerImageId(imageFileNamesToCheckAndFetch[i]);
+                // alreadyFetchedFrontPageImages.add(imageFileNamesToCheckAndFetch[i]);
+              });
             });
           });
-        });
-      }else{
-        setState(() {
-          bannerImageFetched = true;
-        });
-      }
-    });
-  }
-  void checkIfFrontPageImageIsFetched(String fileName) async {
-    final String dirPath = stateProvider.appDocumentsDir.path;
-    final filePath = '$dirPath/$fileName';
-
-    await File(filePath).exists().then((exists) async {
-      if(!exists){
-
-        await _supabaseService.getFrontPageImage(fileName).then((imageFile) async {
-          await File(filePath).writeAsBytes(imageFile).then((onValue){
-            setState(() {
-              log.d("checkIfFrontPageImageIsFetched: Finished successfully. Path: $dirPath/$fileName");
-              alreadyFetchedFrontPageImages.add(fileName);
-            });
+        }else{
+          setState(() {
+            fetchedContentProvider.addFetchedBannerImageId(imageFileNamesToCheckAndFetch[i]);
           });
-        });
-      }else{
-        setState(() {
-          alreadyFetchedFrontPageImages.add(fileName);
-        });
-      }
-    });
+        }
+      });
+
+    }
+
   }
 
   @override
@@ -1756,8 +1708,6 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
 
     setFundamentalVariables();
     checkIfFilteringIsNecessary();
-    checkIfBannerImageIsFetched();
-
 
     return Scaffold(
 
@@ -1776,35 +1726,33 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
               Stack(
                 children: [
 
-                  // BG Image
-                  bannerImageFetched ?
+                  // IMAGE: FrontPageBannerImage
                   Container(
+                    width: screenWidth,
                       height: screenHeight*0.19,
+                      // alignment: Alignment.center,
                       color: userDataProvider.getUserClubBackgroundColorId() == 0 ?
                         Colors.white :
                         Colors.black,
-                      child: Center(
-                        child: SizedBox(
-                          child: Image(
-                              image: FileImage(
-                                  File(
-                                      "${stateProvider.appDocumentsDir.path}/${userDataProvider.getUserClubBannerId()}"
-                                  )
-                              ),
-                              fit: BoxFit.cover,
+                      child:
+                      fetchedContentProvider
+                          .getFetchedBannerImageIds()
+                          .contains(userDataProvider.getUserClub().getFrontpageBannerFileName()) ?
+                      Image(
+                        image: FileImage(
+                            File(
+                              "${stateProvider.appDocumentsDir.path}/${userDataProvider.getUserClub().getFrontpageBannerFileName()}",
+                            )
+                        ),
+                        fit: BoxFit.cover,
+                      ) : Center(
+                        child: CircularProgressIndicator(
+                          color: customStyleClass.primeColor,
                         ),
                       )
-                      )
-                  ): SizedBox(
-                    height: screenHeight*0.25,
-                    child:  Center(
-                      child: CircularProgressIndicator(
-                        color: customStyleClass.primeColor,
-                      ),
-                    ),
                   ),
 
-                  // main Content
+                  // SINGLECHILDSCROLLVIEW: Main view
                   Padding(
                     padding: EdgeInsets.only(
                       top: screenHeight*0.19,
@@ -1817,12 +1765,14 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                         color: customStyleClass.backgroundColorMain
                       ),
                       child: SingleChildScrollView(
-                        child: fetchEventsFromDbAndBuildWidget(stateProvider, screenHeight, screenWidth),
+                        child:
+                        _buildMainView()
+                        //fetchEventsFromDbAndBuildWidget(stateProvider, screenHeight, screenWidth),
                       ),
                     ),
                   ),
 
-                  // Centered logo
+                  // CIRCULAR AVATAR: LOGO
                   Padding(
                     padding: EdgeInsets.only(
                         top: screenHeight*0.135
@@ -1835,10 +1785,11 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                                 _buildLogoIcon()
                               ],
                             ),
-                            onTap: () => clickOnStoryButton(context, screenHeight, screenWidth, stateProvider)
+                            onTap: () => clickEventStoryButton(context, screenHeight, screenWidth, stateProvider)
                         )
                     ),
                   ),
+
                 ],
               )
             ],
@@ -1847,7 +1798,4 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
       bottomNavigationBar: CustomBottomNavigationBarClubs(),
     );
   }
-
-
-
 }

@@ -11,7 +11,7 @@ ClubMeEvent parseClubMeEvent(var data){
       djName: data["dj_name"],
       eventDate: DateTime.tryParse(data["event_date"])!,
       eventPrice: data["event_price"].toDouble(),
-      bannerId: data["banner_id"],
+      // bannerId: data["banner_id"],
       eventDescription: data["event_description"],
       musicGenres: data["music_genres"],
       clubId: data["club_id"],
@@ -21,7 +21,8 @@ ClubMeEvent parseClubMeEvent(var data){
       priorityScore: data["priority_score"].toDouble(),
       openingTimes: OpeningTimes.fromJson(data['opening_times']),
       ticketLink: data["ticket_link"],
-      isRepeatedDays: data['is_repeated_days']
+      isRepeatedDays: data['is_repeated_days'],
+      bannerImageFileName: data['banner_image_file_name']
   );
 
   return clubMeEvent;

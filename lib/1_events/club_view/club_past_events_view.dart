@@ -151,8 +151,8 @@ class _ClubPastEventsViewState extends State<ClubPastEventsView> {
             child: EventTile(
                 clubMeEvent: currentEvent,
                 isLiked: isLiked,
-                clickedOnLike: clickedOnLike,
-                clickedOnShare: clickedOnShare,
+                clickEventLike: clickedOnLike,
+                clickEventShare: clickedOnShare,
               showMaterialButton: false,
             ),
             onTap: (){

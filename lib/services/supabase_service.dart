@@ -161,8 +161,10 @@ class SupabaseService{
       log.d("updateCompleteEvent: Finished successfully. Response: $data");
       return 0;
     }catch(e){
-      log.d("Error in updateCompleteEvent: $e");
-      createErrorLog(e.toString());
+
+      log.d("Error in SupabaseService. Function: updateCompleteEvent. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: updateCompleteEvent. Error: ${e.toString()}");
+
       return 1;
     }
   }
@@ -253,18 +255,6 @@ class SupabaseService{
   }
 
   void insertClub(ClubMeClub clubMeClub) async{
-
-    PriceList testPrices = PriceList(
-        groups: ["Cocktails, Alkoholfreies"],
-        elements: [
-          ["Mojito"],
-          ["Fanta"]
-        ],
-        prices: [
-          ["12"],
-          ["5"]
-        ]
-    );
 
     Map<String, dynamic> dataJson = {};
 
@@ -572,7 +562,7 @@ class SupabaseService{
       var content,
       String fileName,
       String clubId,
-      FrontPageImages frontPageImages
+      FrontPageGalleryImages frontPageGalleryImages
       ) async {
     try{
       var data = await supabase.storage.from('club_me_frontpage_images').upload(
@@ -580,7 +570,7 @@ class SupabaseService{
         content,
         fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
       );
-      updateFrontPageImageInClub(clubId, frontPageImages);
+      updateFrontPageImageInClub(clubId, frontPageGalleryImages);
       log.d("uploadEventContent: Finished successfully. Response: $data");
       return 0;
     }catch(e){
@@ -590,12 +580,12 @@ class SupabaseService{
     }
   }
 
-  Future<int> updateFrontPageImageInClub(String clubId, FrontPageImages frontPageImages) async{
+  Future<int> updateFrontPageImageInClub(String clubId, FrontPageGalleryImages frontPageGalleryImages) async{
     try{
       var data = await supabase
           .from('club_me_clubs')
           .update({
-        'front_page_images' : frontPageImages.toJson(),
+        'front_page_images' : frontPageGalleryImages.toJson(),
       }).match({
         'club_id': clubId
       });
@@ -701,6 +691,22 @@ class SupabaseService{
       return Uint8List(0);
     }
 
+  }
+
+  Future<Uint8List> getClubImagesByFolder(String fileName, String folder) async{
+    String finalPath = "";
+
+      finalPath = "$folder/$fileName";
+
+    try{
+      var data = await supabase.storage.from('club_me_banner_images').download(finalPath);
+      log.d("getClubImagesByFolder: Finished successfully. File: $folder/$fileName");
+      return data;
+    }catch(e){
+      log.d("Error in SupabaseService. Function: getClubImagesByFolder. Error: ${e.toString()}. finalPath: $finalPath");
+      createErrorLog("Error in SupabaseService. Function: getClubImagesByFolder. Error: ${e.toString()}");
+      return Uint8List(0);
+    }
   }
 
   Future<Uint8List> getBannerImage(String fileName, String folder) async {

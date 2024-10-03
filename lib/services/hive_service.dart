@@ -1,4 +1,5 @@
 import 'package:club_me/models/discount.dart';
+import 'package:club_me/models/hive_models/5_club_me_used_discount.dart';
 import 'package:club_me/models/parser/discount_to_local_discount_parser.dart';
 import 'package:club_me/services/supabase_service.dart';
 import 'package:hive/hive.dart';
@@ -28,6 +29,8 @@ class HiveService{
 
   final String _tempGeoLocationDataBoxName ="tempGeoLocationDataBox";
 
+  final String _clubMeUsedDiscountsBoxName = "clubMeUsedDiscountsBox";
+
   Future<Box<String>> get _clubMeEventBox async => await Hive.openBox<String>(_clubMeFavoriteEventsBoxName);
   Future<Box<String>> get _clubMeClubBox async => await Hive.openBox<String>(_clubMeFavoriteClubsBoxName);
   Future<Box<String>> get _clubMeDiscountBox async => await Hive.openBox<String>(_clubMeFavoriteDiscountsBoxName);
@@ -37,6 +40,8 @@ class HiveService{
   Future<Box<ClubMeDiscountTemplate>> get _clubMeDiscountTemplatesBox async => await Hive.openBox<ClubMeDiscountTemplate>(_clubMeDiscountTemplatesName);
   Future<Box<ClubMeLocalDiscount>> get _clubMeLocalDiscountsBox async => await Hive.openBox<ClubMeLocalDiscount>(_clubMeLocalDiscountsName);
   Future<Box<TempGeoLocationData>> get _tempGeoLocationDataBox async => await Hive.openBox<TempGeoLocationData>(_tempGeoLocationDataBoxName);
+
+  Future<Box<ClubMeUsedDiscount>> get _clubMeUsedDiscountsBox async => await Hive.openBox<ClubMeUsedDiscount>(_clubMeUsedDiscountsBoxName);
 
   Future<void> addTempGeoLocationData(TempGeoLocationData tempGeoLocationData) async{
     try{
@@ -362,4 +367,61 @@ class HiveService{
       _supabaseService.createErrorLog(e.toString());
     }
   }
+
+
+  // Used Discounts
+  Future<List<ClubMeUsedDiscount>> getUsedDiscounts() async{
+    try{
+      var box = await _clubMeUsedDiscountsBox;
+      return box.values.toList();
+    }catch(e){
+      log.d("HiveService. Function: getUsedDiscounts. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+      return [];
+    }
+  }
+  Future<void> insertUsedDiscount(ClubMeUsedDiscount clubMeUsedDiscount) async{
+
+    try{
+
+      late ClubMeUsedDiscount updatedDiscount;
+      bool updateInsteadOfInsert = false;
+
+      var discounts = await getUsedDiscounts();
+
+      for(var discount in discounts){
+        if(discount.discountId == clubMeUsedDiscount.discountId){
+          updatedDiscount = discount;
+          updatedDiscount.howManyTimes++;
+          updateInsteadOfInsert = true;
+        }
+      }
+
+      if(updateInsteadOfInsert){
+        var index = discounts.indexWhere((element) => element.discountId == clubMeUsedDiscount.discountId);
+        var box = await _clubMeUsedDiscountsBox;
+        await box.putAt(index, updatedDiscount);
+      }else{
+        var box = await _clubMeUsedDiscountsBox;
+        await box.add(clubMeUsedDiscount);
+      }
+
+    }catch(e){
+      log.d("HiveService. Function: insertUsedDiscount. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+    }
+  }
+  Future<void> deleteUsedDiscount(String discountId) async{
+    try{
+      var discounts = await getUsedDiscounts();
+      var index = discounts.indexWhere((element) => element.discountId == discountId);
+
+      var box = await _clubMeUsedDiscountsBox;
+      await box.deleteAt(index);
+    }catch(e){
+      log.d("HiveService. Function: deleteUsedDiscount. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+    }
+  }
+
 }

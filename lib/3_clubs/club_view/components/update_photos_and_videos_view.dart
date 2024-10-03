@@ -239,13 +239,13 @@ class _UpdatePhotosAndVideosViewState extends State<UpdatePhotosAndVideosView> {
       isLoading = true;
     });
 
-    FrontPageImages newFrontPageImages = userDataProvider.getUserClub().getFrontPageImages();
-    newFrontPageImages.images!.removeWhere((entry) => entry.id == imageId);
+    FrontPageGalleryImages newFrontPageGalleryImages = userDataProvider.getUserClub().getFrontPageGalleryImages();
+    newFrontPageGalleryImages.images!.removeWhere((entry) => entry.id == imageId);
 
     try{
       _supabaseService.deleteFrontPageFromStorage(imageId).then((response) {
         if(response == 0){
-          _supabaseService.updateFrontPageImageInClub(userDataProvider.getUserClubId(), newFrontPageImages).then((result){
+          _supabaseService.updateFrontPageImageInClub(userDataProvider.getUserClubId(), newFrontPageGalleryImages).then((result){
             if(result == 0){
               alreadyExistingImages.removeWhere((value) => value == imageId);
               Navigator.of(context).pop();
@@ -379,7 +379,7 @@ class _UpdatePhotosAndVideosViewState extends State<UpdatePhotosAndVideosView> {
 
     String newUuid = "${const Uuid().v4()}.$fileExtension";
 
-    FrontPageImages newFrontPageImages = userDataProvider.getUserClub().getFrontPageImages();
+    FrontPageGalleryImages newFrontPageImages = userDataProvider.getUserClub().getFrontPageGalleryImages();
     newFrontPageImages.images!.add(Images(id: newUuid));
 
 
@@ -422,7 +422,7 @@ class _UpdatePhotosAndVideosViewState extends State<UpdatePhotosAndVideosView> {
     stateProvider = Provider.of<StateProvider>(context);
     userDataProvider = Provider.of<UserDataProvider>(context);
 
-    for(var element in userDataProvider.getUserClub().getFrontPageImages().images!){
+    for(var element in userDataProvider.getUserClub().getFrontPageGalleryImages().images!){
       if(!alreadyExistingImages.contains(element.id!)){
         alreadyExistingImages.add(element.id!);
       }

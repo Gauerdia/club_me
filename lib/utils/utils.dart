@@ -1,5 +1,17 @@
 class Utils{
 
+  static String noElementsDueToNoFavorites = "Derzeit sind keine Events als Favoriten markiert.";
+  static String noElementsDueToNothingOnTheServer = "";
+  static String noElementsDueToFilter = "Entschuldigung, im Rahmen dieser Filter sind keine Events verfügbar.";
+
+  // First one should always be something that means 'no filter' because I
+  // compare the current filter value to the first element of this array
+  static List<String> genreListForFiltering = [
+    "Alle", "Latin", "Rock", "Hip-Hop", "Electronic", "Pop", "Reggaeton", "Afrobeats",
+    "R&B", "House", "Techno", "Rap", "90er", "80er", "2000er",
+    "Heavy Metal", "Psychedelic", "Balkan"
+  ];
+
   static String mapStyles = '''
   [
   {

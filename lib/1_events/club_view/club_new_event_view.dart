@@ -232,7 +232,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
       ),
     );
   }
-  Widget _buildNavigationBar2(){
+  Widget _buildNavigationBar(){
     return (isVideo || isImage) ?
     Container(
       width: screenWidth,
@@ -314,7 +314,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
       ),
     );
   }
-  Widget _buildCheckOverview2(){
+  Widget _buildCheckOverview(){
 
     return SizedBox(
         height: screenHeight,
@@ -1842,7 +1842,9 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
     if(_eventTicketLinkController.text.contains("http")){
       ticketLinkToSave = _eventTicketLinkController.text;
     }else{
-      ticketLinkToSave = "https://${_eventTicketLinkController.text}";
+      if(_eventTicketLinkController.text != ""){
+        ticketLinkToSave = "https://${_eventTicketLinkController.text}";
+      }
     }
 
     int daysToRepeat = 0;
@@ -1872,7 +1874,8 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
 
       clubId: userDataProvider.getUserClubId(),
       clubName: userDataProvider.getUserClubName(),
-      bannerId: userDataProvider.getUserClubEventBannerId(),
+      // bannerId: userDataProvider.getUserClub().getBigLogoFileName(),
+      bannerImageFileName: userDataProvider.getUserClub().getBigLogoFileName(),
       openingTimes: userDataProvider.getUserClubOpeningTimes(),
 
       isRepeatedDays: isRepeated != 0 ? daysToRepeat : 0,
@@ -2073,7 +2076,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
 
       extendBody: true,
 
-      bottomNavigationBar: _buildNavigationBar2(),
+      bottomNavigationBar: _buildNavigationBar(),
       appBar: _buildAppBar(),
       body: Container(
         color: customStyleClass.backgroundColorMain,
@@ -2086,7 +2089,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                   _buildImagePreview()
               : isVideo ?
               _buildVideoPreview()
-            :_buildCheckOverview2(),
+            :_buildCheckOverview(),
           )
 
       ),

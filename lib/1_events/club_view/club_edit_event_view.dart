@@ -1773,7 +1773,8 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
 
       eventId: currentAndLikedElementsProvider.currentClubMeEvent.getEventId(),
       clubName: currentAndLikedElementsProvider.currentClubMeEvent.getClubName(),
-      bannerId: currentAndLikedElementsProvider.currentClubMeEvent.getBannerId(),
+      bannerImageFileName: currentAndLikedElementsProvider.currentClubMeEvent.getBannerImageFileName(),
+      // bannerId: currentAndLikedElementsProvider.currentClubMeEvent.getBannerId(),
       clubId: currentAndLikedElementsProvider.currentClubMeEvent.getClubId(),
       priorityScore: currentAndLikedElementsProvider.currentClubMeEvent.getPriorityScore(),
       openingTimes: userDataProvider.getUserClubOpeningTimes(),

@@ -40,42 +40,84 @@ class _UserMapViewState extends State<UserMapView>{
   List<String> headline = ["Karte", "Liste"];
 
   late GoogleMapController mapController;
-  
-  final LatLng _center = const LatLng(45.521563, -122.677433);
 
   var log = Logger();
 
   BitmapDescriptor customIcon = BitmapDescriptor.defaultMarker;
 
-  late Future<PostgrestList> getClubs;
-  late StateProvider stateProvider;
-  late FetchedContentProvider fetchedContentProvider;
-  late CustomStyleClass customStyleClass;
   late ClubMeEvent clubMeEventToDisplay;
   late double screenWidth, screenHeight;
+  late CustomStyleClass customStyleClass;
+
+  late StateProvider stateProvider;
   late UserDataProvider userDataProvider;
+  late FetchedContentProvider fetchedContentProvider;
   late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
 
-  // final MapController _mapController = MapController();
   final SupabaseService _supabaseService = SupabaseService();
-  final CheckAndFetchService checkAndFetchService = CheckAndFetchService();
+  final CheckAndFetchService _checkAndFetchService = CheckAndFetchService();
 
   bool isClubsFetched = false;
   bool showBottomSheet = false;
   bool showListIsActive = false;
   bool noEventAvailable = false;
 
-
-  List<ClubMeClub> clubsToDisplay = [];
   List<Widget> listWidgetsToDisplay = [];
 
-  Timer? _updateTimer;
+  late Map<String, Marker> _markers = {};
 
 
-  final Map<String, Marker> _markers = {};
 
-  Future<void> _onMapCreated(GoogleMapController controller) async{
+  @override
+  void initState() {
+    super.initState();
 
+    final fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
+
+    if(fetchedContentProvider.getFetchedClubs().isEmpty){
+      _supabaseService.getAllClubs().then((data) => processClubsFromQuery(data));
+    }else{
+      processClubsFromProvider(fetchedContentProvider);
+    }
+
+    _determinePosition().then((value) => uploadPositionToSupabase(value));
+
+    _createCustomIcon();
+    startPeriodicGeoLocatorStream();
+
+  }
+
+
+
+  void initGeneralSettings(){
+    stateProvider = Provider.of<StateProvider>(context);
+    customStyleClass = CustomStyleClass(context: context);
+    fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
+    screenWidth = MediaQuery.of(context).size.width;
+    screenHeight = MediaQuery.of(context).size.height;
+    currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context);
+    userDataProvider = Provider.of<UserDataProvider>(context);
+
+  }
+
+  void processClubsFromQuery(var data){
+
+    for(var element in data){
+      ClubMeClub currentClub = parseClubMeClub(element);
+      if(!fetchedContentProvider.getFetchedClubs().contains(currentClub)){
+        fetchedContentProvider.addClubToFetchedClubs(currentClub);
+      }
+    }
+
+    // Check if we need to download the corresponding images
+    _checkAndFetchService.checkAndFetchClubImages(
+        fetchedContentProvider.getFetchedClubs(),
+        stateProvider,
+        fetchedContentProvider,
+        false
+    );
+
+    _getUserLocation();
 
     for(var club in fetchedContentProvider.getFetchedClubs()){
 
@@ -88,10 +130,74 @@ class _UserMapViewState extends State<UserMapView>{
       );
       _markers[club.getClubName()] = marker;
     }
+    // _markers['user_location'] = Marker(
+    //   markerId: const MarkerId('user_location'),
+    //   position: LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+    //   infoWindow: const InfoWindow(title: 'Your Location'),
+    // );
+
   }
 
+  void processClubsFromProvider(FetchedContentProvider fetchedContentProvider){
+
+    for(var club in fetchedContentProvider.getFetchedClubs()){
+
+      final marker = Marker(
+        icon: customIcon,
+        onTap: () => onTapEventMarker(club),
+        markerId: MarkerId(club.getClubName()),
+        position: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng(),
+        ),
+      );
+      _markers[club.getClubName()] = marker;
+    }
+    // _markers['user_location'] = Marker(
+    //   markerId: const MarkerId('user_location'),
+    //   position: LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+    //   infoWindow: const InfoWindow(title: 'Your Location'),
+    // );
+
+  }
+
+
+  Future<void> _onMapCreated(GoogleMapController controller) async{
+
+    mapController = controller;
+
+  }
+
+  _getUserLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return;
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.deniedForever) {
+      return;
+    }
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission != LocationPermission.whileInUse &&
+          permission != LocationPermission.always) {
+        return;
+      }
+    }
+
+    _markers['user_location'] = Marker(
+      markerId: const MarkerId('user_location'),
+      position: LatLng(userDataProvider.getUserLatCoord(), userDataProvider.getUserLongCoord()),
+    );
+    setState(() {});
+  }
+
+
+
   void onTapEventMarker(ClubMeClub club){
-    //                       // Check if there is any event for the club
+
     if(fetchedContentProvider.fetchedEvents
         .where(
             (event) => (event.getClubId() == club.getClubId() && event.getEventDate().isAfter(DateTime.now()))
@@ -124,42 +230,7 @@ class _UserMapViewState extends State<UserMapView>{
     return customIcon;
   }
 
-  @override
-  void initState() {
-    super.initState();
-    final fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
-    if(fetchedContentProvider.getFetchedClubs().isEmpty){
-      getClubs = _supabaseService.getAllClubs();
-    }
-    _determinePosition().then((value) => uploadPositionToSupabase(value));
 
-    _createCustomIcon();
-
-    _updateTimer = Timer.periodic(const Duration(seconds: 1), (timer){
-
-      const LocationSettings locationSettings = LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 100,
-      );
-
-      Geolocator.getPositionStream(
-          locationSettings: locationSettings).listen((Position position) {
-        print('Location updated: ${position.latitude}, ${position.longitude}');
-        uploadPositionToSupabase(position);
-      });
-    });
-  }
-
-  void initGeneralSettings(){
-    stateProvider = Provider.of<StateProvider>(context);
-    customStyleClass = CustomStyleClass(context: context);
-    fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
-    screenWidth = MediaQuery.of(context).size.width;
-    screenHeight = MediaQuery.of(context).size.height;
-    currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context);
-    userDataProvider = Provider.of<UserDataProvider>(context);
-
-  }
 
 
   // TOGGLE
@@ -175,198 +246,9 @@ class _UserMapViewState extends State<UserMapView>{
   }
 
   // BUILD
-  Widget fetchClubsFromDbAndBuildWidget(double screenHeight, double screenWidth){
-
-    if(fetchedContentProvider.getFetchedClubs().isEmpty){
-
-      return FutureBuilder(
-          future: getClubs,
-          builder: (context, snapshot){
-
-            if(snapshot.hasError){
-              print("Error: ${snapshot.error}");
-            }
-            if(!snapshot.hasData){
-              return SizedBox(
-                width: screenWidth,
-                height: screenHeight,
-                child: Center(
-                  child: CircularProgressIndicator(
-                    color: customStyleClass.primeColor,
-                  ),
-                ),
-              );
-            }else{
-
-              final data = snapshot.data!;
-
-              if(clubsToDisplay.isEmpty){
-                for(var element in data){
-
-                  ClubMeClub currentClub = parseClubMeClub(element);
-
-                  clubsToDisplay.add(currentClub);
-
-                  checkIfImageExistsLocally(currentClub.getSmallLogoFileName()).then((exists){
-                    if(!exists){
-
-                      // If we haven't started to fetch the image yet, we ought to
-                      if(!fetchedContentProvider.getFetchedBannerImageIds().contains(currentClub.getSmallLogoFileName())){
-
-                        // Save the name so that we don't fetch the same image several times
-                        fetchAndSaveBannerImage(currentClub.getSmallLogoFileName(), "small_banner_images");
-                      }
-
-                    }else{
-                      fetchedContentProvider.addFetchedBannerImageId(currentClub.getSmallLogoFileName());
-                    }
-                  });
-
-                  checkIfImageExistsLocally(currentClub.getBigLogoFileName()).then((exists){
-                    if(!exists){
-
-                      // If we haven't started to fetch the image yet, we ought to
-                      if(!fetchedContentProvider.getFetchedBannerImageIds().contains(currentClub.getBigLogoFileName())){
-
-                        // Save the name so that we don't fetch the same image several times
-                        fetchAndSaveBannerImage(currentClub.getBigLogoFileName(), "big_banner_images");
-                      }
-
-                    }else{
-                      fetchedContentProvider.addFetchedBannerImageId(currentClub.getBigLogoFileName());
-                    }
-                  });
-
-                  checkIfImageExistsLocally(currentClub.getFrontpageBannerFileName()).then((exists){
-                    if(!exists){
-
-                      // If we haven't started to fetch the image yet, we ought to
-                      if(!fetchedContentProvider.getFetchedBannerImageIds().contains(currentClub.getFrontpageBannerFileName())){
-
-                        // Save the name so that we don't fetch the same image several times
-                        fetchAndSaveBannerImage(currentClub.getFrontpageBannerFileName(), "frontpage_banner_images");
-                      }
-
-                    }else{
-                      fetchedContentProvider.addFetchedBannerImageId(currentClub.getFrontpageBannerFileName());
-                    }
-                  });
-
-                }
-              }else{
-                for(var club in clubsToDisplay){
-                  fetchedContentProvider.addClubToFetchedClubs(club);
-                }
-              }
-
-              clubsToDisplay.sort((a,b) => b.priorityScore.compareTo(a.priorityScore));
-
-              fetchedContentProvider.setFetchedClubs(clubsToDisplay);
-
-
-              //   List<ClubMeClub> fetchedClubMeClubs = [];
-              //
-              //   for(var element in data){
-              //     ClubMeClub currentClub = parseClubMeClub(element);
-              //     fetchedClubMeClubs.add(currentClub);
-              //   }
-              //
-              // checkAndFetchService.checkAndFetchClubImages(
-              //     fetchedClubMeClubs,
-              //     stateProvider,
-              //     fetchedContentProvider
-              // );
-
-                // fetchedContentProvider.setFetchedClubs(fetchedClubMeClubs);
-                // clubsToDisplay = fetchedClubMeClubs;
-                //
-                // clubsToDisplay.sort((a,b) => b.priorityScore.compareTo(a.priorityScore));
-
-              return clubsToDisplay.isNotEmpty && fetchedContentProvider.getFetchedClubs().isNotEmpty ?
-              Column(
-                children: [
-                  SizedBox(
-                    height: screenHeight*0.8,
-                    width: screenWidth,
-                    child: _buildFlutterMap(),
-                  )
-                ],
-              ): SizedBox(
-              // The map
-                width: screenWidth,
-                height: screenHeight,
-                child: Center(
-                  child: CircularProgressIndicator(
-                    color: customStyleClass.primeColor,
-                  ),
-                ),
-              );
-            }
-          }
-      );
-    }else{
-
-      if(clubsToDisplay.isEmpty){
-
-        for(var club in fetchedContentProvider.getFetchedClubs()){
-          clubsToDisplay.add(club);
-          fetchedContentProvider.addFetchedBannerImageId(club.getSmallLogoFileName());
-        }
-
-        // for(var club in fetchedContentProvider.getFetchedClubs()){
-        //   clubsToDisplay.add(club);
-        //   checkAndFetchService.checkAndFetchClubImages(
-        //       fetchedContentProvider.getFetchedClubs(),
-        //       stateProvider,
-        //       fetchedContentProvider
-        //   );
-        // }
-      }else{
-        // for(var club in clubsToDisplay){
-        //   fetchedContentProvider.addFetchedBannerImageId(club.getBannerId());
-        // }
-      }
-
-      clubsToDisplay.sort((a,b) => b.priorityScore.compareTo(a.priorityScore));
-
-      return Column(
-        children: [
-          SizedBox(
-            height: screenHeight*0.8,
-            width: screenWidth,
-            child: _buildFlutterMap(),
-          )
-        ],
-      );
-    }
-  }
-
-
-
-  void fetchAndSaveBannerImage(String fileName, String folder) async {
-    var imageFile = await _supabaseService.getBannerImage(fileName, folder);
-
-    final String dirPath = stateProvider.appDocumentsDir.path;
-
-    await File("$dirPath/$fileName").writeAsBytes(imageFile).then((onValue){
-      setState(() {
-        log.d("fetchAndSaveBannerImage: Finished successfully. Path: $dirPath/$fileName");
-        // sleep(Duration(seconds: 1));
-        fetchedContentProvider.addFetchedBannerImageId(fileName);
-        // imageFileNamesAlreadyFetched.add(fileName);
-      });
-    });
-  }
-
-  Future<bool> checkIfImageExistsLocally(String fileName) async{
-    final String dirPath = stateProvider.appDocumentsDir.path;
-    return await File('$dirPath/$fileName').exists();
-  }
 
 
   Widget _buildFlutterMap(){
-
-
 
     return GoogleMap(
       style: Utils.mapStyles,
@@ -378,126 +260,6 @@ class _UserMapViewState extends State<UserMapView>{
       markers: _markers.values.toSet(),
     );
 
-    // return FlutterMap(
-    //     mapController: _mapController,
-    //     options: const MapOptions(
-    //       initialCenter: LatLng(48.773809, 9.182959),
-    //       initialZoom: 15,
-    //     ),
-    //     children: [
-    //       TileLayer(
-    //         urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-    //         userAgentPackageName: 'com.szymendera.club_me',
-    //         tileBuilder: _darkModeTileBuilder,
-    //       ),
-    //
-    //       MarkerLayer(
-    //           markers: [
-    //
-    //             userDataProvider.getUserLatCoord() != 0 ?
-    //             Marker(
-    //                 point: LatLng(userDataProvider.getUserLatCoord(), userDataProvider.getUserLongCoord()),
-    //                 child: const Icon(Icons.pin_drop_outlined, color: Colors.orangeAccent,)
-    //             )
-    //                 : const Marker(
-    //                 point: LatLng(0,0),
-    //                 child: Icon(Icons.pin_drop_outlined, color: Colors.orangeAccent,)),
-    //
-    //             for(ClubMeClub club in clubsToDisplay)
-    //               Marker(
-    //                   point: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng()),
-    //                   width: 50,
-    //                   rotate: true,
-    //                   height: 50,
-    //                   child: GestureDetector(
-    //                     child: Stack(
-    //                       children: [
-    //                         Image(
-    //                           image: club.clubIsOpen() ?
-    //                           const AssetImage("assets/images/pin.png") :
-    //                           const AssetImage("assets/images/pin_inverted.png"),
-    //                         ),
-    //                         if(
-    //                         fetchedContentProvider
-    //                             .getFetchedBannerImageIds()
-    //                             .contains(club.getSmallLogoFileName())
-    //                         )
-    //                           Container(
-    //                             // color: Colors.black,
-    //                             padding: const EdgeInsets.only(
-    //                               left: 3,
-    //                               top: 3
-    //                             ),
-    //                             child: CircleAvatar(
-    //                               radius: 15,
-    //                               child: Container(
-    //                                 decoration: BoxDecoration(
-    //                                   shape: BoxShape.circle,
-    //                                   color: Colors.black,
-    //                                   image: DecorationImage(
-    //                                     fit: BoxFit.cover,
-    //                                     image:
-    //                                     FileImage(
-    //                                         File(
-    //                                             "${stateProvider.appDocumentsDir.path}/${club.getSmallLogoFileName()}"
-    //                                         )
-    //                                     ),
-    //                                   ),
-    //                                 ),
-    //                               ),
-    //                             ),
-    //                           ),
-    //
-    //                         if(
-    //                         !fetchedContentProvider
-    //                             .getFetchedBannerImageIds()
-    //                             .contains(club.getSmallLogoFileName())
-    //                         )
-    //                           Container(
-    //                             color: Colors.green,
-    //                             padding: const EdgeInsets.only(
-    //                                 left: 3,
-    //                                 top: 3
-    //                             ),
-    //                             child: CircleAvatar(
-    //                               radius: 15,
-    //                               child: Container(
-    //                                 decoration: const BoxDecoration(
-    //                                   shape: BoxShape.circle,
-    //                                 ),
-    //                                 child: CircularProgressIndicator(
-    //                                   color: customStyleClass.primeColor,
-    //                                 ),
-    //                               ),
-    //                             ),
-    //                           ),
-    //                       ],
-    //                     ),
-    //                     onTap: (){
-    //
-    //                       // Check if there is any event for the club
-    //                       if(fetchedContentProvider.fetchedEvents
-    //                           .where(
-    //                               (event) => (event.getClubId() == club.getClubId() && event.getEventDate().isAfter(DateTime.now()))
-    //                       ).isEmpty
-    //                       ){
-    //                         noEventAvailable = true;
-    //                       }else{
-    //                         clubMeEventToDisplay = fetchedContentProvider.fetchedEvents.firstWhere(
-    //                                 (event) => (event.getClubId() == club.getClubId() && event.getEventDate().isAfter(DateTime.now()))
-    //                         );
-    //                         noEventAvailable = false;
-    //                       }
-    //
-    //                       currentAndLikedElementsProvider.setCurrentClub(club);
-    //                       toggleShowBottomSheet();
-    //                     },
-    //                   )
-    //               )
-    //           ]
-    //       )
-    //     ]
-    // );
   }
   Widget _buildAppBar(){
 
@@ -568,6 +330,26 @@ class _UserMapViewState extends State<UserMapView>{
       ),
     );
   }
+
+
+  // Geo location services
+  void startPeriodicGeoLocatorStream(){
+    Timer.periodic(const Duration(seconds: 3), (timer){
+
+      log.d("Periodic timer triggered");
+
+      const LocationSettings locationSettings = LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 100,
+      );
+
+      Geolocator.getPositionStream(
+          locationSettings: locationSettings).listen((Position position) {
+        log.d('Location updated: ${position.latitude}, ${position.longitude}');
+        uploadPositionToSupabase(position);
+      });
+    });
+  }
   Future<Position> _determinePosition() async {
 
     // Check if location services are enabled
@@ -609,6 +391,13 @@ class _UserMapViewState extends State<UserMapView>{
     final userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
 
     userDataProvider.setUserCoordinates(value);
+
+    _markers['user_location'] = Marker(
+      markerId: const MarkerId('user_location'),
+      position: LatLng(userDataProvider.getUserLatCoord(), userDataProvider.getUserLongCoord()),
+      infoWindow: const InfoWindow(title: 'Your Location'),
+    );
+
     _supabaseService.saveUsersGeoLocation(userDataProvider.getUserDataId(), value.latitude, value.longitude);
   }
 
@@ -616,10 +405,6 @@ class _UserMapViewState extends State<UserMapView>{
   Widget build(BuildContext context) {
 
     initGeneralSettings();
-
-    if(isClubsFetched == false && fetchedContentProvider.getFetchedClubs().isNotEmpty) {
-      isClubsFetched = true;
-    }
 
     return Scaffold(
 
@@ -631,9 +416,7 @@ class _UserMapViewState extends State<UserMapView>{
         surfaceTintColor: customStyleClass.backgroundColorMain,
         title: _buildAppBar(),
       ),
-      body:
-      
-      Container(
+      body: Container(
         width: screenWidth,
           height: screenHeight,
           color:customStyleClass.backgroundColorMain,
@@ -647,7 +430,7 @@ class _UserMapViewState extends State<UserMapView>{
                 child: Stack(
                   children: [
 
-                    fetchClubsFromDbAndBuildWidget(screenHeight, screenWidth),
+                    _buildFlutterMap(),
 
                     // transparent layer to click out of bottom sheet
                     showBottomSheet?
@@ -732,7 +515,7 @@ class _UserMapViewState extends State<UserMapView>{
                                       height: 10,
                                     ),
 
-                                    for( ClubMeClub club in clubsToDisplay)
+                                    for( ClubMeClub club in fetchedContentProvider.getFetchedClubs())
                                       ClubListItem(
                                           currentClub: club,
                                       )

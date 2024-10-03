@@ -19,6 +19,7 @@ import 'package:club_me/settings/club_view/settings_club_view.dart';
 import 'package:club_me/settings/user_view/components/faq_user_view.dart';
 import 'package:club_me/settings/user_view/settings_user_view.dart';
 import 'package:club_me/shared/test.dart';
+import 'package:club_me/stories/show_story_chewie.dart';
 import 'package:club_me/stories/video_recorder_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -286,6 +287,7 @@ final GoRouter _router = GoRouter(
 
     // NEW, UPCOMING, PAST
 
+
     // CLUB
     GoRoute(
         path: '/club_new_event',
@@ -401,6 +403,16 @@ final GoRouter _router = GoRouter(
             context: context,
             state: state,
             child: const OffersListView()
+        )
+    ),
+
+
+    GoRoute(
+        path: '/show_story',
+        pageBuilder: (context, state) => buildPageWithoutTransition(
+            context: context,
+            state: state,
+            child: ShowStoryChewie()
         )
     ),
 

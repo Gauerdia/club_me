@@ -1,3 +1,4 @@
+import 'package:club_me/models/hive_models/5_club_me_used_discount.dart';
 import 'package:flutter/cupertino.dart';
 
 import '../models/club.dart';
@@ -11,15 +12,26 @@ class FetchedContentProvider extends ChangeNotifier{
   List<ClubMeEvent> fetchedEvents = [];
   List<ClubMeDiscount> fetchedDiscounts = [];
 
-  // When the clubEventView is firstly loaded, we put all fetched image ids in an
-  // array. This array will be shared with the provider when the user navigates
-  // to the pastEvents or upcomingEvents views. Then, the information which
-  // images are already fetched can be retrieved from here.
-  // List<String> fetchedEventBannerImageIds = [];
-  // List<String> fetchedDiscountBannerImageIds = [];
+  List<ClubMeUsedDiscount> usedDiscounts = [];
 
   List<String> fetchedBannerImageIds = [];
 
+
+  // USED DISCOUNTS
+  List<ClubMeUsedDiscount> getUsedDiscounts(){
+    return usedDiscounts;
+  }
+  void addUsedDiscount(ClubMeUsedDiscount usedDiscount){
+    usedDiscounts.add(usedDiscount);
+    notifyListeners();
+  }
+  void setUsedDiscounts(List<ClubMeUsedDiscount> newUsedDiscounts){
+    usedDiscounts = newUsedDiscounts;
+    notifyListeners();
+  }
+
+
+  // BANNER IDS
   List<String> getFetchedBannerImageIds(){
     return fetchedBannerImageIds;
   }
@@ -33,12 +45,10 @@ class FetchedContentProvider extends ChangeNotifier{
   }
 
 
-
   // EVENTS: GET,SET,ADD, UPDATE
   List<ClubMeEvent> getFetchedEvents(){
     return fetchedEvents;
   }
-
   List<ClubMeEvent> getFetchedUpcomingEvents(String userClubId){
 
     final berlin = tz.getLocation('Europe/Berlin');
@@ -53,7 +63,41 @@ class FetchedContentProvider extends ChangeNotifier{
     }
     return fetchedUpcomingEvents;
   }
+  void setFetchedEvents(List<ClubMeEvent> fetchedEvents){
+    this.fetchedEvents = fetchedEvents;
+  }
+  void addEventToFetchedEvents(ClubMeEvent clubMeEvent){
+    fetchedEvents.add(clubMeEvent);
+    sortFetchedEvents();
+  }
+  void updateSpecificEvent(String eventId, ClubMeEvent updatedClubMeEvent){
+    int index = fetchedEvents.indexWhere((element) => element.getEventId() == eventId);
+    fetchedEvents[index] = updatedClubMeEvent;
+  }
+  void sortFetchedEvents(){
+    fetchedEvents.sort((a,b) =>
+        a.getEventDate().millisecondsSinceEpoch.compareTo(b.getEventDate().millisecondsSinceEpoch)
+    );
+  }
 
+
+  // CLUBS: GET,SET,ADD
+  List<ClubMeClub> getFetchedClubs(){
+    return fetchedClubs;
+  }
+  void setFetchedClubs(List<ClubMeClub> fetchedClubs){
+    this.fetchedClubs = fetchedClubs;
+  }
+  void addClubToFetchedClubs(ClubMeClub clubMeClub){
+    fetchedClubs.add(clubMeClub);
+    notifyListeners();
+  }
+
+
+  // DISCOUNTS: GET,SET,ADD,UPDATE
+  List<ClubMeDiscount> getFetchedDiscounts(){
+    return fetchedDiscounts;
+  }
   List<ClubMeDiscount> getFetchedUpcomingDiscounts(String userClubId){
 
     final berlin = tz.getLocation('Europe/Berlin');
@@ -68,71 +112,25 @@ class FetchedContentProvider extends ChangeNotifier{
     }
     return fetchedUpcomingDiscounts;
   }
-
-
-  void setFetchedEvents(List<ClubMeEvent> fetchedEvents){
-    this.fetchedEvents = fetchedEvents;
-  }
-
-
-  void addEventToFetchedEvents(ClubMeEvent clubMeEvent){
-    fetchedEvents.add(clubMeEvent);
-    sortFetchedEvents();
-  }
-
-  void updateSpecificEvent(String eventId, ClubMeEvent updatedClubMeEvent){
-    int index = fetchedEvents.indexWhere((element) => element.getEventId() == eventId);
-    fetchedEvents[index] = updatedClubMeEvent;
-    notifyListeners();
-  }
-
-  void sortFetchedEvents(){
-    fetchedEvents.sort((a,b) =>
-        a.getEventDate().millisecondsSinceEpoch.compareTo(b.getEventDate().millisecondsSinceEpoch)
-    );
-  }
-
-  // CLUBS: GET,SET,ADD
-  List<ClubMeClub> getFetchedClubs(){
-    return fetchedClubs;
-  }
-  void setFetchedClubs(List<ClubMeClub> fetchedClubs){
-    this.fetchedClubs = fetchedClubs;
-  }
-  void addClubToFetchedClubs(ClubMeClub clubMeClub){
-    fetchedClubs.add(clubMeClub);
-  }
-
-  void sortFetchedDiscounts(){
-    fetchedDiscounts.sort((a,b) =>
-        a.getDiscountDate().millisecondsSinceEpoch.compareTo(b.getDiscountDate().millisecondsSinceEpoch)
-    );
-  }
-
-
-  // DISCOUNTS: GET,SET,ADD,UPDATE
-  List<ClubMeDiscount> getFetchedDiscounts(){
-    return fetchedDiscounts;
-  }
-
   void setFetchedDiscounts(List<ClubMeDiscount> fetchedDiscounts){
     this.fetchedDiscounts = fetchedDiscounts;
   }
-
   void removeFetchedDiscount(ClubMeDiscount clubMeDiscount){
     fetchedDiscounts.remove(clubMeDiscount);
     notifyListeners();
   }
-
   void addDiscountToFetchedDiscounts(ClubMeDiscount clubMeDiscount){
     fetchedDiscounts.add(clubMeDiscount);
     sortFetchedDiscounts();
   }
-
   void updateSpecificDiscount(String discountId, ClubMeDiscount updatedClubMeDiscount){
     int index = fetchedDiscounts.indexWhere((element) => element.getDiscountId() == discountId);
     fetchedDiscounts[index] = updatedClubMeDiscount;
     notifyListeners();
   }
-
+  void sortFetchedDiscounts(){
+    fetchedDiscounts.sort((a,b) =>
+        a.getDiscountDate().millisecondsSinceEpoch.compareTo(b.getDiscountDate().millisecondsSinceEpoch)
+    );
+  }
 }

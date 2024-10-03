@@ -6,6 +6,7 @@ import 'package:club_me/models/parser/club_me_discount_parser.dart';
 import 'package:club_me/provider/current_and_liked_elements_provider.dart';
 import 'package:club_me/provider/fetched_content_provider.dart';
 import 'package:club_me/provider/user_data_provider.dart';
+import 'package:club_me/services/check_and_fetch_service.dart';
 import 'package:club_me/services/hive_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -30,26 +31,27 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
 
   var log = Logger();
 
-  List<String> imageFileNamesToBeFetched = [];
-  List<String> imageFileNamesAlreadyFetched = [];
-
   late StateProvider stateProvider;
-  late FetchedContentProvider fetchedContentProvider;
   late UserDataProvider userDataProvider;
+  late FetchedContentProvider fetchedContentProvider;
   late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
 
-  late Future getDiscounts;
-  late CustomStyleClass customStyleClass;
+
+  // late Future getDiscounts;
   late double screenHeight, screenWidth;
+  late CustomStyleClass customStyleClass;
+
 
   List<ClubMeDiscount> pastDiscounts = [];
   List<ClubMeDiscount> upcomingDiscounts = [];
 
-  double discountContainerHeightFactor = 0.52;
-  double newDiscountContainerHeightFactor = 0.2;
 
-  final SupabaseService _supabaseService = SupabaseService();
   final HiveService _hiveService = HiveService();
+  final SupabaseService _supabaseService = SupabaseService();
+  final CheckAndFetchService _checkAndFetchService = CheckAndFetchService();
+
+  // INIT
+
 
   @override
   void initState(){
@@ -59,18 +61,21 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
     final fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen: false);
 
     if(fetchedContentProvider.getFetchedDiscounts().isEmpty) {
-      getDiscounts = _supabaseService.getDiscountsOfSpecificClub(userDataProvider.getUserData().getUserId());
+      _supabaseService.getDiscountsOfSpecificClub(userDataProvider.getUserData().getUserId())
+      .then((data) => filterDiscountsFromQuery(data));
     }
 
   }
 
 
   // FILTER
+
+
   void checkIfFilteringIsNecessary(){
 
     // Check if provider is full, but local arrays are empty
     if(upcomingDiscounts.isEmpty && pastDiscounts.isEmpty && fetchedContentProvider.getFetchedDiscounts().isNotEmpty){
-      filterDiscountsFromProvider(stateProvider);
+      filterDiscountsFromProvider();
     }
 
     // Check if something has just been edited
@@ -82,152 +87,121 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
             )
         )
     ){
-      filterDiscountsFromProvider(stateProvider);
+      filterDiscountsFromProvider();
     }
 
     // Check, if a coupon has just been created
     if(upcomingDiscounts.length+pastDiscounts.length != fetchedContentProvider.getFetchedDiscounts().length){
-      filterDiscountsFromProvider(stateProvider);
+      filterDiscountsFromProvider();
     }
   }
-  void filterDiscountsFromProvider(StateProvider stateProvider){
+  void filterDiscountsFromProvider(){
 
     upcomingDiscounts = [];
     pastDiscounts = [];
 
     for(var currentDiscount in fetchedContentProvider.getFetchedDiscounts()){
-      // add 23 so that we can still find it as upcoming even though it's the same day
-      DateTime discountTimestamp = currentDiscount.getDiscountDate();
+      checkIfUpcomingOrPastDiscount(currentDiscount);
+    }
 
-      checkIfImageExistsLocally(currentDiscount.getBigBannerFileName()).then((exists){
-        if(!exists){
-            fetchAndSaveBannerImage(currentDiscount.getBigBannerFileName(), "discount_banner_images");
-        }else{
-          fetchedContentProvider.addFetchedBannerImageId(currentDiscount.getBigBannerFileName());
-        }
-      });
+    // Check if we need to download the corresponding images
+    _checkAndFetchService.checkAndFetchDiscountImages(
+        fetchedContentProvider.getFetchedDiscounts(),
+        stateProvider,
+        fetchedContentProvider
+    );
 
-      // Filter the events
-      if(discountTimestamp.isAfter(stateProvider.getBerlinTime()) || discountTimestamp.isAtSameMomentAs(stateProvider.getBerlinTime())){
-        if(currentDiscount.getClubId() == userDataProvider.getUserClubId()){
-          upcomingDiscounts.add(currentDiscount);
-        }
-      }else{
-        if(currentDiscount.getClubId() == userDataProvider.getUserClubId()){
-          pastDiscounts.add(currentDiscount);
-        }
-      }
-    };
+    // We have something to show? Awesome, now apply an ascending order
+    if(upcomingDiscounts.isNotEmpty){
+      upcomingDiscounts.sort((a,b) =>
+          a.getDiscountDate().millisecondsSinceEpoch.compareTo(b.getDiscountDate().millisecondsSinceEpoch)
+      );
+    }
+
+    // We have something to show? Awesome, now apply an ascending order
+    if(pastDiscounts.isNotEmpty){
+      pastDiscounts.sort((a,b) =>
+          a.getDiscountDate().millisecondsSinceEpoch.compareTo(b.getDiscountDate().millisecondsSinceEpoch)
+      );
+    }
+
   }
-  void filterDiscountsFromQuery(var data, StateProvider stateProvider){
+  void filterDiscountsFromQuery(var data){
 
     for(var element in data){
 
       // Get data in correct format
       ClubMeDiscount currentDiscount = parseClubMeDiscount(element);
 
-      // local var to shorten the expressions
-      DateTime discountTimestamp = currentDiscount.getDiscountDate();
+      // Sort into upcoming and past arrays
+      checkIfUpcomingOrPastDiscount(currentDiscount);
 
-      // Make sure we can show the corresponding image(s)
-      checkIfImageExistsLocally(currentDiscount.getBigBannerFileName()).then((exists){
-        if(!exists){
-
-          // If we haven't started to fetch the image yet, we ought to
-          if(!imageFileNamesToBeFetched.contains(currentDiscount.getBigBannerFileName())){
-
-            // Save the name so that we don't fetch the same image several times
-            imageFileNamesToBeFetched.add(currentDiscount.getBigBannerFileName());
-
-            fetchAndSaveBannerImage(currentDiscount.getBigBannerFileName(), "discount_banner_images");
-          }
-        }else{
-          setState(() {
-            imageFileNamesAlreadyFetched.add(currentDiscount.getBigBannerFileName());
-          });
-        }
-      });
-
-      // Sort the discounts into the correct arrays
-      if(discountTimestamp.isAfter(stateProvider.getBerlinTime()) || discountTimestamp.isAtSameMomentAs(stateProvider.getBerlinTime())){
-
-        // Make sure that we only consider discounts of the current user's club
-        if(currentDiscount.getClubId() == userDataProvider.getUserClubId()){
-          upcomingDiscounts.add(currentDiscount);
-        }
-
-      }else{
-
-        // Make sure that we only consider discounts of the current user's club
-        if(currentDiscount.getClubId() == userDataProvider.getUserClubId()){
-          pastDiscounts.add(currentDiscount);
-        }
-
+      // Check if maybe already fetched
+      if(!fetchedContentProvider.getFetchedDiscounts().contains(currentDiscount)){
+        fetchedContentProvider.addDiscountToFetchedDiscounts(currentDiscount);
       }
+    }
 
-      // We have something to show? Awesome, now apply an ascending order
-      if(upcomingDiscounts.isNotEmpty){
-        upcomingDiscounts.sort((a,b) =>
-            a.getDiscountDate().millisecondsSinceEpoch.compareTo(b.getDiscountDate().millisecondsSinceEpoch)
-        );
-      }
+    // Check if we need to download the corresponding images
+    _checkAndFetchService.checkAndFetchDiscountImages(
+        fetchedContentProvider.getFetchedDiscounts(),
+        stateProvider,
+        fetchedContentProvider
+    );
 
-      // We have something to show? Awesome, now apply an ascending order
-      if(pastDiscounts.isNotEmpty){
-        pastDiscounts.sort((a,b) =>
-            a.getDiscountDate().millisecondsSinceEpoch.compareTo(b.getDiscountDate().millisecondsSinceEpoch)
-        );
-      }
+    // We have something to show? Awesome, now apply an ascending order
+    if(upcomingDiscounts.isNotEmpty){
+      upcomingDiscounts.sort((a,b) =>
+          a.getDiscountDate().millisecondsSinceEpoch.compareTo(b.getDiscountDate().millisecondsSinceEpoch)
+      );
+    }
 
-      // Add to provider so that we don't need to fetch them from the db again
-      fetchedContentProvider.addDiscountToFetchedDiscounts(currentDiscount);
+    // We have something to show? Awesome, now apply an ascending order
+    if(pastDiscounts.isNotEmpty){
+      pastDiscounts.sort((a,b) =>
+          a.getDiscountDate().millisecondsSinceEpoch.compareTo(b.getDiscountDate().millisecondsSinceEpoch)
+      );
     }
   }
+  void checkIfUpcomingOrPastDiscount(ClubMeDiscount currentDiscount){
+
+    // Sort the events into the correct arrays
+    if(currentDiscount.getDiscountDate().isAfter(stateProvider.getBerlinTime()) ||
+        currentDiscount.getDiscountDate().isAtSameMomentAs(stateProvider.getBerlinTime())){
+
+      // Make sure that we only consider events of the current user's club
+      if(currentDiscount.getClubId() == userDataProvider.getUserClubId()){
+        upcomingDiscounts.add(currentDiscount);
+      }
+    }else{
+
+      // Make sure that we only consider events of the current user's club
+      if(currentDiscount.getClubId() == userDataProvider.getUserClubId()){
+        pastDiscounts.add(currentDiscount);
+      }
+    }
+
+  }
+
+
 
   // BUILD
-  Widget fetchDiscountsFromDbAndBuildWidget(
-      StateProvider stateProvider,
-      double screenHeight, double screenWidth){
-    return fetchedContentProvider.getFetchedDiscounts().isEmpty ?
-    FutureBuilder(
-        future: getDiscounts,
-        builder: (context, snapshot){
 
-          if(snapshot.hasError){
-            print("Error: ${snapshot.error}");
-          }
 
-          if(!snapshot.hasData){
-            return Column(
-              children: [
-
-                SizedBox(
-                  height: screenHeight*0.2,
-                ),
-
-                Center(
-                  child: CircularProgressIndicator(
-                    color: customStyleClass.primeColor,
-                  ),
-                )
-              ],
-            );
-          }else{
-
-            final data = snapshot.data!;
-
-            filterDiscountsFromQuery(data, stateProvider);
-
-            return _buildMainView(stateProvider, screenHeight, screenWidth);
-
-          }
-        }
-    ): _buildMainView(stateProvider, screenHeight, screenWidth);
+  AppBar _buildAppBar(){
+    return AppBar(
+      title: SizedBox(
+        width: screenWidth,
+        child: Text(headLine,
+          textAlign: TextAlign.center,
+          style: customStyleClass.getFontStyleHeadline1Bold(),
+        ),
+      ),
+      backgroundColor: customStyleClass.backgroundColorMain,
+      surfaceTintColor: customStyleClass.backgroundColorMain,
+    );
   }
-  Widget _buildMainView(
-      StateProvider stateProvider,
-      double screenHeight, double screenWidth
-      ){
+  Widget _buildMainView(){
     return Column(
       children: [
 
@@ -335,7 +309,7 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
                   clubMeDiscount: upcomingDiscounts[0]
                 ),
               ),
-              onTap: () => clickedOnCurrentDiscount(),
+              onTap: () => clickEventCurrentDiscount(),
             ),
 
             // Edit button
@@ -355,7 +329,7 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
                       color: customStyleClass.primeColor,
                         size: screenWidth*0.06
                     ),
-                    onTap: () => clickOnEditDiscount(),
+                    onTap: () => clickEventEditDiscount(),
                   ),
 
                   InkWell(
@@ -364,7 +338,7 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
                       color: customStyleClass.primeColor,
                         size: screenWidth*0.06
                     ),
-                    onTap: () => clickOnDeleteDiscount(),
+                    onTap: () => clickEventDeleteDiscount(),
                   ),
 
                 ],
@@ -489,27 +463,23 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
     );
   }
 
-  AppBar _buildAppBar(){
-    return AppBar(
-      title: SizedBox(
-        width: screenWidth,
-        child: Text(headLine,
-          textAlign: TextAlign.center,
-          style: customStyleClass.getFontStyleHeadline1Bold(),
-        ),
-      ),
-      backgroundColor: customStyleClass.backgroundColorMain,
-      surfaceTintColor: customStyleClass.backgroundColorMain,
-    );
-  }
 
   // CLICKED
-  void clickOnDeleteDiscount(){
+
+
+  void clickEventNewCoupon(){
+    context.push("/club_new_discount");
+  }
+  void clickEventEditDiscount(){
+    currentAndLikedElementsProvider.setCurrentDiscount(upcomingDiscounts[0]);
+    context.push("/discount_details");
+  }
+  void clickEventDeleteDiscount(){
     showDialog(context: context, builder: (BuildContext context){
       return AlertDialog(
         backgroundColor: Color(0xff121111),
         title:  Text(
-            "Achtung!",
+          "Achtung!",
           style: customStyleClass.getFontStyle1Bold(),
         ),
         content:  Text(
@@ -531,7 +501,7 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
                 }
               }),
               child: Text(
-                  "Löschen",
+                "Löschen",
                 style: customStyleClass.getFontStyle4BoldPrimeColor(),
               )
           )
@@ -539,10 +509,12 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
       );
     });
   }
-  void clickedOnCurrentDiscount(){
+  void clickEventCurrentDiscount(){
     print ("currentDiscount");
   }
-
+  void clickEventNewCouponFromTemplate(){
+    context.push("/club_discount_templates");
+  }
   void clickEventGoToMoreDiscounts(int routeIndex){
     switch(routeIndex){
       case 0 : context.push("/club_upcoming_discounts"); break;
@@ -551,18 +523,6 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
     }
   }
 
-
-  // MISC FCTS
-  void clickOnEditDiscount(){
-    currentAndLikedElementsProvider.setCurrentDiscount(upcomingDiscounts[0]);
-    context.push("/discount_details");
-  }
-  void clickEventNewCoupon(){
-    context.push("/club_new_discount");
-  }
-  clickEventNewCouponFromTemplate(){
-    context.push("/club_discount_templates");
-  }
 
   // Fetch content from DB
 
@@ -579,22 +539,6 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
     }
   }
 
-
-  Future<bool> checkIfImageExistsLocally(String fileName) async{
-    final String dirPath = stateProvider.appDocumentsDir.path;
-    return await File('$dirPath/$fileName').exists();
-  }
-  void fetchAndSaveBannerImage(String fileName, String folder) async {
-    var imageFile = await _supabaseService.getBannerImage(fileName, folder);
-    final String dirPath = stateProvider.appDocumentsDir.path;
-
-    await File("$dirPath/$fileName").writeAsBytes(imageFile).then((onValue){
-      setState(() {
-        log.d("fetchAndSaveBannerImage: Finished successfully. Path: $dirPath/$fileName");
-        fetchedContentProvider.addFetchedBannerImageId(fileName);
-      });
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -625,7 +569,8 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
             height: screenHeight,
             color: customStyleClass.backgroundColorMain,
             child: SingleChildScrollView(
-                child: fetchDiscountsFromDbAndBuildWidget(stateProvider, screenHeight, screenWidth)
+                child:
+                _buildMainView()
             )
         ),
       bottomNavigationBar: CustomBottomNavigationBarClubs(),

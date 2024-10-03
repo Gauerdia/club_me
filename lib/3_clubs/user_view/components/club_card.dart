@@ -64,6 +64,33 @@ class ClubCard extends StatelessWidget {
 
 
   // CALCULATE
+
+
+  void checkIfClosed(){
+    for(var element in clubMeClub.getOpeningTimes().days!){
+
+      // Catching the situation that the user checks the app after midnight.
+      // We want him to know that it's open but will close some time.
+      if(stateProvider.getBerlinTime().hour < 8){
+        if(element.day!-1 == stateProvider.getBerlinTime().weekday){
+          todaysClosingHour = element.closingHour!;
+          closedToday = false;
+          if(stateProvider.getBerlinTime().hour < element.closingHour!){
+            alreadyOpen = true;
+            if(todaysClosingHour - stateProvider.getBerlinTime().hour < 3){
+              lessThanThreeMoreHoursOpen = true;
+            }
+          }
+        }
+      }else{
+        if(element.day == stateProvider.getBerlinTime().weekday){
+          todaysOpeningHour = element.openingHour!;
+          closedToday = false;
+          if(stateProvider.getBerlinTime().hour >= todaysOpeningHour) alreadyOpen = true;
+        }
+      }
+    }
+  }
   String getRandomNumber(){
 
     final random = Random();
@@ -92,31 +119,9 @@ class ClubCard extends StatelessWidget {
       return 0;
     }
   }
-  void checkIfClosed(){
-    for(var element in clubMeClub.getOpeningTimes().days!){
 
-      // Catching the situation that the user checks the app after midnight.
-      // We want him to know that it's open but will close some time.
-      if(stateProvider.getBerlinTime().hour < 8){
-        if(element.day!-1 == stateProvider.getBerlinTime().weekday){
-          todaysClosingHour = element.closingHour!;
-          closedToday = false;
-          if(stateProvider.getBerlinTime().hour < element.closingHour!){
-            alreadyOpen = true;
-            if(todaysClosingHour - stateProvider.getBerlinTime().hour < 3){
-              lessThanThreeMoreHoursOpen = true;
-            }
-          }
-        }
-      }else{
-        if(element.day == stateProvider.getBerlinTime().weekday){
-          todaysOpeningHour = element.openingHour!;
-          closedToday = false;
-          if(stateProvider.getBerlinTime().hour >= todaysOpeningHour) alreadyOpen = true;
-        }
-      }
-    }
-  }
+
+  // CLICK EVENTS
 
 
   void clickEventInfoButtonClicked(BuildContext context){
@@ -140,314 +145,305 @@ class ClubCard extends StatelessWidget {
   // BUILD
 
 
-  Widget _buildStackView2(BuildContext context){
+  Widget _buildStackView(BuildContext context){
     return Stack(
       children: [
 
         // Back background for the bottom part
-        Container(
-          width: screenWidth*widthFactor,
-          height: topHeight+bottomHeight,
-          decoration: BoxDecoration(
-              // color: Colors.red,
-              borderRadius: BorderRadius.circular(
-                  15
-              ),
-              border: Border.all(
-                  color: Colors.grey[900]!,
-                  width: 2.0
-              )
+        Center(
+          child: Container(
+            width: screenWidth*widthFactor,
+            height: topHeight+bottomHeight,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(
+                    15
+                ),
+                border: Border.all(
+                    color: Colors.grey[900]!,
+                    width: 2.0
+                )
+            ),
           ),
         ),
 
         // Main background
-        Container(
-          height: topHeight+bottomHeight-60,
-          decoration: BoxDecoration(
-            color: Colors.grey[900]!,
+        Center(
+          child: Container(
+            alignment: Alignment.topCenter,
+            width: screenWidth*widthFactor,
+            height: topHeight+bottomHeight-100,
+            decoration: BoxDecoration(
+              color: Colors.grey[900]!,
               borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(15),
-                topRight: Radius.circular(15)
+                  topRight: Radius.circular(15)
               ),
 
+            ),
           ),
         ),
 
         // Content
-        Column(
-          children: [
+        Center(
+          child: SizedBox(
+            width: screenWidth*widthFactor,
+            height: topHeight+bottomHeight,
+            child: Column(
+              children: [
 
-            // Image part
-            GestureDetector(
-              child:Container(
-                alignment: Alignment.topCenter,
-                padding: const EdgeInsets.only(
-                    top: 2
-                ),
-                child:  Container(
-                  width:screenWidth*(widthFactor - 0.01) ,
-                  alignment: Alignment.center,
-                  height: screenHeight*0.2,
-                  child: Stack(
-                    children: [
+                // Image part
+                GestureDetector(
+                  child:Container(
+                    alignment: Alignment.topCenter,
+                    padding: const EdgeInsets.only(
+                        top: 2
+                    ),
+                    child:  Container(
+                      width:screenWidth*(widthFactor - 0.01) ,
+                      alignment: Alignment.center,
+                      height: screenHeight*0.2,
+                      child: Stack(
+                        children: [
 
-                      // Image
-                      Container(
+                          // Image
+                          Container(
 
-                        // Image background
-                        decoration: const BoxDecoration(
-                          borderRadius: BorderRadius.only(
-                            topRight: Radius.circular(12),
-                            topLeft: Radius.circular(12),
-                          ),
-                        ),
-
-                        // Image + its sides
-                        child: Container(
-                            width: screenWidth*0.95,
+                            // Image background
                             decoration: const BoxDecoration(
                               borderRadius: BorderRadius.only(
                                 topRight: Radius.circular(12),
                                 topLeft: Radius.circular(12),
-                                bottomLeft: Radius.circular(12),
-                                bottomRight: Radius.circular(12),
                               ),
-                              color: Colors.black,
                             ),
-                            // height: screenHeight*0.17,
-                            child:
-                            fetchedContentProvider
-                                .getFetchedBannerImageIds()
-                                .contains(clubMeClub.getBigLogoFileName()) ?
-                            ClipRRect(
-                                borderRadius: const BorderRadius.only(
+
+                            // Image + its sides
+                            child: Container(
+                                width: screenWidth*0.95,
+                                decoration: const BoxDecoration(
+                                  borderRadius: BorderRadius.only(
                                     topRight: Radius.circular(12),
-                                    topLeft: Radius.circular(12)
+                                    topLeft: Radius.circular(12),
+                                    bottomLeft: Radius.circular(12),
+                                    bottomRight: Radius.circular(12),
+                                  ),
+                                  color: Colors.black,
                                 ),
-                                child: Image(
-                                  image:
-                                  FileImage(File("${stateProvider.appDocumentsDir.path}/${clubMeClub.getBigLogoFileName()}")),
-                                  fit: BoxFit.cover,
+                                // height: screenHeight*0.17,
+                                child:
+                                fetchedContentProvider
+                                    .getFetchedBannerImageIds()
+                                    .contains(clubMeClub.getBigLogoFileName()) ?
+                                ClipRRect(
+                                    borderRadius: const BorderRadius.only(
+                                        topRight: Radius.circular(12),
+                                        topLeft: Radius.circular(12)
+                                    ),
+                                    child: Image(
+                                      image:
+                                      FileImage(File("${stateProvider.appDocumentsDir.path}/${clubMeClub.getBigLogoFileName()}")),
+                                      fit: BoxFit.cover,
+                                    )
+                                ) :
+                                SizedBox(
+                                  height: screenHeight*0.2,
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      color: customStyleClass.primeColor,
+                                    ),
+                                  ),
                                 )
-                            ) :
-                            SizedBox(
-                              height: screenHeight*0.2,
-                              child: Center(
-                                child: CircularProgressIndicator(
-                                  color: customStyleClass.primeColor,
-                                ),
+                            ),
+                          ),
+
+                          // Open/Closed Text
+                          Container(
+                            width: screenWidth*0.95,
+                            // color: Colors.red,
+                            padding: const EdgeInsets.only(
+                                top: 10,
+                                left: 10
+                            ),
+                            alignment: Alignment.topLeft,
+                            child: Text(
+                              closedToday ?
+                              "Geschlossen" :
+                              alreadyOpen ?
+                              lessThanThreeMoreHoursOpen ?
+                              "Geöffnet, schließt um $todaysClosingHour" :
+                              "Geöffnet" :
+                              "Öffnet um $todaysOpeningHour:00 Uhr",
+                              style: TextStyle(
+                                  color: closedToday ?
+                                  Colors.grey : alreadyOpen ?
+                                  customStyleClass.primeColor : Colors.white
                               ),
-                            )
-                        ),
+                            ),
+                          )
+
+                        ],
                       ),
-
-                      // Open/Closed Text
-                      Container(
-                        width: screenWidth*0.95,
-                        // color: Colors.red,
-                        padding: const EdgeInsets.only(
-                            top: 10,
-                            left: 10
-                        ),
-                        alignment: Alignment.topLeft,
-                        child: Text(
-                          closedToday ?
-                          "Geschlossen" :
-                          alreadyOpen ?
-                          lessThanThreeMoreHoursOpen ?
-                          "Geöffnet, schließt um $todaysClosingHour" :
-                          "Geöffnet" :
-                          "Öffnet um $todaysOpeningHour:00 Uhr",
-                          style: TextStyle(
-                              color: closedToday ?
-                              Colors.grey : alreadyOpen ?
-                              customStyleClass.primeColor : Colors.white
-                          ),
-                        ),
-                      )
-
-                    ],
+                    ),
                   ),
+                  onTap: (){
+                    currentAndLikedElementsProvider.setCurrentClub(clubMeClub);
+                    context.push("/club_details");
+                  },
                 ),
-              ),
-              onTap: (){
-                currentAndLikedElementsProvider.setCurrentClub(clubMeClub);
-                context.push("/club_details");
-              },
-            ),
 
-            // Title + Icons
-            Container(
-              height: screenHeight*0.1,
-              width: screenWidth*0.9,
-              // color: Colors.red,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-
-
-                  // Title
-                  GestureDetector(
-                    child: Container(
-                      alignment: Alignment.centerLeft,
-                      padding: const EdgeInsets.only(
-
-                        left: 10,
-
-                      ),
-                      width: screenWidth*0.5,
-                      child: Text(
-                        clubMeClub.getClubName().length > 20 ?
-                        "${clubMeClub.getClubName().substring(0,18)}...":
-                        clubMeClub.getClubName(),
-                        style: customStyleClass.getFontStyle1Bold(),
-                      ),
-                    ),
-                    onTap: (){
-                      currentAndLikedElementsProvider.setCurrentClub(clubMeClub);
-                      context.push("/club_details");
-                    },
-                  ),
-
-
-                  Container(
-                    // color: Colors.grey,
-                    width: screenWidth*0.2,
-                    // alignment: Alignment.center,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-
-                        InkWell(
-                          child: Icon(
-                            Icons.info_outline,
-                            color: customStyleClass.primeColor,
-                          ),
-                          onTap: () => clickEventInfoButtonClicked(context),
-                        ),
-
-                        InkWell(
-                          child: Icon(
-                            currentAndLikedElementsProvider.checkIfSpecificCLubIsAlreadyLiked(clubMeClub.getClubId()) ? Icons.star_outlined : Icons.star_border,
-                            color: customStyleClass.primeColor,
-                          ),
-                          onTap: () => clickEventFavoriteButtonClicked(context, clubMeClub.getClubId()),
-                        ),
-
-                        InkWell(
-                          child: Icon(
-                            Icons.share,
-                            color: customStyleClass.primeColor,
-                          ),
-                          onTap: () => clickedOnShare(),
-                        ),
-
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            ),
-
-            // First Event
-            if( events.isNotEmpty)
-            GestureDetector(
-              child: EventCard(
-                clubMeEvent: events[0],
-                accessedEventDetailFrom: 1,
-                backgroundColorIndex: 0,
-              ),
-              onTap: (){
-                currentAndLikedElementsProvider.setCurrentEvent(events[0]);
-                stateProvider.setAccessedEventDetailFrom(1);
-                context.push('/event_details');
-              },
-            ),
-
-            // Card
-            if(events.length > 1)
-            GestureDetector(
-              child: EventCard(
-                clubMeEvent: events[1],
-                accessedEventDetailFrom: 1,
-                backgroundColorIndex: 0,
-              ),
-              onTap: (){
-                currentAndLikedElementsProvider.setCurrentEvent(events[1]);
-                stateProvider.setAccessedEventDetailFrom(1);
-                context.push('/event_details');
-              },
-            ),
-
-
-          ],
-        ),
-
-        // Bottom part
-        Container(
-          height: screenHeight*0.685,
-            alignment: Alignment.bottomCenter,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                // Title + Icons
+                SizedBox(
+                  height: screenHeight*0.1,
+                  width: screenWidth*0.9,
+                  // color: Colors.red,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
 
-                      // Distance to club
-                      calculateDistanceToClub() == 0 ?
-                      const CircularProgressIndicator():
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          // vertical: screenHeight*0.01,
-                          // horizontal: screenWidth*0.03
+
+                      // Title
+                      GestureDetector(
+                        child: Container(
+                          alignment: Alignment.centerLeft,
+                          padding: const EdgeInsets.only(
+
+                            left: 10,
+
+                          ),
+                          width: screenWidth*0.5,
+                          child: Text(
+                            clubMeClub.getClubName().length > 20 ?
+                            "${clubMeClub.getClubName().substring(0,18)}...":
+                            clubMeClub.getClubName(),
+                            style: customStyleClass.getFontStyle1Bold(),
+                          ),
                         ),
+                        onTap: (){
+                          currentAndLikedElementsProvider.setCurrentClub(clubMeClub);
+                          context.push("/club_details");
+                        },
+                      ),
+
+
+                      Container(
+                        // color: Colors.grey,
+                        width: screenWidth*0.2,
+                        // alignment: Alignment.center,
                         child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
 
-                            // Genres icon
-                            Container(
-                              padding: const EdgeInsets.all(
-                                  4
-                              ),
+                            InkWell(
                               child: Icon(
-                                Icons.location_on_outlined,
+                                Icons.info_outline,
                                 color: customStyleClass.primeColor,
-
                               ),
+                              onTap: () => clickEventInfoButtonClicked(context),
                             ),
 
-                            // Spacer
-                            SizedBox(
-                              width: screenWidth*0.01,
+                            InkWell(
+                              child: Icon(
+                                currentAndLikedElementsProvider.checkIfSpecificCLubIsAlreadyLiked(clubMeClub.getClubId()) ? Icons.star_outlined : Icons.star_border,
+                                color: customStyleClass.primeColor,
+                              ),
+                              onTap: () => clickEventFavoriteButtonClicked(context, clubMeClub.getClubId()),
                             ),
 
-                            Text(
-                              calculateDistanceToClub().toStringAsFixed(2),
-                              style: customStyleClass.getFontStyle3(),
+                            InkWell(
+                              child: Icon(
+                                Icons.share,
+                                color: customStyleClass.primeColor,
+                              ),
+                              onTap: () => clickedOnShare(),
                             ),
 
                           ],
                         ),
-                      ),
+                      )
+                    ],
+                  ),
+                ),
 
-                      // Music Genre
-                      Align(
-                        child: Container(
+                // First Event
+                if( events.isNotEmpty)
+                  GestureDetector(
+                    child: EventCard(
+                      clubMeEvent: events[0],
+                      accessedEventDetailFrom: 1,
+                      backgroundColorIndex: 0,
+                    ),
+                    onTap: (){
+                      currentAndLikedElementsProvider.setCurrentEvent(events[0]);
+                      stateProvider.setAccessedEventDetailFrom(1);
+                      context.push('/event_details');
+                    },
+                  ),
+
+                if(events.isEmpty)
+                  Container(
+                    width: screenWidth*widthFactor,
+                    height: screenHeight*0.3,
+                    // color: Colors.red,
+                    child: Center(
+                      child: Text(
+                        "Leider sind derzeit keine Events verfügbar.",
+                        style: customStyleClass.getFontStyle3(),
+                      ),
+                    ),
+                  ),
+
+                // Card
+                if(events.length > 1)
+                  GestureDetector(
+                    child: EventCard(
+                      clubMeEvent: events[1],
+                      accessedEventDetailFrom: 1,
+                      backgroundColorIndex: 0,
+                    ),
+                    onTap: (){
+                      currentAndLikedElementsProvider.setCurrentEvent(events[1]);
+                      stateProvider.setAccessedEventDetailFrom(1);
+                      context.push('/event_details');
+                    },
+                  ),
+
+
+              ],
+            ),
+          )
+        ),
+
+        // Bottom part: Distance, Genre
+        Center(
+          child: Container(
+              height: screenHeight*0.685,
+              alignment: Alignment.bottomCenter,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+
+                        // Distance to club
+                        calculateDistanceToClub() == 0 ?
+                        const CircularProgressIndicator():
+                        Container(
                           padding: const EdgeInsets.symmetric(
                             // vertical: screenHeight*0.01,
                             // horizontal: screenWidth*0.03
                           ),
                           child: Row(
                             children: [
+
                               // Genres icon
                               Container(
                                 padding: const EdgeInsets.all(
                                     4
                                 ),
                                 child: Icon(
-                                  Icons.music_note,
+                                  Icons.location_on_outlined,
                                   color: customStyleClass.primeColor,
+
                                 ),
                               ),
 
@@ -457,25 +453,63 @@ class ClubCard extends StatelessWidget {
                               ),
 
                               Text(
-                                getAndFormatMusicGenre(),
+                                calculateDistanceToClub().toStringAsFixed(2),
                                 style: customStyleClass.getFontStyle3(),
                               ),
 
                             ],
                           ),
                         ),
-                      ),
-                    ]
-                )
-              ],
-            )
+
+                        // Music Genre
+                        Align(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              // vertical: screenHeight*0.01,
+                              // horizontal: screenWidth*0.03
+                            ),
+                            child: Row(
+                              children: [
+                                // Genres icon
+                                Container(
+                                  padding: const EdgeInsets.all(
+                                      4
+                                  ),
+                                  child: Icon(
+                                    Icons.music_note,
+                                    color: customStyleClass.primeColor,
+                                  ),
+                                ),
+
+                                // Spacer
+                                SizedBox(
+                                  width: screenWidth*0.01,
+                                ),
+
+                                Text(
+                                  getAndFormatMusicGenre(),
+                                  style: customStyleClass.getFontStyle3(),
+                                ),
+
+                              ],
+                            ),
+                          ),
+                        ),
+                      ]
+                  )
+                ],
+              )
+          ),
         )
 
       ],
     );
   }
 
+
   // CLICK + FORMAT
+
+
   String getAndFormatMusicGenre() {
     if (clubMeClub.getMusicGenres().contains(",")) {
       var index = clubMeClub.getMusicGenres().indexOf(",");
@@ -519,7 +553,7 @@ class ClubCard extends StatelessWidget {
         width: screenWidth*0.95,
         height: screenHeight*0.74, //76
 
-        child: _buildStackView2(context)
+        child: _buildStackView(context)
     );
   }
 }

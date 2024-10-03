@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:club_me/shared/dialogs/TitleAndContentDialog.dart';
 import 'package:club_me/stories/show_story_chewie.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:logger/logger.dart';
@@ -53,11 +54,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
   @override
   void initState() {
     super.initState();
-
-    final currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context, listen:  false);
-    final stateProvider = Provider.of<StateProvider>(context, listen:  false);
-    checkForFrontPageImages(currentAndLikedElementsProvider, stateProvider);
-
+    checkIfAllImagesAreFetched();
   }
   @override
   void dispose() {
@@ -65,37 +62,10 @@ class _ClubDetailViewState extends State<ClubDetailView> {
   }
 
 
-  void _showDialogWithTitleAndText(String title, String content){
-    showDialog(context: context, builder: (BuildContext context){
-      return AlertDialog(
-        backgroundColor: Color(0xff121111),
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.0),
-            // side: BorderSide(
-            //     color: customStyleClass.primeColor
-            // )
-        ),
-        title: Text(
-            title,
-          style: customStyleClass.getFontStyle1Bold(),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Center(
-              child: Text(
-                content,
-                style: customStyleClass.getFontStyle4(),
-              ),
-            )
-          ],
-        ),
-      );
-    });
-  }
-
   // CLICKED
-  void clickOnPriceList(double screenHeight, double screenWidth){
+
+
+  void clickEventOfferList(double screenHeight, double screenWidth){
 
     if(currentAndLikedElementsProvider.currentClubMeClub.clubOffers.offers.isNotEmpty){
       context.push("/user_offers");
@@ -108,72 +78,36 @@ class _ClubDetailViewState extends State<ClubDetailView> {
 
 
   }
-  void clickOnDiscoverMoreEvents(double screenHeight, double screenWidth){
-
+  void clickEventDiscoverMoreEvents(double screenHeight, double screenWidth){
     stateProvider.toggleWentFromCLubDetailToEventDetail();
     context.push("/user_upcoming_events");
-
-    // showDialog(context: context, builder: (BuildContext context){
-    //   return AlertDialog(
-    //     title: const Text("Ausführliche Eventliste"),
-    //     content: SizedBox(
-    //         height: screenHeight*0.12,
-    //         child: Center(
-    //           child: Text("Diese Funktion steht zurzeit noch nicht zur Verfügung! Wir bitten um Verständnis!"),
-    //         )
-    //     ),
-    //   );
-    // });
-
   }
-  void clickOnDiscoverMorePhotos(double screenHeight, double screenWidth){
-    showDialog(context: context, builder: (BuildContext context){
-      return AlertDialog(
-        title: const Text("Ausführliche Photoliste"),
-        content: SizedBox(
-            height: screenHeight*0.12,
-            child: Center(
-              child: Text("Diese Funktion steht zurzeit noch nicht zur Verfügung! Wir bitten um Verständnis!"),
-            )
-        ),
-      );
-    });
-  }
-  void clickOnStoryButton(BuildContext context, double screenHeight, double screenWidth, StateProvider stateProvider){
+  void clickEventStoryButton(BuildContext context, double screenHeight, double screenWidth, StateProvider stateProvider){
 
     if(currentAndLikedElementsProvider.getCurrentClubStoryId().isNotEmpty){
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => ShowStoryChewie(
-            storyUUID: currentAndLikedElementsProvider.getCurrentClubStoryId(),
-            clubName: currentAndLikedElementsProvider.currentClubMeClub.getClubName(),
-          ),
-        ),
-      );
+
+      context.push("/show_story");
+
+      // Didn't use router because it was easier like this with the
+      // Navigator.of(context).push(
+      //   MaterialPageRoute(
+      //     builder: (context) => ShowStoryChewie(
+      //     ),
+      //   ),
+      // );
     }
   }
   void clickEventLounge(){
-    showDialog(context: context, builder: (BuildContext context){
-      return AlertDialog(
-        backgroundColor: Color(0xff121111),
-        title: Text(
-            "Lounges",
-          style: customStyleClass.getFontStyle3Bold(),
-        ),
-        content: SizedBox(
-            height: screenHeight*0.12,
-            child: Center(
-              child: Text(
-                  "Diese Funktion steht zurzeit noch nicht zur Verfügung! Wir bitten um Verständnis!",
-                style: customStyleClass.getFontStyle5(),
-              ),
-            )
-        ),
-      );
-    });
+    _showDialogWithTitleAndText(
+        "Lounges",
+        "Diese Funktion steht zurzeit noch nicht zur Verfügung! Wir bitten um Verständnis!"
+    );
   }
 
+
   // BUILD
+
+
   AppBar _buildAppBar(){
     return AppBar(
         surfaceTintColor: customStyleClass.backgroundColorMain,
@@ -398,7 +332,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                           _buildLogoIcon()
                         ],
                       ),
-                      onTap: () => clickOnStoryButton(context, screenHeight, screenWidth, stateProvider)
+                      onTap: () => clickEventStoryButton(context, screenHeight, screenWidth, stateProvider)
                   )
               ),
             ),
@@ -1092,7 +1026,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                     )
                   ],
                 ),
-                onTap: () => clickOnPriceList(screenHeight, screenWidth),
+                onTap: () => clickEventOfferList(screenHeight, screenWidth),
               ),
             ],
           ),
@@ -1162,6 +1096,14 @@ class _ClubDetailViewState extends State<ClubDetailView> {
     );
 
   }
+  void _showDialogWithTitleAndText(String titleToDisplay, String contentToDisplay){
+    showDialog(context: context, builder: (BuildContext context){
+      return TitleAndContentDialog(
+          titleToDisplay: titleToDisplay,
+          contentToDisplay: contentToDisplay
+      );
+    });
+  }
   static Future<void> goToSocialMedia(String socialMediaLink) async{
 
     Uri googleUrl = Uri.parse(socialMediaLink);
@@ -1170,6 +1112,11 @@ class _ClubDetailViewState extends State<ClubDetailView> {
         ? await launchUrl(googleUrl)
         : print("Error");
   }
+
+
+  // CHECK
+
+
   bool checkIfIsEventIsAfterToday(ClubMeEvent event){
 
     if(event.getEventDate().isBefore(stateProvider.getBerlinTime())){
@@ -1188,37 +1135,95 @@ class _ClubDetailViewState extends State<ClubDetailView> {
 
     if(eventsToDisplay.isEmpty){
       noEventsAvailable = true;
-      }
-  }
-  void checkForFrontPageImages(CurrentAndLikedElementsProvider currentAndLikedElementsProvider, StateProvider stateProvider) async{
-    if(currentAndLikedElementsProvider.currentClubMeClub.getFrontPageImages().images != null){
-      for(var element in currentAndLikedElementsProvider.currentClubMeClub.getFrontPageImages().images!){
-        checkIfFrontPageImageIsFetched(element.id!, stateProvider);
-      }
     }
   }
-  void checkIfFrontPageImageIsFetched(String fileName, StateProvider stateProvider) async {
+  void checkIfAllImagesAreFetched() async{
+
     final String dirPath = stateProvider.appDocumentsDir.path;
-    final filePath = '$dirPath/$fileName';
 
-    await File(filePath).exists().then((exists) async {
-      if(!exists){
+    List<String> imageFileNamesToCheckAndFetch = [];
+    List<String> folderOfImage = [];
 
-        await _supabaseService.getFrontPageImage(fileName).then((imageFile) async {
-          await File(filePath).writeAsBytes(imageFile).then((onValue){
-            setState(() {
-              log.d("checkIfFrontPageImageIsFetched: Finished successfully. Path: $dirPath/$fileName");
-              alreadyFetchedFrontPageImages.add(fileName);
+
+    imageFileNamesToCheckAndFetch.add(currentAndLikedElementsProvider.currentClubMeClub.getSmallLogoFileName());
+    folderOfImage.add("small_banner_images");
+
+    imageFileNamesToCheckAndFetch.add(currentAndLikedElementsProvider.currentClubMeClub.getBigLogoFileName());
+    folderOfImage.add("big_banner_images");
+
+    imageFileNamesToCheckAndFetch.add(currentAndLikedElementsProvider.currentClubMeClub.getFrontpageBannerFileName());
+    folderOfImage.add("frontpage_banner_images");
+
+    if(currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images != null){
+      for(var element in currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images!){
+
+        imageFileNamesToCheckAndFetch.add(element.id!);
+        folderOfImage.add("frontpage_gallery_images");
+
+        // checkIfFrontPageImageIsFetched(element.id!);
+      }
+    }
+
+    for(var i = 0; i<imageFileNamesToCheckAndFetch.length;i++){
+
+      final filePath = '$dirPath/${imageFileNamesToCheckAndFetch[i]}';
+
+      File(filePath).exists().then((exists) async {
+        if(!exists){
+          await _supabaseService.getClubImagesByFolder(
+              imageFileNamesToCheckAndFetch[i],
+              folderOfImage[i])
+              .then((imageFile) async {
+            await File(filePath).writeAsBytes(imageFile).then((onValue){
+              setState(() {
+                log.d("ClubDetailView. Function: checkIfFrontPageImageIsFetched. Result: Finished successfully. Path: $dirPath/${imageFileNamesToCheckAndFetch[i]}");
+                alreadyFetchedFrontPageImages.add(imageFileNamesToCheckAndFetch[i]);
+              });
             });
           });
-        });
-      }else{
-        setState(() {
-          alreadyFetchedFrontPageImages.add(fileName);
-        });
-      }
-    });
+        }else{
+          setState(() {
+            alreadyFetchedFrontPageImages.add(imageFileNamesToCheckAndFetch[i]);
+          });
+        }
+      });
+
+    }
+
   }
+  // void checkForFrontPageImages(
+  //     CurrentAndLikedElementsProvider currentAndLikedElementsProvider,
+  //     StateProvider stateProvider
+  //     ) async {
+  //   if(currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images != null){
+  //     for(var element in currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images!){
+  //       checkIfFrontPageImageIsFetched(element.id!);
+  //     }
+  //   }
+  // }
+  // void checkIfFrontPageImageIsFetched(String fileName) async {
+  //   final String dirPath = stateProvider.appDocumentsDir.path;
+  //   final filePath = '$dirPath/$fileName';
+  //
+  //   await File(filePath).exists().then((exists) async {
+  //     if(!exists){
+  //
+  //       await _supabaseService.getFrontPageImage(fileName).then((imageFile) async {
+  //         await File(filePath).writeAsBytes(imageFile).then((onValue){
+  //           setState(() {
+  //             log.d("checkIfFrontPageImageIsFetched: Finished successfully. Path: $dirPath/$fileName");
+  //             alreadyFetchedFrontPageImages.add(fileName);
+  //           });
+  //         });
+  //       });
+  //     }else{
+  //       setState(() {
+  //         alreadyFetchedFrontPageImages.add(fileName);
+  //       });
+  //     }
+  //   });
+  // }
+
 
   @override
   Widget build(BuildContext context) {

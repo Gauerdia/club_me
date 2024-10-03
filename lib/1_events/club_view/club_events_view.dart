@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:club_me/models/event.dart';
+import 'package:club_me/services/check_and_fetch_service.dart';
 import 'package:club_me/shared/custom_bottom_navigation_bar_clubs.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -30,25 +31,27 @@ class _ClubEventsViewState extends State<ClubEventsView> {
 
   var log = Logger();
 
-  late Future getEvents;
-  late UserDataProvider userDataProvider;
   late StateProvider stateProvider;
+  late UserDataProvider userDataProvider;
   late FetchedContentProvider fetchedContentProvider;
-  late CustomStyleClass customStyleClass;
-  late double screenHeight, screenWidth;
-
   late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
+
+  late double screenHeight, screenWidth;
+  late CustomStyleClass customStyleClass;
+
 
   final HiveService _hiveService = HiveService();
   final SupabaseService _supabaseService = SupabaseService();
+  final CheckAndFetchService _checkAndFetchService = CheckAndFetchService();
 
   List<ClubMeEvent> pastEvents = [];
   List<ClubMeEvent> upcomingEvents = [];
 
-  double discountContainerHeightFactor = 0.52;
-  double newDiscountContainerHeightFactor = 0.2;
 
   bool isDeleting = false;
+
+
+  //  INIT
 
 
   @override
@@ -57,10 +60,11 @@ class _ClubEventsViewState extends State<ClubEventsView> {
     final userDataProvder = Provider.of<UserDataProvider>(context, listen: false);
     final fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
     if(fetchedContentProvider.getFetchedEvents().isEmpty){
-      getEvents = _supabaseService.getEventsOfSpecificClub(userDataProvder.getUserDataId());
+      _supabaseService.getEventsOfSpecificClub(userDataProvder.getUserDataId())
+          .then((data) => filterEventsFromQuery(data, stateProvider)
+          );
     }
   }
-
   void initGeneralSettings(){
 
     // TODO: MUSS DAS HIER WIRKLICH BEI JEDEM BUILD GEMACHT WERDEN?
@@ -85,57 +89,29 @@ class _ClubEventsViewState extends State<ClubEventsView> {
 
     if(stateProvider.getClubMeEventTemplates().isEmpty){
       getAllEventTemplates(stateProvider);
-    }else{
-      newDiscountContainerHeightFactor = 0.3;
     }
 
   }
 
+
   // BUILD
-  Widget fetchEventsFromDbAndBuildWidget(
-      StateProvider stateProvider,
-      double screenHeight, double screenWidth
-      ){
 
-    return fetchedContentProvider.getFetchedEvents().isEmpty ?
-    FutureBuilder(
-        future: getEvents,
-        builder: (context, snapshot){
 
-          if(snapshot.hasError){
-            /// TODO: ALL errors in db
-            print("Error: ${snapshot.error}");
-          }
-
-          if(!snapshot.hasData){
-            return SizedBox(
-              width: screenWidth,
-              height: screenHeight,
-              child: Center(
-                child: CircularProgressIndicator(
-                  color: customStyleClass.primeColor,
-                ),
-              ),
-            );
-          }else{
-
-            try{
-              final data = snapshot.data!;
-              filterEventsFromQuery(data, stateProvider);
-            }catch(e){
-              _supabaseService.createErrorLog("club_events, fetchAndBuild: " + e.toString());
-            }
-
-            return _buildMainView(stateProvider, screenHeight, screenWidth);
-
-          }
-        }
-    ): _buildMainView(stateProvider, screenHeight, screenWidth);
+  AppBar _buildAppBar(){
+    return AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: customStyleClass.backgroundColorMain,
+        surfaceTintColor: customStyleClass.backgroundColorMain,
+        title: SizedBox(
+          width: screenWidth,
+          child: Text(headLine,
+            textAlign: TextAlign.center,
+            style: customStyleClass.getFontStyleHeadline1Bold(),
+          ),
+        )
+    );
   }
-  Widget _buildMainView(
-      StateProvider stateProvider,
-      double screenHeight,
-      double screenWidth){
+  Widget _buildMainView(){
     return Column(
       children: [
 
@@ -244,7 +220,7 @@ class _ClubEventsViewState extends State<ClubEventsView> {
                   clubMeEvent: upcomingEvents[0],
                 ),
               ),
-              onTap: () => clickedOnCurrentEvent(stateProvider),
+              onTap: () => clickEventCurrentEvent(stateProvider),
             ),
 
             // Edit button
@@ -263,7 +239,7 @@ class _ClubEventsViewState extends State<ClubEventsView> {
                         color: customStyleClass.primeColor,
                         size: screenWidth*0.06
                     ),
-                    onTap: () => clickOnEditEvent(),
+                    onTap: () => clickEventEditEvent(),
                   ),
                   InkWell(
                     child: Icon(
@@ -271,7 +247,7 @@ class _ClubEventsViewState extends State<ClubEventsView> {
                         color: customStyleClass.primeColor,
                         size: screenWidth*0.06
                     ),
-                    onTap: () => clickOnDeleteEvent(),
+                    onTap: () => clickEventDeleteEvent(),
                   ),
                 ],
               ),
@@ -401,158 +377,122 @@ class _ClubEventsViewState extends State<ClubEventsView> {
   }
 
 
-  AppBar _buildAppBar(){
-    return AppBar(
-      automaticallyImplyLeading: false,
-        backgroundColor: customStyleClass.backgroundColorMain,
-        surfaceTintColor: customStyleClass.backgroundColorMain,
-        title: SizedBox(
-          width: screenWidth,
-          child: Text(headLine,
-            textAlign: TextAlign.center,
-            style: customStyleClass.getFontStyleHeadline1Bold(),
-          ),
-        )
-    );
-  }
-
-  void clickEventGoToMoreEvents(int routeIndex){
-    switch(routeIndex){
-      case 0 : context.push("/club_upcoming_events"); break;
-      case 1 : context.push("/club_past_events"); break;
-      default: break;
-    }
-  }
-
   // FILTER FUNCTIONS
+
 
   void filterEventsFromProvider(){
   // Used, when the fetching of the db entries has happened already and we now
   // want to use the temporarily saved data to display events.
 
-    // Reset both arrays so that we dont have duplicates by any chance
+    // Reset both arrays so that we don't have duplicates by any chance
     upcomingEvents = [];
     pastEvents = [];
 
     // Everything is stored in the provider. Get the data and iterate
     for(var currentEvent in fetchedContentProvider.getFetchedEvents()){
 
-      // local var to shorten the expressions
-      DateTime eventTimestamp = currentEvent.getEventDate();
+      // Sort into upcoming and past arrays
+      checkIfUpcomingOrPastEvent(currentEvent);
 
+    }
 
-      // Get current time for germany
-      // final berlin = tz.getLocation('Europe/Berlin');
-      // final todayTimestamp = tz.TZDateTime.from(DateTime.now(), berlin).subtract(const Duration(hours:5));
+    // Check if we need to download the corresponding images
+    _checkAndFetchService.checkAndFetchEventImages(
+        fetchedContentProvider.getFetchedEvents(),
+        stateProvider,
+        fetchedContentProvider);
 
-      // Maybe we have forgotten an image? better safe than sorry
-      checkIfImageExistsLocally(currentEvent.getBannerId()).then((exists){
-        if(!exists){
+    // We have something to show? Awesome, now apply an ascending order
+    if(upcomingEvents.isNotEmpty){
+      upcomingEvents.sort((a,b) =>
+          a.getEventDate().millisecondsSinceEpoch.compareTo(b.getEventDate().millisecondsSinceEpoch)
+      );
+    }
 
-          // If we haven't started to fetch the image yet, we ought to
-          if(!fetchedContentProvider.getFetchedBannerImageIds().contains(currentEvent.getBannerId())){
+    // We have something to show? Awesome, now apply an ascending order
+    if(pastEvents.isNotEmpty){
+      pastEvents.sort((a,b) =>
+          a.getEventDate().millisecondsSinceEpoch.compareTo(b.getEventDate().millisecondsSinceEpoch)
+      );
+    }
+  }
+  void checkIfUpcomingOrPastEvent(ClubMeEvent currentEvent){
 
-            // Save the name so that we don't fetch the same image several times
-            // imageFileNamesToBeFetched.add(currentEvent.getBannerId());
+    // Sort the events into the correct arrays
+    if(currentEvent.getEventDate().isAfter(stateProvider.getBerlinTime()) ||
+        currentEvent.getEventDate().isAtSameMomentAs(stateProvider.getBerlinTime())){
 
-            fetchAndSaveBannerImage(currentEvent.getBannerId());
-          }
-        }else{
-          setState(() {
-            fetchedContentProvider.addFetchedBannerImageId(currentEvent.getBannerId());
-            // imageFileNamesAlreadyFetched.add(currentEvent.getBannerId());
-          });
-        }
-      });
+      // Make sure that we only consider events of the current user's club
+      if(currentEvent.getClubId() == userDataProvider.getUserClubId()){
+        upcomingEvents.add(currentEvent);
+      }
+    }else{
 
-      // Sort the events into the correct arrays
-      if(eventTimestamp.isAfter(stateProvider.getBerlinTime()) || eventTimestamp.isAtSameMomentAs(stateProvider.getBerlinTime())){
-        if(currentEvent.getClubId() == userDataProvider.getUserClubId()){
-          upcomingEvents.add(currentEvent);
-        }
-      }else{
-        if(currentEvent.getClubId() == userDataProvider.getUserClubId()){
-          pastEvents.add(currentEvent);
-        }
+      // Make sure that we only consider events of the current user's club
+      if(currentEvent.getClubId() == userDataProvider.getUserClubId()){
+        pastEvents.add(currentEvent);
       }
     }
-    // Update the view
-    setState(() {});
+
   }
   void filterEventsFromQuery(var data, StateProvider stateProvider){
+
     for(var element in data){
 
       // Get data in correct format
       ClubMeEvent currentEvent = parseClubMeEvent(element);
 
-      // local var to shorten the expressions
-      DateTime eventTimestamp = currentEvent.getEventDate();
+      // Sort into upcoming and past arrays
+      checkIfUpcomingOrPastEvent(currentEvent);
 
-
-      // Make sure we can show the corresponding image(s)
-      checkIfImageExistsLocally(currentEvent.getBannerId()).then((exists){
-        if(!exists){
-
-          // If we haven't started to fetch the image yet, we ought to
-          if(!fetchedContentProvider.getFetchedBannerImageIds().contains(currentEvent.getBannerId())){
-
-            fetchAndSaveBannerImage(currentEvent.getBannerId());
-          }
-        }else{
-          setState(() {
-            fetchedContentProvider.addFetchedBannerImageId(currentEvent.getBannerId());
-          });
-        }
-      });
-
-      // Sort the events into the correct arrays
-      if(eventTimestamp.isAfter(stateProvider.getBerlinTime()) || eventTimestamp.isAtSameMomentAs(stateProvider.getBerlinTime())){
-
-        // Make sure that we only consider events of the current user's club
-        if(currentEvent.getClubId() == userDataProvider.getUserClubId()){
-          upcomingEvents.add(currentEvent);
-        }
-      }else{
-
-        // Make sure that we only consider events of the current user's club
-        if(currentEvent.getClubId() == userDataProvider.getUserClubId()){
-          pastEvents.add(currentEvent);
-        }
+      // Check if maybe already fetched
+      if(!fetchedContentProvider.getFetchedEvents().contains(currentEvent)){
+        fetchedContentProvider.addEventToFetchedEvents(currentEvent);
       }
-      // We have something to show? Awesome, now apply an ascending order
-      if(upcomingEvents.isNotEmpty){
-        upcomingEvents.sort((a,b) =>
-            a.getEventDate().millisecondsSinceEpoch.compareTo(b.getEventDate().millisecondsSinceEpoch)
-        );
-      }
-
-      // We have something to show? Awesome, now apply an ascending order
-      if(pastEvents.isNotEmpty){
-        pastEvents.sort((a,b) =>
-            a.getEventDate().millisecondsSinceEpoch.compareTo(b.getEventDate().millisecondsSinceEpoch)
-        );
-      }
-
-      // Add to provider so that we don't need to call them from the db again
-      fetchedContentProvider.addEventToFetchedEvents(currentEvent);
     }
-    // Update the view
-    setState(() {});
+
+    // Check if we need to download the corresponding images
+    _checkAndFetchService.checkAndFetchEventImages(
+        fetchedContentProvider.getFetchedEvents(),
+        stateProvider,
+        fetchedContentProvider
+    );
+
+    // We have something to show? Awesome, now apply an ascending order
+    if(upcomingEvents.isNotEmpty){
+      upcomingEvents.sort((a,b) =>
+          a.getEventDate().millisecondsSinceEpoch.compareTo(b.getEventDate().millisecondsSinceEpoch)
+      );
+    }
+
+    // We have something to show? Awesome, now apply an ascending order
+    if(pastEvents.isNotEmpty){
+      pastEvents.sort((a,b) =>
+          a.getEventDate().millisecondsSinceEpoch.compareTo(b.getEventDate().millisecondsSinceEpoch)
+      );
+    }
   }
 
+
+
   // CLICK
-  void clickOnEditEvent(){
+
+
+  void clickEventNewEvent(){
+    context.push("/club_new_event");
+  }
+  void clickEventEditEvent(){
     currentAndLikedElementsProvider.setCurrentEvent(upcomingEvents[0]);
     Navigator.push(context, MaterialPageRoute(builder: (context){
       return const ClubEditEventView();
     }));
   }
-  void clickOnDeleteEvent(){
+  void clickEventDeleteEvent(){
     showDialog(context: context, builder: (BuildContext context){
       return AlertDialog(
         backgroundColor: Color(0xff121111),
         title:  Text(
-            "Achtung!",
+          "Achtung!",
           style: customStyleClass.getFontStyle1Bold(),
         ),
         content: Text(
@@ -574,7 +514,7 @@ class _ClubEventsViewState extends State<ClubEventsView> {
                 }
               }),
               child: Text(
-                  "Löschen",
+                "Löschen",
                 style: customStyleClass.getFontStyle3BoldPrimeColor(),
               )
           )
@@ -582,20 +522,27 @@ class _ClubEventsViewState extends State<ClubEventsView> {
       );
     });
   }
-  void clickedOnCurrentEvent(StateProvider stateProvider){
+  void clickEventEventFromTemplate(){
+    context.push("/club_event_templates");
+  }
+  void clickEventGoToMoreEvents(int routeIndex){
+    switch(routeIndex){
+      case 0 : context.push("/club_upcoming_events"); break;
+      case 1 : context.push("/club_past_events"); break;
+      default: break;
+    }
+  }
+  void clickEventCurrentEvent(StateProvider stateProvider){
     currentAndLikedElementsProvider.setCurrentEvent(upcomingEvents[0]);
     stateProvider.setAccessedEventDetailFrom(5);
     stateProvider.setClubUiActive(true);
     context.push("/event_details");
   }
-  void clickEventNewEvent(){
-    context.push("/club_new_event");
-  }
-  void clickEventEventFromTemplate(){
-    context.push("/club_event_templates");
-  }
+
 
   // FETCH CONTENT FROM DB
+
+
   void getAllEventTemplates(StateProvider stateProvider) async{
     try{
       var eventTemplates = await _hiveService.getAllClubMeEventTemplates();
@@ -603,21 +550,6 @@ class _ClubEventsViewState extends State<ClubEventsView> {
     }catch(e){
       _supabaseService.createErrorLog("ClubEventsView, getAllEventTemplates: $e");
     }
-  }
-  Future<bool> checkIfImageExistsLocally(String fileName) async{
-    final String dirPath = stateProvider.appDocumentsDir.path;
-    return await File('$dirPath/$fileName').exists();
-  }
-  void fetchAndSaveBannerImage(String fileName) async {
-    var imageFile = await _supabaseService.getBannerImage(fileName, "");
-    final String dirPath = stateProvider.appDocumentsDir.path;
-
-    await File("$dirPath/$fileName").writeAsBytes(imageFile).then((onValue){
-      setState(() {
-        log.d("fetchAndSaveBannerImage: Finished successfully. Path: $dirPath/$fileName");
-        fetchedContentProvider.addFetchedBannerImageId(fileName);
-      });
-    });
   }
 
   @override
@@ -636,11 +568,8 @@ class _ClubEventsViewState extends State<ClubEventsView> {
             width: screenWidth,
             height: screenHeight,
             child: SingleChildScrollView(
-                child: fetchEventsFromDbAndBuildWidget(
-                    stateProvider,
-                    screenHeight,
-                    screenWidth
-                )
+                child:
+                _buildMainView()
             )
         )
     );

@@ -119,10 +119,10 @@ class SmallEventTile extends StatelessWidget {
                           topRight: Radius.circular(10),
                           topLeft: Radius.circular(10)
                       ),
-                      child:fetchedContentProvider.getFetchedBannerImageIds().contains(clubMeEvent.getBannerId())?
+                      child:fetchedContentProvider.getFetchedBannerImageIds().contains(clubMeEvent.getBannerImageFileName())?
                       Image(
                         image: FileImage(
-                            File("${stateProvider.appDocumentsDir.path}/${clubMeEvent.getBannerId()}")),
+                            File("${stateProvider.appDocumentsDir.path}/${clubMeEvent.getBannerImageFileName()}")),
                         fit: BoxFit.cover,
                       ): SizedBox(
                         height: screenHeight*0.1,

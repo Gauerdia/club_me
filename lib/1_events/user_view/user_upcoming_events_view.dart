@@ -97,8 +97,8 @@ class _UserUpcomingEventsViewState extends State<UserUpcomingEventsView> {
             child: EventTile(
               clubMeEvent: currentEvent,
               isLiked: isLiked,
-              clickedOnLike: clickedOnLike,
-              clickedOnShare: clickedOnShare,
+              clickEventLike: clickedOnLike,
+              clickEventShare: clickedOnShare,
             ),
             onTap: (){
               stateProvider.setAccessedEventDetailFrom(4);
