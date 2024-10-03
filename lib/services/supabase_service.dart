@@ -54,7 +54,6 @@ class SupabaseService{
       return [];
     }
   }
-
   Future<PostgrestList> getEventsOfSpecificClub(String clubId) async{
     try{
       return await supabase
@@ -69,7 +68,6 @@ class SupabaseService{
       return [];
     }
   }
-
   Future<int> insertEvent(ClubMeEvent clubMeEvent, UserDataProvider userDataProvider) async {
 
     try{
@@ -108,7 +106,6 @@ class SupabaseService{
     }
 
   }
-
   void updateEvent(String eventId,int elementId, var newValue) async{
 
     String fieldName = "";
@@ -135,7 +132,6 @@ class SupabaseService{
       createErrorLog("Error in SupabaseService. Function: updateEvent. Error: ${e.toString()}");
     }
   }
-
   Future<int> updateCompleteEvent(ClubMeEvent updatedEvent) async{
     try{
       var data = await supabase
@@ -168,7 +164,6 @@ class SupabaseService{
       return 1;
     }
   }
-
   Future<int> deleteEvent(String eventId) async {
     try{
       var data = await supabase
@@ -204,7 +199,6 @@ class SupabaseService{
       return 1;
     }
   }
-
   Future<PostgrestList> checkIfClubPwIsLegit(String pw) async {
     try{
       var data = await supabase
@@ -221,7 +215,6 @@ class SupabaseService{
       return [];
     }
   }
-
   Future<PostgrestList> getAllClubs() async{
     try{
       var data = await supabase
@@ -235,7 +228,6 @@ class SupabaseService{
       return [];
     }
   }
-
   Future<PostgrestList> getSpecificClub(String clubId) async{
     try{
       var data = await supabase
@@ -253,7 +245,6 @@ class SupabaseService{
       return [];
     }
   }
-
   void insertClub(ClubMeClub clubMeClub) async{
 
     Map<String, dynamic> dataJson = {};
@@ -283,7 +274,6 @@ class SupabaseService{
       createErrorLog("Error in SupabaseService. Function: insertClub. Error: ${e.toString()}");
     }
   }
-
   Future<int> updateClub(String clubId, int elementId, var newValue) async{
 
     String fieldName = "";
@@ -311,7 +301,6 @@ class SupabaseService{
       return 1;
     }
   }
-
   void addVideoPathToClub(String uuid, UserDataProvider userDataProvider) async{
     try{
       var data = await supabase
@@ -329,7 +318,6 @@ class SupabaseService{
       createErrorLog("Error in SupabaseService. Function: addVideoPathToClub. Error: ${e.toString()}");
     }
   }
-
   void addContentPathToEvent(String eventId, String fileName) async {
     try{
       var data = await supabase
@@ -346,7 +334,6 @@ class SupabaseService{
       createErrorLog("Error in SupabaseService. Function: addContentPathToEvent. Error: ${e.toString()}");
     }
   }
-
   void addEventMarketingToEvent(String eventId, String fileName, StateProvider stateProvider) async {
 
     try{
@@ -365,7 +352,6 @@ class SupabaseService{
     }
 
   }
-
   Future<int> updateClubContactInfo(
       String clubId,
       String contactName,
@@ -395,8 +381,8 @@ class SupabaseService{
     }
   }
 
-  // DISCOUNTS
 
+  // DISCOUNTS
   Future<int> deleteDiscount(String discountId) async {
     try{
       var data = await supabase
@@ -412,7 +398,6 @@ class SupabaseService{
       return 1;
     }
   }
-
   Future<PostgrestList> getAllDiscounts() async{
     try{
       var data = await supabase
@@ -426,7 +411,6 @@ class SupabaseService{
       return [];
     }
   }
-
   Future<int> insertDiscount(ClubMeDiscount clubMeDiscount) async{
 
     try{
@@ -468,7 +452,6 @@ class SupabaseService{
       return 1;
     }
   }
-
   Future<PostgrestList> getDiscountsOfSpecificClub(String clubId) async{
     try{
       var data = await supabase
@@ -485,7 +468,6 @@ class SupabaseService{
       return [];
     }
   }
-
   void updateDiscount(String discountId, int elementId, var newValue) async {
     try{
       var data = supabase
@@ -501,7 +483,6 @@ class SupabaseService{
       createErrorLog("Error in SupabaseService. Function: updateDiscount. Error: ${e.toString()}");
     }
   }
-
   Future<int> updateCompleteDiscount(ClubMeDiscount clubMeDiscount) async{
 
     try{
@@ -540,8 +521,8 @@ class SupabaseService{
     }
   }
 
-  // FRONTPAGE IMAGES
 
+  // FRONTPAGE IMAGES
   Future<Uint8List> getFrontPageImage(String fileName) async {
 
     try{
@@ -557,7 +538,6 @@ class SupabaseService{
       return Uint8List(0);
     }
   }
-
   Future<int> uploadFrontPageImage(
       var content,
       String fileName,
@@ -579,7 +559,6 @@ class SupabaseService{
       return 1;
     }
   }
-
   Future<int> updateFrontPageImageInClub(String clubId, FrontPageGalleryImages frontPageGalleryImages) async{
     try{
       var data = await supabase
@@ -597,7 +576,6 @@ class SupabaseService{
       return 1;
     }
   }
-
   Future<int> deleteFrontPageFromStorage(String fileName) async{
     try{
       var data = await supabase
@@ -613,8 +591,8 @@ class SupabaseService{
     }
   }
 
-  // USERS
 
+  // USERS
   Future<int> insertUserDate(ClubMeUserData userData) async{
 
     try{
@@ -636,7 +614,6 @@ class SupabaseService{
       return 1;
     }
   }
-
   Future<int> updateUserData(ClubMeUserData userData) async{
 
     try{
@@ -658,7 +635,6 @@ class SupabaseService{
       return 1;
     }
   }
-
   Future<int> markToDeleteUserData(String userId) async{
     try{
       var data = await supabase
@@ -675,8 +651,8 @@ class SupabaseService{
     }
   }
 
-  // EVENT CONTENT: PHOTOS/VIDEOS
 
+  // EVENT CONTENT: PHOTOS/VIDEOS
   Future<Uint8List> getEventContent(String fileName) async {
 
     String path = 'event_content/$fileName';
@@ -692,7 +668,6 @@ class SupabaseService{
     }
 
   }
-
   Future<Uint8List> getClubImagesByFolder(String fileName, String folder) async{
     String finalPath = "";
 
@@ -708,7 +683,6 @@ class SupabaseService{
       return Uint8List(0);
     }
   }
-
   Future<Uint8List> getBannerImage(String fileName, String folder) async {
 
     String finalPath = "";
@@ -730,7 +704,6 @@ class SupabaseService{
       return Uint8List(0);
     }
   }
-
   Future<Uint8List> getClubVideo(String uuid) async {
 
     String path = 'club_stories/$uuid.mp4';
@@ -745,7 +718,6 @@ class SupabaseService{
       return Uint8List(0);
     }
   }
-
   Future<int> uploadEventContent(var content, String fileName, String eventId) async {
     try{
       var data = await supabase.storage.from('club_me_stories').upload(
@@ -762,7 +734,6 @@ class SupabaseService{
       return 1;
     }
   }
-
   Future<int> insertClubVideo(var video, String uuid, UserDataProvider userDataProvider) async {
     try{
       var data = await supabase.storage.from('club_me_stories').upload(
@@ -779,7 +750,6 @@ class SupabaseService{
       return 1;
     }
   }
-
   Future<int> insertEventContent(
       var content, String fileName, String eventId, StateProvider stateProvider
       ) async {
