@@ -2,9 +2,9 @@ import UIKit
 import Flutter
 import GoogleMaps
 
-import FirebaseCore
-import FirebaseFirestore
-import FirebaseAuth
+// import FirebaseCore
+// import FirebaseFirestore
+// import FirebaseAuth
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
@@ -14,7 +14,7 @@ import FirebaseAuth
   ) -> Bool {
     GeneratedPluginRegistrant.register(with: self)
 
-    FirebaseApp.configure()
+//     FirebaseApp.configure()
     GMSServices.provideAPIKey("AIzaSyB3DEyasr0mp7UJVlajTOdLIe7pyLLpUwQ")
 
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
@@ -28,17 +28,17 @@ import FirebaseAuth
      }
 }
 
-@main
-struct YourApp: App {
-  // register app delegate for Firebase setup
-  @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-
-
-  var body: some Scene {
-    WindowGroup {
-      NavigationView {
-        ContentView()
-      }
-    }
-  }
-}
+// @main
+// struct YourApp: App {
+//   // register app delegate for Firebase setup
+//   @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+//
+//
+//   var body: some Scene {
+//     WindowGroup {
+//       NavigationView {
+//         ContentView()
+//       }
+//     }
+//   }
+// }
