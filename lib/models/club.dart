@@ -72,6 +72,11 @@ class ClubMeClub{
 
   String smallLogoFileName, bigLogoFileName, frontpageBannerFileName;
 
+
+  void setFrontpageBannerFileName(String newFileName){
+    frontpageBannerFileName = newFileName;
+  }
+
   String getSmallLogoFileName(){
     return smallLogoFileName;
   }

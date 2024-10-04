@@ -73,6 +73,23 @@
     <key>NSMotionUsageDescription</key>
     <string>Needed for the location service</string>
 
+    <key>keychain-access-groups</key>
+    <array>
+        <string>$(AppIdentifierPrefix)com.google.GIDSignIn</string>
+    </array>
+
+    <key>LSApplicationQueriesSchemes</key>
+    <array>
+        <string>googlegmail</string>
+        <string>x-dispatch</string>
+        <string>readdle-spark</string>
+        <string>airmail</string>
+        <string>ms-outlook</string>
+        <string>ymail</string>
+        <string>fastmail</string>
+        <string>superhuman</string>
+        <string>protonmail</string>
+    </array>
 
 </dict>
 </plist>

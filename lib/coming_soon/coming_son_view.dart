@@ -71,7 +71,7 @@ class _ComingSoonViewState extends State<ComingSoonView>
         children: [
           Center(
             child: Container(
-              child: Image.asset('assets/images/img.png'),
+              child: Image.asset('assets/images/premium_advantages.png'),
               height: size,
             ),
           ),

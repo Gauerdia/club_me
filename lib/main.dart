@@ -1,9 +1,9 @@
-
 import 'dart:ui';
 
 import 'package:club_me/1_events/club_view/club_edit_event_view.dart';
 import 'package:club_me/1_events/user_view/user_upcoming_events_view.dart';
 import 'package:club_me/3_clubs/club_view/components/offers_list_club_view.dart';
+import 'package:club_me/3_clubs/club_view/components/update_frontpage_banner_image_view.dart';
 import 'package:club_me/3_clubs/user_view/offers_list_view.dart';
 import 'package:club_me/club_statistics/club_statistics_view.dart';
 import 'package:club_me/log_in/log_in_view.dart';
@@ -17,6 +17,7 @@ import 'package:club_me/register/register_view.dart';
 import 'package:club_me/settings/club_view/components/faq_club_view.dart';
 import 'package:club_me/settings/club_view/settings_club_view.dart';
 import 'package:club_me/settings/user_view/components/faq_user_view.dart';
+import 'package:club_me/settings/user_view/components/sponsors_view.dart';
 import 'package:club_me/settings/user_view/settings_user_view.dart';
 import 'package:club_me/shared/test.dart';
 import 'package:club_me/stories/show_story_chewie.dart';
@@ -67,6 +68,8 @@ import 'models/hive_models/2_club_me_local_discount.dart';
 import 'models/hive_models/3_club_me_event_template.dart';
 import 'models/hive_models/4_temp_geo_location_data.dart';
 
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 const rescheduledTaskKey = "be.szymendera.workmanager.rescheduledTask";
 
@@ -89,6 +92,10 @@ Future<void> main() async {
   await Supabase.initialize(
     url: 'https://mssfbflgzkgxyhkkfukh.supabase.co',
     anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zc2ZiZmxnemtneHloa2tmdWtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTUyNTM2MzUsImV4cCI6MjAzMDgyOTYzNX0.aG3TR8A3UrpZNW65qDZ1BXyasQEo65NzgS03FcTebs0'
+  );
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
   );
 
   // Workmanager().initialize(
@@ -463,6 +470,17 @@ final GoRouter _router = GoRouter(
     GoRoute(
         path: '/user_faq',
         builder: (context, state) => const FaqUserView()
+    ),
+
+
+    GoRoute(
+        path: '/user_sponsors',
+        builder: (context, state) => const SponsorsView()
+    ),
+
+    GoRoute(
+        path: '/club_change_banner_image',
+        builder: (context, state) => const UpdateFrontpageBannerImageView()
     ),
 
     GoRoute(

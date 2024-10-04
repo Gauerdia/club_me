@@ -45,6 +45,8 @@ class _UserMapViewState extends State<UserMapView>{
 
   BitmapDescriptor customIcon = BitmapDescriptor.defaultMarker;
 
+  List<BitmapDescriptor> customIcons = [];
+
   late ClubMeEvent clubMeEventToDisplay;
   late double screenWidth, screenHeight;
   late CustomStyleClass customStyleClass;
@@ -67,6 +69,7 @@ class _UserMapViewState extends State<UserMapView>{
   late Map<String, Marker> _markers = {};
 
 
+  // INIT
 
   @override
   void initState() {
@@ -86,9 +89,6 @@ class _UserMapViewState extends State<UserMapView>{
     startPeriodicGeoLocatorStream();
 
   }
-
-
-
   void initGeneralSettings(){
     stateProvider = Provider.of<StateProvider>(context);
     customStyleClass = CustomStyleClass(context: context);
@@ -100,6 +100,8 @@ class _UserMapViewState extends State<UserMapView>{
 
   }
 
+
+  // PROCESS FETCHED CONTENT
   void processClubsFromQuery(var data){
 
     for(var element in data){
@@ -121,14 +123,26 @@ class _UserMapViewState extends State<UserMapView>{
 
     for(var club in fetchedContentProvider.getFetchedClubs()){
 
-      final marker = Marker(
-        icon: customIcon,
-        onTap: () => onTapEventMarker(club),
-        markerId: MarkerId(club.getClubName()),
-        position: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng(),
-        ),
-      );
-      _markers[club.getClubName()] = marker;
+      if(customIcons.isNotEmpty){
+        final marker = Marker(
+          icon: customIcons[0],
+          onTap: () => onTapEventMarker(club),
+          markerId: MarkerId(club.getClubName()),
+          position: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng(),
+          ),
+        );
+        _markers[club.getClubName()] = marker;
+      }else{
+        final marker = Marker(
+          icon: customIcon,
+          onTap: () => onTapEventMarker(club),
+          markerId: MarkerId(club.getClubName()),
+          position: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng(),
+          ),
+        );
+        _markers[club.getClubName()] = marker;
+      }
+
     }
     // _markers['user_location'] = Marker(
     //   markerId: const MarkerId('user_location'),
@@ -137,19 +151,30 @@ class _UserMapViewState extends State<UserMapView>{
     // );
 
   }
-
   void processClubsFromProvider(FetchedContentProvider fetchedContentProvider){
 
     for(var club in fetchedContentProvider.getFetchedClubs()){
 
-      final marker = Marker(
-        icon: customIcon,
-        onTap: () => onTapEventMarker(club),
-        markerId: MarkerId(club.getClubName()),
-        position: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng(),
-        ),
-      );
-      _markers[club.getClubName()] = marker;
+      if(customIcons.isNotEmpty){
+        final marker = Marker(
+          icon: customIcons[0],
+          onTap: () => onTapEventMarker(club),
+          markerId: MarkerId(club.getClubName()),
+          position: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng(),
+          ),
+        );
+        _markers[club.getClubName()] = marker;
+      }else{
+        final marker = Marker(
+          icon: customIcon,
+          onTap: () => onTapEventMarker(club),
+          markerId: MarkerId(club.getClubName()),
+          position: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng(),
+          ),
+        );
+        _markers[club.getClubName()] = marker;
+      }
+
     }
     // _markers['user_location'] = Marker(
     //   markerId: const MarkerId('user_location'),
@@ -160,42 +185,10 @@ class _UserMapViewState extends State<UserMapView>{
   }
 
 
+  // MAP
   Future<void> _onMapCreated(GoogleMapController controller) async{
-
     mapController = controller;
-
   }
-
-  _getUserLocation() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return;
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.deniedForever) {
-      return;
-    }
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission != LocationPermission.whileInUse &&
-          permission != LocationPermission.always) {
-        return;
-      }
-    }
-
-    _markers['user_location'] = Marker(
-      markerId: const MarkerId('user_location'),
-      position: LatLng(userDataProvider.getUserLatCoord(), userDataProvider.getUserLongCoord()),
-    );
-    setState(() {});
-  }
-
-
-
   void onTapEventMarker(ClubMeClub club){
 
     if(fetchedContentProvider.fetchedEvents
@@ -214,22 +207,35 @@ class _UserMapViewState extends State<UserMapView>{
     toggleShowBottomSheet();
   }
 
-  BitmapDescriptor _createCustomIcon(){
+  void _createCustomIcon(){
 
     BitmapDescriptor.asset(
       const ImageConfiguration(
-        size: Size(32, 32)
+        size: Size(64, 64)
+        // pin1: 32x32
+        // Size(32, 32)
       ),
-      "assets/images/pin1.png",
+      "assets/images/beispiel_100x100.png",
     ).then((icon){
       setState(() {
         customIcon = icon;
       });
     });
 
-    return customIcon;
-  }
+    BitmapDescriptor.asset(
+      const ImageConfiguration(
+          size: Size(64, 64)
+        // pin1: 32x32
+        // Size(32, 32)
+      ),
+      "assets/images/boa_100x100.png",
+    ).then((icon){
+      setState(() {
+        customIcons[0] = icon;
+      });
+    });
 
+  }
 
 
 
@@ -245,9 +251,8 @@ class _UserMapViewState extends State<UserMapView>{
     });
   }
 
+
   // BUILD
-
-
   Widget _buildFlutterMap(){
 
     return GoogleMap(
@@ -333,8 +338,35 @@ class _UserMapViewState extends State<UserMapView>{
 
 
   // Geo location services
+  _getUserLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return;
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.deniedForever) {
+      return;
+    }
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission != LocationPermission.whileInUse &&
+          permission != LocationPermission.always) {
+        return;
+      }
+    }
+
+    _markers['user_location'] = Marker(
+      markerId: const MarkerId('user_location'),
+      position: LatLng(userDataProvider.getUserLatCoord(), userDataProvider.getUserLongCoord()),
+    );
+    setState(() {});
+  }
   void startPeriodicGeoLocatorStream(){
-    Timer.periodic(const Duration(seconds: 3), (timer){
+    Timer.periodic(const Duration(seconds: 10), (timer){
 
       log.d("Periodic timer triggered");
 

@@ -1,32 +1,13 @@
 {
   "project_info": {
-    "project_number": "424225290026",
-    "project_id": "clubme-2433c",
-    "storage_bucket": "clubme-2433c.appspot.com"
+    "project_number": "414063517769",
+    "project_id": "clubme-ba531",
+    "storage_bucket": "clubme-ba531.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:424225290026:android:0c9fdb6e925598c0c19053",
-        "android_client_info": {
-          "package_name": "com.szymendera.club_me"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBTE5TzYea42o_t-NZVDwV6zvJmGK9rKb4"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:424225290026:android:ceae830a573b914cc19053",
+        "mobilesdk_app_id": "1:414063517769:android:8a650d40c95967de1f9f98",
         "android_client_info": {
           "package_name": "com.szymendera.club_me.club_me"
         }
@@ -34,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBTE5TzYea42o_t-NZVDwV6zvJmGK9rKb4"
+          "current_key": "AIzaSyCRXOjjimRCnbIaD9mEVP47ySW6V2rvL4w"
         }
       ],
       "services": {

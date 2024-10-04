@@ -40,7 +40,6 @@ class SupabaseService{
 
 
   // EVENTS
-
   Future<PostgrestList> getAllEvents() async{
     try{
       var data = await supabase
@@ -180,8 +179,8 @@ class SupabaseService{
     }
   }
 
-  // CLUBS
 
+  // CLUBS
   Future<int> updateClubOffers(ClubOffers newClubOffers, String clubId) async{
     try{
       var data = await supabase
@@ -523,13 +522,13 @@ class SupabaseService{
 
 
   // FRONTPAGE IMAGES
-  Future<Uint8List> getFrontPageImage(String fileName) async {
+  Future<Uint8List> getFrontPageGalleryImage(String fileName) async {
 
     try{
       var data = await supabase
           .storage
-          .from('club_me_frontpage_images')
-          .download(fileName);
+          .from('club_me_banner_images')
+          .download("frontpage_gallery_images/$fileName");
       log.d("getFrontPageImage: Finished successfully. Response: $data");
       return data;
     }catch(e){
@@ -538,19 +537,19 @@ class SupabaseService{
       return Uint8List(0);
     }
   }
-  Future<int> uploadFrontPageImage(
+  Future<int> uploadFrontPageGalleryImage(
       var content,
       String fileName,
       String clubId,
       FrontPageGalleryImages frontPageGalleryImages
       ) async {
     try{
-      var data = await supabase.storage.from('club_me_frontpage_images').upload(
-        fileName,
+      var data = await supabase.storage.from('club_me_banner_images').upload(
+        "frontpage_gallery_images/$fileName",
         content,
         fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
       );
-      updateFrontPageImageInClub(clubId, frontPageGalleryImages);
+      updateFrontPageGalleryImageInClub(clubId, frontPageGalleryImages);
       log.d("uploadEventContent: Finished successfully. Response: $data");
       return 0;
     }catch(e){
@@ -559,7 +558,7 @@ class SupabaseService{
       return 1;
     }
   }
-  Future<int> updateFrontPageImageInClub(String clubId, FrontPageGalleryImages frontPageGalleryImages) async{
+  Future<int> updateFrontPageGalleryImageInClub(String clubId, FrontPageGalleryImages frontPageGalleryImages) async{
     try{
       var data = await supabase
           .from('club_me_clubs')
@@ -576,17 +575,52 @@ class SupabaseService{
       return 1;
     }
   }
+  Future<int> updateFrontPageBannerImageInClub(String clubId, String fileName) async{
+    try{
+      var data = await supabase
+          .from('club_me_clubs')
+          .update({
+        'frontpage_banner_file_name' : fileName,
+      }).match({
+        'club_id': clubId
+      });
+      log.d("updateFrontPageBannerImageInClub: Finished successfully. Response: $data");
+      return 0;
+    }catch(e){
+      log.d("Error in SupabaseService. Function: updateFrontPageBannerImageInClub. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: updateFrontPageImageInClub. Error: ${e.toString()}");
+      return 1;
+    }
+  }
   Future<int> deleteFrontPageFromStorage(String fileName) async{
     try{
       var data = await supabase
         .storage
-        .from('club_me_frontpage_images')
-        .remove([fileName]);
+        .from('club_me_banner_images')
+        .remove(["frontpage_banner_images/$fileName"]);
       log.d("deleteFrontPageFromStorage: Finished successfully. Response: $data");
       return 0;
     }catch(e){
       log.d("Error in SupabaseService. Function: deleteFrontPageFromStorage. Error: ${e.toString()}");
       createErrorLog("Error in SupabaseService. Function: deleteFrontPageFromStorage. Error: ${e.toString()}");
+      return 1;
+    }
+  }
+
+  // FRONTPAGE BANNER
+  Future<int> uploadFrontpageBannerImage(String clubId, String fileName, var content) async{
+    try{
+      var data = await supabase.storage.from('club_me_banner_images').upload(
+        "frontpage_banner_images/$fileName",
+        content,
+        fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
+      );
+      await updateFrontPageBannerImageInClub(clubId, fileName);
+      log.d("uploadFrontpageBannerImage: Finished successfully. Response: $data");
+      return 0;
+    }catch(e){
+      log.d("Error in SupabaseService. Function: uploadFrontpageBannerImage. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: uploadFrontpageBannerImage. Error: ${e.toString()}");
       return 1;
     }
   }

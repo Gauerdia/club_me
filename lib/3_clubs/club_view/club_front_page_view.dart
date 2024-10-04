@@ -97,7 +97,6 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
   Widget _buildMainView(){
     return Column(
       children: [
-
         // Container for the bg gradient
         Container(
           color: customStyleClass.backgroundColorMain,
@@ -196,7 +195,6 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
             ],
           ),
         ),
-
       ],
     );
   }
@@ -1571,6 +1569,77 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
       );
     });
   }
+  void clickEventChangeBannerImage(){
+    showDialog(context: context, builder: (BuildContext context){
+      return AlertDialog(
+          backgroundColor: Color(0xff121111),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+            // side: BorderSide(
+            //     color: customStyleClass.primeColor
+            // )
+          ),
+          title: Text(
+            "Bannerbild",
+            style: customStyleClass.getFontStyle1Bold(),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+
+              // Question text
+              Text(
+                "Möchtest du das Bannerbild anpassen?",
+                style: customStyleClass.getFontStyle4(),
+              ),
+
+              // Spacer
+              SizedBox(
+                height: screenHeight*0.02,
+              ),
+
+              // "News anpassen" button
+              Container(
+                  width: screenWidth*0.9,
+                  // color: Colors.red,
+                  alignment: Alignment.bottomRight,
+                  child: GestureDetector(
+                    child: Container(
+                      width: screenWidth*0.9,
+                      padding: EdgeInsets.symmetric(
+                          vertical: screenHeight*0.015,
+                          horizontal: screenWidth*0.03
+                      ),
+                      decoration: const BoxDecoration(
+                        // color: Colors.black54,
+                        // border: Border.all(
+                        //   color: customStyleClass.primeColor
+                        // ),
+                          borderRadius: BorderRadius.all(Radius.circular(10))
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            "Banner anpassen",
+                            textAlign: TextAlign.center,
+                            style: customStyleClass.getFontStyle4BoldPrimeColor(),
+                          ),
+                          Icon(
+                            Icons.arrow_forward_outlined,
+                            color: customStyleClass.primeColor,
+                          )
+                        ],
+                      ),
+                    ),
+                    onTap: () => context.go('/club_change_banner_image'),
+                  )
+              ),
+            ],
+          )
+      );
+    });
+  }
 
 
   // MISC
@@ -1721,7 +1790,6 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
           height: screenHeight,
           child: Column(
             children: [
-
               // Content
               Stack(
                 children: [
@@ -1731,21 +1799,46 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                     width: screenWidth,
                       height: screenHeight*0.19,
                       // alignment: Alignment.center,
-                      color: userDataProvider.getUserClubBackgroundColorId() == 0 ?
-                        Colors.white :
-                        Colors.black,
+                      color: Colors.black,
                       child:
                       fetchedContentProvider
                           .getFetchedBannerImageIds()
                           .contains(userDataProvider.getUserClub().getFrontpageBannerFileName()) ?
-                      Image(
-                        image: FileImage(
-                            File(
-                              "${stateProvider.appDocumentsDir.path}/${userDataProvider.getUserClub().getFrontpageBannerFileName()}",
-                            )
-                        ),
-                        fit: BoxFit.cover,
-                      ) : Center(
+                      Stack(
+                        children: [
+
+                          Container(
+                            width: screenWidth,
+                            height: screenHeight*0.19,
+                            child: Image(
+                              image: FileImage(
+                                  File(
+                                    "${stateProvider.appDocumentsDir.path}/${userDataProvider.getUserClub().getFrontpageBannerFileName()}",
+                                  )
+                              ),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+
+                          Container(
+                            padding: const EdgeInsets.only(
+                              top: 5,
+                              right: 5
+                            ),
+                            alignment: Alignment.topRight,
+                            child: InkWell(
+                              child: Icon(
+                                Icons.edit,
+                                color: customStyleClass.primeColor,
+                              ),
+                              onTap: () => clickEventChangeBannerImage(),
+                            ),
+                          )
+
+                        ],
+                      )
+
+                          : Center(
                         child: CircularProgressIndicator(
                           color: customStyleClass.primeColor,
                         ),

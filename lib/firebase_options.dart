@@ -31,10 +31,7 @@ class DefaultFirebaseOptions {
       case TargetPlatform.macOS:
         return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-              'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -48,41 +45,49 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyB7wZb2tO1-Fs6GbDADUSTs2Qs3w08Hovw',
-    appId: '1:406099696497:web:87e25e51afe982cd3574d0',
-    messagingSenderId: '406099696497',
-    projectId: 'flutterfire-e2e-tests',
-    authDomain: 'flutterfire-e2e-tests.firebaseapp.com',
-    databaseURL:
-    'https://flutterfire-e2e-tests-default-rtdb.europe-west1.firebasedatabase.app',
-    storageBucket: 'flutterfire-e2e-tests.appspot.com',
-    measurementId: 'G-JN95N1JV2E',
+    apiKey: 'AIzaSyDRp7Q_o8tMe1aO8ea20VmvhHMpLfzH8BA',
+    appId: '1:414063517769:web:cb47c459d03d03131f9f98',
+    messagingSenderId: '414063517769',
+    projectId: 'clubme-ba531',
+    authDomain: 'clubme-ba531.firebaseapp.com',
+    storageBucket: 'clubme-ba531.appspot.com',
+    measurementId: 'G-0GY6P60E77',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBTE5TzYea42o_t-NZVDwV6zvJmGK9rKb4',
-    appId: '1:424225290026:android:ceae830a573b914cc19053',
-    messagingSenderId: '424225290026',
-    projectId: 'clubme-2433c',
-    storageBucket: 'clubme-2433c.appspot.com',
+    apiKey: 'AIzaSyCRXOjjimRCnbIaD9mEVP47ySW6V2rvL4w',
+    appId: '1:414063517769:android:8a650d40c95967de1f9f98',
+    messagingSenderId: '414063517769',
+    projectId: 'clubme-ba531',
+    storageBucket: 'clubme-ba531.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDiPHgrtqSc9UZXd34cynnnQ-80N1OB7uQ',
-    appId: '1:424225290026:ios:5e627471db880f22c19053',
-    messagingSenderId: '424225290026',
-    projectId: 'clubme-2433c',
-    storageBucket: 'clubme-2433c.appspot.com',
-    iosBundleId: 'com.szymendera.clubme.clubMe',
+    apiKey: 'AIzaSyDPl4W-4FcPmLGUAeig9LIvVKEIFrZEn14',
+    appId: '1:414063517769:ios:a2cbdff31c9241531f9f98',
+    messagingSenderId: '414063517769',
+    projectId: 'clubme-ba531',
+    storageBucket: 'clubme-ba531.appspot.com',
+    iosBundleId: 'com.szymendera.club-me',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyDiPHgrtqSc9UZXd34cynnnQ-80N1OB7uQ',
-    appId: '1:424225290026:ios:5e627471db880f22c19053',
-    messagingSenderId: '424225290026',
-    projectId: 'clubme-2433c',
-    storageBucket: 'clubme-2433c.appspot.com',
+    apiKey: 'AIzaSyDPl4W-4FcPmLGUAeig9LIvVKEIFrZEn14',
+    appId: '1:414063517769:ios:74d2d75e39b80ae31f9f98',
+    messagingSenderId: '414063517769',
+    projectId: 'clubme-ba531',
+    storageBucket: 'clubme-ba531.appspot.com',
     iosBundleId: 'com.szymendera.clubme.clubMe',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyDRp7Q_o8tMe1aO8ea20VmvhHMpLfzH8BA',
+    appId: '1:414063517769:web:267cc561da154dfd1f9f98',
+    messagingSenderId: '414063517769',
+    projectId: 'clubme-ba531',
+    authDomain: 'clubme-ba531.firebaseapp.com',
+    storageBucket: 'clubme-ba531.appspot.com',
+    measurementId: 'G-78SWLRTDDR',
   );
 
 }

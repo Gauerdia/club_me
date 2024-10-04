@@ -6,8 +6,6 @@ import '../../../provider/state_provider.dart';
 import '../../../services/hive_service.dart';
 import '../../../shared/custom_text_style.dart';
 
-import 'package:flutter_faq/flutter_faq.dart';
-
 class FaqUserView extends StatefulWidget {
   const FaqUserView({super.key});
 

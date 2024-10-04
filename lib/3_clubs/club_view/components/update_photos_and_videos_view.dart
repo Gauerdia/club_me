@@ -245,7 +245,7 @@ class _UpdatePhotosAndVideosViewState extends State<UpdatePhotosAndVideosView> {
     try{
       _supabaseService.deleteFrontPageFromStorage(imageId).then((response) {
         if(response == 0){
-          _supabaseService.updateFrontPageImageInClub(userDataProvider.getUserClubId(), newFrontPageGalleryImages).then((result){
+          _supabaseService.updateFrontPageGalleryImageInClub(userDataProvider.getUserClubId(), newFrontPageGalleryImages).then((result){
             if(result == 0){
               alreadyExistingImages.removeWhere((value) => value == imageId);
               Navigator.of(context).pop();
@@ -383,7 +383,7 @@ class _UpdatePhotosAndVideosViewState extends State<UpdatePhotosAndVideosView> {
     newFrontPageImages.images!.add(Images(id: newUuid));
 
 
-    return _supabaseService.uploadFrontPageImage(
+    return _supabaseService.uploadFrontPageGalleryImage(
         file,
         newUuid,
         userDataProvider.getUserClubId(),

@@ -3,6 +3,7 @@ import 'package:club_me/models/club_password.dart';
 import 'package:club_me/models/parser/club_me_password_parser.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:toggle_switch/toggle_switch.dart';
@@ -24,7 +25,7 @@ class RegisterView extends StatefulWidget {
 
 class _RegisterViewState extends State<RegisterView> {
 
-  String headLine = "Registrierung";
+  String headLine = "ClubMe";
 
   final log = getLogger();
 
@@ -61,6 +62,77 @@ class _RegisterViewState extends State<RegisterView> {
   }
 
 
+  void clickEventAppleRegistration(){
+    Widget okButton = TextButton(
+      child: Text(
+        "OK",
+        style: customStyleClass.getFontStyle4(),
+      ),
+      onPressed: () async {
+      },
+    );
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context){
+          return AlertDialog(
+            backgroundColor: customStyleClass.backgroundColorEventTile,
+            title: Text(
+              "Apple-Authentifizierung",
+              style: customStyleClass.getFontStyle1(),
+            ),
+            content: Text(
+              "Diese Funktion ist derzeit noch nicht implementiert. Wir bitten um Verständnis.",
+              style: customStyleClass.getFontStyle4(),
+            ),
+            actions: [
+              okButton
+            ],
+          );
+        }
+    );
+  }
+  void clickEventGoogleRegistration(){
+    Widget okButton = TextButton(
+      child: Text(
+        "OK",
+        style: customStyleClass.getFontStyle4(),
+      ),
+      onPressed: () async {
+      },
+    );
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context){
+          return AlertDialog(
+            backgroundColor: customStyleClass.backgroundColorEventTile,
+            title: Text(
+              "Google-Authentifizierung",
+              style: customStyleClass.getFontStyle1(),
+            ),
+            content: Text(
+              "Diese Funktion ist derzeit noch nicht implementiert. Wir bitten um Verständnis.",
+              style: customStyleClass.getFontStyle4(),
+            ),
+            actions: [
+              okButton
+            ],
+          );
+        }
+    );
+  }
+  void clickEventEMailRegistration(){
+    setState(() {
+      progressIndex = 1;
+    });
+  }
+
+  void clickEventReadPremiumAdvantages(){
+    context.go("/user_events");
+  }
+
+
   // BUILD
 
   AppBar _buildAppBar(){
@@ -88,143 +160,180 @@ class _RegisterViewState extends State<RegisterView> {
               ),
 
               // ICON
-              Container(
-                width: screenWidth,
-                alignment: Alignment.centerLeft,
-                child: IconButton(
-                  icon: const Icon(
-                    Icons.arrow_back_ios,
-                    color: Colors.white,
-                  ),
-                  onPressed: () => _goBack(),
-                ),
-              )
+              // Container(
+              //   width: screenWidth,
+              //   alignment: Alignment.centerLeft,
+              //   child: IconButton(
+              //     icon: const Icon(
+              //       Icons.arrow_back_ios,
+              //       color: Colors.white,
+              //     ),
+              //     onPressed: () => _goBack(),
+              //   ),
+              // )
             ],
           ),
         )
     );
   }
-  Widget _buildChooseUserOrClub(){
+
+  Widget _buildChooseRegistrationMethod(){
     return Container(
       height: screenHeight,
       color: customStyleClass.backgroundColorMain,
       child: SingleChildScrollView(
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
 
             // Question headline
             Container(
-              width: screenWidth,
+              width: screenWidth*0.9,
               padding: EdgeInsets.symmetric(
                   vertical: screenHeight*0.04,
                   horizontal: screenWidth*0.02
               ),
               child: Text(
-                "Möchtest du dich als Club oder als User registrieren?",
-                textAlign: TextAlign.center,
+                "Registrieren",
+                textAlign: TextAlign.left,
                 style: customStyleClass.getFontStyle1Bold(),
               ),
             ),
 
-            // Spacer
-            SizedBox(
-              height: screenHeight*0.05,
-            ),
-
-
-            GestureDetector(
-              child: Container(
-                  width: screenWidth*0.8,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                        colors: [
-                          customStyleClass.primeColorDark,
-                          customStyleClass.primeColor,
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        stops: const [0.2, 0.9]
-                    ),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black54,
-                        spreadRadius: 1,
-                        blurRadius: 7,
-                        offset: Offset(3, 3),
+            // Apple
+            InkWell(
+              child: Center(
+                child: Container(
+                    alignment: Alignment.centerRight,
+                    width: screenWidth*0.9,
+                    decoration: BoxDecoration(
+                      color: customStyleClass.backgroundColorEventTile,
+                      borderRadius: const BorderRadius.all(
+                          Radius.circular(10)
                       ),
-                    ],
-                    borderRadius: const BorderRadius.all(
-                        Radius.circular(10)
                     ),
-                  ),
-                  padding: const EdgeInsets.all(18),
-                  child: Center(
-                    child: Text(
-                        "Normaler Nutzer",
-                        style: customStyleClass.getFontStyle5Bold()
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 20
                     ),
-                  )
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.apple,
+                          color: Colors.white,
+                        ),
+                        Text(
+                          "Mit Apple anmelden",
+                          style: customStyleClass.getFontStyle3(),
+                        )
+                      ],
+                    )
+                ),
               ),
-              onTap: (){
-                profileType = 0;
-                iterateProgressIndex();
-              },
+              onTap: () => clickEventAppleRegistration(),
             ),
 
             SizedBox(
               height: screenHeight*0.02,
             ),
 
-            GestureDetector(
-              child: Container(
-                  width: screenWidth*0.8,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                        colors: [
-                          customStyleClass.primeColorDark,
-                          customStyleClass.primeColor,
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        stops: const [0.2, 0.9]
-                    ),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black54,
-                        spreadRadius: 1,
-                        blurRadius: 7,
-                        offset: Offset(3, 3),
+            // Google
+            InkWell(
+              child: Center(
+                child: Container(
+                    alignment: Alignment.centerRight,
+                    width: screenWidth*0.9,
+                    decoration: BoxDecoration(
+                      color: customStyleClass.backgroundColorEventTile,
+                      borderRadius: const BorderRadius.all(
+                          Radius.circular(10)
                       ),
-                    ],
-                    borderRadius: const BorderRadius.all(
-                        Radius.circular(10)
                     ),
-                  ),
-                  padding: const EdgeInsets.all(18),
-                  child: Center(
-                    child: Text(
-                        "Clubbesitzer",
-                        style: customStyleClass.getFontStyle5Bold()
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 20
                     ),
-                  )
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          FontAwesomeIcons.google,
+                          color: Colors.white,
+                        ),
+                        Text(
+                          " Weiter mit Google",
+                          style: customStyleClass.getFontStyle3(),
+                        )
+                      ],
+                    )
+                ),
               ),
-              onTap: (){
-                profileType = 1;
-                iterateProgressIndex();
-              },
+              onTap: () => clickEventGoogleRegistration(),
             ),
 
-            // Spacer
             SizedBox(
-              height: screenHeight*0.5,
-            )
+              height: screenHeight*0.02,
+            ),
+
+            // EMAIL
+            InkWell(
+              child: Center(
+                child: Container(
+                    alignment: Alignment.centerRight,
+                    width: screenWidth*0.9,
+                    decoration: BoxDecoration(
+                      color: customStyleClass.backgroundColorEventTile,
+                      borderRadius: const BorderRadius.all(
+                          Radius.circular(10)
+                      ),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 20
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.mail,
+                          color: Colors.white,
+                        ),
+                        Text(
+                          " Weiter mit E-Mail",
+                          style: customStyleClass.getFontStyle3(),
+                        )
+                      ],
+                    )
+                ),
+              ),
+              onTap: () => clickEventEMailRegistration(),
+            ),
 
           ],
         ),
       ),
     );
   }
+
+  Widget _buildShowPremiumAdvantages(){
+    return Container(
+        height: screenHeight,
+        color: customStyleClass.backgroundColorMain,
+      child: Column(
+        children: [
+
+          SizedBox(
+            height: screenHeight*0.05,
+          ),
+
+          Image.asset(
+            "assets/images/premium_advantages.png"
+          )
+
+        ],
+      ),
+    );
+  }
+
   Widget _buildRegisterAsUser(){
     return Container(
         // height: screenHeight,
@@ -579,81 +688,94 @@ class _RegisterViewState extends State<RegisterView> {
   Widget _buildViewBasedOnIndex(){
     switch(progressIndex){
       case(0):
-        return _buildChooseUserOrClub();
+        return _buildChooseRegistrationMethod();
       case(1):
         return _buildRegisterAsUser();
       case(2):
         return _buildRegisterAsClub();
+      case(3):
+        return _buildShowPremiumAdvantages();
       default:
         return Container();
     }
   }
-  Widget _buildBottomNavigationBar2(){
+  Widget _buildBottomNavigationBar(){
 
-    return progressIndex == 0 ?
-     Container() :
-        progressIndex == 1 ?
-        Container(
-          width: screenWidth,
-          height: screenHeight*0.08,
-          decoration: BoxDecoration(
-              color: customStyleClass.backgroundColorMain,
-              border: Border(
-                  top: BorderSide(
-                      color: Colors.grey[900]!
-                  )
-              )
-          ),
-
-          // color: Colors.green,
-          alignment: Alignment.center,
-          padding: const EdgeInsets.only(
-              right: 10,
-              // bottom: 10
-          ),
-          child: GestureDetector(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Text(
-                  "Registrieren",
-                  style: customStyleClass.getFontStyle3BoldPrimeColor(),
-                ),
-                Icon(
-                  Icons.arrow_forward_outlined,
-                  color: customStyleClass.primeColor,
+    switch(progressIndex){
+      case(0):return Container();
+      case(1):return Container(
+        width: screenWidth,
+        height: screenHeight*0.08,
+        decoration: BoxDecoration(
+            color: customStyleClass.backgroundColorMain,
+            border: Border(
+                top: BorderSide(
+                    color: Colors.grey[900]!
                 )
-              ],
-            ),
-            onTap: () => clickOnRegister(),
-          ),
-        ) :
-        Container(
-          width: screenWidth,
-          height: screenHeight*0.08,
-          decoration: BoxDecoration(
-              color: customStyleClass.backgroundColorMain,
-              border: Border(
-                  top: BorderSide(
-                      color: Colors.grey[500]!
-                  )
-              )
-          ),
+            )
+        ),
 
-          // color: Colors.green,
-          alignment: Alignment.bottomRight,
-          padding: const EdgeInsets.only(
-              right: 10,
-              bottom: 10
+        // color: Colors.green,
+        alignment: Alignment.center,
+        padding: const EdgeInsets.only(
+          right: 10,
+          // bottom: 10
+        ),
+        child: GestureDetector(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text(
+                "Registrieren",
+                style: customStyleClass.getFontStyle3BoldPrimeColor(),
+              ),
+              Icon(
+                Icons.arrow_forward_outlined,
+                color: customStyleClass.primeColor,
+              )
+            ],
           ),
-          child: GestureDetector(
-            child: Text(
-              "Registrieren!",
-              style: customStyleClass.getFontStyle3BoldPrimeColor(),
-            ),
-            onTap: () => clickOnRegister(),
+          onTap: () => clickEventRegister(),
+        ),
+      );
+      case(3): return Container(
+        width: screenWidth,
+        height: screenHeight*0.08,
+        decoration: BoxDecoration(
+            color: customStyleClass.backgroundColorMain,
+            border: Border(
+                top: BorderSide(
+                    color: Colors.grey[900]!
+                )
+            )
+        ),
+
+        // color: Colors.green,
+        alignment: Alignment.center,
+        padding: const EdgeInsets.only(
+          right: 10,
+          // bottom: 10
+        ),
+        child: GestureDetector(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text(
+                "Verstanden, weiter",
+                style: customStyleClass.getFontStyle3BoldPrimeColor(),
+              ),
+              Icon(
+                Icons.arrow_forward_outlined,
+                color: customStyleClass.primeColor,
+              )
+            ],
           ),
-        );
+          onTap: () => clickEventReadPremiumAdvantages(),
+        ),
+      );
+      default: return Container();
+
+    }
   }
   String formatSelectedDate(){
 
@@ -706,11 +828,9 @@ class _RegisterViewState extends State<RegisterView> {
         _hiveService.addUserData(newUserData).then((value) => {
           _supabaseService.insertUserDate(newUserData).then((value){
             userDataProvider.setUserData(newUserData);
-            if(newUserData.getProfileType() == 0){
-              context.go("/user_events");
-            }else{
-              context.go("/club_events");
-            }
+            setState(() {
+              progressIndex = 3;
+            });
           })
         });
 
@@ -756,7 +876,7 @@ class _RegisterViewState extends State<RegisterView> {
 
   // CLICK
 
-  void clickOnRegister() async{
+  void clickEventRegister() async{
 
     setState(() {
       isLoading = true;
@@ -881,7 +1001,7 @@ class _RegisterViewState extends State<RegisterView> {
       extendBody: true,
       appBar: _buildAppBar(),
       body: _buildViewBasedOnIndex(),
-      bottomNavigationBar: _buildBottomNavigationBar2(),
+      bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
 }

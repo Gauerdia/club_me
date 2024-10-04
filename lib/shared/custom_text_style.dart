@@ -88,6 +88,16 @@ class CustomStyleClass{
     );
   }
 
+  TextStyle getFontStyle1BoldPrimeColor(){
+    return GoogleFonts.inter(
+        textStyle: TextStyle(
+            color: primeColor,
+            fontSize: fontSize1,
+            fontWeight: FontWeight.bold
+        )
+    );
+  }
+
   double getFontSize2(){
     return fontSize2;
   }
