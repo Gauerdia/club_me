@@ -609,12 +609,6 @@ class _LogInViewState extends State<LogInView> {
                       onTap: () => clickOnLogIn(),
                     ):Container(),
 
-                    InkWell(
-                      child: Text("Test", style: customStyleClass.getFontStyle3(),),
-                      onTap: () => test2(),
-                    )
-
-
                   ],
                 ),
               ),
