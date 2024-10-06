@@ -144,7 +144,6 @@ dependencies:
   image_cropper: ^8.0.2
   crop_image: ^1.0.13
   flutter_image_compress: ^2.3.0
-  cloud_firestore: ^4.17.5
 
 flutter_localizations:
   sdk: flutter
