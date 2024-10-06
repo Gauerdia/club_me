@@ -1,6 +1,7 @@
 import 'dart:io';
 
 
+import 'package:club_me/shared/dialogs/title_content_and_button_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
@@ -60,7 +61,7 @@ class EventTile extends StatelessWidget {
     Widget okButton = TextButton(
       child: Text(
           "OK",
-        style: customStyleClass.getFontStyle4(),
+        style: customStyleClass.getFontStyle4BoldPrimeColor(),
       ),
       onPressed: () async {
         final Uri url = Uri.parse(clubMeEvent.getTicketLink());
@@ -73,21 +74,13 @@ class EventTile extends StatelessWidget {
     showDialog(
         context: context,
         builder: (BuildContext context){
-          return AlertDialog(
-            backgroundColor: customStyleClass.backgroundColorEventTile,
-            title: Text(
-                "Ticketbuchuchung",
-              style: customStyleClass.getFontStyle1(),
-            ),
-            content: Text(
-              "Dieser Link führt Sie weiter zu der Seite, wo Sie direkt ein Ticket kaufen können."
-                  "Ist das in Ordnung für Sie?",
-              style: customStyleClass.getFontStyle4(),
-            ),
-            actions: [
-              okButton
-            ],
-          );
+          return
+            TitleContentAndButtonDialog(
+                titleToDisplay: "Ticketbuchuchung",
+                contentToDisplay: "Dieser Link führt Sie weiter zu der Seite, wo Sie direkt ein Ticket kaufen können."
+                    "Ist das in Ordnung für Sie?",
+                buttonToDisplay: okButton
+            );
         }
     );
   }
@@ -181,7 +174,7 @@ class EventTile extends StatelessWidget {
         Container(
             height: topHeight,
             decoration: BoxDecoration(
-              color: customStyleClass.backgroundColorEventTile,
+              color: customStyleClass.backgroundColorMain,
               border: Border.all(
                 color: customStyleClass.backgroundColorEventTile
               ),

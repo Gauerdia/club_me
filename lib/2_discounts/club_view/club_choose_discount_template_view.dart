@@ -7,6 +7,7 @@ import '../../services/hive_service.dart';
 import '../../services/supabase_service.dart';
 import '../../shared/custom_bottom_navigation_bar_clubs.dart';
 import '../../shared/custom_text_style.dart';
+import '../../shared/dialogs/title_content_and_button_dialog.dart';
 
 class ClubChooseDiscountTemplateView extends StatefulWidget{
   const ClubChooseDiscountTemplateView({super.key});
@@ -17,7 +18,7 @@ class ClubChooseDiscountTemplateView extends StatefulWidget{
 
 class _ClubChooseDiscountTemplateViewState extends State<ClubChooseDiscountTemplateView> {
 
-  String headLine = "Deine Vorlagen";
+  String headLine = "Vorlagen";
 
   final SupabaseService _supabaseService = SupabaseService();
   late StateProvider stateProvider;
@@ -54,7 +55,7 @@ class _ClubChooseDiscountTemplateViewState extends State<ClubChooseDiscountTempl
                 children: [
                   Text(headLine,
                     textAlign: TextAlign.center,
-                    style: customStyleClass.getFontStyle1(),
+                    style: customStyleClass.getFontStyleHeadline1Bold(),
                   )
                 ],
               ),
@@ -69,15 +70,31 @@ class _ClubChooseDiscountTemplateViewState extends State<ClubChooseDiscountTempl
   }
 
   void deleteDiscountTemplate(String templateId){
-    setState(() {
-      _hiveService.deleteClubMeDiscountTemplate(templateId).then((response) => {
-        if(response == 0){
-          afterSuccessfulDeletion(templateId)
-        }else{
 
-        }
-      });
-    });
+    Widget okButton = TextButton(
+        onPressed: () {
+          setState(() {
+            _hiveService.deleteClubMeDiscountTemplate(templateId).then((response) => {
+              if(response == 0){
+                afterSuccessfulDeletion(templateId)
+              }else{
+
+              }
+            });
+          });
+        },
+        child: Text(
+          "Ja",
+          style: customStyleClass.getFontStyle3BoldPrimeColor(),
+        ));
+
+    showDialog<String>(
+        context: context,
+        builder: (BuildContext context) =>
+            TitleContentAndButtonDialog(
+                titleToDisplay: "Vorlage löschen",
+                contentToDisplay: "Bist du sicher, dass du diese Vorlage löschen möchtest?",
+                buttonToDisplay: okButton));
   }
 
   void afterSuccessfulDeletion(String templateId){

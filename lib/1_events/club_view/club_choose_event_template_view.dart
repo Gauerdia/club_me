@@ -1,3 +1,4 @@
+import 'package:club_me/shared/dialogs/title_content_and_button_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -69,15 +70,31 @@ class _ClubChooseEventTemplateViewState extends State<ClubChooseEventTemplateVie
   }
 
   void deleteEventTemplate(String templateId){
-    setState(() {
-      _hiveService.deleteClubMeEventTemplate(templateId).then((response) => {
-        if(response == 0){
-          afterSuccessfulDeletion(templateId)
-        }else{
 
-        }
-      });
-    });
+    Widget okButton = TextButton(
+        onPressed: () {
+          setState(() {
+            _hiveService.deleteClubMeEventTemplate(templateId).then((response) => {
+              if(response == 0){
+                afterSuccessfulDeletion(templateId)
+              }else{
+
+              }
+            });
+          });
+        },
+        child: Text(
+          "Ja",
+          style: customStyleClass.getFontStyle3BoldPrimeColor(),
+    ));
+
+    showDialog<String>(
+        context: context,
+        builder: (BuildContext context) =>
+            TitleContentAndButtonDialog(
+                titleToDisplay: "Vorlage löschen",
+                contentToDisplay: "Bist du sicher, dass du diese Vorlage löschen möchtest?",
+                buttonToDisplay: okButton));
   }
 
   void afterSuccessfulDeletion(String templateId){

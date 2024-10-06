@@ -96,7 +96,7 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
       second = "0$second";
     }
 
-    return "$hour:$minute:$second";
+    return "$hour:$minute";
   }
 
   // BUILD
@@ -143,18 +143,7 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
               )
           ),
 
-          // Clock
-          Container(
-            padding: EdgeInsets.only(
-              // left: screenWidth*0.1
-            ),
-            width: screenWidth,
-            child: Text(
-              formatClock(),
-              textAlign: TextAlign.left,
-              style: customStyleClass.getFontStyle4BoldPrimeColor(),
-            ),
-          )
+
         ],
       )
     );
@@ -206,15 +195,14 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
                             child: SizedBox(
                               // width: 300,
                               // height: 300,
-                                child:
-                                ClipRRect(
+                                child: ClipRRect(
                                   borderRadius: BorderRadius.circular(210),
                                   child: Image(
                                     width: 200,
                                     height: 200,
                                     image: FileImage(
                                         File(
-                                            "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeDiscount.getBannerId()}"
+                                            "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeDiscount.getBigBannerFileName()}"
                                         )
                                     ),
                                     fit: BoxFit.cover,
@@ -234,6 +222,17 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
               ],
             ),
           ),
+
+          // Clock
+          Container(
+            width: screenWidth,
+            alignment: Alignment.topCenter,
+            child: Text(
+              formatClock(),
+              style: customStyleClass.getFontStyle4BoldPrimeColor(),
+            ),
+          ),
+
         ],
       ),
     );

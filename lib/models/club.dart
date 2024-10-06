@@ -1,4 +1,5 @@
 import 'package:club_me/models/club_offers.dart';
+import 'package:club_me/models/club_open_status.dart';
 import 'package:club_me/models/front_page_images.dart';
 import 'package:club_me/models/opening_times.dart';
 import 'package:timezone/standalone.dart' as tz;
@@ -12,6 +13,7 @@ class ClubMeClub{
     required this.clubNews,
     required this.clubMusicGenres,
     required this.clubStoryId,
+    required this.storyCreatedAt,
 
     required this.clubBannerId,
 
@@ -36,7 +38,8 @@ class ClubMeClub{
 
     required this.smallLogoFileName,
     required this.bigLogoFileName,
-    required this.frontpageBannerFileName
+    required this.frontpageBannerFileName,
+    required this.mapPinImageName
 
   });
 
@@ -44,6 +47,7 @@ class ClubMeClub{
   String clubName;
 
   String clubStoryId;
+  DateTime? storyCreatedAt;
 
   double clubGeoCoordLat;
   double clubGeoCoordLng;
@@ -70,8 +74,20 @@ class ClubMeClub{
   FrontPageGalleryImages frontPageGalleryImages;
   ClubOffers clubOffers;
 
-  String smallLogoFileName, bigLogoFileName, frontpageBannerFileName;
+  String smallLogoFileName, bigLogoFileName, frontpageBannerFileName, mapPinImageName;
 
+
+  DateTime? getStoryCreatedAt(){
+    if(storyCreatedAt != null){
+      return storyCreatedAt;
+    }else{
+      return null;
+    }
+  }
+
+  String getMapPinImageName(){
+    return mapPinImageName;
+  }
 
   void setFrontpageBannerFileName(String newFileName){
     frontpageBannerFileName = newFileName;
@@ -88,38 +104,201 @@ class ClubMeClub{
   }
 
 
-  bool clubIsOpen(){
+  // returns a status, (0: closed, 1: going to open, 2: open, 3: open, but closes soon) and the time to display.
+  ClubOpenStatus getClubOpenStatus(){
+
+    // Get the current time
     final berlin = tz.getLocation('Europe/Berlin');
     final todayTimestamp = tz.TZDateTime.from(DateTime.now(), berlin);
 
-    bool closedToday = false, alreadyOpen = false, lessThanThreeMoreHoursOpen = false;
-    var todaysClosingHour, todaysOpeningHour;
+    int openingStatus = 0;
+    String textToDisplay = "";
+    Days? currentDay, nextDay, pastDay;
 
-    for(Days element in getOpeningTimes().days!){
+    // Checking the app before midnight. 10 am as a limit is arbitrary.
+    if(todayTimestamp.hour > 10) {
 
-      // Catching the situation that the user checks the app after midnight.
-      // We want him to know that it's open but will close some time.
-      if(todayTimestamp.hour < 8){
+      // Get today and tomorrow. Tomorrow, because some clubs start at 0 am.
+      var firstResult = getOpeningTimes().days!.where((element) => element.day == todayTimestamp.weekday);
+      if(firstResult.isNotEmpty){
+        currentDay = firstResult.first;
+      }
+      var secondResult = getOpeningTimes().days!.where((element) => element.day == todayTimestamp.weekday+1);
+      if(secondResult.isNotEmpty){
+        nextDay = secondResult.first;
+      }
 
-        if(element.day!-1 == todayTimestamp.weekday){
-          todaysClosingHour = element.closingHour!;
-          closedToday = false;
-          if(todayTimestamp.hour < element.closingHour!){
-            alreadyOpen = true;
-            if(todaysClosingHour - todayTimestamp.hour < 3){
-              lessThanThreeMoreHoursOpen = true;
+      // Check if the club is open today
+      if(currentDay != null){
+
+        // If the hour is ahead, that's a dead giveaway for openness.
+        if(todayTimestamp.hour > currentDay.openingHour!){
+
+          // Events that started at 0 am could already be finished.
+          if(todayTimestamp.hour > currentDay.closingHour!){
+
+            openingStatus = 0;
+
+            // Sometimes, a club starts at 0 am and the next event starts at 11:30 pm.
+            if(firstResult.length > 1){
+              Days currentDay2 = firstResult.toList()[1];
+
+              if(todayTimestamp.hour > currentDay2 .openingHour!){
+                openingStatus = 2;
+              }else if(todayTimestamp.hour == currentDay2.openingHour!){
+                if(currentDay2.openingHalfAnHour == 1){
+                  if(todayTimestamp.minute >= 30){
+                    openingStatus = 2;
+                  }else{
+                    openingStatus = 1;
+                    textToDisplay = "${currentDay2.openingHour}:30";
+                  }
+                }else{
+                  openingStatus = 2;
+                }
+              }else{
+                openingStatus = 1;
+
+                if(currentDay2.openingHalfAnHour == 1){
+                  textToDisplay = "${currentDay2.openingHour}:30";
+                }else{
+                  textToDisplay = "${currentDay2.openingHour}:00";
+                }
+              }
             }
+            // Might be that the event started at 0 am and tomorrow happens the same.
+            else if(nextDay != null){
+
+              // Check if the club opens early. 10 am is arbitrary.
+              if(nextDay.openingHour! < 10){
+                openingStatus = 1;
+                if(nextDay.openingHalfAnHour == 1){
+                  textToDisplay = "0${nextDay.openingHour}:30";
+                }else{
+                  textToDisplay = "0${nextDay.openingHour}:00";
+                }
+              }else{
+                openingStatus = 0;
+              }
+            }
+          }else{
+            openingStatus = 2;
           }
         }
-      }else{
-        if(element.day == todayTimestamp.weekday){
-          todaysOpeningHour = element.openingHour!;
-          closedToday = false;
-          if(todayTimestamp.hour >= todaysOpeningHour) alreadyOpen = true;
+        // Some clubs open at :30, so we need to check for that.
+        else if(todayTimestamp.hour == currentDay.openingHour!){
+
+          // Does this club actually start at :30?
+          if(currentDay.openingHalfAnHour == 1){
+            // Are we beyond :30 already?
+            if(todayTimestamp.minute >= 30){
+              openingStatus = 2;
+            }else{
+              openingStatus = 1;
+              textToDisplay = "${currentDay.openingHour}:30";
+            }
+          }else{
+            openingStatus = 2;
+          }
+        }
+
+        // We are before the opening hour
+        else {
+          openingStatus = 1;
+          if(currentDay.openingHalfAnHour == 1){
+            textToDisplay = "${currentDay.openingHour}:30";
+          }else{
+            textToDisplay = "${currentDay.openingHour}:00";
+          }
         }
       }
+      // If that's not the case, it could still open at 0 am, i.e. the next day.
+      else if(nextDay != null){
+
+        // Check if the club opens early. 10 am is arbitrary.
+        if(nextDay.openingHour! < 10){
+          openingStatus = 1;
+          if(nextDay.openingHalfAnHour == 1){
+            textToDisplay = "0${nextDay.openingHour}:30";
+          }else{
+            textToDisplay = "0${nextDay.openingHour}:00";
+          }
+        }else{
+          openingStatus = 0;
+        }
+      }else{
+        openingStatus = 0;
+      }
     }
-    return alreadyOpen;
+
+    // checking the app after midnight
+    else{
+
+      // Get today and yesterday. Tomorrow, because the club might still be open.
+      var firstResult = getOpeningTimes().days!.where((element) => element.day == todayTimestamp.weekday);
+      if(firstResult.isNotEmpty){
+        currentDay = firstResult.first;
+      }
+
+      var thirdResult = getOpeningTimes().days!.where((element) => element.day == todayTimestamp.weekday-1);
+      if(thirdResult.isNotEmpty){
+        pastDay = thirdResult.first;
+      }
+
+      // Yesterday started a party. So let's see if it's still on.
+      if(pastDay != null){
+
+        // We are past the closing hour
+        if(todayTimestamp.hour > pastDay.closingHour!){
+          openingStatus = 0;
+        }
+        // It is exactly the hour of closing
+        else if(todayTimestamp.hour == pastDay.closingHour!){
+
+          // Is the club open for half an hour extra?
+          if(pastDay.closingHalfAnHour == 1){
+            if(todayTimestamp.minute >= 30){
+              openingStatus = 0;
+            }else{
+              openingStatus  = 3;
+              textToDisplay = "0${pastDay.closingHour}:30";
+            }
+          }
+          else{
+            openingStatus = 0;
+          }
+
+        // We are before the closing hour
+        }else{
+          // Let's see if it is still worth it to go there
+          if(pastDay.closingHour! - todayTimestamp.hour < 2){
+            openingStatus = 3;
+            if(pastDay.closingHalfAnHour == 1){
+              textToDisplay = "0${pastDay.closingHour}:30";
+            }else{
+              textToDisplay = "0${pastDay.closingHour}:00";
+            }
+          }else{
+            openingStatus = 2;
+          }
+        }
+      }
+      // A club might be closed already, but opens later that day
+      if(currentDay != null){
+        openingStatus = 1;
+        if(currentDay.openingHalfAnHour == 1){
+          textToDisplay = "${currentDay.openingHour}:30";
+        }else{
+          textToDisplay = "${currentDay.openingHour}:00";
+        }
+      }
+      // Neither yesterday nor today?
+      else{
+        openingStatus = 0;
+      }
+    }
+
+    return ClubOpenStatus(openingStatus: openingStatus, textToDisplay: textToDisplay);
   }
 
   void setClubOffers(ClubOffers newClubOffers){

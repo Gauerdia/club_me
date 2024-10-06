@@ -63,6 +63,9 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView> {
   int hasUsageLimit = 0;
   int hasUsageLimitIndex = 0;
 
+  bool pickHourAndMinuteIsActive = false;
+
+  double distanceBetweenTitleAndTextField = 10;
 
   @override
   void initState(){
@@ -139,7 +142,7 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView> {
 
   }
 
-  bool pickHourAndMinuteIsActive = false;
+
   String formatSelectedDate(){
 
     String tempDay = "";
@@ -219,7 +222,7 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView> {
                   Text(
                     headline,
                     textAlign: TextAlign.center,
-                    style: customStyleClass.getFontStyle1(),
+                    style: customStyleClass.getFontStyleHeadline1Bold(),
                   )
                 ],
               ),
@@ -274,7 +277,10 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView> {
                       ),
 
                       // TextField: Title
-                      SizedBox(
+                      Container(
+                        padding:  EdgeInsets.only(
+                            top: distanceBetweenTitleAndTextField
+                        ),
                         width: screenWidth*0.9,
                         child: TextField(
                           controller: _discountTitleController,
@@ -320,7 +326,10 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView> {
                                     ),
                                   ),
 
-                                  SizedBox(
+                                  Container(
+                                    padding:  EdgeInsets.only(
+                                        top: distanceBetweenTitleAndTextField
+                                    ),
                                     width: screenWidth*0.28,
                                     child:OutlinedButton(
                                         onPressed: (){
@@ -377,7 +386,10 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView> {
                                       ),
 
 
-                                      SizedBox(
+                                      Container(
+                                        padding:  EdgeInsets.only(
+                                            top: distanceBetweenTitleAndTextField
+                                        ),
                                         width: screenWidth*0.28,
                                         child:  Center(
                                           child: ToggleSwitch(
@@ -481,7 +493,10 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView> {
                       ),
 
                       // ToggleSwitch: Gender
-                      SizedBox(
+                      Container(
+                        padding:  EdgeInsets.only(
+                            top: distanceBetweenTitleAndTextField
+                        ),
                         width: screenWidth*0.9,
                         // height: screenHeight*0.1,
                         child:  Center(
@@ -527,6 +542,7 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView> {
                               width: screenWidth*0.4,
                               // height: screenHeight*0.12,
                               alignment: Alignment.centerLeft,
+
                               child: Column(
                                 children: [
 
@@ -546,6 +562,9 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView> {
                                   Container(
                                     width: screenWidth*0.45,
                                     alignment: Alignment.centerLeft,
+                                    padding:  EdgeInsets.only(
+                                        top: distanceBetweenTitleAndTextField
+                                    ),
                                     child: ToggleSwitch(
                                       minHeight: screenHeight*0.07,
                                       initialLabelIndex: hasAgeLimit,
@@ -584,7 +603,7 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView> {
                             if(hasAgeLimit != 0)
                               Container(
                                 padding: const EdgeInsets.only(
-                                  top:25
+                                  top:33
                                 ),
                                 alignment: Alignment.centerRight,
                                 width: screenWidth*0.45,
@@ -617,6 +636,7 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView> {
                                                       color: customStyleClass.primeColor
                                                   )
                                               ),
+                                              counterText: ""
                                             ),
                                             inputFormatters: <TextInputFormatter>[
                                               FilteringTextInputFormatter.allow(RegExp("[0-9]")),
@@ -647,7 +667,7 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView> {
                                           SizedBox(
                                             width: screenWidth*0.15,
                                             child: Text(
-                                              "Bis",
+                                              "bis",
                                               textAlign: TextAlign.left,
                                               style: customStyleClass.getFontStyle3(),
                                             ),
@@ -664,6 +684,7 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView> {
                                                       color: customStyleClass.primeColor
                                                   )
                                               ),
+                                              counterText: ""
                                             ),
                                             inputFormatters: <TextInputFormatter>[
                                               FilteringTextInputFormatter.allow(RegExp("[0-9]")),
@@ -1061,7 +1082,7 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView> {
   Widget _buildNavigationBar2(){
     return Container(
       width: screenWidth,
-      height: screenHeight*0.08,
+      height: 80,
       alignment: Alignment.center,
       decoration: BoxDecoration(
           color: customStyleClass.backgroundColorMain,
@@ -1076,18 +1097,22 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView> {
       ),
       child: isUploading ? const CircularProgressIndicator()
           : GestureDetector(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Text(
-              "Abschicken",
-              style: customStyleClass.getFontStyle3BoldPrimeColor(),
-            ),
-            Icon(
-              Icons.arrow_forward_outlined,
-              color: customStyleClass.primeColor,
-            )
-          ],
+        child: Container(
+          height: 80,
+          alignment: Alignment.center,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text(
+                "Abschicken",
+                style: customStyleClass.getFontStyle3BoldPrimeColor(),
+              ),
+              Icon(
+                Icons.arrow_forward_outlined,
+                color: customStyleClass.primeColor,
+              )
+            ],
+          ),
         ),
         onTap: () => finishUpdateDiscount(),
       ),

@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:club_me/main.dart';
+import 'package:club_me/models/hive_models/0_club_me_user_data.dart';
 import 'package:club_me/provider/user_data_provider.dart';
 import 'package:club_me/services/check_and_fetch_service.dart';
 import 'package:club_me/services/hive_service.dart';
 import 'package:club_me/services/supabase_service.dart';
 import 'package:club_me/shared/custom_text_style.dart';
+import 'package:club_me/shared/dialogs/TitleAndContentDialog.dart';
 import 'package:club_me/utils/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -67,7 +69,7 @@ class _UserEventsViewState extends State<UserEventsView> {
   double maxValueRangeSliderToDisplay = 0;
   RangeValues _currentRangeValues = RangeValues(0, 10);
 
-  bool dataFetched = false;
+  bool processingComplete = false;
 
   @override
   void initState(){
@@ -77,6 +79,7 @@ class _UserEventsViewState extends State<UserEventsView> {
     dropdownValue = Utils.genreListForFiltering.first;
 
     final stateProvider = Provider.of<StateProvider>(context, listen: false);
+    final userDataProvider = Provider.of<UserDataProvider>(context, listen:  false);
     final fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
 
     // Get and set geo location
@@ -92,6 +95,21 @@ class _UserEventsViewState extends State<UserEventsView> {
     }else{
       processEventsFromProvider(fetchedContentProvider);
     }
+
+    // Update the last login time
+    _supabaseService.updateUserData(
+      ClubMeUserData(
+          firstName: userDataProvider.getUserData().getFirstName(),
+          lastName: userDataProvider.getUserData().getLastName(),
+          birthDate: userDataProvider.getUserData().getBirthDate(),
+          eMail: userDataProvider.getUserData().getEMail(),
+          gender: userDataProvider.getUserData().getGender(),
+          userId: userDataProvider.getUserData().getUserId(),
+          profileType: userDataProvider.getUserData().getProfileType(),
+          lastTimeLoggedIn: DateTime.now()
+      )
+    );
+
 
     // Get all locally saved liked events
     getAllLikedEvents(stateProvider);
@@ -161,12 +179,16 @@ class _UserEventsViewState extends State<UserEventsView> {
     eventsToDisplay = fetchedContentProvider.getFetchedEvents();
     sortUpcomingEvents();
     filterEvents(fetchedContentProvider);
+
+    setState(() {
+      processingComplete = true;
+    });
+
+    log.d("processEventsFromProvider: Successful");
   }
   void processEventsFromQuery(var data){
 
-    setState(() {
-      dataFetched = true;
-    });
+
 
     for(var element in data){
 
@@ -190,6 +212,11 @@ class _UserEventsViewState extends State<UserEventsView> {
     sortUpcomingEvents();
     filterEvents(fetchedContentProvider);
 
+    setState(() {
+      processingComplete = true;
+    });
+
+    log.d("processEventsFromQuery: Successful");
 
   }
 
@@ -330,11 +357,11 @@ class _UserEventsViewState extends State<UserEventsView> {
   void clickEventShare(){
     showDialog<String>(
         context: context,
-        builder: (BuildContext context) => const AlertDialog(
-            title: Text("Teilen noch nicht möglich!"),
-            content: Text("Die Funktion, ein Event zu teilen, ist derzeit noch"
-                "nicht implementiert. Wir bitten um Verständnis.")
-        )
+        builder: (BuildContext context) =>
+        TitleAndContentDialog(
+            titleToDisplay: "Event teilen",
+            contentToDisplay: "Die Funktion, ein Event zu teilen, ist derzeit noch"
+                   "nicht implementiert. Wir bitten um Verständnis.")
     );
   }
   void toggleIsSearchActive(){
@@ -752,7 +779,7 @@ class _UserEventsViewState extends State<UserEventsView> {
       child: Center(
         child: Text(
           textAlign: TextAlign.center,
-          Utils.noElementsDueToFilter,
+          Utils.noEventElementsDueToFilter,
           style: customStyleClass.getFontStyle3(),
         ),
       ),
@@ -763,12 +790,22 @@ class _UserEventsViewState extends State<UserEventsView> {
       child: Center(
         child: Text(
           textAlign: TextAlign.center,
-          Utils.noElementsDueToNoFavorites,
+          Utils.noEventElementsDueToNoFavorites,
           style: customStyleClass.getFontStyle3(),
         ),
       ),
-    ):
+    ): processingComplete ?
     SizedBox(
+      width: screenWidth,
+      height: screenHeight*0.8,
+      child: Center(
+        child: Text(
+          textAlign: TextAlign.center,
+          Utils.noEventElementsDueToNothingOnTheServer,
+          style: customStyleClass.getFontStyle3(),
+        ),
+      ),
+    ):SizedBox(
       width: screenWidth,
       height: screenHeight*0.8,
       child: Center(

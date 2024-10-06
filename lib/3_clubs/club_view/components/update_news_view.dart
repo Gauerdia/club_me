@@ -49,7 +49,7 @@ class _UpdateNewsViewState extends State<UpdateNewsView> {
                   children: [
                     Text(headLine,
                         textAlign: TextAlign.center,
-                        style: customStyleClass.getFontStyle1()
+                        style: customStyleClass.getFontStyleHeadline1Bold()
                     ),
                   ],
                 )

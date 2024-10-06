@@ -60,7 +60,7 @@ class _UpdatePhotosAndVideosViewState extends State<UpdatePhotosAndVideosView> {
                   children: [
                     Text(headLine,
                         textAlign: TextAlign.center,
-                        style: customStyleClass.getFontStyle1()
+                        style: customStyleClass.getFontStyleHeadline1Bold()
                     ),
                   ],
                 )

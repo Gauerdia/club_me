@@ -566,9 +566,9 @@ class _ClubStatisticsViewState extends State<ClubStatisticsView> {
                     children: [
 
                       // Spacer
-                      SizedBox(
-                        height: screenHeight*0.025,
-                      ),
+                      // SizedBox(
+                      //   height: screenHeight*0.015,
+                      // ),
 
                       Container(
                         height: screenHeight*0.15,

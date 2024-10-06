@@ -565,7 +565,7 @@ class _SettingsUserViewState extends State<SettingsUserView> {
                               width: screenWidth*0.02,
                             ),
                             Text(
-                              "Kooperationen",
+                              "Kooperationspartner",
                               style: customStyleClass.getFontStyle1(),
                             )
                           ],

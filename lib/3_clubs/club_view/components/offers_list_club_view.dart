@@ -420,7 +420,7 @@ class _OffersListClubViewState extends State<OffersListClubView> {
             children: [
 
               Text(
-                "Angebote aktualisieren",
+                "Aktualisieren",
                 style: customStyleClass.getFontStyle4BoldPrimeColor(),
               ),
 

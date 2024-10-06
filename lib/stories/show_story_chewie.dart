@@ -102,7 +102,54 @@ class _ShowStoryChewieState extends State<ShowStoryChewie>
     }
   }
 
-  Widget test2(){
+  AppBar _buildAppBar(){
+    return AppBar(
+      title: Container(
+          width: screenWidth,
+          child: Stack(
+            children: [
+              Container(
+                width: screenWidth,
+                child: Center(
+                  child: Text(
+                      textAlign: TextAlign.center,
+                      currentAndLikedElementsProvider.currentClubMeClub.getClubName(),
+                      style: customStyleClass.getFontStyleHeadline1Bold()
+                  ),
+                ),
+              ),
+
+              Container(
+                alignment: Alignment.centerLeft,
+                width: screenWidth,
+                child: Text(
+                  formatTimeStamp(),
+                  style: customStyleClass.getFontStyle5(),
+                ),
+              ),
+
+              Container(
+                alignment: Alignment.centerRight,
+                width: screenWidth,
+                child: InkWell(
+                  child: const Icon(
+                    Icons.clear,
+                    size: 30,
+                    color: Colors.white,
+                  ),
+                  onTap: () => goBackClicked(),
+                ),
+              )
+
+            ],
+          )
+
+      ),
+      backgroundColor: customStyleClass.backgroundColorMain,
+    );
+  }
+
+  Widget _buildMainView(){
 
     currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context, listen:  false);
 
@@ -112,42 +159,7 @@ class _ShowStoryChewieState extends State<ShowStoryChewie>
         scaffoldBackgroundColor: customStyleClass.backgroundColorMain,
       ),
       home: Scaffold(
-        appBar: AppBar(
-          title: Container(
-            width: screenWidth,
-            child:
-            Stack(
-              children: [
-                Container(
-                  width: screenWidth,
-                  child: Center(
-                    child: Text(
-                        textAlign: TextAlign.center,
-                        currentAndLikedElementsProvider.currentClubMeClub.getClubName(),
-                        style: customStyleClass.getFontStyleHeadline1Bold()
-                    ),
-                  ),
-                ),
-
-                Container(
-                  alignment: Alignment.centerRight,
-                  width: screenWidth,
-                  child: InkWell(
-                    child: const Icon(
-                      Icons.clear,
-                      size: 30,
-                      color: Colors.white,
-                    ),
-                    onTap: () => goBackClicked(),
-                  ),
-                )
-
-              ],
-            )
-
-          ),
-          backgroundColor: customStyleClass.backgroundColorMain,
-        ),
+        appBar: _buildAppBar(),
         body: Container(
           width: screenWidth,
           height: screenHeight,
@@ -186,6 +198,22 @@ class _ShowStoryChewieState extends State<ShowStoryChewie>
     );
   }
 
+  String formatTimeStamp(){
+
+    DateTime storyCreatedAt = currentAndLikedElementsProvider.currentClubMeClub.getStoryCreatedAt()!;
+    DateTime currentTime = DateTime.now();
+
+    Duration difference = currentTime.difference(storyCreatedAt);
+
+    int hourDifference = difference.inHours % 24;
+
+    if(hourDifference < 1){
+      return "Vor ${difference.inMinutes % 64} Minuten";
+    }else{
+      return "Vor $hourDifference Stunden";
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -194,7 +222,7 @@ class _ShowStoryChewieState extends State<ShowStoryChewie>
 
     customStyleClass = CustomStyleClass(context: context);
 
-    return test2();
+    return _buildMainView();
 
   }
 }

@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
-import 'package:club_me/4_map/components/club_info_bottom_sheet_2.dart';
+import 'package:club_me/4_map/components/club_info_bottom_sheet.dart';
 import 'package:club_me/models/club.dart';
 import 'package:club_me/models/event.dart';
 import 'package:club_me/services/check_and_fetch_service.dart';
@@ -10,6 +11,7 @@ import 'package:club_me/utils/utils.dart';
 // import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -64,9 +66,14 @@ class _UserMapViewState extends State<UserMapView>{
   bool showListIsActive = false;
   bool noEventAvailable = false;
 
+  bool allPinsLoaded = false;
+
+  List<String> alreadySetPins = [];
+  
   List<Widget> listWidgetsToDisplay = [];
 
   late Map<String, Marker> _markers = {};
+
 
 
   // INIT
@@ -85,7 +92,6 @@ class _UserMapViewState extends State<UserMapView>{
 
     _determinePosition().then((value) => uploadPositionToSupabase(value));
 
-    _createCustomIcon();
     startPeriodicGeoLocatorStream();
 
   }
@@ -102,7 +108,7 @@ class _UserMapViewState extends State<UserMapView>{
 
 
   // PROCESS FETCHED CONTENT
-  void processClubsFromQuery(var data){
+  void processClubsFromQuery(var data) async{
 
     for(var element in data){
       ClubMeClub currentClub = parseClubMeClub(element);
@@ -123,68 +129,106 @@ class _UserMapViewState extends State<UserMapView>{
 
     for(var club in fetchedContentProvider.getFetchedClubs()){
 
-      if(customIcons.isNotEmpty){
-        final marker = Marker(
-          icon: customIcons[0],
-          onTap: () => onTapEventMarker(club),
-          markerId: MarkerId(club.getClubName()),
-          position: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng(),
-          ),
-        );
-        _markers[club.getClubName()] = marker;
-      }else{
-        final marker = Marker(
-          icon: customIcon,
-          onTap: () => onTapEventMarker(club),
-          markerId: MarkerId(club.getClubName()),
-          position: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng(),
-          ),
-        );
-        _markers[club.getClubName()] = marker;
-      }
+      var icon = await BitmapDescriptor.asset(
+          const ImageConfiguration(size: Size(46,46)),
+          "assets/images/beispiel_100x100.png"
+      );
+
+      // Set base markers for all clubs
+      final marker = Marker(
+        icon: icon,
+        onTap: () => onTapEventMarker(club),
+        markerId: MarkerId(club.getClubId()),
+        position: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng(),
+        ),
+      );
+      _markers[club.getClubId()] = marker;
 
     }
-    // _markers['user_location'] = Marker(
-    //   markerId: const MarkerId('user_location'),
-    //   position: LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
-    //   infoWindow: const InfoWindow(title: 'Your Location'),
-    // );
 
+    checkForMapPinImagesUntilAllAreLoaded();
+    
+    setUserLocationMarker();
+
+    setState(() {
+
+    });
   }
-  void processClubsFromProvider(FetchedContentProvider fetchedContentProvider){
+  
+  void checkForMapPinImagesUntilAllAreLoaded() async{
+
+    bool allPinsSet = true;
 
     for(var club in fetchedContentProvider.getFetchedClubs()){
 
-      if(customIcons.isNotEmpty){
-        final marker = Marker(
-          icon: customIcons[0],
-          onTap: () => onTapEventMarker(club),
-          markerId: MarkerId(club.getClubName()),
-          position: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng(),
-          ),
-        );
-        _markers[club.getClubName()] = marker;
-      }else{
-        final marker = Marker(
-          icon: customIcon,
-          onTap: () => onTapEventMarker(club),
-          markerId: MarkerId(club.getClubName()),
-          position: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng(),
-          ),
-        );
-        _markers[club.getClubName()] = marker;
+      if(!alreadySetPins.contains(club.getMapPinImageName())){
+
+        bool fileExists = await _checkAndFetchService.checkIfImageExistsLocally(club.getMapPinImageName(), stateProvider);
+        if(fileExists){
+          setState(() {
+            alreadySetPins.add(club.getMapPinImageName());
+            setCustomMarker(club);
+          });
+        }else{
+          allPinsSet = false;
+        }
       }
+    }
+
+    if(allPinsSet){
+      allPinsLoaded = true;
+    }
+  }
+  
+  void processClubsFromProvider(FetchedContentProvider fetchedContentProvider) async{
+
+    for(var club in fetchedContentProvider.getFetchedClubs()){
+
+      var icon = await BitmapDescriptor.asset(
+          const ImageConfiguration(size: Size(46,46)),
+          "assets/images/beispiel_100x100.png"
+      );
+
+      // Set base markers for all clubs
+      final marker = Marker(
+        icon: icon,
+        onTap: () => onTapEventMarker(club),
+        markerId: MarkerId(club.getClubId()),
+        position: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng(),
+        ),
+      );
+      _markers[club.getClubId()] = marker;
+
 
     }
-    // _markers['user_location'] = Marker(
-    //   markerId: const MarkerId('user_location'),
-    //   position: LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
-    //   infoWindow: const InfoWindow(title: 'Your Location'),
-    // );
+    setUserLocationMarker();
+
+
 
   }
 
+  void setCustomMarker(ClubMeClub club){
 
+    File file = File(
+        "${stateProvider.appDocumentsDir.path}/${club.getMapPinImageName()}"
+    );
+
+    Uint8List bytes = file.readAsBytesSync();
+
+    var icon = BitmapDescriptor.bytes(bytes, width: 46, height: 46);
+
+    customIcons.add(icon);
+
+    final marker = Marker(
+      icon: icon,
+      onTap: () => onTapEventMarker(club),
+      markerId: MarkerId(club.getClubId()),
+      position: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng(),
+      ),
+    );
+    _markers[club.getClubId()] = marker;
+  }
+  
   // MAP
   Future<void> _onMapCreated(GoogleMapController controller) async{
     mapController = controller;
@@ -207,38 +251,6 @@ class _UserMapViewState extends State<UserMapView>{
     toggleShowBottomSheet();
   }
 
-  void _createCustomIcon(){
-
-    BitmapDescriptor.asset(
-      const ImageConfiguration(
-        size: Size(64, 64)
-        // pin1: 32x32
-        // Size(32, 32)
-      ),
-      "assets/images/beispiel_100x100.png",
-    ).then((icon){
-      setState(() {
-        customIcon = icon;
-      });
-    });
-
-    BitmapDescriptor.asset(
-      const ImageConfiguration(
-          size: Size(64, 64)
-        // pin1: 32x32
-        // Size(32, 32)
-      ),
-      "assets/images/boa_100x100.png",
-    ).then((icon){
-      setState(() {
-        customIcons[0] = icon;
-      });
-    });
-
-  }
-
-
-
   // TOGGLE
   void toggleShowBottomSheet(){
     setState(() {
@@ -252,12 +264,27 @@ class _UserMapViewState extends State<UserMapView>{
   }
 
 
+  void setUserLocationMarker() async{
+    // Set marker for user
+    var icon = await BitmapDescriptor.asset(
+        const ImageConfiguration(size: Size(46,46)),
+        "assets/images/marker1.png"
+    );
+
+    _markers['user_location'] = Marker(
+      icon: icon,
+      markerId: const MarkerId('user_location'),
+      position: LatLng(userDataProvider.getUserLatCoord(), userDataProvider.getUserLongCoord()),
+    );
+  }
+
   // BUILD
   Widget _buildFlutterMap(){
 
     return GoogleMap(
       style: Utils.mapStyles,
       onMapCreated: _onMapCreated,
+        mapToolbarEnabled: false,
         initialCameraPosition: const CameraPosition(
             target: LatLng(48.773809, 9.182959),
             zoom: 11.0
@@ -359,10 +386,8 @@ class _UserMapViewState extends State<UserMapView>{
       }
     }
 
-    _markers['user_location'] = Marker(
-      markerId: const MarkerId('user_location'),
-      position: LatLng(userDataProvider.getUserLatCoord(), userDataProvider.getUserLongCoord()),
-    );
+    setUserLocationMarker();
+
     setState(() {});
   }
   void startPeriodicGeoLocatorStream(){
@@ -418,17 +443,14 @@ class _UserMapViewState extends State<UserMapView>{
     // If permissions are granted, return the current location
     return await Geolocator.getCurrentPosition();
   }
-  void uploadPositionToSupabase(Position value){
+  void uploadPositionToSupabase(Position value) async{
 
     final userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
 
     userDataProvider.setUserCoordinates(value);
 
-    _markers['user_location'] = Marker(
-      markerId: const MarkerId('user_location'),
-      position: LatLng(userDataProvider.getUserLatCoord(), userDataProvider.getUserLongCoord()),
-      infoWindow: const InfoWindow(title: 'Your Location'),
-    );
+    // Set marker for user
+    setUserLocationMarker();
 
     _supabaseService.saveUsersGeoLocation(userDataProvider.getUserDataId(), value.latitude, value.longitude);
   }
@@ -437,6 +459,10 @@ class _UserMapViewState extends State<UserMapView>{
   Widget build(BuildContext context) {
 
     initGeneralSettings();
+
+    if(!allPinsLoaded){
+      checkForMapPinImagesUntilAllAreLoaded();
+    }
 
     return Scaffold(
 
@@ -462,7 +488,16 @@ class _UserMapViewState extends State<UserMapView>{
                 child: Stack(
                   children: [
 
-                    _buildFlutterMap(),
+                    SizedBox(
+                      height:screenHeight*0.8,
+                      child: allPinsLoaded ?
+                        _buildFlutterMap():
+                        Center(
+                          child: CircularProgressIndicator(
+                            color: customStyleClass.primeColor,
+                          ),
+                        )
+                    ),
 
                     // transparent layer to click out of bottom sheet
                     showBottomSheet?
@@ -488,11 +523,11 @@ class _UserMapViewState extends State<UserMapView>{
                         child:
                         showBottomSheet ?
                         noEventAvailable?
-                        ClubInfoBottomSheet2
+                        ClubInfoBottomSheet
                           (showBottomSheet: showBottomSheet,
                             clubMeEvent: null,
                             noEventAvailable: noEventAvailable
-                        ):ClubInfoBottomSheet2
+                        ):ClubInfoBottomSheet
                           (showBottomSheet: showBottomSheet,
                             clubMeEvent: clubMeEventToDisplay,
                             noEventAvailable: noEventAvailable

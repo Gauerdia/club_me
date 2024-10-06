@@ -1,6 +1,7 @@
 import 'package:club_me/models/hive_models/0_club_me_user_data.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:toggle_switch/toggle_switch.dart';
@@ -138,6 +139,16 @@ class _ProfileViewState extends State<ProfileView> {
         // size: 20,
       ),
       actions: [
+
+        if(showEditScreen)
+          InkWell(
+            child: const Icon(
+              Icons.close,
+              color: Colors.white,
+            ),
+            onTap: () => clickEventClose(),
+          ),
+        if(!showEditScreen)
         InkWell(
           child: const Icon(
             Icons.settings,
@@ -209,19 +220,10 @@ class _ProfileViewState extends State<ProfileView> {
                       children: [
                         SizedBox(
                           width: screenWidth*0.1,
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.man,
-                                color: customStyleClass.primeColor,
-                                size: 20,
-                              ),
-                              Icon(
-                                Icons.woman,
-                                color: customStyleClass.primeColor,
-                                size: 20,
-                              )
-                            ],
+                          child: Icon(
+                            FontAwesomeIcons.venusMars,
+                            color: customStyleClass.primeColor,
+                            size: 20,
                           ),
                         ),
                         Text(
@@ -245,7 +247,7 @@ class _ProfileViewState extends State<ProfileView> {
                         SizedBox(
                           width: screenWidth*0.1,
                           child: Icon(
-                            Icons.person,
+                            FontAwesomeIcons.birthdayCake,
                             color: customStyleClass.primeColor,
                             size: 30,
                           ),
@@ -284,13 +286,14 @@ class _ProfileViewState extends State<ProfileView> {
 
                   Container(
                     alignment: Alignment.centerRight,
+                    width: screenWidth*0.87,
                     padding: const EdgeInsets.only(
                         right: 10
                     ),
                     child: InkWell(
                       child:SizedBox(
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Text(
                               "Bearbeiten",
@@ -350,9 +353,10 @@ class _ProfileViewState extends State<ProfileView> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
+
+                            // Textfield
                             SizedBox(
                               width: screenWidth*0.42,
-
                               child: TextField(
                                 controller: _firstNameController,
                                 cursorColor: customStyleClass.primeColor,
@@ -413,7 +417,7 @@ class _ProfileViewState extends State<ProfileView> {
                   Container(
                     // color: Colors.red,
                     width: screenWidth*0.9,
-                    height: screenHeight*0.08,
+                    // height: screenHeight*0.08,
                     child: Stack(
                       children: [
                         TextField(
@@ -437,10 +441,13 @@ class _ProfileViewState extends State<ProfileView> {
                           maxLength: 35,
                         ),
                         Container(
+                          padding: EdgeInsets.only(
+                            top: 17
+                          ),
                           // color: Colors.grey,
                           // alignment: Alignment.centerLeft,
                           width: screenWidth*0.1,
-                          height: screenHeight*0.06,
+                          // height: screenHeight*0.06,
                           child: Icon(
                             Icons.mail,
                             color: customStyleClass.primeColor,
@@ -632,7 +639,8 @@ class _ProfileViewState extends State<ProfileView> {
         eMail: _emailController.text,
         gender: genderChoice,
         userId: userDataProvider.getUserData().getUserId(),
-        profileType: userDataProvider.getUserData().getProfileType()
+        profileType: userDataProvider.getUserData().getProfileType(),
+      lastTimeLoggedIn: DateTime.now()
     );
 
     userDataProvider.setUserData(newUserData);
@@ -720,7 +728,11 @@ class _ProfileViewState extends State<ProfileView> {
 
   // MISC
 
-
+  void clickEventClose(){
+    setState(() {
+      showEditScreen = false;
+    });
+  }
   String formatSelectedDate(){
 
     String tempDay = "";

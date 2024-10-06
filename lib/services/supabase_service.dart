@@ -45,6 +45,7 @@ class SupabaseService{
       var data = await supabase
           .from('club_me_events')
           .select();
+      log.d("getAllEvents: Finished successfully.Response: $data");
       return data;
     }
     catch(e){
@@ -85,6 +86,7 @@ class SupabaseService{
         "event_price" : clubMeEvent.getEventPrice(),
 
         "banner_id" : userDataProvider.getUserClubEventBannerId(),
+        'banner_image_file_name': clubMeEvent.getBannerImageFileName(),
         "music_genres" : clubMeEvent.getMusicGenres(),
 
         "event_marketing_file_name": clubMeEvent.getEventMarketingFileName(),
@@ -659,6 +661,7 @@ class SupabaseService{
         'e_mail': userData.getEMail(),
         'gender': userData.getGender(),
         'birth_date': userData.getBirthDate().toString(),
+        'last_time_logged_in': userData.getLastTimeLoggedIn()
       })
       .eq('user_id', userData.getUserId());
       log.d("updateUserData: Finished successfully. Response: $data");
@@ -681,6 +684,21 @@ class SupabaseService{
     }catch(e){
       log.d("Error in SupabaseService. Function: markToDeleteUserData. Error: ${e.toString()}");
       createErrorLog("Error in SupabaseService. Function: markToDeleteUserData. Error: ${e.toString()}");
+      return 1;
+    }
+  }
+  Future<int> updateUserLastLoggedIn(String userId) async {
+    try{
+      var data = await supabase
+          .from('club_me_users')
+          .update({
+        'last_time_logged_in': DateTime.now().toString(),
+      }).eq('user_id', userId);
+      log.d("updateUserLastLoggedIn: Finished successfully. Response: $data");
+      return 0;
+    }catch(e){
+      log.d("Error in SupabaseService. Function: updateUserLastLoggedIn. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: updateUserLastLoggedIn. Error: ${e.toString()}");
       return 1;
     }
   }

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:club_me/models/club_open_status.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
@@ -16,8 +17,6 @@ import '../../../shared/custom_text_style.dart';
 import 'event_card.dart';
 import 'dart:math';
 
-
-
 class ClubCard extends StatelessWidget {
 
   ClubCard({
@@ -25,7 +24,7 @@ class ClubCard extends StatelessWidget {
     required this.events,
     required this.clubMeClub,
     required this.triggerSetState,
-    required this.clickedOnShare,
+    required this.clickEventShare,
   }) : super(key: key);
 
   late UserDataProvider userDataProvider;
@@ -33,7 +32,7 @@ class ClubCard extends StatelessWidget {
   List<ClubMeEvent> events;
   late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
 
-  Function () clickedOnShare;
+  Function () clickEventShare;
   Function () triggerSetState;
 
   late StateProvider stateProvider;
@@ -42,6 +41,7 @@ class ClubCard extends StatelessWidget {
   late double topHeight, bottomHeight;
   late CustomStyleClass customStyleClass;
   late double screenHeight, screenWidth;
+  late ClubOpenStatus clubOpenStatus;
 
   double widthFactor = 0.95;
 
@@ -65,32 +65,6 @@ class ClubCard extends StatelessWidget {
 
   // CALCULATE
 
-
-  void checkIfClosed(){
-    for(var element in clubMeClub.getOpeningTimes().days!){
-
-      // Catching the situation that the user checks the app after midnight.
-      // We want him to know that it's open but will close some time.
-      if(stateProvider.getBerlinTime().hour < 8){
-        if(element.day!-1 == stateProvider.getBerlinTime().weekday){
-          todaysClosingHour = element.closingHour!;
-          closedToday = false;
-          if(stateProvider.getBerlinTime().hour < element.closingHour!){
-            alreadyOpen = true;
-            if(todaysClosingHour - stateProvider.getBerlinTime().hour < 3){
-              lessThanThreeMoreHoursOpen = true;
-            }
-          }
-        }
-      }else{
-        if(element.day == stateProvider.getBerlinTime().weekday){
-          todaysOpeningHour = element.openingHour!;
-          closedToday = false;
-          if(stateProvider.getBerlinTime().hour >= todaysOpeningHour) alreadyOpen = true;
-        }
-      }
-    }
-  }
   String getRandomNumber(){
 
     final random = Random();
@@ -124,11 +98,11 @@ class ClubCard extends StatelessWidget {
   // CLICK EVENTS
 
 
-  void clickEventInfoButtonClicked(BuildContext context){
+  void clickEventInfo(BuildContext context){
     currentAndLikedElementsProvider.setCurrentClub(clubMeClub);
     context.push("/club_details");
   }
-  void clickEventFavoriteButtonClicked(BuildContext context, String clubId){
+  void clickEventFavorite(BuildContext context, String clubId){
     if(currentAndLikedElementsProvider.checkIfClubIsAlreadyLiked(clubId)){
       currentAndLikedElementsProvider.deleteLikedClub(clubId);
       _hiveService.deleteFavoriteClub(clubId);
@@ -137,10 +111,18 @@ class ClubCard extends StatelessWidget {
       _hiveService.insertFavoriteClub(clubId);
     }
   }
-  void clickEventShareButtonClicked(BuildContext context){
-
-  }
-
+  // void clickEventShare(BuildContext context){
+  //
+  // }
+  // void clickEventLike(StateProvider stateProvider, String clubId){
+  //   if(currentAndLikedElementsProvider.checkIfClubIsAlreadyLiked(clubId)){
+  //     currentAndLikedElementsProvider.deleteLikedClub(clubId);
+  //     _hiveService.deleteFavoriteClub(clubId);
+  //   }else{
+  //     currentAndLikedElementsProvider.addLikedClub(clubId);
+  //     _hiveService.insertFavoriteClub(clubId);
+  //   }
+  // }
 
   // BUILD
 
@@ -223,8 +205,8 @@ class ClubCard extends StatelessWidget {
                                   borderRadius: BorderRadius.only(
                                     topRight: Radius.circular(12),
                                     topLeft: Radius.circular(12),
-                                    bottomLeft: Radius.circular(12),
-                                    bottomRight: Radius.circular(12),
+                                    // bottomLeft: Radius.circular(12),
+                                    // bottomRight: Radius.circular(12),
                                   ),
                                   color: Colors.black,
                                 ),
@@ -265,17 +247,20 @@ class ClubCard extends StatelessWidget {
                             ),
                             alignment: Alignment.topLeft,
                             child: Text(
-                              closedToday ?
+                              clubOpenStatus.openingStatus == 0 ?
                               "Geschlossen" :
-                              alreadyOpen ?
-                              lessThanThreeMoreHoursOpen ?
-                              "Geöffnet, schließt um $todaysClosingHour" :
-                              "Geöffnet" :
-                              "Öffnet um $todaysOpeningHour:00 Uhr",
+                              clubOpenStatus.openingStatus == 1 ?
+                              "Öffnet um ${clubOpenStatus.textToDisplay} Uhr":
+                              clubOpenStatus.openingStatus == 2 ?
+                              "Geöffnet":
+                              clubOpenStatus.openingStatus == 3 ?
+                              "Geöffnet, schließt um ${clubOpenStatus.textToDisplay} Uhr":
+                              "Geschlossen.",
                               style: TextStyle(
-                                  color: closedToday ?
-                                  Colors.grey : alreadyOpen ?
-                                  customStyleClass.primeColor : Colors.white
+                                  color: clubOpenStatus.openingStatus == 0 ?
+                                  Colors.grey : clubOpenStatus.openingStatus == 2 ?
+                                  customStyleClass.primeColor : Colors.white,
+                                fontWeight: FontWeight.bold
                               ),
                             ),
                           )
@@ -337,7 +322,7 @@ class ClubCard extends StatelessWidget {
                                 Icons.info_outline,
                                 color: customStyleClass.primeColor,
                               ),
-                              onTap: () => clickEventInfoButtonClicked(context),
+                              onTap: () => clickEventInfo(context),
                             ),
 
                             InkWell(
@@ -345,7 +330,7 @@ class ClubCard extends StatelessWidget {
                                 currentAndLikedElementsProvider.checkIfSpecificCLubIsAlreadyLiked(clubMeClub.getClubId()) ? Icons.star_outlined : Icons.star_border,
                                 color: customStyleClass.primeColor,
                               ),
-                              onTap: () => clickEventFavoriteButtonClicked(context, clubMeClub.getClubId()),
+                              onTap: () => clickEventFavorite(context, clubMeClub.getClubId()),
                             ),
 
                             InkWell(
@@ -353,7 +338,7 @@ class ClubCard extends StatelessWidget {
                                 Icons.share,
                                 color: customStyleClass.primeColor,
                               ),
-                              onTap: () => clickedOnShare(),
+                              onTap: () => clickEventShare(),
                             ),
 
                           ],
@@ -453,7 +438,7 @@ class ClubCard extends StatelessWidget {
                               ),
 
                               Text(
-                                calculateDistanceToClub().toStringAsFixed(2),
+                                "${calculateDistanceToClub().toStringAsFixed(2)} km",
                                 style: customStyleClass.getFontStyle3(),
                               ),
 
@@ -518,15 +503,7 @@ class ClubCard extends StatelessWidget {
       return clubMeClub.getMusicGenres();
     }
   }
-  void likeIconClicked(StateProvider stateProvider, String clubId){
-    if(currentAndLikedElementsProvider.checkIfClubIsAlreadyLiked(clubId)){
-      currentAndLikedElementsProvider.deleteLikedClub(clubId);
-      _hiveService.deleteFavoriteClub(clubId);
-    }else{
-      currentAndLikedElementsProvider.addLikedClub(clubId);
-      _hiveService.insertFavoriteClub(clubId);
-    }
-  }
+
 
 
 
@@ -546,7 +523,9 @@ class ClubCard extends StatelessWidget {
 
     customStyleClass = CustomStyleClass(context: context);
 
-    checkIfClosed();
+    clubOpenStatus = clubMeClub.getClubOpenStatus();
+
+    // checkIfClosed();
 
     return SizedBox(
 

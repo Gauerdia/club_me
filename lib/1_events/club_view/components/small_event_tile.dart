@@ -59,18 +59,24 @@ class SmallEventTile extends StatelessWidget {
     formattedWeekday = "$weekDayToDisplay, $startingHourToDisplay:$startingMinuteToDisplay Uhr";
   }
   void formatEventTitle(){
-    if(clubMeEvent.getEventTitle().length >= 22){
-      formattedEventTitle = "${clubMeEvent.getEventTitle().substring(0, 21)}...";
-    }else{
-      formattedEventTitle = clubMeEvent.getEventTitle().substring(0, clubMeEvent.getEventTitle().length);
-    }
+
+    formattedEventTitle = clubMeEvent.getEventTitle();
+
+    // if(clubMeEvent.getEventTitle().length >= 22){
+    //   formattedEventTitle = "${clubMeEvent.getEventTitle().substring(0, 21)}...";
+    // }else{
+    //   formattedEventTitle = clubMeEvent.getEventTitle().substring(0, clubMeEvent.getEventTitle().length);
+    // }
   }
   void formatDjName(){
-    if(clubMeEvent.getDjName().length >= 22){
-      formattedDjName = "${clubMeEvent.getDjName().substring(0, 21)}...";
-    }else{
-      formattedDjName = clubMeEvent.getDjName().substring(0, clubMeEvent.getDjName().length);
-    }
+
+    formattedDjName = clubMeEvent.getDjName();
+
+    // if(clubMeEvent.getDjName().length >= 22){
+    //   formattedDjName = "${clubMeEvent.getDjName().substring(0, 21)}...";
+    // }else{
+    //   formattedDjName = clubMeEvent.getDjName().substring(0, clubMeEvent.getDjName().length);
+    // }
   }
 
   @override
@@ -101,7 +107,7 @@ class SmallEventTile extends StatelessWidget {
             // Image container
             Container(
                 decoration: BoxDecoration(
-                  color: customStyleClass.backgroundColorEventTile,
+                  color: customStyleClass.backgroundColorMain,
                   border: Border.all(
                       color: customStyleClass.backgroundColorEventTile,
                     width: 2

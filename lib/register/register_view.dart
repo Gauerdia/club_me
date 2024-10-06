@@ -819,7 +819,9 @@ class _RegisterViewState extends State<RegisterView> {
           eMail: _eMailController.text,
           gender: gender,
           userId: uuid.v4(),
-          profileType: profileType);
+          profileType: profileType,
+          lastTimeLoggedIn: DateTime.now()
+      );
 
       try{
 
@@ -855,7 +857,8 @@ class _RegisterViewState extends State<RegisterView> {
                 eMail: "...",
                 gender: 0,
                 userId: clubMePassword.clubId,
-                profileType: 1
+                profileType: 1,
+              lastTimeLoggedIn: DateTime.now()
             );
             _hiveService.addUserData(newUserData).then((value){
               userDataProvider.setUserData(newUserData);

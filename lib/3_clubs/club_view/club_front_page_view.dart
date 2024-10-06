@@ -498,7 +498,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
               // Headline
               Center(
                 child: Text(
-                  "Fotos & Videos",
+                  "Fotos",
                   style: customStyleClass.getFontStyle1Bold(),
                 ),
               ),
@@ -744,7 +744,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
               // Social media
               Padding(
                 padding: EdgeInsets.only(
-                    left: screenWidth*0.03
+                    // left: screenWidth*0.03
                 ),
                 child: IconButton(
                     onPressed: () => goToSocialMedia(userDataProvider.getUserClubInstaLink()),
@@ -757,7 +757,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
 
               Padding(
                 padding: EdgeInsets.only(
-                    left: screenWidth*0.03
+                    // left: screenWidth*0.03
                 ),
                 child: IconButton(
                     onPressed: () => goToSocialMedia(
@@ -1039,7 +1039,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                       width: screenWidth*0.2,
                       height: screenWidth*0.2,
                       child: Image.asset(
-                        'assets/images/google_maps_teal.png',
+                        'assets/images/google_maps_3.png',
                       ),
                     )
                   ],

@@ -2,6 +2,8 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:chewie/chewie.dart';
 import 'package:club_me/shared/custom_bottom_navigation_bar_clubs.dart';
+import 'package:club_me/shared/dialogs/TitleAndContentDialog.dart';
+import 'package:club_me/shared/dialogs/title_content_and_button_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -100,7 +102,7 @@ class _EventDetailViewState extends State<EventDetailView>{
 
 
   // CLICK HANDLING
-  void clickOnInfo(){
+  void clickEventTicket(){
 
 
     Widget okButton = TextButton(
@@ -119,20 +121,11 @@ class _EventDetailViewState extends State<EventDetailView>{
     showDialog(
         context: context,
         builder: (BuildContext context){
-          return AlertDialog(
-            backgroundColor: Colors.grey[900]!,
-            title: Text(
-              "Ticketbuchuchung",
-              style: customStyleClass.getFontStyle1(),
-            ),
-            content: Text(
-              "Dieser Link führt Sie weiter zu der Seite, wo Sie direkt ein Ticket kaufen können."
-                  " Ist das in Ordnung für Sie?",
-              style: customStyleClass.getFontStyle4(),
-            ),
-            actions: [
-              okButton
-            ],
+          return  TitleContentAndButtonDialog(
+              titleToDisplay: "Ticketbuchuchung",
+              contentToDisplay: "Dieser Link führt Sie weiter zu der Seite, wo Sie direkt ein Ticket kaufen können."
+                  "Ist das in Ordnung für Sie?",
+              buttonToDisplay: okButton
           );
         }
     );
@@ -147,27 +140,17 @@ class _EventDetailViewState extends State<EventDetailView>{
     //     )
     // );
   }
-  void clickedOnImIn(){
-    print("clickedOnImIn");
-  }
-  void clickedOnShare(){
+  void clickEventShare(){
     showDialog<String>(
         context: context,
-        builder: (BuildContext context) =>  AlertDialog(
-            backgroundColor: Colors.grey[900]!,
-            title: Text(
-                "Teilen noch nicht möglich!",
-              style: customStyleClass.getFontStyle1(),
-            ),
-            content: Text(
-                "Die Funktion, ein Event zu teilen, ist derzeit noch"
-                "nicht implementiert. Wir bitten um Verständnis.",
-              style: customStyleClass.getFontStyle4(),
-            )
-        )
+        builder: (BuildContext context) =>
+            TitleAndContentDialog(
+                titleToDisplay: "Event teilen",
+                contentToDisplay: "Die Funktion, ein Event zu teilen, ist derzeit noch"
+                    "nicht implementiert. Wir bitten um Verständnis.")
     );
   }
-  void clickedOnLike(String eventId){
+  void clickEventLike(String eventId){
     if(stateProvider.getIsEventEditable()){
       showDialog<String>(
           context: context,
@@ -187,7 +170,7 @@ class _EventDetailViewState extends State<EventDetailView>{
       }
     }
   }
-  void clickedOnContent(){
+  void clickEventContent(){
     setState(() {
       isContentShown = !isContentShown;
       if(isVideo){
@@ -363,7 +346,7 @@ class _EventDetailViewState extends State<EventDetailView>{
               alignment: Alignment.centerRight,
               width: screenWidth,
               child: IconButton(
-                onPressed: () => clickedOnContent(),
+                onPressed: () => clickEventContent(),
                 icon: const Icon(
                   Icons.close,
                   color: Colors.white,
@@ -402,7 +385,7 @@ class _EventDetailViewState extends State<EventDetailView>{
                         ),
                       ],
                     ),
-                    onTap: () => clickOnInfo()
+                    onTap: () => clickEventTicket()
                 ),
 
                 SizedBox(
@@ -419,7 +402,7 @@ class _EventDetailViewState extends State<EventDetailView>{
                         ),
                       ],
                     ),
-                    onTap: () => clickedOnLike(currentAndLikedElementsProvider.currentClubMeEvent.getEventId())
+                    onTap: () => clickEventLike(currentAndLikedElementsProvider.currentClubMeEvent.getEventId())
                 ),
 
                 SizedBox(
@@ -436,7 +419,7 @@ class _EventDetailViewState extends State<EventDetailView>{
                         ),
                       ],
                     ),
-                    onTap: () => clickedOnShare()
+                    onTap: () => clickEventShare()
                 ),
 
                 SizedBox(
@@ -615,7 +598,7 @@ class _EventDetailViewState extends State<EventDetailView>{
                                         ),
                                       ],
                                     ),
-                                    onTap: () => clickOnInfo(),
+                                    onTap: () => clickEventTicket(),
                                   ),
                                 SizedBox(
                                   width: screenWidth*0.02,
@@ -631,7 +614,7 @@ class _EventDetailViewState extends State<EventDetailView>{
                                       ),
                                     ],
                                   ),
-                                  onTap: () => clickedOnLike(currentAndLikedElementsProvider.currentClubMeEvent.getEventId()
+                                  onTap: () => clickEventLike(currentAndLikedElementsProvider.currentClubMeEvent.getEventId()
                                   ),
                                 ),
                                 SizedBox(
@@ -648,7 +631,7 @@ class _EventDetailViewState extends State<EventDetailView>{
                                       ),
                                     ],
                                   ),
-                                  onTap: () => clickedOnShare(),
+                                  onTap: () => clickEventShare(),
                                 )
                               ],
                             )
@@ -696,6 +679,7 @@ class _EventDetailViewState extends State<EventDetailView>{
                                 ),
                                 child: Text(
                                   currentAndLikedElementsProvider.currentClubMeEvent.getEventDescription(),
+                                  textAlign: TextAlign.center,
                                   style: customStyleClass.getFontStyle6(),
                                 ),
                               ),
@@ -856,7 +840,7 @@ class _EventDetailViewState extends State<EventDetailView>{
                   ),
                 ),
               ),
-              onTap: () => clickedOnContent(),
+              onTap: () => clickEventContent(),
             )
         ],
       ),
@@ -947,7 +931,7 @@ class _EventDetailViewState extends State<EventDetailView>{
                 ),
               ),
             ),
-            onTap: () => clickedOnContent(),
+            onTap: () => clickEventContent(),
           )
 
         ],
@@ -999,7 +983,7 @@ class _EventDetailViewState extends State<EventDetailView>{
                 ),
               ),
             ),
-            onTap: () => clickedOnContent(),
+            onTap: () => clickEventContent(),
           )
         ],
       ) :

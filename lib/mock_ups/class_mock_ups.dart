@@ -11,6 +11,7 @@ ClubMeClub mockUpClub = ClubMeClub(
     clubNews: "Test-News",
     clubMusicGenres: "Test-Genre",
     clubStoryId: "",
+    storyCreatedAt: null,
     clubBannerId: "question_1.png",
     clubEventBannerId: "question_1.png",
     clubGeoCoordLat: 10,
@@ -29,7 +30,8 @@ ClubMeClub mockUpClub = ClubMeClub(
     clubOffers: ClubOffers(),
   smallLogoFileName: "",
   bigLogoFileName: "",
-  frontpageBannerFileName: ""
+  frontpageBannerFileName: "",
+  mapPinImageName: "black_100x100.png"
 );
 
 ClubMeUserData mockUpUserData = ClubMeUserData(
@@ -39,5 +41,6 @@ ClubMeUserData mockUpUserData = ClubMeUserData(
     eMail: "max@mustermann.de",
     gender: 1,
     userId: "000000",
-    profileType: 0
+    profileType: 0,
+    lastTimeLoggedIn: DateTime.now()
 );

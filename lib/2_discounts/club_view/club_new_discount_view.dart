@@ -1,6 +1,7 @@
 import 'package:club_me/2_discounts/club_view/components/cover_image_card.dart';
 import 'package:club_me/models/discount.dart';
 import 'package:club_me/provider/fetched_content_provider.dart';
+import 'package:club_me/services/check_and_fetch_service.dart';
 import 'package:club_me/services/hive_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -42,6 +43,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
 
   final HiveService _hiveService = HiveService();
   final SupabaseService _supabaseService = SupabaseService();
+  final CheckAndFetchService _checkAndFetchService = CheckAndFetchService();
 
 
   late TextEditingController _discountTitleController;
@@ -58,6 +60,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
   bool isDateSelected = false;
 
   bool showGallery = false;
+  bool galleryImageChosen = false;
 
   int isTemplate = 0;
   int isSupposedToBeTemplate = 0;
@@ -609,7 +612,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
                             if(hasAgeLimit != 0)
                               Container(
                                 padding:  EdgeInsets.only(
-                                    top: distanceBetweenTitleAndTextField
+                                    top: distanceBetweenTitleAndTextField+5
                                 ),
                                 alignment: Alignment.centerRight,
                                 width: screenWidth*0.45,
@@ -625,7 +628,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
                                           SizedBox(
                                             width: screenWidth*0.15,
                                             child: Text(
-                                              "Von",
+                                              "von",
                                               textAlign: TextAlign.left,
                                               style: customStyleClass.getFontStyle3(),
                                             ),
@@ -634,15 +637,16 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
                                           TextField(
                                             controller: _ageLimitLowerLimitController,
                                             cursorColor: customStyleClass.primeColor,
+                                            textAlign: TextAlign.center,
                                             keyboardType: TextInputType.number,
                                             decoration: InputDecoration(
-
                                               border: OutlineInputBorder(),
                                               focusedBorder: OutlineInputBorder(
                                                   borderSide: BorderSide(
                                                       color: customStyleClass.primeColor
                                                   )
                                               ),
+                                              counterText: "",
                                             ),
                                             inputFormatters: <TextInputFormatter>[
                                               FilteringTextInputFormatter.allow(RegExp("[0-9]")),
@@ -673,7 +677,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
                                           SizedBox(
                                             width: screenWidth*0.15,
                                             child: Text(
-                                              "Bis",
+                                              "bis",
                                               textAlign: TextAlign.left,
                                               style: customStyleClass.getFontStyle3(),
                                             ),
@@ -682,14 +686,16 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
                                           TextField(
                                             controller: _ageLimitUpperLimitController,
                                             cursorColor: customStyleClass.primeColor,
+                                            textAlign: TextAlign.center,
                                             keyboardType: TextInputType.number,
                                             decoration: InputDecoration(
-                                              border: OutlineInputBorder(),
+                                              border: const OutlineInputBorder(),
                                               focusedBorder: OutlineInputBorder(
                                                   borderSide: BorderSide(
                                                       color: customStyleClass.primeColor
                                                   )
                                               ),
+                                              counterText: ""
                                             ),
                                             inputFormatters: <TextInputFormatter>[
                                               FilteringTextInputFormatter.allow(RegExp("[0-9]")),
@@ -780,6 +786,8 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
                             // TextField, Text: AgeLimit
                             if(hasUsageLimit != 0)
                               Container(
+                                // height: screenHeight*0.1,
+                                // color: Colors.red,
                                 padding: const EdgeInsets.only(
                                   // top: 20
                                 ),
@@ -855,6 +863,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
                         ),
                       ),
 
+                      // GALLERY
                       InkWell(
                         child: Container(
                           width: screenWidth*0.9,
@@ -864,15 +873,28 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
                                 vertical: 10
                             ),
                             child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  "Zur Galerie",
-                                  style: customStyleClass.getFontStyle3BoldPrimeColor(),
+
+                                Row(
+                                  children: [
+                                    Text(
+                                      "Zur Galerie",
+                                      style: customStyleClass.getFontStyle3BoldPrimeColor(),
+                                    ),
+                                    Icon(
+                                      Icons.arrow_forward_outlined,
+                                      color: customStyleClass.primeColor,
+                                    )
+                                  ],
                                 ),
+
+                                if(galleryImageChosen)
                                 Icon(
-                                  Icons.arrow_forward_outlined,
+                                  Icons.check,
                                   color: customStyleClass.primeColor,
                                 )
+
                               ],
                             ),
                           ),
@@ -1184,7 +1206,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
   Widget _buildBottomNavigationBar(){
     return Container(
       width: screenWidth,
-      height: screenHeight*0.08,
+      height: 80,
       decoration: BoxDecoration(
           color: customStyleClass.backgroundColorMain,
           border: Border(
@@ -1202,6 +1224,8 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
       child: showGallery ?
           GestureDetector(
             child: Container(
+              height: 80,
+              alignment: Alignment.center,
               padding: const EdgeInsets.only(
                   bottom: 10
               ),
@@ -1226,6 +1250,8 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
           ):
       GestureDetector(
         child: Container(
+          height: 80,
+          alignment: Alignment.center,
           padding: const EdgeInsets.only(
               bottom: 10
           ),
@@ -1253,8 +1279,8 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
 
   void clickEventChooseImage(){
     setState(() {
-      print(_currentPageIndex);
       showGallery = false;
+      galleryImageChosen = true;
     });
   }
 
@@ -1322,6 +1348,11 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
           fetchedContentProvider.sortFetchedDiscounts();
           stateProvider.resetCurrentDiscountTemplate();
           stateProvider.resetDiscountTemplates();
+          _checkAndFetchService.checkAndFetchDiscountImageAfterCreation
+            (clubMeDiscount.getBigBannerFileName(),
+              stateProvider,
+              fetchedContentProvider
+          );
           context.go('/club_coupons');
         }else{
           showModalBottomSheet(
@@ -1487,7 +1518,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
       isUploading = true;
     });
 
-    if(_discountTitleController.text.isEmpty || _discountDescriptionController.text.isEmpty){
+    if(_discountTitleController.text.isEmpty){
       showDialogOfMissingValue();
     }else{
 
@@ -1543,9 +1574,6 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
   }
 
   Widget _buildGalleryView(){
-
-
-
     return SizedBox(
       width: screenWidth,
       height: screenHeight,

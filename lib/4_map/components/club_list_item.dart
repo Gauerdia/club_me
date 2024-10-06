@@ -215,7 +215,7 @@ class ClubListItem extends StatelessWidget {
                                       horizontal: 5
                                   ),
                                   child: Text(
-                                    calculateDistanceToClub().toStringAsFixed(2),
+                                    "${calculateDistanceToClub().toStringAsFixed(2)} km",
                                     style: customStyleClass.getFontStyle5(),
                                   ),
                                 )

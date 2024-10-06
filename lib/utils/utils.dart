@@ -1,8 +1,12 @@
 class Utils{
 
-  static String noElementsDueToNoFavorites = "Derzeit sind keine Events als Favoriten markiert.";
-  static String noElementsDueToNothingOnTheServer = "";
-  static String noElementsDueToFilter = "Entschuldigung, im Rahmen dieser Filter sind keine Events verfügbar.";
+  static String noEventElementsDueToNoFavorites = "Derzeit sind keine Events als Favoriten markiert.";
+  static String noEventElementsDueToNothingOnTheServer = "Derzeit sind keine aktuellen Events verfügbar.";
+  static String noEventElementsDueToFilter = "Entschuldigung, im Rahmen dieser Filter sind keine Events verfügbar.";
+
+  static String noDiscountElementsDueToNoFavorites = "Derzeit sind keine Coupons als Favoriten markiert.";
+  static String noDiscountElementsDueToNothingOnTheServer = "Derzeit sind keine aktuellen Coupons verfügbar.";
+  static String noDiscountElementsDueToFilter = "Entschuldigung, im Rahmen dieser Filter sind keine Coupons verfügbar.";
 
   // First one should always be something that means 'no filter' because I
   // compare the current filter value to the first element of this array

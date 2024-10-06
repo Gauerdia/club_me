@@ -52,7 +52,7 @@ class _SettingsClubViewState extends State<SettingsClubView> {
 
   }
   void clickEventSponsors(){
-
+    context.push("/user_sponsors");
   }
   void clickEventLogOut(){
     fetchedContentProvider.setFetchedEvents([]);
@@ -313,7 +313,7 @@ class _SettingsClubViewState extends State<SettingsClubView> {
                             width: screenWidth*0.02,
                           ),
                           Text(
-                            "Werbepartner",
+                            "Kooperationspartner",
                             style: customStyleClass.getFontStyle1(),
                           )
                         ],

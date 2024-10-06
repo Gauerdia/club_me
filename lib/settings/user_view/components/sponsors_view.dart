@@ -27,6 +27,9 @@ class _SponsorsViewState extends State<SponsorsView>
   late TabController _tabController;
   late PageController _pageViewController;
 
+  int imageToShowIndex = 0;
+  bool showImageFullScreen = false;
+
   @override
   void initState() {
     super.initState();
@@ -50,13 +53,78 @@ class _SponsorsViewState extends State<SponsorsView>
 
   }
 
+  AppBar _buildAppBar(){
+    return AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: customStyleClass.backgroundColorMain,
+        surfaceTintColor: customStyleClass.backgroundColorMain,
+        title: SizedBox(
+          width: screenWidth,
+          child: Stack(
+            children: [
+
+              // Headline
+              Container(
+                  alignment: Alignment.bottomCenter,
+                  height: screenHeight*0.2,
+                  width: screenWidth,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                  headLine,
+                                  textAlign: TextAlign.center,
+                                  style: customStyleClass.getFontStyleHeadline1Bold()
+                              ),
+                            ],
+                          ),
+                        ],
+                      )
+                    ],
+                  )
+              ),
+
+
+              // back icon
+              Container(
+                  width: screenWidth,
+                  height: screenHeight*0.2,
+                  // color: Colors.red,
+                  alignment: Alignment.centerLeft,
+                  child: IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(
+                        Icons.arrow_back_ios,
+                        color: Colors.white,
+                        // size: 20,
+                      )
+                  )
+              ),
+
+            ],
+          ),
+        )
+    );
+  }
+
+  void resetDetailView(){
+    setState(() {
+      showImageFullScreen = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     stateProvider = Provider.of<StateProvider>(context);
     fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
 
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
+    screenWidth = MediaQuery.of(context).size.width;
+    screenHeight = MediaQuery.of(context).size.height;
 
     customStyleClass = CustomStyleClass(context: context);
 
@@ -65,125 +133,136 @@ class _SponsorsViewState extends State<SponsorsView>
     return Scaffold(
 
         extendBody: true,
-        appBar: AppBar(
-            automaticallyImplyLeading: false,
-            backgroundColor: customStyleClass.backgroundColorMain,
-            surfaceTintColor: customStyleClass.backgroundColorMain,
-            title: SizedBox(
-              width: screenWidth,
-              child: Stack(
-                children: [
-
-                  // Headline
-                  Container(
-                      alignment: Alignment.bottomCenter,
-                      height: screenHeight*0.2,
-                      width: screenWidth,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              Row(
-                                children: [
-                                  Text(
-                                      headLine,
-                                      textAlign: TextAlign.center,
-                                      style: customStyleClass.getFontStyleHeadline1Bold()
-                                  ),
-                                ],
-                              ),
-                            ],
-                          )
-                        ],
-                      )
-                  ),
-
-
-                  // back icon
-                  Container(
-                      width: screenWidth,
-                      height: screenHeight*0.2,
-                      // color: Colors.red,
-                      alignment: Alignment.centerLeft,
-                      child: IconButton(
-                          onPressed: () => Navigator.pop(context),
-                          icon: const Icon(
-                            Icons.arrow_back_ios,
-                            color: Colors.white,
-                            // size: 20,
-                          )
-                      )
-                  ),
-
-                ],
-              ),
-            )
-        ),
+        appBar: _buildAppBar(),
         body: Container(
             width: screenWidth,
             height: screenHeight,
             color: customStyleClass.backgroundColorMain,
-            child: SingleChildScrollView(
+            child: Stack(
 
-                child: Column(
-                  children: [
+              children: [
 
-                    SizedBox(
-                      height: screenHeight*0.03,
-                    ),
+                // MAIN CONTENT
+                Center(
+                  child:  SingleChildScrollView(
+                    child: Column(
+                      children: [
 
-                    SizedBox(
-                      width: screenWidth*0.9,
-                      height: screenHeight*0.7,
-                      child: PageView(
-                        controller: _pageViewController,
-                        onPageChanged: _handlePageViewChanged,
-                        children: <Widget>[
 
-                          Image.asset(
-                            "assets/images/rune_1.jpg",
+
+                        SizedBox(
+                          height: screenHeight*0.03,
+                        ),
+
+                        SizedBox(
+                          width: screenWidth*0.8,
+                          height: screenHeight*0.55,
+                          child: Image.asset(
+                            "assets/images/runes_1.PNG",
                             fit: BoxFit.cover,
                           ),
-
-                          Image.asset(
-                            "assets/images/rune_2.jpg",
-                          ),
-
-                          Image.asset(
-                            "assets/images/rune_3.jpg",
-                          ),
-
-                        ],
-                      ),
-                    ),
-
-                    Container(
-                      width: screenWidth*0.9,
-                      height: screenHeight*0.1,
-                      alignment: Alignment.centerRight,
-                      child: InkWell(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text(
-                              "Zum Online-shop",
-                              style: customStyleClass.getFontStyle3BoldPrimeColor(),
-                            ),
-                            Icon(
-                              Icons.arrow_forward_outlined,
-                              color: customStyleClass.primeColor,
-                            )
-                          ],
                         ),
-                        onTap: () => clickEventShopLink(),
+
+                        SizedBox(
+                          width: screenWidth*0.8,
+                          height: screenHeight*0.2,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              InkWell(
+                                child: Image.asset(
+                                  "assets/images/rune_1.jpg",
+                                ),
+                                onTap: (){
+                                  setState(() {
+                                    imageToShowIndex = 0;
+                                    showImageFullScreen = true;
+                                  });
+                                },
+                              ),
+
+                              InkWell(
+                                child: Image.asset(
+                                  "assets/images/rune_2.jpg",
+                                ),
+                                onTap: (){
+                                  setState(() {
+                                    imageToShowIndex = 1;
+                                    showImageFullScreen = true;
+                                  });
+                                },
+                              ),
+
+
+                              InkWell(
+                                child: Image.asset(
+                                  "assets/images/rune_3.jpg",
+                                ),
+                                onTap: (){
+                                  setState(() {
+                                    imageToShowIndex = 2;
+                                    showImageFullScreen = true;
+                                  });
+                                },
+                              ),
+
+
+                            ],
+                          ),
+                        ),
+
+                        Container(
+                          width: screenWidth*0.8,
+                          height: screenHeight*0.1,
+                          alignment: Alignment.centerRight,
+                          child: InkWell(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Text(
+                                  "Zum Online-shop",
+                                  style: customStyleClass.getFontStyle3BoldPrimeColor(),
+                                ),
+                                Icon(
+                                  Icons.arrow_forward_outlined,
+                                  color: customStyleClass.primeColor,
+                                )
+                              ],
+                            ),
+                            onTap: () => clickEventShopLink(),
+                          ),
+                        ),
+
+
+                      ],
+                    ),
+                  ),
+                ),
+
+                // DETAIL VIEW
+                if(showImageFullScreen)
+                InkWell(
+                  child: Container(
+                    width: screenWidth,
+                    height: screenHeight,
+                    color: Colors.black.withOpacity(0.6),
+                    child: Center(
+                      child: SizedBox(
+                        width: screenWidth*0.85,
+                        height: screenHeight*0.85,
+                        child: Image.asset(
+                            imageToShowIndex == 0 ? "assets/images/rune_1.jpg" :
+                            imageToShowIndex == 1 ? "assets/images/rune_2.jpg":
+                            "assets/images/rune_3.jpg"
+                        ),
                       ),
                     ),
-
-
-                  ],
+                  ),
+                  onTap: () => resetDetailView(),
                 )
+              ],
+
+
             )
         )
     );

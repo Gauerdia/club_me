@@ -73,7 +73,7 @@ class _UpdateFrontpageBannerImageViewState extends State<UpdateFrontpageBannerIm
                   children: [
                     Text(headline,
                         textAlign: TextAlign.center,
-                        style: customStyleClass.getFontStyle1()
+                        style: customStyleClass.getFontStyleHeadline1Bold()
                     ),
                   ],
                 )

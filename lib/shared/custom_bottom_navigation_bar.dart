@@ -44,7 +44,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
                 borderRadius: BorderRadius.only(
                 ),
               ),
-              height: 70,
+              height: 80,
               child: Center(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,

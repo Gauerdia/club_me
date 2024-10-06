@@ -217,7 +217,6 @@ class HiveService{
       _supabaseService.createErrorLog(e.toString());
     }
   }
-
   Future<void> resetUserData() async {
 
 

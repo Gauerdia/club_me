@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../../provider/fetched_content_provider.dart';
@@ -68,6 +69,13 @@ class _FaqClubViewState extends State<FaqClubView> {
 
   int selected = 0;
 
+  @override
+  void initState(){
+    super.initState();
+    createWidgetsToDisplay();
+  }
+
+
   void createWidgetsToDisplay(){
 
     for(var i=0;i<answers.length;i++){
@@ -128,15 +136,27 @@ class _FaqClubViewState extends State<FaqClubView> {
       widgetsToDisplay.add(
 
           ExpansionTile(
+            iconColor: const Color(0xFF249e9f),
+            collapsedIconColor: const Color(0xFF249e9f),
             title: Text(
               questions[i],
-              style: customStyleClass.getFontStyle3(),
+                style:GoogleFonts.inter(
+                    textStyle: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.white
+                    )
+                )
             ),
             children: [
               ListTile(
                 title:Text(
                   answers[i],
-                  style: customStyleClass.getFontStyle3(),
+                    style:GoogleFonts.inter(
+                        textStyle: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.white
+                        )
+                    )
                 ),
               ),
             ],
@@ -278,7 +298,16 @@ class _FaqClubViewState extends State<FaqClubView> {
                   ],
                 )
             )
-        )
+        ),
+      bottomNavigationBar: Container(
+        height: 20,
+        decoration: BoxDecoration(
+            color: customStyleClass.backgroundColorMain,
+            border: Border.all(
+                color: customStyleClass.backgroundColorEventTile
+            )
+        ),
+      ),
     );
   }
 }

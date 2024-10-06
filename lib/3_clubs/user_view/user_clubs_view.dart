@@ -14,6 +14,7 @@ import '../../services/supabase_service.dart';
 import '../../shared/custom_bottom_navigation_bar.dart';
 import '../../shared/custom_text_style.dart';
 
+import '../../shared/dialogs/TitleAndContentDialog.dart';
 import 'components/club_card.dart';
 
 class UserClubsView extends StatefulWidget {
@@ -122,14 +123,14 @@ class _UserClubsViewState extends State<UserClubsView>
 
 
   // CLICKED
-  void clickedOnShare(){
+  void clickEventShare(){
     showDialog<String>(
         context: context,
-        builder: (BuildContext context) => const AlertDialog(
-            title: Text("Teilen noch nicht möglich!"),
-            content: Text("Die Funktion, ein Event zu teilen, ist derzeit noch"
-                "nicht implementiert. Wir bitten um Verständnis.")
-        )
+        builder: (BuildContext context) =>
+            TitleAndContentDialog(
+                titleToDisplay: "Event teilen",
+                contentToDisplay: "Die Funktion, ein Event zu teilen, ist derzeit noch"
+                    "nicht implementiert. Wir bitten um Verständnis.")
     );
   }
   void triggerSetState(){
@@ -169,7 +170,6 @@ class _UserClubsViewState extends State<UserClubsView>
 
         // Search bar used? Then filter
         if(searchValue != "") {
-          print("Search: ${club.getClubName().toLowerCase()}, Term: ${searchValue.toLowerCase()}");
           if (club.getClubName().toLowerCase().contains(
               searchValue.toLowerCase())) {
           } else {
@@ -461,7 +461,7 @@ class _UserClubsViewState extends State<UserClubsView>
                       }).toList(),
                       clubMeClub: club,
                       triggerSetState: triggerSetState,
-                      clickedOnShare: clickedOnShare,
+                      clickEventShare: clickEventShare,
                     )
                 ],
               ),

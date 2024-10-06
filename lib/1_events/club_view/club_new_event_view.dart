@@ -75,8 +75,8 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
   String eventMusicGenresString = "";
 
   int creationIndex = 0;
-  int selectedHour = TimeOfDay.now().hour;
-  int selectedMinute = TimeOfDay.now().minute;
+  int selectedHour = 0;
+  int selectedMinute = 0;
 
   double originalFoldHeightFactor = 0.08;
 
@@ -236,7 +236,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
     return (isVideo || isImage) ?
     Container(
       width: screenWidth,
-      height: screenHeight*0.08,
+      height: 80,
       alignment: Alignment.center,
       decoration: BoxDecoration(
           color: customStyleClass.backgroundColorMain,
@@ -249,8 +249,10 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
       padding: const EdgeInsets.only(
         right: 10,
       ),
-      child: SizedBox(
+      child: Container(
         width: screenWidth*0.9,
+        height: 80,
+        alignment: Alignment.center,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -274,7 +276,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
     ):
     Container(
       width: screenWidth,
-      height: screenHeight*0.08,
+      height: 80,
       decoration: BoxDecoration(
           color: customStyleClass.backgroundColorMain,
           border: Border(
@@ -283,8 +285,6 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
               )
           )
       ),
-
-      // color: Colors.green,
       alignment: Alignment.bottomRight,
       padding: const EdgeInsets.only(
           right: 10,
@@ -293,9 +293,8 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
       child: isUploading ? CircularProgressIndicator(color: customStyleClass.primeColor,)
       : GestureDetector(
         child: Container(
-          padding: const EdgeInsets.only(
-            bottom: 10
-          ),
+          height: 80,
+          alignment: Alignment.center,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
@@ -1660,7 +1659,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
   }
   void clickEventCreateEvent(){
 
-    if(_eventTitleController.text != "" && _eventPriceController.text != "" && _eventDescriptionController.text != ""){
+    if(_eventTitleController.text != "" ){
       setState(() {
         isUploading = true;
         createNewEvent();
@@ -1757,7 +1756,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
   void selectContent() async{
 
     if(isVideo){
-      screenshot = await genThumbnailFile(file!.path);
+      // screenshot = await genThumbnailFile(file!.path);
       contentType = 2;
     }
     if(isImage){
@@ -1870,11 +1869,10 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
       ticketLink: ticketLinkToSave,
       eventTitle: _eventTitleController.text,
       eventDescription: _eventDescriptionController.text,
-      eventPrice: double.parse(_eventPriceController.text.replaceAll(",", ".")),
+      eventPrice: _eventPriceController.text.isNotEmpty ?  double.parse(_eventPriceController.text.replaceAll(",", ".")): 0,
 
       clubId: userDataProvider.getUserClubId(),
       clubName: userDataProvider.getUserClubName(),
-      // bannerId: userDataProvider.getUserClub().getBigLogoFileName(),
       bannerImageFileName: userDataProvider.getUserClub().getBigLogoFileName(),
       openingTimes: userDataProvider.getUserClubOpeningTimes(),
 
@@ -1985,7 +1983,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                 style: customStyleClass.getFontStyle1Bold(),
               ),
               content: Text(
-                  "Bitte füllen Sie mindestens die folgenden Felder aus, bevor Sie weitergehen: \n Titel \n Eintrittspreis \n Beschreibung",
+                  "Bitte füllen Sie mindestens die folgenden Felder aus, bevor Sie weitergehen: \n\n Titel",
                 style: customStyleClass.getFontStyle3(),
               )
           );
@@ -2045,18 +2043,6 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
     }
 
     return "$hourToDisplay:$minuteToDisplay";
-  }
-  Future<ByteData> genThumbnailFile(String path) async {
-    final fileName = await VideoThumbnail.thumbnailFile(
-      video: path,
-      thumbnailPath: (await getTemporaryDirectory()).path,
-      imageFormat: ImageFormat.PNG,
-      maxHeight: 100,
-      quality: 75,
-    );
-    File file = File(fileName!);
-    Uint8List bytes = file.readAsBytesSync();
-    return ByteData.view(bytes.buffer);
   }
 
 

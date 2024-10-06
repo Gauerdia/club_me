@@ -123,101 +123,104 @@ class EventCard extends StatelessWidget {
     double screenHeight = MediaQuery.of(context).size.height;
 
     return InkWell(
-      child: SizedBox(
+      child: Container(
+        // color: Colors.red,
           height: 130,
-          child: Stack(
+          child: Column(
             children: [
 
-              // Main content
-              Column(
-                children: [
+              // Weekday
+              Container(
+                width: screenWidth,
+                padding: EdgeInsets.only(
+                    left: screenWidth*0.05,
+                    bottom: screenHeight*0.01
+                ),
+                child: Text(
+                  formattedWeekDay,
+                  textAlign: TextAlign.left,
+                  style: customStyleClass.getFontStyle5BoldLightGrey(),
+                ),
+              ),
 
-                  // Weekday
-                  Container(
-                    width: screenWidth,
-                    padding: EdgeInsets.only(
-                        left: screenWidth*0.05,
-                        bottom: screenHeight*0.01
-                    ),
-                    child: Text(
-                      formattedWeekDay,
-                      textAlign: TextAlign.left,
-                      style: customStyleClass.getFontStyle5BoldLightGrey(),
+              // Main card
+              Stack(
+                children: [
+                  Center(
+                    child: Container(
+                        width: screenWidth*0.9,
+                        height: 80,
+                        padding: EdgeInsets.only(
+                          left: screenWidth*0.03,
+                        ),
+                        decoration: BoxDecoration(
+                          color: backgroundColorIndex == 0 ? customStyleClass.backgroundColorMain : customStyleClass.backgroundColorEventTile,
+                          borderRadius: const BorderRadius.all(Radius.circular(10)),
+                        ),
+                        child:Stack(
+                          children: [
+
+                            // Content column
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+
+                                // Event Title container
+                                SizedBox(
+                                  width: screenWidth*0.9,
+                                  child: Align(
+                                    alignment: Alignment.topLeft,
+                                    child: Text(
+                                      textAlign: TextAlign.start,
+                                      formattedEventTitle,
+                                      style: customStyleClass.getFontStyle3Bold(),
+                                    ),
+                                  ),
+                                ),
+
+                                // eventGenre
+                                SizedBox(
+                                  width: screenWidth,
+                                  child: Text(
+                                    formattedEventGenres,
+                                    style: customStyleClass.getFontStyle5(),
+                                  ),
+                                ),
+
+                                // eventWhen
+                                SizedBox(
+                                  width: screenWidth,
+                                  child: Text(
+                                    "$startingHoursFormatted Uhr" ,
+                                    style: customStyleClass.getFontStyle5BoldPrimeColor(),
+                                  ),
+                                ),
+
+                              ],
+                            ),
+
+                          ],
+                        )
                     ),
                   ),
 
-                  // Main card
+                  // Icon
                   Container(
-                      width: screenWidth*0.9,
-                      height: 80,
-                      padding: EdgeInsets.only(
-                        left: screenWidth*0.03,
-                      ),
-                      decoration: BoxDecoration(
-                        color: backgroundColorIndex == 0 ? customStyleClass.backgroundColorMain : customStyleClass.backgroundColorEventTile,
-                        borderRadius: const BorderRadius.all(Radius.circular(10)),
-                      ),
-                      child:Stack(
-                        children: [
-
-                          // Content column
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-
-                              // Event Title container
-                              SizedBox(
-                                width: screenWidth*0.9,
-                                child: Align(
-                                  alignment: Alignment.topLeft,
-                                  child: Text(
-                                    textAlign: TextAlign.start,
-                                    formattedEventTitle,
-                                    style: customStyleClass.getFontStyle3Bold(),
-                                  ),
-                                ),
-                              ),
-
-                              // eventGenre
-                              SizedBox(
-                                width: screenWidth,
-                                child: Text(
-                                  formattedEventGenres,
-                                  style: customStyleClass.getFontStyle5(),
-                                ),
-                              ),
-
-                              // eventWhen
-                              SizedBox(
-                                width: screenWidth,
-                                child: Text(
-                                  "$startingHoursFormatted Uhr" ,
-                                  style: customStyleClass.getFontStyle5BoldPrimeColor(),
-                                ),
-                              ),
-
-                            ],
-                          ),
-
-                        ],
-                      )
+                    // color: Colors.green,
+                    height: 80,
+                    alignment: Alignment.centerRight,
+                    padding: const EdgeInsets.only(
+                        right: 30
+                    ),
+                    child: const Icon(
+                      Icons.arrow_forward,
+                      color: Colors.white,
+                    ),
                   )
                 ],
-              ),
-
-              // Icon
-              Container(
-                alignment: Alignment.centerRight,
-                padding: const EdgeInsets.only(
-                  right: 30
-                ),
-                child: const Icon(
-                  Icons.arrow_forward,
-                  color: Colors.white,
-                ),
               )
             ],
-          )
+          ),
       ),
       onTap: () => clickedOnButton(context),
     );

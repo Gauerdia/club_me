@@ -212,7 +212,7 @@ class CouponCardClub extends StatelessWidget {
 
                   InkWell(
                     child: Icon(
-                      Icons.delete,
+                      Icons.close,
                         color: customStyleClass.primeColor,
                         size: screenWidth*0.06
                     ),

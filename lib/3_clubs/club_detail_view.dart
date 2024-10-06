@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:club_me/services/check_and_fetch_service.dart';
 import 'package:club_me/shared/dialogs/TitleAndContentDialog.dart';
 import 'package:club_me/stories/show_story_chewie.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -38,10 +39,12 @@ class _ClubDetailViewState extends State<ClubDetailView> {
   late FetchedContentProvider fetchedContentProvider;
   late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
 
+
   late CustomStyleClass customStyleClass;
   late double screenHeight, screenWidth;
 
   final SupabaseService _supabaseService = SupabaseService();
+  final CheckAndFetchService _checkAndFetchService = CheckAndFetchService();
 
   List<String> alreadyFetchedFrontPageImages = [];
   List<ClubMeEvent> eventsToDisplay = [];
@@ -50,11 +53,20 @@ class _ClubDetailViewState extends State<ClubDetailView> {
   List<String> mehrPhotosButtonString = ["Mehr Fotos!", "More photos!"];
   List<String> findOnMapsButtonString = ["Finde uns auf Maps!", "Find us on maps!"];
 
+  int galleryImageToShowIndex = 0;
+  bool showGalleryImageFullScreen = false;
 
   @override
   void initState() {
     super.initState();
-    checkIfAllImagesAreFetched();
+    currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context, listen: false);
+    stateProvider = Provider.of<StateProvider>(context, listen: false);
+    fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen: false);
+
+    _checkAndFetchService.checkAndFetchSpecificClubImages(
+        currentAndLikedElementsProvider.currentClubMeClub,
+        stateProvider,
+        fetchedContentProvider);
   }
   @override
   void dispose() {
@@ -177,167 +189,197 @@ class _ClubDetailViewState extends State<ClubDetailView> {
     );
   }
   Widget _buildMainView(){
-    return Column(
+    // Stack for the image full screen view
+    return Stack(
       children: [
 
-        // Spacer
-        SizedBox(
-          height: screenHeight*0.12,
-        ),
-
-        Stack(
+        // The main view
+        Column(
           children: [
 
-            // BG Image
-            Container(
-                height: screenHeight*0.19,
-                color: currentAndLikedElementsProvider.currentClubMeClub.getBackgroundColorId() == 0 ?
-                      Colors.white :
-                      Colors.black,
-                child: Center(
-                    child: SizedBox(
-                      height: screenHeight,
-                      width: screenWidth,
-                      child: Image(
-                        image: FileImage(
-                            File(
-                                "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeClub.getFrontpageBannerFileName()}",
-                            ),
-                        ),
-                        fit:BoxFit.cover,
-                      )
+            // Spacer
+            SizedBox(
+              height: screenHeight*0.12,
+            ),
+
+            // MAIN CONTENT
+            Stack(
+              children: [
+
+                // BG Image
+                Container(
+                    height: screenHeight*0.19,
+                    color: currentAndLikedElementsProvider.currentClubMeClub.getBackgroundColorId() == 0 ?
+                    Colors.white :
+                    Colors.black,
+                    child: Center(
+                        child: SizedBox(
+                            height: screenHeight,
+                            width: screenWidth,
+                            child: Image(
+                              image: FileImage(
+                                File(
+                                  "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeClub.getFrontpageBannerFileName()}",
+                                ),
+                              ),
+                              fit:BoxFit.cover,
+                            )
+                        )
                     )
-                )
-            ),
-
-            // main Content
-            Padding(
-              padding: EdgeInsets.only(
-                top: screenHeight*0.19,
-              ),
-              child: Container(
-                width: screenWidth,
-                height: screenHeight*0.6,
-                color: customStyleClass.backgroundColorMain,
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-
-                      // Container for the bg gradient
-                      Container(
-                        color: customStyleClass.backgroundColorMain,
-
-                        child: Column(
-                          children: [
-
-                            _buildMapAndPricelistIconSection(),
-
-                            // White line
-                            Divider(
-                              height:10,
-                              thickness: 1,
-                              color: Colors.grey[900],
-                              indent: 0,
-                              endIndent: 0,
-                            ),
-
-                            _buildEventSection(),
-
-                            // White line
-                            Divider(
-                              height:10,
-                              thickness: 1,
-                              color: Colors.grey[900],
-                              indent: 0,
-                              endIndent: 0,
-                            ),
-
-                            _buildNewsSection(),
-
-                            // White line
-                            Divider(
-                              height:10,
-                              thickness: 1,
-                              color: Colors.grey[900],
-                              indent: 0,
-                              endIndent: 0,
-                            ),
-
-                            _buildPhotosAndVideosSection(),
-
-                            // White line
-                            Divider(
-                              height:10,
-                              thickness: 1,
-                              color: Colors.grey[900],
-                              indent: 0,
-                              endIndent: 0,
-                            ),
-
-                            _buildSocialMediaSection(),
-
-                            // White line
-                            Divider(
-                              height:10,
-                              thickness: 1,
-                              color: Colors.grey[900],
-                              indent: 0,
-                              endIndent: 0,
-                            ),
-
-                            _buildMusicGenresSection(),
-
-                            // White line
-                            Divider(
-                              height:10,
-                              thickness: 1,
-                              color: Colors.grey[900],
-                              indent: 0,
-                              endIndent: 0,
-                            ),
-
-                            _buildOpeningHoursSection(),
-
-                            // White line
-                            Divider(
-                              height:10,
-                              thickness: 1,
-                              color: Colors.grey[900],
-                              indent: 0,
-                              endIndent: 0,
-                            ),
-
-                            _buildContactSection(),
-
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
                 ),
-              ),
-            ),
 
-            // Centered logo
-            Padding(
-              padding: EdgeInsets.only(
-                  top: screenHeight*0.135
-              ),
-              child: Align(
-                  alignment: Alignment.center,
-                  child: GestureDetector(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                // main Content
+                Padding(
+                  padding: EdgeInsets.only(
+                    top: screenHeight*0.19,
+                  ),
+                  child: Container(
+                    width: screenWidth,
+                    height: screenHeight*0.6,
+                    color: customStyleClass.backgroundColorMain,
+                    child: SingleChildScrollView(
+                      child: Column(
                         children: [
-                          _buildLogoIcon()
+
+                          // Container for the bg gradient
+                          Container(
+                            color: customStyleClass.backgroundColorMain,
+
+                            child: Column(
+                              children: [
+
+                                _buildMapAndPricelistIconSection(),
+
+                                // White line
+                                Divider(
+                                  height:10,
+                                  thickness: 1,
+                                  color: Colors.grey[900],
+                                  indent: 0,
+                                  endIndent: 0,
+                                ),
+
+                                _buildEventSection(),
+
+                                // White line
+                                Divider(
+                                  height:10,
+                                  thickness: 1,
+                                  color: Colors.grey[900],
+                                  indent: 0,
+                                  endIndent: 0,
+                                ),
+
+                                _buildNewsSection(),
+
+                                // White line
+                                Divider(
+                                  height:10,
+                                  thickness: 1,
+                                  color: Colors.grey[900],
+                                  indent: 0,
+                                  endIndent: 0,
+                                ),
+
+                                _buildPhotosAndVideosSection(),
+
+                                // White line
+                                Divider(
+                                  height:10,
+                                  thickness: 1,
+                                  color: Colors.grey[900],
+                                  indent: 0,
+                                  endIndent: 0,
+                                ),
+
+                                _buildSocialMediaSection(),
+
+                                // White line
+                                Divider(
+                                  height:10,
+                                  thickness: 1,
+                                  color: Colors.grey[900],
+                                  indent: 0,
+                                  endIndent: 0,
+                                ),
+
+                                _buildMusicGenresSection(),
+
+                                // White line
+                                Divider(
+                                  height:10,
+                                  thickness: 1,
+                                  color: Colors.grey[900],
+                                  indent: 0,
+                                  endIndent: 0,
+                                ),
+
+                                _buildOpeningHoursSection(),
+
+                                // White line
+                                Divider(
+                                  height:10,
+                                  thickness: 1,
+                                  color: Colors.grey[900],
+                                  indent: 0,
+                                  endIndent: 0,
+                                ),
+
+                                _buildContactSection(),
+
+                              ],
+                            ),
+                          ),
                         ],
                       ),
-                      onTap: () => clickEventStoryButton(context, screenHeight, screenWidth, stateProvider)
-                  )
-              ),
-            ),
+                    ),
+                  ),
+                ),
+
+                // Centered logo
+                Padding(
+                  padding: EdgeInsets.only(
+                      top: screenHeight*0.135
+                  ),
+                  child: Align(
+                      alignment: Alignment.center,
+                      child: GestureDetector(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              _buildLogoIcon()
+                            ],
+                          ),
+                          onTap: () => clickEventStoryButton(context, screenHeight, screenWidth, stateProvider)
+                      )
+                  ),
+                ),
+              ],
+            )
           ],
+        ),
+
+        if(showGalleryImageFullScreen)
+        SizedBox(
+          width: screenWidth,
+          height: screenHeight,
+          child: Center(
+            child: InkWell(
+              child: Image(
+                image: FileImage(
+                    File(
+                        "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images![galleryImageToShowIndex].id}"
+                    )
+                ),
+                // fit: BoxFit.cover,
+              ),
+              onTap: () => setState(() {
+                showGalleryImageFullScreen = false;
+              }),
+            ),
+          ),
         )
+
       ],
     );
   }
@@ -656,7 +698,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                       width: screenWidth*0.2,
                       height: screenWidth*0.2,
                       child: Image.asset(
-                        'assets/images/google_maps_teal.png',
+                        'assets/images/google_maps_3.png',
                       ),
                     )
                   ],
@@ -775,7 +817,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
 
               Padding(
                 padding: EdgeInsets.only(
-                    left: screenWidth*0.03
+                    // left: screenWidth*0.03
                 ),
                 child: IconButton(
                     onPressed: () => goToSocialMedia(currentAndLikedElementsProvider.currentClubMeClub.getInstagramLink()),
@@ -788,7 +830,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
 
               Padding(
                 padding: EdgeInsets.only(
-                    left: screenWidth*0.03
+                    // left: screenWidth*0.03
                 ),
                 child: IconButton(
                     onPressed: () => goToSocialMedia(
@@ -825,7 +867,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
               top: screenHeight*0.01
           ),
           child: Text(
-            "Fotos & Videos",
+            "Fotos",
             textAlign: TextAlign.left,
             style: customStyleClass.getFontStyle1Bold(),
           ),
@@ -840,48 +882,78 @@ class _ClubDetailViewState extends State<ClubDetailView> {
           padding: EdgeInsets.only(left: screenWidth*0.05),
           child: Row(
             children: [
-              if(alreadyFetchedFrontPageImages.isNotEmpty)
+
+              if(
+                currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images!.isNotEmpty &&
+                fetchedContentProvider.getFetchedBannerImageIds()
+                  .contains(currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images![0].id)
+              )
                 SizedBox(
                     width: screenWidth*0.29,
                     height: screenWidth*0.29,
-                    child:
-                    Image(
-                      image: FileImage(
-                          File(
-                              "${stateProvider.appDocumentsDir.path}/${alreadyFetchedFrontPageImages[0]}"
-                          )
+                    child: InkWell(
+                      child: Image(
+                        image: FileImage(
+                            File(
+                                "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images![0].id}"
+                            )
+                        ),
+                        fit: BoxFit.cover,
                       ),
-                      fit: BoxFit.cover,
+                      onTap: () => setState(() {
+                        galleryImageToShowIndex = 0;
+                        showGalleryImageFullScreen = true;
+                      }),
+                    )
+                ),
+
+
+              SizedBox(width: screenWidth*0.02,),
+              if(
+              currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images!.length > 1 &&
+                  fetchedContentProvider.getFetchedBannerImageIds()
+                      .contains(currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images![1].id)
+              )
+                SizedBox(
+                    width: screenWidth*0.29,
+                    height: screenWidth*0.29,
+                    child:InkWell(
+                      child: Image(
+                        image: FileImage(
+                            File(
+                                "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images![1].id}"
+                            )
+                        ),
+                        fit: BoxFit.cover,
+                      ),
+                      onTap: () => setState(() {
+                        galleryImageToShowIndex = 1;
+                        showGalleryImageFullScreen = true;
+                      }),
                     )
                 ),
               SizedBox(width: screenWidth*0.02,),
-              if(alreadyFetchedFrontPageImages.length > 1)
+              if(
+              currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images!.length > 2 &&
+                  fetchedContentProvider.getFetchedBannerImageIds()
+                      .contains(currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images![2].id)
+              )
                 SizedBox(
                     width: screenWidth*0.29,
                     height: screenWidth*0.29,
-                    child:
-                    Image(
-                      image: FileImage(
-                          File(
-                              "${stateProvider.appDocumentsDir.path}/${alreadyFetchedFrontPageImages[1]}"
-                          )
+                    child:InkWell(
+                      child: Image(
+                        image: FileImage(
+                            File(
+                                "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images![2].id}"
+                            )
+                        ),
+                        fit: BoxFit.cover,
                       ),
-                      fit: BoxFit.cover,
-                    )
-                ),
-              SizedBox(width: screenWidth*0.02,),
-              if(alreadyFetchedFrontPageImages.length > 2)
-                SizedBox(
-                    width: screenWidth*0.29,
-                    height: screenWidth*0.29,
-                    child:
-                    Image(
-                      image: FileImage(
-                          File(
-                              "${stateProvider.appDocumentsDir.path}/${alreadyFetchedFrontPageImages[2]}"
-                          )
-                      ),
-                      fit: BoxFit.cover,
+                      onTap: () => setState(() {
+                        galleryImageToShowIndex = 2;
+                        showGalleryImageFullScreen = true;
+                      }),
                     )
                 ),
             ],
@@ -897,48 +969,75 @@ class _ClubDetailViewState extends State<ClubDetailView> {
           padding: EdgeInsets.only(left: screenWidth*0.05),
           child: Row(
             children: [
-              if(alreadyFetchedFrontPageImages.length > 3)
+              if(
+              currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images!.length > 3 &&
+                  fetchedContentProvider.getFetchedBannerImageIds()
+                      .contains(currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images![3].id)
+              )
                 SizedBox(
                     width: screenWidth*0.29,
                     height: screenWidth*0.29,
-                    child:
-                    Image(
-                      image: FileImage(
-                          File(
-                              "${stateProvider.appDocumentsDir.path}/${alreadyFetchedFrontPageImages[3]}"
-                          )
+                    child:InkWell(
+                      child: Image(
+                        image: FileImage(
+                            File(
+                                "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images![3].id}"
+                            )
+                        ),
+                        fit: BoxFit.cover,
                       ),
-                      fit: BoxFit.cover,
+                      onTap: () => setState(() {
+                        galleryImageToShowIndex = 3;
+                        showGalleryImageFullScreen = true;
+                      }),
                     )
                 ),
               SizedBox(width: screenWidth*0.02,),
-              if(alreadyFetchedFrontPageImages.length > 4)
+              if(
+              currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images!.length > 4 &&
+                  fetchedContentProvider.getFetchedBannerImageIds()
+                      .contains(currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images![4].id)
+              )
                 SizedBox(
                     width: screenWidth*0.29,
                     height: screenWidth*0.29,
-                    child:
-                    Image(
-                      image: FileImage(
-                          File(
-                              "${stateProvider.appDocumentsDir.path}/${alreadyFetchedFrontPageImages[4]}"
-                          )
+                    child:InkWell(
+                      child: Image(
+                        image: FileImage(
+                            File(
+                                "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images![4].id}"
+                            )
+                        ),
+                        fit: BoxFit.cover,
                       ),
-                      fit: BoxFit.cover,
+                      onTap: () => setState(() {
+                        galleryImageToShowIndex = 4;
+                        showGalleryImageFullScreen = true;
+                      }),
                     )
                 ),
               SizedBox(width: screenWidth*0.02,),
-              if(alreadyFetchedFrontPageImages.length > 5)
+              if(
+              currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images!.length > 5 &&
+                  fetchedContentProvider.getFetchedBannerImageIds()
+                      .contains(currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images![5].id)
+              )
                 SizedBox(
                     width: screenWidth*0.29,
                     height: screenWidth*0.29,
-                    child:
-                    Image(
-                      image: FileImage(
-                          File(
-                              "${stateProvider.appDocumentsDir.path}/${alreadyFetchedFrontPageImages[5]}"
-                          )
+                    child:InkWell(
+                      child: Image(
+                        image: FileImage(
+                            File(
+                                "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images![5].id}"
+                            )
+                        ),
+                        fit: BoxFit.cover,
                       ),
-                      fit: BoxFit.cover,
+                      onTap: () => setState(() {
+                        galleryImageToShowIndex = 5;
+                        showGalleryImageFullScreen = true;
+                      }),
                     )
                 ),
             ],
@@ -1137,93 +1236,40 @@ class _ClubDetailViewState extends State<ClubDetailView> {
       noEventsAvailable = true;
     }
   }
-  void checkIfAllImagesAreFetched() async{
 
-    final String dirPath = stateProvider.appDocumentsDir.path;
+  void checkForGalleryImages(){
 
-    List<String> imageFileNamesToCheckAndFetch = [];
-    List<String> folderOfImage = [];
+    print("checkForGalleryImages");
 
+    // Check if there is anything to consider and if yes, if we still need to do anything
+    if(currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images!.isNotEmpty &&
+    alreadyFetchedFrontPageImages.length != currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images!.length){
 
-    imageFileNamesToCheckAndFetch.add(currentAndLikedElementsProvider.currentClubMeClub.getSmallLogoFileName());
-    folderOfImage.add("small_banner_images");
+      print("first if");
 
-    imageFileNamesToCheckAndFetch.add(currentAndLikedElementsProvider.currentClubMeClub.getBigLogoFileName());
-    folderOfImage.add("big_banner_images");
+      // Go through all gallery images that are supposed to be displayed
+      for(int i = 0; i< currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images!.length; i++){
 
-    imageFileNamesToCheckAndFetch.add(currentAndLikedElementsProvider.currentClubMeClub.getFrontpageBannerFileName());
-    folderOfImage.add("frontpage_banner_images");
+        print("loop: $i");
 
-    if(currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images != null){
-      for(var element in currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images!){
+        // Does this image already exist in our provider?
+        if(fetchedContentProvider.getFetchedBannerImageIds()
+            .contains(currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images![i])){
 
-        imageFileNamesToCheckAndFetch.add(element.id!);
-        folderOfImage.add("frontpage_gallery_images");
+          // If it already exists, let's see if the current view knows about it
+          if(!alreadyFetchedFrontPageImages
+              .contains(currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images![i])){
 
-        // checkIfFrontPageImageIsFetched(element.id!);
+            // If not, tell him and update the view
+            setState(() {
+              alreadyFetchedFrontPageImages.add(currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images![i].id!);
+            });
+          }
+
+        }
       }
     }
-
-    for(var i = 0; i<imageFileNamesToCheckAndFetch.length;i++){
-
-      final filePath = '$dirPath/${imageFileNamesToCheckAndFetch[i]}';
-
-      File(filePath).exists().then((exists) async {
-        if(!exists){
-          await _supabaseService.getClubImagesByFolder(
-              imageFileNamesToCheckAndFetch[i],
-              folderOfImage[i])
-              .then((imageFile) async {
-            await File(filePath).writeAsBytes(imageFile).then((onValue){
-              setState(() {
-                log.d("ClubDetailView. Function: checkIfFrontPageImageIsFetched. Result: Finished successfully. Path: $dirPath/${imageFileNamesToCheckAndFetch[i]}");
-                alreadyFetchedFrontPageImages.add(imageFileNamesToCheckAndFetch[i]);
-              });
-            });
-          });
-        }else{
-          setState(() {
-            alreadyFetchedFrontPageImages.add(imageFileNamesToCheckAndFetch[i]);
-          });
-        }
-      });
-
-    }
-
   }
-  // void checkForFrontPageImages(
-  //     CurrentAndLikedElementsProvider currentAndLikedElementsProvider,
-  //     StateProvider stateProvider
-  //     ) async {
-  //   if(currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images != null){
-  //     for(var element in currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images!){
-  //       checkIfFrontPageImageIsFetched(element.id!);
-  //     }
-  //   }
-  // }
-  // void checkIfFrontPageImageIsFetched(String fileName) async {
-  //   final String dirPath = stateProvider.appDocumentsDir.path;
-  //   final filePath = '$dirPath/$fileName';
-  //
-  //   await File(filePath).exists().then((exists) async {
-  //     if(!exists){
-  //
-  //       await _supabaseService.getFrontPageImage(fileName).then((imageFile) async {
-  //         await File(filePath).writeAsBytes(imageFile).then((onValue){
-  //           setState(() {
-  //             log.d("checkIfFrontPageImageIsFetched: Finished successfully. Path: $dirPath/$fileName");
-  //             alreadyFetchedFrontPageImages.add(fileName);
-  //           });
-  //         });
-  //       });
-  //     }else{
-  //       setState(() {
-  //         alreadyFetchedFrontPageImages.add(fileName);
-  //       });
-  //     }
-  //   });
-  // }
-
 
   @override
   Widget build(BuildContext context) {
@@ -1239,7 +1285,6 @@ class _ClubDetailViewState extends State<ClubDetailView> {
 
     // Set noEventsAvailable
     checkForUpcomingEventsAndSetList();
-
 
     return Scaffold(
 

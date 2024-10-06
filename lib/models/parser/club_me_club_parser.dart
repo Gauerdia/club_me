@@ -13,6 +13,7 @@ ClubMeClub parseClubMeClub(var data){
       clubNews: data['news'],
       clubMusicGenres: data['music_genres'],
       clubStoryId: data['story_id'],
+      storyCreatedAt: data['story_created_at'] != null ? DateTime.tryParse(data['story_created_at']): null,
       clubBannerId: data['banner_id'],
       clubEventBannerId: data['event_banner_id'],
       clubGeoCoordLat: data['geo_coord_lat'],
@@ -32,7 +33,8 @@ ClubMeClub parseClubMeClub(var data){
 
       smallLogoFileName: data['small_logo_file_name'],
       bigLogoFileName: data['big_logo_file_name'],
-      frontpageBannerFileName: data['frontpage_banner_file_name']
+      frontpageBannerFileName: data['frontpage_banner_file_name'],
+    mapPinImageName: data['map_pin_image_name']
   );
 
   return clubMeClub;

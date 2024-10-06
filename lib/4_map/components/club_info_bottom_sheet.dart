@@ -1,14 +1,19 @@
+import 'dart:io';
 import 'dart:math';
-import '../../3_clubs/user_view/components/event_card.dart';
-import '../../models/event.dart';
+
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+
+import '../../3_clubs/user_view/components/event_card.dart';
+import '../../models/club_open_status.dart';
+import '../../models/event.dart';
 import '../../provider/current_and_liked_elements_provider.dart';
+import '../../provider/fetched_content_provider.dart';
+import '../../provider/state_provider.dart';
 import '../../provider/user_data_provider.dart';
 import '../../services/hive_service.dart';
-import '../../provider/state_provider.dart';
-import 'package:geolocator/geolocator.dart';
 import '../../shared/custom_text_style.dart';
 
 class ClubInfoBottomSheet extends StatefulWidget {
@@ -17,12 +22,11 @@ class ClubInfoBottomSheet extends StatefulWidget {
     required this.showBottomSheet,
     this.clubMeEvent,
     required this.noEventAvailable
-  }) : super(key: key);
+  });
 
   late bool showBottomSheet;
   late bool noEventAvailable;
   late ClubMeEvent? clubMeEvent;
-
 
   @override
   State<ClubInfoBottomSheet> createState() => _ClubInfoBottomSheetState();
@@ -30,24 +34,33 @@ class ClubInfoBottomSheet extends StatefulWidget {
 
 class _ClubInfoBottomSheetState extends State<ClubInfoBottomSheet> {
 
+
   late bool showBottomSheet;
   late bool noEventAvailable;
+
   late ClubMeEvent? clubMeEvent;
-  late UserDataProvider userDataProvider;
-  late StateProvider stateProvider;
+  late ClubOpenStatus clubOpenStatus;
+  late double screenHeight, screenWidth;
   late CustomStyleClass customStyleClass;
 
+  late StateProvider stateProvider;
+  late UserDataProvider userDataProvider;
+  late FetchedContentProvider fetchedContentProvider;
   late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
+
+
+  // bool closedToday = true;
+  // bool alreadyOpen = false;
+  // bool lessThanThreeMoreHoursOpen = false;
+  // int todaysOpeningHour = 0;
+  // int todaysClosingHour = 0;
 
   double iconWidthFactor = 0.05;
   double imageHeightFactor = 0.09;
   double headlineHeightFactor = 0.09;
 
-  bool closedToday = true;
-  bool alreadyOpen = false;
-  bool lessThanThreeMoreHoursOpen = false;
-  int todaysOpeningHour = 0;
-  int todaysClosingHour = 0;
+  double topHeight = 145;
+  double bottomHeight = 180;
 
   final HiveService _hiveService = HiveService();
 
@@ -62,7 +75,11 @@ class _ClubInfoBottomSheetState extends State<ClubInfoBottomSheet> {
   void clickOnShare(){
     showDialog(context: context, builder: (BuildContext context){
       return AlertDialog(
-        title: const Text("Teilen"),
+        backgroundColor: Color(0xff121111),
+        title: Text(
+            "Teilen",
+          style: customStyleClass.getFontStyle3Bold(),
+        ),
         content: Text(
           "Diese Funktion steht zurzeit noch nicht zur Verfügung! Wir bitten um Verständnis!",
           textAlign: TextAlign.left,
@@ -130,418 +147,372 @@ class _ClubInfoBottomSheetState extends State<ClubInfoBottomSheet> {
 
   }
 
-  void checkIfClosed(){
-    // final berlin = tz.getLocation('Europe/Berlin');
-    // final todayTimestamp = tz.TZDateTime.from(DateTime.now(), berlin);
+  Widget _buildStackView(BuildContext context){
 
-    for(var element in currentAndLikedElementsProvider.currentClubMeClub.getOpeningTimes().days!){
+    return Stack(
+      children: [
 
-      // Catching the situation that the user checks the app after midnight.
-      // We want him to know that it's open but will close some time.
-      if(stateProvider.getBerlinTime().hour < 8){
-        if(element.day!-1 == stateProvider.getBerlinTime().weekday){
-          todaysClosingHour = element.closingHour!;
-          closedToday = false;
-          if(stateProvider.getBerlinTime().hour < todaysOpeningHour){
-            alreadyOpen = true;
-            if(todaysClosingHour - stateProvider.getBerlinTime().hour < 3){
-              lessThanThreeMoreHoursOpen = true;
-            }
-          }
-        }
-      }else{
-        if(element.day == stateProvider.getBerlinTime().weekday){
-          todaysOpeningHour = element.openingHour!;
-          closedToday = false;
-          if(stateProvider.getBerlinTime().hour >= todaysOpeningHour) alreadyOpen = true;
-        }
-      }
-    }
+        // light grey highlight
+        Padding(
+            padding: const EdgeInsets.only(
+                left:2
+            ),
+            child: Container(
+              width: screenWidth*0.95,
+              height: topHeight+bottomHeight,
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.topRight,
+                      colors: [Colors.grey[900]!, Colors.grey[900]!],
+                      stops: const [0.1, 0.9]
+                  ),
+                  borderRadius: BorderRadius.circular(
+                      15
+                  )
+              ),
+            )
+        ),
+
+        // main Div
+        Padding(
+          padding: const EdgeInsets.only(
+              left:2,
+              top: 2
+          ),
+          child: Container(
+            width: screenWidth*0.95,
+            height: topHeight+bottomHeight,
+            decoration: BoxDecoration(
+                color: Color(0xff121111),
+                border: Border.all(
+                  color: Colors.grey[900]!
+                ),
+                borderRadius: BorderRadius.circular(
+                    15
+                )
+            ),
+            child: _buildStackViewContent(context),
+          ),
+        )
+
+      ],
+    );
+  }
+  Widget _buildStackViewContent(BuildContext context){
+
+    return Column(
+      children: [
+
+        // Image container
+        Container(
+            height: topHeight,
+            // decoration: BoxDecoration(
+            //   color: customStyleClass.backgroundColorMain,
+            //   border: Border.,
+            //   borderRadius: const BorderRadius.only(
+            //       topRight: Radius.circular(15),
+            //       topLeft: Radius.circular(15)
+            //   ),
+            // ),
+            child: Stack(
+              children: [
+
+                // Image or loading indicator
+                fetchedContentProvider.getFetchedBannerImageIds().contains(
+                    currentAndLikedElementsProvider.currentClubMeClub.getBigLogoFileName()
+                )?
+                Container(
+
+                    height: topHeight,
+                    width: screenWidth,
+                    decoration: BoxDecoration(
+                      color: customStyleClass.backgroundColorMain,
+                      borderRadius: const BorderRadius.only(
+                          topRight: Radius.circular(15),
+                          topLeft: Radius.circular(15)
+                      ),
+                    ),
+                    child: ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                            topRight: Radius.circular(15),
+                            topLeft: Radius.circular(15)
+                        ),
+                        child: Image(
+                          image: FileImage(
+                              File(
+                                  "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeClub.getBigLogoFileName()}"
+                              )
+                          ),
+                          fit: BoxFit.cover,
+                        )
+                    )):
+                SizedBox(
+                    width: screenWidth,
+                    height: topHeight,
+                    child: Center(
+                      child: SizedBox(
+                        height: topHeight*0.5,
+                        width: screenWidth*0.2,
+                        child: CircularProgressIndicator(
+                          color: customStyleClass.primeColor,
+                        ),
+                      ),
+                    )
+                ),
+
+                Container(
+                  height: screenHeight*headlineHeightFactor,
+                  width: screenWidth,
+                  // color: Colors.red,
+                  padding: const EdgeInsets.only(
+                      top: 5,
+                      left: 10
+                  ),
+                  alignment: Alignment.topLeft,
+                  child: Text(
+                    clubOpenStatus.openingStatus == 0 ?
+                    "Geschlossen" :
+                    clubOpenStatus.openingStatus == 1 ?
+                    "Öffnet um ${clubOpenStatus.textToDisplay} Uhr":
+                    clubOpenStatus.openingStatus == 2 ?
+                    "Geöffnet":
+                    clubOpenStatus.openingStatus == 3 ?
+                    "Geöffnet, schließt um ${clubOpenStatus.textToDisplay} Uhr":
+                    "Geschlossen.",
+                    style: TextStyle(
+                        color: clubOpenStatus.openingStatus == 0 ?
+                        Colors.grey : clubOpenStatus.openingStatus == 2 ?
+                        customStyleClass.primeColor : Colors.white,
+                        fontWeight: FontWeight.bold
+                    ),
+                  ),
+                )
+
+              ],
+            )
+        ),
+
+        // Content container
+        SizedBox(
+          height: bottomHeight-2,
+          child: Column(
+            children: [
+
+              // Event Card
+              Container(
+                height: screenHeight*0.16,
+                // color: Colors.green,
+                padding: const EdgeInsets.only(
+                    top: 15
+                ),
+                child: noEventAvailable ?
+                SizedBox(
+                  height: bottomHeight-45,
+                  child: Center(
+                    child: Text(
+                      "Derzeit kein Event geplant!",
+                      style: customStyleClass.getFontStyle3(),
+                    ),
+                  ),
+                ):GestureDetector(
+                  child: EventCard(
+                    clubMeEvent: clubMeEvent!,
+                    accessedEventDetailFrom: 3,
+                    backgroundColorIndex: 1,
+                  ),
+                  onTap: (){
+                    currentAndLikedElementsProvider.setCurrentEvent(clubMeEvent!);
+                    stateProvider.setAccessedEventDetailFrom(3);
+                    context.push("/event_details");
+                  },
+                ),
+              ),
+
+              // BottomSheet
+              Container(
+                // height: screenHeight*0.01,
+                width: screenWidth*0.9,
+                padding: const EdgeInsets.only(
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+
+                    // Info, Like, Share
+                    Container(
+
+                      decoration: const BoxDecoration(
+                        // color: Color(0xff11181f),
+                        borderRadius: BorderRadius.all(
+                            Radius.circular(12)
+                        ),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+
+                              // Info icon
+                              Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 4,
+                                      vertical: 4
+                                  ),
+                                  child: GestureDetector(
+                                    child: Icon(
+                                      Icons.info_outline,
+                                      color: customStyleClass.primeColor,
+                                    ),
+                                    onTap: () => clickOnInfo(),
+                                  )
+                              ),
+
+                              // Spacer
+                              const SizedBox(width: 15,),
+
+                              // star
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 4,
+                                    vertical: 4
+                                ),
+                                child: GestureDetector(
+                                  child: Icon(
+                                    currentAndLikedElementsProvider.checkIfSpecificCLubIsAlreadyLiked(currentAndLikedElementsProvider.currentClubMeClub.getClubId())
+                                        ? Icons.star_outlined
+                                        : Icons.star_border,
+                                    color: customStyleClass.primeColor,
+                                  ),
+                                  onTap: () => clickOnLike(),
+                                ),
+                              ),
+
+                              // Spacer
+                              const SizedBox(width: 15,),
+
+                              // share
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 4,
+                                    vertical: 4
+                                ),
+                                child: GestureDetector(
+                                  child: Icon(
+                                    Icons.share,
+                                    color: customStyleClass.primeColor,
+                                    size: screenWidth*iconWidthFactor,
+                                  ),
+                                  onTap: () => clickOnShare(),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Icon Row
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        right: 50
+                      ),
+                      child: Align(
+                        alignment: Alignment.bottomRight,
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            // color: Color(0xff11181f),
+                            borderRadius: BorderRadius.all(
+                                Radius.circular(12)
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+
+                              // Icon distance
+                              Container(
+                                padding: const EdgeInsets.all(4),
+                                child:  Icon(
+                                  Icons.location_on_outlined,
+                                  color: customStyleClass.primeColor,
+                                ),
+                              ),
+
+                              // Text distance
+                              Container(
+                                padding: const EdgeInsets.all(4),
+                                child: Text(
+                                  "${calculateDistanceToClub().toStringAsFixed(2)} km",
+                                  style: customStyleClass.getFontStyle6BoldGrey(),
+                                ),
+                              ),
+
+                              // Spacer
+                              const SizedBox(width: 2,),
+
+                              // Icon genre
+                              Container(
+                                padding: const EdgeInsets.all(4),
+                                child:  Icon(
+                                  Icons.library_music_outlined,
+                                  color: customStyleClass.primeColor,
+                                ),
+                              ),
+
+                              // Text Genre
+                              Container(
+                                padding: const EdgeInsets.only(left: 5),
+                                child: Text(
+                                  getAndFormatMusicGenre(),
+                                  style: customStyleClass.getFontStyle6BoldGrey(),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+            ],
+          ),
+        )
+
+      ],
+    );
   }
 
 
   @override
   Widget build(BuildContext context) {
 
-    currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context);
+    screenWidth = MediaQuery.of(context).size.width;
+    screenHeight = MediaQuery.of(context).size.height;
+
     noEventAvailable = widget.noEventAvailable;
     showBottomSheet = widget.showBottomSheet;
     if(widget.clubMeEvent != null){
-     clubMeEvent = widget.clubMeEvent;
+      clubMeEvent = widget.clubMeEvent;
     }
+
 
     userDataProvider = Provider.of<UserDataProvider>(context);
     stateProvider = Provider.of<StateProvider>(context);
-
+    currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context);
+    fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
     customStyleClass = CustomStyleClass(context: context);
 
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
+    clubOpenStatus = currentAndLikedElementsProvider.currentClubMeClub.getClubOpenStatus();
 
-    checkIfClosed();
-
-
-    return AnimatedOpacity(
-      opacity: showBottomSheet ? 1.0 : 0.0,
-      duration: const Duration(milliseconds: 2500),
-      child: AnimatedContainer(
-        width: screenWidth,
-        height: screenHeight*0.4,
-        decoration: BoxDecoration(
-
-            gradient: RadialGradient(
-                colors: [
-                  Colors.grey[600]!,
-                  Colors.grey[850]!
-                ],
-                stops: const [0.1, 0.35],
-                center: Alignment.topLeft,
-                radius: 3
-            ),
-
-            borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(25),
-                topRight: Radius.circular(25)
-            )
+    return Container(
+        padding: EdgeInsets.only(
+            bottom: screenHeight*0.06
         ),
-        duration: const Duration(seconds: 2),
-        curve: Curves.fastOutSlowIn,
-        child: Column(
-          children: [
-
-            // Header
-            Container(
-              height: screenHeight*imageHeightFactor,
-              child: Stack(
-                children: [
-
-                  // club name
-                  Container(
-                    height: screenHeight*headlineHeightFactor,
-                    width: screenWidth,
-                    decoration: const BoxDecoration(
-                      color: Colors.black,
-                      borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(25),
-                          topRight: Radius.circular(25)
-                      ),
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                          top: screenHeight*0.025,
-                          left: screenWidth*0.03
-                      ),
-                      child: Text(
-                        currentAndLikedElementsProvider.currentClubMeClub.getClubName(),
-                        style: customStyleClass.getFontStyleHeadline1Bold(),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-
-                  Container(
-                    height: screenHeight*headlineHeightFactor,
-                    width: screenWidth,
-                    // color: Colors.red,
-                    padding: const EdgeInsets.only(
-                        top: 10,
-                        left: 10
-                    ),
-                    alignment: Alignment.topLeft,
-                    child: Text(
-                      closedToday ?
-                      "Geschlossen" :
-                      alreadyOpen ?
-                      lessThanThreeMoreHoursOpen ?
-                      "Geöffnet, schließt um $todaysClosingHour" :
-                      "Geöffnet" :
-                      "Öffnet um $todaysOpeningHour Uhr",
-                      style: TextStyle(
-                          color: closedToday ? Colors.grey : alreadyOpen ?
-                          customStyleClass.primeColor : Colors.white
-                      ),
-                    ),
-                  )
-
-                ],
-              ),
-            ),
-
-            // Spacer
-            SizedBox(height: screenHeight*0.01,),
-
-            // Event Card
-            SizedBox(
-              height: screenHeight*0.17,
-              child: noEventAvailable ?
-              SizedBox(
-                height: screenHeight*0.17,
-                child: Center(
-                  child: Text(
-                      "Derzeit kein Event geplant!",
-                    style: customStyleClass.getFontStyle3(),
-                  ),
-                ),
-              ):GestureDetector(
-                child: EventCard(
-                    clubMeEvent: clubMeEvent!,
-                  accessedEventDetailFrom: 3,
-                  backgroundColorIndex: 0,
-                ),
-                onTap: (){
-                  currentAndLikedElementsProvider.setCurrentEvent(clubMeEvent!);
-                  context.push("/event_details");
-                },
-              ),
-            ),
-
-            // Spacer
-            SizedBox(height: screenHeight*0.01,),
-
-            // BottomSheet
-            Padding(
-              padding: const EdgeInsets.only(
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-
-                  // Info, Like, Share
-                  Container(
-                    // width: screenWidth*0.32,
-                    // height: screenHeight*0.055,
-                    padding: EdgeInsets.symmetric(
-                        horizontal: screenWidth*0.03,
-                        vertical: screenHeight*0.012
-                    ),
-
-                    decoration: const BoxDecoration(
-                      color: Color(0xff11181f),
-                      borderRadius: BorderRadius.all(
-                          Radius.circular(12)
-                      ),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-
-                            // Info icon
-                            Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 2,
-                                  vertical: 4
-                                ),
-                                decoration: const BoxDecoration(
-                                  color: Colors.black,
-                                  borderRadius: BorderRadius.all(
-                                      Radius.circular(45)
-                                  ),
-                                ),
-                                child: GestureDetector(
-                                  child: Icon(
-                                    Icons.info_outline,
-                                    color: customStyleClass.primeColor,
-                                    size: screenWidth*iconWidthFactor,
-                                  ),
-                                  onTap: () => clickOnInfo(),
-                                )
-                            ),
-
-                            // Spacer
-                            const SizedBox(width: 15,),
-
-                            // star
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 2,
-                                  vertical: 4
-                              ),
-                              decoration: const BoxDecoration(
-                                color: Colors.black,
-                                borderRadius: BorderRadius.all(
-                                    Radius.circular(45)
-                                ),
-                              ),
-                              child: GestureDetector(
-                                child: Icon(
-                                    currentAndLikedElementsProvider.checkIfSpecificCLubIsAlreadyLiked(currentAndLikedElementsProvider.currentClubMeClub.getClubId())
-                                        ? Icons.star_outlined
-                                        : Icons.star_border,
-                                  color: customStyleClass.primeColor,
-                                  size: screenWidth*iconWidthFactor,
-                                ),
-                                onTap: () => clickOnLike(),
-                              ),
-                            ),
-
-                            // Spacer
-                            const SizedBox(width: 15,),
-
-                            // share
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 2,
-                                  vertical: 4
-                              ),
-                              decoration: const BoxDecoration(
-                                color: Colors.black,
-                                borderRadius: BorderRadius.all(
-                                    Radius.circular(45)
-                                ),
-                              ),
-                              child: GestureDetector(
-                                child: Icon(
-                                  Icons.share,
-                                  color: customStyleClass.primeColor,
-                                  size: screenWidth*iconWidthFactor,
-                                ),
-                                onTap: () => clickOnShare(),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Icon Row
-                  Padding(
-                    padding: const EdgeInsets.only(
-                    ),
-                    child: Align(
-                      alignment: Alignment.bottomRight,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: screenWidth*0.03,
-                            vertical: screenHeight*0.012
-                        ),
-
-                        decoration: const BoxDecoration(
-                          color: Color(0xff11181f),
-                          borderRadius: BorderRadius.all(
-                              Radius.circular(12)
-                          ),
-                        ),
-                        child: Row(
-                          // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-
-                            // Spacer
-                            // const SizedBox(width: 5,),
-
-                            // Icon distance
-                            Container(
-                              padding: const EdgeInsets.all(
-                                  4
-                              ),
-                              decoration: const BoxDecoration(
-                                color: Colors.black,
-                                borderRadius: BorderRadius.all(
-                                    Radius.circular(45)
-                                ),
-                              ),
-                              child:  Icon(
-                                Icons.location_on_outlined,
-                                color: customStyleClass.primeColor,
-                                size: screenWidth*iconWidthFactor,
-                              ),
-                            ),
-
-                            // Spacer
-                            // const SizedBox(width: 7,),
-
-                            // Text distance
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 5
-                              ),
-                              child: Text(
-                                calculateDistanceToClub().toStringAsFixed(2),
-                                style: customStyleClass.getFontStyle5BoldGrey(),
-                              ),
-                            ),
-
-                            // Spacer
-                            const SizedBox(width: 2,),
-
-                            Container(
-                              padding: const EdgeInsets.all(
-                                  4
-                              ),
-                              decoration: const BoxDecoration(
-                                color: Colors.black,
-                                borderRadius: BorderRadius.all(
-                                    Radius.circular(45)
-                                ),
-                              ),
-                              child: Icon(
-                                  Icons.groups,
-                                  color: customStyleClass.primeColor,
-                                  size:
-                                  customStyleClass.getFontSize4()
-                                //screenHeight*stateProvider.getIconSizeFactor2()
-
-                              ),
-                            ),
-
-                            // Spacer
-                            // const SizedBox(width: 2,),
-
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 5
-                              ),
-                              child: Text(
-                                getRandomNumber(),
-                                style: customStyleClass.getFontStyle5Bold(),
-                              ),
-                            ),
-
-                            // Spacer
-                            const SizedBox(width: 2,),
-
-                            // Icon genre
-                            Container(
-                              padding: const EdgeInsets.all(
-                                  4
-                              ),
-                              decoration: const BoxDecoration(
-                                color: Colors.black,
-                                borderRadius: BorderRadius.all(
-                                    Radius.circular(45)
-                                ),
-                              ),
-                              child:  Icon(
-                                Icons.library_music_outlined,
-                                color: customStyleClass.primeColor,
-                                size: screenWidth*iconWidthFactor,
-                              ),
-                            ),
-
-                            // Text Genre
-                            Container(
-                              padding: const EdgeInsets.only(
-                                left: 5
-                              ),
-                              child: Text(
-                                getAndFormatMusicGenre(),
-                                style: customStyleClass.getFontStyle5BoldGrey(),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            )
-          ],
-        ),
-      ),
+        child: _buildStackView(context)
     );
   }
 }

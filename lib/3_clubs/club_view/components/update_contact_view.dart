@@ -56,7 +56,7 @@ class _UpdateContactViewState extends State<UpdateContactView> {
                   children: [
                     Text(headLine,
                         textAlign: TextAlign.center,
-                        style: customStyleClass.getFontStyle1()
+                        style: customStyleClass.getFontStyleHeadline1Bold()
                     ),
                   ],
                 )

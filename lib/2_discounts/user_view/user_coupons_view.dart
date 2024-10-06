@@ -3,6 +3,7 @@ import 'package:club_me/models/discount.dart';
 import 'package:club_me/models/hive_models/5_club_me_used_discount.dart';
 import 'package:club_me/models/parser/local_discount_to_discount_parser.dart';
 import 'package:club_me/services/check_and_fetch_service.dart';
+import 'package:club_me/shared/dialogs/TitleAndContentDialog.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
@@ -16,6 +17,7 @@ import '../../services/hive_service.dart';
 import '../../services/supabase_service.dart';
 import '../../shared/custom_bottom_navigation_bar.dart';
 import '../../shared/custom_text_style.dart';
+import '../../utils/utils.dart';
 import 'components/coupon_card.dart';
 import 'package:intl/intl.dart';
 
@@ -49,7 +51,7 @@ class _UserCouponsViewState extends State<UserCouponsView>
   final TextEditingController _textEditingController = TextEditingController();
 
   bool dbFetchComplete = false;
-  bool isSearchbarActive = false;
+  bool isSearchActive = false;
   bool onlyFavoritesIsActive = false;
 
   String searchValue = "";
@@ -57,6 +59,8 @@ class _UserCouponsViewState extends State<UserCouponsView>
 
   // A dynamic array that considers all filters.
   List<ClubMeDiscount> discountsToDisplay = [];
+
+  bool processingComplete = false;
 
   @override
   void initState() {
@@ -130,6 +134,9 @@ class _UserCouponsViewState extends State<UserCouponsView>
   void processDiscountsFromProvider(FetchedContentProvider fetchedContentProvider){
     // Events in the provider ought to have all images fetched, already. So, we just sort.
     // checkDiscountsForRestrictions(fetchedContentProvider.getFetchedDiscounts());
+    setState(() {
+      processingComplete = true;
+    });
   }
   void processDiscountsFromHive(var data){
 
@@ -158,6 +165,10 @@ class _UserCouponsViewState extends State<UserCouponsView>
         fetchedContentProvider
     );
 
+    setState(() {
+      processingComplete = true;
+    });
+
   }
 
 
@@ -166,33 +177,20 @@ class _UserCouponsViewState extends State<UserCouponsView>
   // CLICKED
   toggleIsSearchActive(){
     setState(() {
-      isSearchbarActive = !isSearchbarActive;
+      isSearchActive = !isSearchActive;
     });
   }
-  void clickedOnShare(){
+  void clickEventShare(){
     showDialog<String>(
         context: context,
-        builder: (BuildContext context) => AlertDialog(
-            backgroundColor: Color(0xff121111),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20.0),
-                // side: BorderSide(
-                //     color: customStyleClass.primeColor
-                // )
-            ),
-            title: Text(
-                "Teilen noch nicht möglich!",
-              style: customStyleClass.getFontStyle1Bold(),
-            ),
-            content: Text(
-                "Die Funktion, ein Event zu teilen, ist derzeit noch"
-                "nicht implementiert. Wir bitten um Verständnis.",
-              style: customStyleClass.getFontStyle4(),
-            )
-        )
+        builder: (BuildContext context) =>
+            TitleAndContentDialog(
+                titleToDisplay: "Event teilen",
+                contentToDisplay: "Die Funktion, ein Event zu teilen, ist derzeit noch"
+                    "nicht implementiert. Wir bitten um Verständnis.")
     );
   }
-  void clickedOnLike(String discountId){
+  void clickEventLike(String discountId){
     setState(() {
       if(currentAndLikedElementsProvider.getLikedDiscounts().contains(discountId)){
         currentAndLikedElementsProvider.deleteLikedDiscount(discountId);
@@ -239,8 +237,8 @@ class _UserCouponsViewState extends State<UserCouponsView>
                                 child: CouponCard(
                                   clubMeDiscount: discount,
                                   isLiked: checkIfIsLiked(discount),
-                                  clickedOnShare: clickedOnShare,
-                                  clickedOnLike: clickedOnLike,
+                                  clickedOnShare: clickEventShare,
+                                  clickedOnLike: clickEventLike,
                                 )
                             ),
                         ],
@@ -252,12 +250,12 @@ class _UserCouponsViewState extends State<UserCouponsView>
       ),
       onTap: (){
         setState(() {
-          isSearchbarActive = false;
+          isSearchActive = false;
         });
       },
       onVerticalDragStart: (DragStartDetails){
         setState(() {
-          isSearchbarActive = false;
+          isSearchActive = false;
         });
       },
     );
@@ -374,30 +372,75 @@ class _UserCouponsViewState extends State<UserCouponsView>
     );
   }
   Widget _buildNothingToDisplay(){
-    return GestureDetector(
-      child: SizedBox(
-        width: screenWidth,
-        height: screenHeight*0.7,
-        child: Center(
-          child: Text(
-            onlyFavoritesIsActive ?
-            "Derzeit sind keine Coupons als Favoriten markiert." :
-            "Derzeit sind leider keine Coupons verfügbar.",
-            style: customStyleClass.getFontStyle3(),
-          ),
+
+    return isSearchActive ?
+    SizedBox(
+      width: screenWidth,
+      height: screenHeight*0.8,
+      child: Center(
+        child: Text(
+          textAlign: TextAlign.center,
+          Utils.noDiscountElementsDueToFilter,
+          style: customStyleClass.getFontStyle3(),
         ),
       ),
-      onTap: (){
-        setState(() {
-          isSearchbarActive = false;
-        });
-      },
-      onVerticalDragStart: (DragStartDetails){
-        setState(() {
-          isSearchbarActive = false;
-        });
-      },
+    ):  onlyFavoritesIsActive ?
+    SizedBox(
+      width: screenWidth,
+      height: screenHeight*0.8,
+      child: Center(
+        child: Text(
+          textAlign: TextAlign.center,
+          Utils.noDiscountElementsDueToNoFavorites,
+          style: customStyleClass.getFontStyle3(),
+        ),
+      ),
+    ): processingComplete ?
+    SizedBox(
+      width: screenWidth,
+      height: screenHeight*0.8,
+      child: Center(
+        child: Text(
+          textAlign: TextAlign.center,
+          Utils.noDiscountElementsDueToNothingOnTheServer,
+          style: customStyleClass.getFontStyle3(),
+        ),
+      ),
+    ):SizedBox(
+      width: screenWidth,
+      height: screenHeight*0.8,
+      child: Center(
+        child: CircularProgressIndicator(
+          color: customStyleClass.primeColor,
+        ),
+      ),
     );
+
+
+    //   GestureDetector(
+    //   child: SizedBox(
+    //     width: screenWidth,
+    //     height: screenHeight*0.7,
+    //     child: Center(
+    //       child: Text(
+    //         onlyFavoritesIsActive ?
+    //         "Derzeit sind keine Coupons als Favoriten markiert." :
+    //         "Derzeit sind leider keine Coupons verfügbar.",
+    //         style: customStyleClass.getFontStyle3(),
+    //       ),
+    //     ),
+    //   ),
+    //   onTap: (){
+    //     setState(() {
+    //       isSearchbarActive = false;
+    //     });
+    //   },
+    //   onVerticalDragStart: (DragStartDetails){
+    //     setState(() {
+    //       isSearchbarActive = false;
+    //     });
+    //   },
+    // );
   }
 
   // FILTER
@@ -586,7 +629,7 @@ class _UserCouponsViewState extends State<UserCouponsView>
         resizeToAvoidBottomInset: false,
 
         bottomNavigationBar: CustomBottomNavigationBar(),
-        appBar: isSearchbarActive ?
+        appBar: isSearchActive ?
         _buildAppBarWithSearch():
         _buildAppBarWithTitle(),
         body: Container(
@@ -601,29 +644,7 @@ class _UserCouponsViewState extends State<UserCouponsView>
 
               discountsToDisplay.isNotEmpty ?
                 _buildSwipeView() :
-                onlyFavoritesIsActive ?
-                  SizedBox(
-                    width: screenWidth,
-                    height: screenHeight*0.8,
-                    child: Center(
-                      child: Text(
-                        textAlign: TextAlign.center,
-                        "Derzeit sind keine Events als Favoriten markiert.",
-                        style: customStyleClass.getFontStyle3(),
-                      ),
-                    ),
-                  ):
-                isSearchbarActive?
-                      _buildNothingToDisplay():
-                  SizedBox(
-                    width: screenWidth,
-                    height: screenHeight*0.6,
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        color: customStyleClass.primeColor,
-                      ),
-                    ),
-                  ),
+                _buildNothingToDisplay(),
 
 
               // Page arrows

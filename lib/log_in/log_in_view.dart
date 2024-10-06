@@ -104,7 +104,8 @@ class _LogInViewState extends State<LogInView> {
               eMail: "test@test.de",
               gender: 0,
               userId: clubMeClub.getClubId(),
-              profileType: 1
+              profileType: 1,
+              lastTimeLoggedIn: DateTime.now()
             )
         );
       }

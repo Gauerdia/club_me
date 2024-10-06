@@ -11,7 +11,8 @@ class ClubMeUserData{
     required this.eMail,
     required this.gender,
     required this.userId,
-    required this.profileType
+    required this.profileType,
+    required this.lastTimeLoggedIn
   });
 
   @HiveField(0)
@@ -32,6 +33,12 @@ class ClubMeUserData{
   // 0 = user, 1 = club
   @HiveField(6)
   int profileType;
+  @HiveField(7)
+  DateTime lastTimeLoggedIn;
+
+  DateTime getLastTimeLoggedIn(){
+    return lastTimeLoggedIn;
+  }
 
   int getUserAge() {
     Duration parse = DateTime.now().difference(getBirthDate()).abs();

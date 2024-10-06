@@ -114,6 +114,8 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
 
   ByteData? screenshot;
 
+  double distanceBetweenTitleAndTextField = 10;
+
   // INIT
 
   @override
@@ -211,7 +213,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
     return (isVideo || isImage) ?
     Container(
       width: screenWidth,
-      height: screenHeight*0.08,
+      height: 80,
       alignment: Alignment.center,
       decoration: BoxDecoration(
           color: customStyleClass.backgroundColorMain,
@@ -221,8 +223,10 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
               )
           )
       ),
-      child: SizedBox(
+      child: Container(
         width: screenWidth*0.9,
+        height: 80,
+        alignment: Alignment.center,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -246,7 +250,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
     ):
     Container(
       width: screenWidth,
-      height: screenHeight*0.08,
+      height: 80,
       decoration: BoxDecoration(
           color: customStyleClass.backgroundColorMain,
           border: Border(
@@ -261,7 +265,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
           right: 10,
           // bottom: 10
       ),
-      child: isUploading ? CircularProgressIndicator()
+      child: isUploading ? const CircularProgressIndicator()
           : GestureDetector(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
@@ -326,6 +330,9 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                       // Textfield: Title
                       Container(
                         width: screenWidth*0.9,
+                        padding:  EdgeInsets.only(
+                            top: distanceBetweenTitleAndTextField
+                        ),
                         child: TextField(
                           controller: _eventTitleController,
                           cursorColor: customStyleClass.primeColor,
@@ -360,8 +367,11 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
 
                       // Textfield: DJ
                       Center(
-                        child: SizedBox(
+                        child: Container(
                           width: screenWidth*0.9,
+                          padding:  EdgeInsets.only(
+                              top: distanceBetweenTitleAndTextField
+                          ),
                           child: TextField(
                             controller: _eventDJController,
                             cursorColor: customStyleClass.primeColor,
@@ -413,7 +423,10 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
 
 
                                   // OutlinedButton with Text
-                                  SizedBox(
+                                  Container(
+                                    padding:  EdgeInsets.only(
+                                        top: distanceBetweenTitleAndTextField
+                                    ),
                                     width: screenWidth*0.4,
                                     child:OutlinedButton(
                                         onPressed: (){
@@ -472,8 +485,11 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                                   //   height: screenHeight*0.01,
                                   // ),
 
-                                  SizedBox(
+                                  Container(
                                     width: screenWidth*0.4,
+                                    padding:  EdgeInsets.only(
+                                        top: distanceBetweenTitleAndTextField
+                                    ),
                                     child: OutlinedButton(
                                         onPressed: () => {
                                           setState(() {
@@ -518,16 +534,14 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                               ),
                             ),
 
-                            // Spacer
-                            SizedBox(
-                              height: screenHeight*0.007,
-                            ),
-
                             // Textfield: Price
                             Container(
                               width: screenWidth*0.9,
                               alignment: Alignment.centerLeft,
-                              child: Container(
+                              padding:  EdgeInsets.only(
+                                  top: distanceBetweenTitleAndTextField
+                              ),
+                              child: SizedBox(
                                 width: screenWidth*0.3,
                                 // height: screenHeight*0.085,
                                 child: TextField(
@@ -571,8 +585,11 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                       ),
 
                       // Textfield: Description
-                      SizedBox(
+                      Container(
                         width: screenWidth*0.9,
+                        padding:  EdgeInsets.only(
+                            top: distanceBetweenTitleAndTextField
+                        ),
                         child: TextField(
                           controller: _eventDescriptionController,
                           keyboardType: TextInputType.multiline,
@@ -708,7 +725,10 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                       ),
 
                       // TextField: Ticket
-                      SizedBox(
+                      Container(
+                        padding:  EdgeInsets.only(
+                            top: distanceBetweenTitleAndTextField
+                        ),
                         width: screenWidth*0.9,
                         child: TextField(
                           controller: _eventTicketLinkController,
@@ -761,9 +781,9 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                                   initialLabelIndex: isRepeated,
                                   totalSwitches: 2,
                                   activeBgColor: [customStyleClass.primeColor],
-                                  activeFgColor: Colors.black,
-                                  inactiveFgColor: customStyleClass.primeColor,
-                                  inactiveBgColor: const Color(0xff11181f),
+                                  activeFgColor: Colors.white,
+                                  inactiveFgColor: Colors.white,
+                                  inactiveBgColor: customStyleClass.backgroundColorEventTile,
                                   labels: const [
                                     'Nein',
                                     'Ja',
@@ -1962,9 +1982,6 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
 
     return "$tempDay.$tempMonth.$tempYear";
   }
-
-
-
 
 
 

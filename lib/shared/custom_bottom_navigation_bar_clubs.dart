@@ -51,7 +51,7 @@ class CustomBottomNavigationBarClubs extends StatelessWidget {
                   children: [
                     GestureDetector(
                       child: SizedBox(
-                        height: 70,
+                        height: 80,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
