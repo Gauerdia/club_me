@@ -1,5 +1,19 @@
 class Utils{
 
+  static List<String> imageNames = [
+    "Free_ClubMe_500x400.png",
+    "Free_Eintritt_500x400.png",
+    "Free_Getraenk_500x400.png",
+    "Free_Shots_500x400.png",
+    "Free_Sonstiges_500x400.png",
+    "Special_Offer_ClubMe_500x400.png",
+    "Special_Offer_Eintritt_500x400.png",
+    "Special_Offer_Flaschen_500x400.png",
+    "Special_Offer_Getraenk_500x400.png",
+    "Special_Offer_Getraenke_500x400.png",
+    "Special_Offer_Sonstiges_500x400.png",
+  ];
+
   static String noEventElementsDueToNoFavorites = "Derzeit sind keine Events als Favoriten markiert.";
   static String noEventElementsDueToNothingOnTheServer = "Derzeit sind keine aktuellen Events verfügbar.";
   static String noEventElementsDueToFilter = "Entschuldigung, im Rahmen dieser Filter sind keine Events verfügbar.";

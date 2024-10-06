@@ -360,9 +360,10 @@ class _ClubDetailViewState extends State<ClubDetailView> {
         ),
 
         if(showGalleryImageFullScreen)
-        SizedBox(
+        Container(
           width: screenWidth,
           height: screenHeight,
+          color:Colors.black.withOpacity(0.7),
           child: Center(
             child: InkWell(
               child: Image(

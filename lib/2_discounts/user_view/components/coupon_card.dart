@@ -55,9 +55,6 @@ class CouponCard extends StatelessWidget {
             backgroundColor: Color(0xff121111),
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20.0),
-                // side: BorderSide(
-                //     color: customStyleClass.primeColor
-                // )
             ),
             title: Text(
                 "Coupon-Informationen",
@@ -139,12 +136,7 @@ class CouponCard extends StatelessWidget {
                         topRight: Radius.circular(15),
                         topLeft: Radius.circular(15)
                     ),
-                    child:
-                    // Image.asset(
-                    //   "assets/images/Free_ClubMe_500x400.png",
-                    //   fit: BoxFit.cover,
-                    // )
-                    Image(
+                    child: Image(
                       image: FileImage(
                           File("${stateProvider.appDocumentsDir.path}/${clubMeDiscount.getBigBannerFileName()}")
                       ),

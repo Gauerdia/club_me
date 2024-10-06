@@ -113,6 +113,19 @@ class _UserEventsViewState extends State<UserEventsView> {
 
     // Get all locally saved liked events
     getAllLikedEvents(stateProvider);
+
+    if(!stateProvider.updatedLastLogInForNow){
+      _supabaseService.updateUserLastTimeLoggedIn(userDataProvider.getUserDataId()).then(
+          (result){
+            if(result == 0){
+              stateProvider.toggleUpdatedLastLogInForNow();
+            }else{
+              /// TODO: elaborated error handling
+            }
+          }
+      );
+    }
+
   }
 
 

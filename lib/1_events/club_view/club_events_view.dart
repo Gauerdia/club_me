@@ -57,13 +57,31 @@ class _ClubEventsViewState extends State<ClubEventsView> {
   @override
   void initState(){
     super.initState();
-    final userDataProvder = Provider.of<UserDataProvider>(context, listen: false);
+
+    // Get providers needed for fetching
+    final stateProvider = Provider.of<StateProvider>(context,listen: false);
+    final userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
     final fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
+
+    // Fetch events of our club
     if(fetchedContentProvider.getFetchedEvents().isEmpty){
-      _supabaseService.getEventsOfSpecificClub(userDataProvder.getUserDataId())
-          .then((data) => filterEventsFromQuery(data, stateProvider)
-          );
+      _supabaseService.getEventsOfSpecificClub(userDataProvider.getUserDataId())
+          .then((data) => filterEventsFromQuery(data, stateProvider));
     }
+
+    // Update last log in
+    if(!stateProvider.updatedLastLogInForNow){
+      _supabaseService.updateClubLastLogInApp(userDataProvider.getUserClubId()).then(
+          (result) => {
+            if(result == 0){
+              stateProvider.toggleUpdatedLastLogInForNow()
+            }else{
+              /// TODO: elaborated error handling
+            }
+          }
+      );
+    }
+
   }
   void initGeneralSettings(){
 

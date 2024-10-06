@@ -557,8 +557,6 @@ class _UserCouponsViewState extends State<UserCouponsView>
   }
   bool checkIfAnyRestrictionsApply(ClubMeDiscount currentDiscount) {
 
-    print("begin: " + currentDiscount.getDiscountTitle());
-
       int userAge = userDataProvider.getUserData().getUserAge();
 
       if(currentDiscount.getTargetGender() != 0 &&
@@ -610,11 +608,6 @@ class _UserCouponsViewState extends State<UserCouponsView>
 
 
     initGeneralSettings();
-
-
-    if(fetchedContentProvider.getFetchedDiscounts().isNotEmpty){
-      processDiscountsFromProvider(fetchedContentProvider);
-    }
 
     // If no discounts fulfill the filters, check if that's still the case
     if(discountsToDisplay.isEmpty){

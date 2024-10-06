@@ -3,6 +3,7 @@ import 'package:club_me/models/discount.dart';
 import 'package:club_me/provider/fetched_content_provider.dart';
 import 'package:club_me/services/check_and_fetch_service.dart';
 import 'package:club_me/services/hive_service.dart';
+import 'package:club_me/utils/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -91,19 +92,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
   late TabController _tabController;
   late PageController _pageViewController;
 
-  List<String> imageNames = [
-    "Free_ClubMe_500x400.png",
-    "Free_Eintritt_500x400.png",
-    "Free_Getraenk_500x400.png",
-    "Free_Shots_500x400.png",
-    "Free_Sonstiges_500x400.png",
-    "Special_Offer_ClubMe_500x400.png",
-    "Special_Offer_Eintritt_500x400.png",
-    "Special_Offer_Flaschen_500x400.png",
-    "Special_Offer_Getraenk_500x400.png",
-    "Special_Offer_Getraenke_500x400.png",
-    "Special_Offer_Sonstiges_500x400.png",
-  ];
+
 
   @override
   void initState() {
@@ -111,7 +100,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
     initControllers();
 
     _pageViewController = PageController();
-    _tabController = TabController(length: imageNames.length, vsync: this);
+    _tabController = TabController(length: Utils.imageNames.length, vsync: this);
 
   }
 
@@ -1334,7 +1323,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
         ageLimitUpperLimit: int.parse(_ageLimitUpperLimitController.text),
 
          isRepeatedDays: isRepeatedDaysToSave,
-      bigBannerFileName: imageNames[_currentPageIndex]
+      bigBannerFileName: Utils.imageNames[_currentPageIndex]
     );
 
     if(isSupposedToBeTemplate == 1){
@@ -1594,9 +1583,9 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
               onPageChanged: _handlePageViewChanged,
               children: <Widget>[
 
-                for(var i = 0; i<imageNames.length;i++)
+                for(var i = 0; i<Utils.imageNames.length;i++)
                   Center(
-                      child: CoverImageCard(fileName: imageNames[i])
+                      child: CoverImageCard(fileName: Utils.imageNames[i])
                   ),
               ],
             ),
@@ -1617,7 +1606,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
                 Icon(
                   Icons.keyboard_arrow_right_sharp,
                   size: 50,
-                  color: _currentPageIndex < (imageNames.length-1) ? customStyleClass.primeColor: Colors.grey,
+                  color: _currentPageIndex < (Utils.imageNames.length-1) ? customStyleClass.primeColor: Colors.grey,
                 ),
               ],
             ),

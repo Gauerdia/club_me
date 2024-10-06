@@ -1,5 +1,6 @@
 import 'package:club_me/models/discount.dart';
 import 'package:club_me/provider/fetched_content_provider.dart';
+import 'package:club_me/utils/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,6 +12,7 @@ import '../../provider/state_provider.dart';
 import '../../services/supabase_service.dart';
 import '../../shared/custom_text_style.dart';
 import '../shared/creation_and_editing_arrays.dart';
+import 'components/cover_image_card.dart';
 
 class ClubEditDiscountView extends StatefulWidget {
   const ClubEditDiscountView({Key? key}) : super(key: key);
@@ -19,7 +21,8 @@ class ClubEditDiscountView extends StatefulWidget {
   State<ClubEditDiscountView> createState() => _ClubEditDiscountState();
 }
 
-class _ClubEditDiscountState extends State<ClubEditDiscountView> {
+class _ClubEditDiscountState extends State<ClubEditDiscountView>
+    with TickerProviderStateMixin{
 
   String headline = "Coupon bearbeiten";
 
@@ -67,6 +70,11 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView> {
 
   double distanceBetweenTitleAndTextField = 10;
 
+  bool showGallery = false;
+  int _currentPageIndex = 0;
+  late TabController _tabController;
+  late PageController _pageViewController;
+
   @override
   void initState(){
     super.initState();
@@ -75,8 +83,20 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView> {
 
   void initControllers(){
 
+
     // Get providers to access information
     final currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context, listen: false);
+
+
+
+    int chosenImageIndex = Utils.imageNames.indexWhere(
+            (element) => element == currentAndLikedElementsProvider.currentClubMeDiscount.getBigBannerFileName());
+
+    _currentPageIndex = chosenImageIndex;
+
+    _pageViewController = PageController(initialPage: chosenImageIndex);
+    _tabController = TabController(length: Utils.imageNames.length, vsync: this);
+    _tabController.index = chosenImageIndex;
 
     _discountTitleController = TextEditingController(
         text: currentAndLikedElementsProvider.currentClubMeDiscount.getDiscountTitle()
@@ -233,7 +253,7 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView> {
       ),
     );
   }
-  Widget _buildFinalOverview3(){
+  Widget _buildFinalOverview(){
 
     return SizedBox(
         height: screenHeight,
@@ -525,7 +545,6 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView> {
                           ),
                         ),
                       ),
-
 
                       // Row: ToggleSwitch, TextField - AgeLimit
                       Container(
@@ -836,7 +855,47 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView> {
                         ),
                       ),
 
+                      // GALLERY
+                      InkWell(
+                        child: Container(
+                          width: screenWidth*0.9,
+                          alignment: Alignment.centerLeft,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 10
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
 
+                                Row(
+                                  children: [
+                                    Text(
+                                      "Zur Galerie",
+                                      style: customStyleClass.getFontStyle3BoldPrimeColor(),
+                                    ),
+                                    Icon(
+                                      Icons.arrow_forward_outlined,
+                                      color: customStyleClass.primeColor,
+                                    )
+                                  ],
+                                ),
+
+                                  Icon(
+                                    Icons.check,
+                                    color: customStyleClass.primeColor,
+                                  )
+
+                              ],
+                            ),
+                          ),
+                        ),
+                        onTap: (){
+                          setState(() {
+                            showGallery = true;
+                          });
+                        },
+                      ),
 
                       // ToggleSwitch: isRepeated
                       Container(
@@ -1079,7 +1138,7 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView> {
         )
     );
   }
-  Widget _buildNavigationBar2(){
+  Widget _buildNavigationBar(){
     return Container(
       width: screenWidth,
       height: 80,
@@ -1096,7 +1155,33 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView> {
           right: 10,
       ),
       child: isUploading ? const CircularProgressIndicator()
-          : GestureDetector(
+          : showGallery ?
+      GestureDetector(
+        child: Container(
+          height: 80,
+          alignment: Alignment.center,
+          padding: const EdgeInsets.only(
+              bottom: 10
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+
+              Text(
+                "Bild auswählen",
+                style: customStyleClass.getFontStyle3BoldPrimeColor(),
+              ),
+
+              Icon(
+                Icons.arrow_forward_outlined,
+                color: customStyleClass.primeColor,
+              )
+
+            ],
+          ),
+        ),
+        onTap: () => clickEventChooseImage(),
+      ) :GestureDetector(
         child: Container(
           height: 80,
           alignment: Alignment.center,
@@ -1169,61 +1254,6 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView> {
     );
   }
 
-
-  // void clickedOnAbort(){
-  //
-  //   showDialog(
-  //       context: context,
-  //       builder: (BuildContext context){
-  //         return AlertDialog(
-  //             backgroundColor: Color(0xff121111),
-  //             shape: RoundedRectangleBorder(
-  //                 borderRadius: BorderRadius.circular(20.0),
-  //                 // side: BorderSide(
-  //                 //     color: customStyleClass.primeColor
-  //                 // )
-  //             ),
-  //             title: Text(
-  //               "Abbrechen",
-  //               style: customStyleClass.getFontStyle1Bold(),
-  //             ),
-  //             content: Text(
-  //               "Bist du sicher, dass du abbrechen möchtest?",
-  //               textAlign: TextAlign.left,
-  //               style: customStyleClass.getFontStyle4(),
-  //             ),
-  //             actions: [
-  //
-  //               TextButton(
-  //                 child: Text(
-  //                   "Zurück",
-  //                   style: customStyleClass.getFontStyle3(),
-  //                 ),
-  //                 onPressed: (){
-  //                   Navigator.of(context).pop();
-  //                 },
-  //               ),
-  //
-  //               TextButton(
-  //                 child: Text(
-  //                   "Ja",
-  //                   style: customStyleClass.getFontStyle3(),
-  //                 ),
-  //                 onPressed: (){
-  //                   stateProvider.resetCurrentEventTemplate();
-  //                   switch(stateProvider.pageIndex){
-  //                     case(0): context.go('/club_discounts');
-  //                     case(3): context.go('/club_frontpage');
-  //                     default: context.go('/club_frontpage');
-  //                   }
-  //                 },
-  //               ),
-  //
-  //             ]
-  //         );
-  //       }
-  //   );
-  // }
   void finishUpdateDiscount() async{
 
     late DateTime concatenatedDate;
@@ -1291,7 +1321,7 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView> {
         ageLimitLowerLimit: int.parse(_ageLimitLowerLimitController.text),
         ageLimitUpperLimit: int.parse(_ageLimitUpperLimitController.text),
 
-      bigBannerFileName: ""
+        bigBannerFileName: Utils.imageNames[_currentPageIndex]
 
     );
 
@@ -1332,7 +1362,76 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView> {
         });
       }
     });
+  }
 
+  Widget _buildGalleryView(){
+    return SizedBox(
+      width: screenWidth,
+      height: screenHeight,
+      child: Column(
+        children: [
+
+          Text(
+            "Bitte wähle ein Coverbild aus",
+            style: customStyleClass.getFontStyle1Bold(),
+          ),
+
+          Container(
+            // color: Colors.red,
+            width: screenWidth,
+            height: screenHeight*0.65,
+            child: PageView(
+              controller: _pageViewController,
+              onPageChanged: _handlePageViewChanged,
+              children: <Widget>[
+
+                for(var i = 0; i<Utils.imageNames.length;i++)
+                  Center(
+                      child: CoverImageCard(fileName: Utils.imageNames[i])
+                  ),
+              ],
+            ),
+          ),
+
+          Container(
+            // color: Colors.green,
+            height: screenHeight*0.1,
+            alignment: Alignment.topCenter,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.keyboard_arrow_left_sharp,
+                  size: 50,
+                  color: _currentPageIndex > 0 ? customStyleClass.primeColor: Colors.grey,
+                ),
+                Icon(
+                  Icons.keyboard_arrow_right_sharp,
+                  size: 50,
+                  color: _currentPageIndex < (Utils.imageNames.length-1) ? customStyleClass.primeColor: Colors.grey,
+                ),
+              ],
+            ),
+          ),
+
+
+        ],
+      ),
+    );
+  }
+
+  void _handlePageViewChanged(int currentPageIndex) {
+    setState(() {
+      _tabController.index = currentPageIndex;
+      _currentPageIndex = currentPageIndex;
+    });
+  }
+
+
+  void clickEventChooseImage(){
+    setState(() {
+      showGallery = false;
+    });
   }
 
 
@@ -1353,10 +1452,10 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView> {
           height: screenHeight,
           color: customStyleClass.backgroundColorMain,
           child: Center(
-              child: _buildFinalOverview3()
+              child: showGallery ? _buildGalleryView() : _buildFinalOverview()
           )
       ),
-      bottomNavigationBar: _buildNavigationBar2(),
+      bottomNavigationBar: _buildNavigationBar(),
     );
   }
 

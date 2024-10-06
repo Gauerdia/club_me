@@ -381,6 +381,23 @@ class SupabaseService{
       return 1;
     }
   }
+  Future<int> updateClubLastLogInApp(String clubId) async{
+    try{
+      var data = await supabase
+          .from('club_me_clubs')
+          .update({
+        "last_log_in_app" : DateTime.now().toString(),
+      }).match({
+        'club_id' :clubId
+      });
+      log.d("updateLastLogInApp: Finished successfully. Response: $data");
+      return 0;
+    }catch(e){
+      log.d("Error in SupabaseService. Function: updateLastLogInApp. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: updateLastLogInApp. Error: ${e.toString()}");
+      return 1;
+    }
+  }
 
 
   // DISCOUNTS
@@ -508,7 +525,8 @@ class SupabaseService{
         'age_limit_lower_limit': clubMeDiscount.getAgeLimitLowerLimit(),
         'age_limit_upper_limit': clubMeDiscount.getAgeLimitUpperLimit(),
 
-        'is_repeated_days': clubMeDiscount.getIsRepeatedDays()
+        'is_repeated_days': clubMeDiscount.getIsRepeatedDays(),
+        'big_banner_file_name': clubMeDiscount.getBigBannerFileName()
 
       }).match({
         'discount_id' : clubMeDiscount.getDiscountId()
@@ -687,7 +705,7 @@ class SupabaseService{
       return 1;
     }
   }
-  Future<int> updateUserLastLoggedIn(String userId) async {
+  Future<int> updateUserLastTimeLoggedIn(String userId) async {
     try{
       var data = await supabase
           .from('club_me_users')
@@ -715,7 +733,7 @@ class SupabaseService{
       return data;
     }catch(e){
       log.d("Error in SupabaseService. Function: getEventContent. Error: ${e.toString()}");
-      createErrorLog("Error in SupabaseService. Function: getEventContent. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: getEventContent. Error: ${e.toString()}. path: $path");
       return Uint8List(0);
     }
 
@@ -731,7 +749,7 @@ class SupabaseService{
       return data;
     }catch(e){
       log.d("Error in SupabaseService. Function: getClubImagesByFolder. Error: ${e.toString()}. finalPath: $finalPath");
-      createErrorLog("Error in SupabaseService. Function: getClubImagesByFolder. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: getClubImagesByFolder. Error: ${e.toString()}. finalPath: $finalPath");
       return Uint8List(0);
     }
   }
@@ -752,7 +770,7 @@ class SupabaseService{
       return data;
     }catch(e){
       log.d("Error in SupabaseService. Function: getBannerImage. Error: ${e.toString()}. finalPath: $finalPath");
-      createErrorLog("Error in SupabaseService. Function: getBannerImage. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: getBannerImage. Error: ${e.toString()}. finalPath: $finalPath");
       return Uint8List(0);
     }
   }
@@ -766,7 +784,7 @@ class SupabaseService{
       return data;
     }catch(e){
       log.d("Error in SupabaseService. Function: getClubVideo. Error: ${e.toString()}");
-      createErrorLog("Error in SupabaseService. Function: getClubVideo. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: getClubVideo. Error: ${e.toString()}. path: $path");
       return Uint8List(0);
     }
   }

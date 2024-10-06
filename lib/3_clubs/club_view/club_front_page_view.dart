@@ -60,6 +60,9 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
 
   final SupabaseService _supabaseService = SupabaseService();
 
+  bool showGalleryImageFullScreen = false;
+  int galleryImageToShowIndex = 0;
+
   @override
   void initState() {
     super.initState();
@@ -95,106 +98,112 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
   // BUILD
 
   Widget _buildMainView(){
-    return Column(
+    return Stack(
       children: [
-        // Container for the bg gradient
-        Container(
-          color: customStyleClass.backgroundColorMain,
-          child: Column(
-            children: [
 
-              _buildMapAndPricelistIconSection(),
+        Column(
+          children: [
+            // Container for the bg gradient
+            Container(
+              color: customStyleClass.backgroundColorMain,
+              child: Column(
+                children: [
 
-              // White line
-              Divider(
-                height:10,
-                thickness: 1,
-                color: Colors.grey[900],
-                indent: 0,
-                endIndent: 0,
+                  _buildMapAndPricelistIconSection(),
+
+                  // White line
+                  Divider(
+                    height:10,
+                    thickness: 1,
+                    color: Colors.grey[900],
+                    indent: 0,
+                    endIndent: 0,
+                  ),
+
+                  _buildEventSection(),
+
+                  // White line
+                  Divider(
+                    height:10,
+                    thickness: 1,
+                    color: Colors.grey[900],
+                    indent: 0,
+                    endIndent: 0,
+                  ),
+
+                  _buildNewsSection(),
+
+                  // White line
+                  Divider(
+                    height:10,
+                    thickness: 1,
+                    color: Colors.grey[900],
+                    indent: 0,
+                    endIndent: 0,
+                  ),
+
+                  _buildPhotosAndVideosSection(),
+
+                  // White line
+                  Divider(
+                    height:10,
+                    thickness: 1,
+                    color: Colors.grey[900],
+                    indent: 0,
+                    endIndent: 0,
+                  ),
+
+                  _buildSocialMediaSection(),
+
+                  // Spacer
+                  SizedBox(
+                    height: screenHeight*0.02,
+                  ),
+
+                  // White line
+                  Divider(
+                    height:10,
+                    thickness: 1,
+                    color: Colors.grey[900],
+                    indent: 0,
+                    endIndent: 0,
+                  ),
+
+                  _buildMusicGenresSection(),
+
+                  // White line
+                  Divider(
+                    height:10,
+                    thickness: 1,
+                    color: Colors.grey[900],
+                    indent: 0,
+                    endIndent: 0,
+                  ),
+
+                  _buildOpeningHoursSection(),
+
+                  // White line
+                  Divider(
+                    height:10,
+                    thickness: 1,
+                    color: Colors.grey[900],
+                    indent: 0,
+                    endIndent: 0,
+                  ),
+
+                  _buildContactSection(),
+
+                  SizedBox(
+                    height: screenHeight*0.1,
+                  )
+
+
+                ],
               ),
-
-              _buildEventSection(),
-
-              // White line
-              Divider(
-                height:10,
-                thickness: 1,
-                color: Colors.grey[900],
-                indent: 0,
-                endIndent: 0,
-              ),
-
-              _buildNewsSection(),
-
-              // White line
-              Divider(
-                height:10,
-                thickness: 1,
-                color: Colors.grey[900],
-                indent: 0,
-                endIndent: 0,
-              ),
-
-              _buildPhotosAndVideosSection(),
-
-              // White line
-              Divider(
-                height:10,
-                thickness: 1,
-                color: Colors.grey[900],
-                indent: 0,
-                endIndent: 0,
-              ),
-
-              _buildSocialMediaSection(),
-
-              // Spacer
-              SizedBox(
-                height: screenHeight*0.02,
-              ),
-
-              // White line
-              Divider(
-                height:10,
-                thickness: 1,
-                color: Colors.grey[900],
-                indent: 0,
-                endIndent: 0,
-              ),
-
-              _buildMusicGenresSection(),
-
-              // White line
-              Divider(
-                height:10,
-                thickness: 1,
-                color: Colors.grey[900],
-                indent: 0,
-                endIndent: 0,
-              ),
-
-              _buildOpeningHoursSection(),
-
-              // White line
-              Divider(
-                height:10,
-                thickness: 1,
-                color: Colors.grey[900],
-                indent: 0,
-                endIndent: 0,
-              ),
-
-              _buildContactSection(),
-
-              SizedBox(
-                height: screenHeight*0.1,
-              )
-
-
-            ],
-          ),
+            ),
+          ],
         ),
+
       ],
     );
   }
@@ -547,14 +556,21 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                   width: screenWidth*0.29,
                   height: screenWidth*0.29,
                   child: fetchedContentProvider.getFetchedBannerImageIds().contains(frontPageGalleryImageIds[0]) ?
-                  Image(
-                    image: FileImage(
-                        File(
-                            "${stateProvider.appDocumentsDir.path}/${frontPageGalleryImageIds[0]}"
-                        )
+                  InkWell(
+                    child: Image(
+                      image: FileImage(
+                          File(
+                              "${stateProvider.appDocumentsDir.path}/${frontPageGalleryImageIds[0]}"
+                          )
+                      ),
+                      fit: BoxFit.cover,
                     ),
-                    fit: BoxFit.cover,
-                  ): Center(child: CircularProgressIndicator(color: customStyleClass.primeColor),)
+                    onTap: () => setState(() {
+                      galleryImageToShowIndex = 0;
+                      showGalleryImageFullScreen = true;
+                    }),
+                  )
+                      : Center(child: CircularProgressIndicator(color: customStyleClass.primeColor),)
                 ),
 
               if(frontPageGalleryImageIds.length > 1)
@@ -562,13 +578,19 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                     width: screenWidth*0.29,
                     height: screenWidth*0.29,
                     child: fetchedContentProvider.getFetchedBannerImageIds().contains(frontPageGalleryImageIds[1]) ?
-                    Image(
-                      image: FileImage(
-                          File(
-                              "${stateProvider.appDocumentsDir.path}/${frontPageGalleryImageIds[1]}"
-                          )
+                    InkWell(
+                      child: Image(
+                        image: FileImage(
+                            File(
+                                "${stateProvider.appDocumentsDir.path}/${frontPageGalleryImageIds[1]}"
+                            )
+                        ),
+                        fit: BoxFit.cover,
                       ),
-                      fit: BoxFit.cover,
+                      onTap: () => setState(() {
+                        galleryImageToShowIndex = 1;
+                        showGalleryImageFullScreen = true;
+                      }),
                     ):  Center(child: CircularProgressIndicator(color: customStyleClass.primeColor),)
                 ),
 
@@ -578,13 +600,19 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                     width: screenWidth*0.29,
                     height: screenWidth*0.29,
                     child: fetchedContentProvider.getFetchedBannerImageIds().contains(frontPageGalleryImageIds[2]) ?
-                    Image(
-                      image: FileImage(
-                          File(
-                              "${stateProvider.appDocumentsDir.path}/${frontPageGalleryImageIds[2]}"
-                          )
+                    InkWell(
+                      child: Image(
+                        image: FileImage(
+                            File(
+                                "${stateProvider.appDocumentsDir.path}/${frontPageGalleryImageIds[2]}"
+                            )
+                        ),
+                        fit: BoxFit.cover,
                       ),
-                      fit: BoxFit.cover,
+                      onTap: () => setState(() {
+                        galleryImageToShowIndex = 2;
+                        showGalleryImageFullScreen = true;
+                      }),
                     ):  Center(child: CircularProgressIndicator(color: customStyleClass.primeColor),)
                 ),
             ],
@@ -608,13 +636,19 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                     width: screenWidth*0.29,
                     height: screenWidth*0.29,
                     child: fetchedContentProvider.getFetchedBannerImageIds().contains(frontPageGalleryImageIds[3]) ?
-                    Image(
-                      image: FileImage(
-                          File(
-                              "${stateProvider.appDocumentsDir.path}/${frontPageGalleryImageIds[3]}"
-                          )
+                    InkWell(
+                      child: Image(
+                        image: FileImage(
+                            File(
+                                "${stateProvider.appDocumentsDir.path}/${frontPageGalleryImageIds[3]}"
+                            )
+                        ),
+                        fit: BoxFit.cover,
                       ),
-                      fit: BoxFit.cover,
+                      onTap: () => setState(() {
+                        galleryImageToShowIndex = 3;
+                        showGalleryImageFullScreen = true;
+                      }),
                     ): Center(child: CircularProgressIndicator(color: customStyleClass.primeColor),)
                 ),
               SizedBox(width: screenWidth*0.02,),
@@ -623,13 +657,19 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                     width: screenWidth*0.29,
                     height: screenWidth*0.29,
                     child: fetchedContentProvider.getFetchedBannerImageIds().contains(frontPageGalleryImageIds[4]) ?
-                    Image(
-                      image: FileImage(
-                          File(
-                              "${stateProvider.appDocumentsDir.path}/${frontPageGalleryImageIds[4]}"
-                          )
+                    InkWell(
+                      child: Image(
+                        image: FileImage(
+                            File(
+                                "${stateProvider.appDocumentsDir.path}/${frontPageGalleryImageIds[4]}"
+                            )
+                        ),
+                        fit: BoxFit.cover,
                       ),
-                      fit: BoxFit.cover,
+                      onTap: () => setState(() {
+                        galleryImageToShowIndex = 4;
+                        showGalleryImageFullScreen = true;
+                      }),
                     ):  Center(child: CircularProgressIndicator(color: customStyleClass.primeColor),)
                 ),
               SizedBox(width: screenWidth*0.02,),
@@ -638,13 +678,19 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                     width: screenWidth*0.29,
                     height: screenWidth*0.29,
                     child: fetchedContentProvider.getFetchedBannerImageIds().contains(frontPageGalleryImageIds[5]) ?
-                    Image(
-                      image: FileImage(
-                          File(
-                              "${stateProvider.appDocumentsDir.path}/${frontPageGalleryImageIds[5]}"
-                          )
+                    InkWell(
+                      child: Image(
+                        image: FileImage(
+                            File(
+                                "${stateProvider.appDocumentsDir.path}/${frontPageGalleryImageIds[5]}"
+                            )
+                        ),
+                        fit: BoxFit.cover,
                       ),
-                      fit: BoxFit.cover,
+                      onTap: () => setState(() {
+                        galleryImageToShowIndex = 5;
+                        showGalleryImageFullScreen = true;
+                      }),
                     ):  Center(child: CircularProgressIndicator(color: customStyleClass.primeColor),)
                 ),
             ],
@@ -1788,103 +1834,131 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
         color: customStyleClass.backgroundColorMain,
           width: screenWidth,
           height: screenHeight,
-          child: Column(
+          child: Stack(
             children: [
-              // Content
-              Stack(
-                children: [
+              Column(
+              children: [
+                // Content
+                Stack(
+                  children: [
 
-                  // IMAGE: FrontPageBannerImage
-                  Container(
-                    width: screenWidth,
-                      height: screenHeight*0.19,
-                      // alignment: Alignment.center,
-                      color: Colors.black,
-                      child:
-                      fetchedContentProvider
-                          .getFetchedBannerImageIds()
-                          .contains(userDataProvider.getUserClub().getFrontpageBannerFileName()) ?
-                      Stack(
-                        children: [
-
-                          Container(
-                            width: screenWidth,
-                            height: screenHeight*0.19,
-                            child: Image(
-                              image: FileImage(
-                                  File(
-                                    "${stateProvider.appDocumentsDir.path}/${userDataProvider.getUserClub().getFrontpageBannerFileName()}",
-                                  )
-                              ),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-
-                          Container(
-                            padding: const EdgeInsets.only(
-                              top: 5,
-                              right: 5
-                            ),
-                            alignment: Alignment.topRight,
-                            child: InkWell(
-                              child: Icon(
-                                Icons.edit,
-                                color: customStyleClass.primeColor,
-                              ),
-                              onTap: () => clickEventChangeBannerImage(),
-                            ),
-                          )
-
-                        ],
-                      )
-
-                          : Center(
-                        child: CircularProgressIndicator(
-                          color: customStyleClass.primeColor,
-                        ),
-                      )
-                  ),
-
-                  // SINGLECHILDSCROLLVIEW: Main view
-                  Padding(
-                    padding: EdgeInsets.only(
-                      top: screenHeight*0.19,
-                    ),
-                    child: Container(
-                      width: screenWidth,
-                      height: screenHeight*0.6,
-                      decoration: BoxDecoration(
-
-                        color: customStyleClass.backgroundColorMain
-                      ),
-                      child: SingleChildScrollView(
+                    // IMAGE: FrontPageBannerImage
+                    Container(
+                        width: screenWidth,
+                        height: screenHeight*0.19,
+                        // alignment: Alignment.center,
+                        color: Colors.black,
                         child:
-                        _buildMainView()
-                        //fetchEventsFromDbAndBuildWidget(stateProvider, screenHeight, screenWidth),
-                      ),
-                    ),
-                  ),
+                        fetchedContentProvider
+                            .getFetchedBannerImageIds()
+                            .contains(userDataProvider.getUserClub().getFrontpageBannerFileName()) ?
+                        Stack(
+                          children: [
 
-                  // CIRCULAR AVATAR: LOGO
-                  Padding(
-                    padding: EdgeInsets.only(
-                        top: screenHeight*0.135
-                    ),
-                    child: Align(
-                        child: GestureDetector(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                _buildLogoIcon()
-                              ],
+                            Container(
+                              width: screenWidth,
+                              height: screenHeight*0.19,
+                              child: Image(
+                                image: FileImage(
+                                    File(
+                                      "${stateProvider.appDocumentsDir.path}/${userDataProvider.getUserClub().getFrontpageBannerFileName()}",
+                                    )
+                                ),
+                                fit: BoxFit.cover,
+                              ),
                             ),
-                            onTap: () => clickEventStoryButton(context, screenHeight, screenWidth, stateProvider)
+
+                            Container(
+                              padding: const EdgeInsets.only(
+                                  top: 5,
+                                  right: 5
+                              ),
+                              alignment: Alignment.topRight,
+                              child: InkWell(
+                                child: Icon(
+                                  Icons.edit,
+                                  color: customStyleClass.primeColor,
+                                ),
+                                onTap: () => clickEventChangeBannerImage(),
+                              ),
+                            )
+
+                          ],
+                        )
+
+                            : Center(
+                          child: CircularProgressIndicator(
+                            color: customStyleClass.primeColor,
+                          ),
                         )
                     ),
-                  ),
 
-                ],
-              )
+                    // SINGLECHILDSCROLLVIEW: Main view
+                    Padding(
+                      padding: EdgeInsets.only(
+                        top: screenHeight*0.19,
+                      ),
+                      child: Container(
+                        width: screenWidth,
+                        height: screenHeight*0.6,
+                        decoration: BoxDecoration(
+
+                            color: customStyleClass.backgroundColorMain
+                        ),
+                        child: SingleChildScrollView(
+                            child:
+                            _buildMainView()
+                          //fetchEventsFromDbAndBuildWidget(stateProvider, screenHeight, screenWidth),
+                        ),
+                      ),
+                    ),
+
+                    // CIRCULAR AVATAR: LOGO
+                    Padding(
+                      padding: EdgeInsets.only(
+                          top: screenHeight*0.135
+                      ),
+                      child: Align(
+                          child: GestureDetector(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                children: [
+                                  _buildLogoIcon()
+                                ],
+                              ),
+                              onTap: () => clickEventStoryButton(context, screenHeight, screenWidth, stateProvider)
+                          )
+                      ),
+                    ),
+
+
+
+                  ],
+                )
+              ],
+            ),
+
+              if(showGalleryImageFullScreen)
+                Container(
+                  color: Colors.black.withOpacity(0.7),
+                  width: screenWidth,
+                  height: screenHeight,
+                  child: Center(
+                    child: InkWell(
+                      child: Image(
+                        image: FileImage(
+                            File(
+                                "${stateProvider.appDocumentsDir.path}/${userDataProvider.getUserClub().getFrontPageGalleryImages().images![galleryImageToShowIndex].id}"
+                            )
+                        ),
+                        // fit: BoxFit.cover,
+                      ),
+                      onTap: () => setState(() {
+                        showGalleryImageFullScreen = false;
+                      }),
+                    ),
+                  ),
+                )
             ],
           ),
       ),

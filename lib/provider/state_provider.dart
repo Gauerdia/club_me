@@ -46,6 +46,8 @@ class StateProvider extends ChangeNotifier{
 
   bool activeLogOut = false;
 
+  bool updatedLastLogInForNow = false;
+
   // 0: user_events, 1: user_clubs, 2:club_details. 3: user_upcoming_events,
   // 4: map,
   int accessedEventDetailFrom = 0;
@@ -53,6 +55,10 @@ class StateProvider extends ChangeNotifier{
   final SupabaseService _supabaseService = SupabaseService();
   final log = getLogger();
 
+
+  void toggleUpdatedLastLogInForNow(){
+    updatedLastLogInForNow = true;
+  }
 
   void leaveEventDetailPage(BuildContext context){
     switch(accessedEventDetailFrom){
