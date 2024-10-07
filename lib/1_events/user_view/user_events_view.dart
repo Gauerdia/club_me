@@ -100,18 +100,22 @@ class _UserEventsViewState extends State<UserEventsView> {
     }
 
     // Update the last login time
-    _supabaseService.updateUserData(
-      ClubMeUserData(
-          firstName: userDataProvider.getUserData().getFirstName(),
-          lastName: userDataProvider.getUserData().getLastName(),
-          birthDate: userDataProvider.getUserData().getBirthDate(),
-          eMail: userDataProvider.getUserData().getEMail(),
-          gender: userDataProvider.getUserData().getGender(),
-          userId: userDataProvider.getUserData().getUserId(),
-          profileType: userDataProvider.getUserData().getProfileType(),
-          lastTimeLoggedIn: DateTime.now()
-      )
-    );
+    if(!stateProvider.updatedLastLogInForNow){
+      _supabaseService.updateUserData(
+          ClubMeUserData(
+              firstName: userDataProvider.getUserData().getFirstName(),
+              lastName: userDataProvider.getUserData().getLastName(),
+              birthDate: userDataProvider.getUserData().getBirthDate(),
+              eMail: userDataProvider.getUserData().getEMail(),
+              gender: userDataProvider.getUserData().getGender(),
+              userId: userDataProvider.getUserData().getUserId(),
+              profileType: userDataProvider.getUserData().getProfileType(),
+              lastTimeLoggedIn: DateTime.now()
+          )
+      );
+      stateProvider.updatedLastLogInForNow = true;
+    }
+
 
 
     // Get all locally saved liked events
