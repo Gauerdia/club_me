@@ -679,7 +679,7 @@ class SupabaseService{
         'e_mail': userData.getEMail(),
         'gender': userData.getGender(),
         'birth_date': userData.getBirthDate().toString(),
-        'last_time_logged_in': userData.getLastTimeLoggedIn()
+        'last_time_logged_in': userData.getLastTimeLoggedIn().toString()
       })
       .eq('user_id', userData.getUserId());
       log.d("updateUserData: Finished successfully. Response: $data");
