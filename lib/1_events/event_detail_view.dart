@@ -55,7 +55,6 @@ class _EventDetailViewState extends State<EventDetailView>{
   bool isVideo = false;
   String fileExtension = "";
 
-  String? VIDEO_ON;
   ChewieController? _chewieController;
   late VideoPlayerController _controller;
 
@@ -89,185 +88,6 @@ class _EventDetailViewState extends State<EventDetailView>{
     super.dispose();
   }
 
-  _createChewieController() {
-    _chewieController = ChewieController(
-      videoPlayerController: _controller,
-      looping: true,
-      autoPlay: false,
-      showOptions: true,
-      autoInitialize: true,
-      allowFullScreen: true,
-    );
-  }
-
-
-  // CLICK HANDLING
-  void clickEventTicket(){
-
-
-    Widget okButton = TextButton(
-      child: Text(
-        "OK",
-        style: customStyleClass.getFontStyle4BoldPrimeColor(),
-      ),
-      onPressed: () async {
-        final Uri url = Uri.parse(currentAndLikedElementsProvider.currentClubMeEvent.getTicketLink());
-        if (!await launchUrl(url)) {
-          throw Exception('Could not launch $url');
-        }
-      },
-    );
-
-    showDialog(
-        context: context,
-        builder: (BuildContext context){
-          return  TitleContentAndButtonDialog(
-              titleToDisplay: "Ticketbuchuchung",
-              contentToDisplay: "Dieser Link führt Sie weiter zu der Seite, wo Sie direkt ein Ticket kaufen können."
-                  "Ist das in Ordnung für Sie?",
-              buttonToDisplay: okButton
-          );
-        }
-    );
-
-    // showDialog<String>(
-    //     context: context,
-    //     builder: (BuildContext context) => AlertDialog(
-    //         title: Text("Event-Infos!"),
-    //         content: Text(
-    //             currentAndLikedElementsProvider.currentClubMeEvent.getEventDescription()
-    //         )
-    //     )
-    // );
-  }
-  void clickEventShare(){
-    showDialog<String>(
-        context: context,
-        builder: (BuildContext context) =>
-            TitleAndContentDialog(
-                titleToDisplay: "Event teilen",
-                contentToDisplay: "Die Funktion, ein Event zu teilen, ist derzeit noch"
-                    "nicht implementiert. Wir bitten um Verständnis.")
-    );
-  }
-  void clickEventLike(String eventId){
-    if(stateProvider.getIsEventEditable()){
-      showDialog<String>(
-          context: context,
-          builder: (BuildContext context) => const AlertDialog(
-              title: Text("Liken des Events"),
-              content: Text("Das Liken des Events ist in dieser Ansicht nicht"
-                  "möglich. Wir bitten um Verständnis.")
-          )
-      );
-    }else{
-      if(currentAndLikedElementsProvider.getLikedEvents().contains(eventId)){
-        currentAndLikedElementsProvider.deleteLikedEvent(eventId);
-        _hiveService.deleteFavoriteEvent(eventId);
-      }else{
-        currentAndLikedElementsProvider.addLikedEvent(eventId);
-        _hiveService.insertFavoriteEvent(eventId);
-      }
-    }
-  }
-  void clickEventContent(){
-    setState(() {
-      isContentShown = !isContentShown;
-      if(isVideo){
-        _controller.pause();
-      }
-    });
-  }
-
-
-  // ABSTRACT FUNCTIONS
-  void leavePage(){
-    stateProvider.leaveEventDetailPage(context);
-  }
-  void editField(int index, String newValue, StateProvider stateProvider){
-    FocusScope.of(context).unfocus();
-    currentAndLikedElementsProvider.updateCurrentEvent(index, newValue);
-    Navigator.pop(context);
-  }
-
-
-  // FORMAT AND CROP
-  void formatPrice(){
-
-    var priceDecimalPosition = currentAndLikedElementsProvider.currentClubMeEvent.getEventPrice().toString().indexOf(".");
-
-    if(priceDecimalPosition + 2 == currentAndLikedElementsProvider.currentClubMeEvent.getEventPrice().toString().length){
-      priceFormatted = "${currentAndLikedElementsProvider.currentClubMeEvent.getEventPrice().toString().replaceFirst(".", ",")}0 €";
-    }else{
-      priceFormatted = "${currentAndLikedElementsProvider.currentClubMeEvent.getEventPrice().toString().replaceFirst(".", ",")} €";
-    }
-  }
-  void formatDjName(){
-    String djNameToDisplay = "";
-
-    if(currentAndLikedElementsProvider.currentClubMeEvent.getDjName().length > 42){
-      djNameToDisplay = "${currentAndLikedElementsProvider.currentClubMeEvent.getDjName().substring(0, 40)}...";
-    }else{
-      djNameToDisplay = currentAndLikedElementsProvider.currentClubMeEvent.getDjName();
-    }
-    formattedDjName = djNameToDisplay;
-  }
-  void formatWeekday(){
-
-    String weekDayToDisplay = "";
-
-    var hourToDisplay = currentAndLikedElementsProvider.currentClubMeEvent.getEventDate().hour < 10
-        ? "0${currentAndLikedElementsProvider.currentClubMeEvent.getEventDate().hour}"
-        : "${currentAndLikedElementsProvider.currentClubMeEvent.getEventDate().hour}";
-
-    var minuteToDisplay = currentAndLikedElementsProvider.currentClubMeEvent.getEventDate().minute < 10
-    ? "0${currentAndLikedElementsProvider.currentClubMeEvent.getEventDate().minute}"
-        : "${currentAndLikedElementsProvider.currentClubMeEvent.getEventDate().minute}";
-
-    weekDayToDisplay = DateFormat('dd.MM.yyyy').format(currentAndLikedElementsProvider.currentClubMeEvent.getEventDate());
-
-    var eventDateWeekday = currentAndLikedElementsProvider.currentClubMeEvent.getEventDate().weekday;
-    switch(eventDateWeekday){
-      case(1): weekDayToDisplay = "Montag, $weekDayToDisplay, $hourToDisplay:$minuteToDisplay Uhr";
-      case(2): weekDayToDisplay = "Dienstag, $weekDayToDisplay, $hourToDisplay:$minuteToDisplay Uhr";
-      case(3): weekDayToDisplay = "Mittwoch, $weekDayToDisplay, $hourToDisplay:$minuteToDisplay Uhr";
-      case(4): weekDayToDisplay = "Donnerstag, $weekDayToDisplay, $hourToDisplay:$minuteToDisplay Uhr";
-      case(5): weekDayToDisplay = "Freitag, $weekDayToDisplay, $hourToDisplay:$minuteToDisplay Uhr";
-      case(6): weekDayToDisplay = "Samstag, $weekDayToDisplay, $hourToDisplay:$minuteToDisplay Uhr";
-      case(7): weekDayToDisplay = "Sonntag, $weekDayToDisplay, $hourToDisplay:$minuteToDisplay Uhr";
-    }
-
-    formattedWeekday = weekDayToDisplay;
-  }
-  void formatEventTitle(){
-    String titleToDisplay = "";
-
-    if(currentAndLikedElementsProvider.currentClubMeEvent.getEventTitle().length > 42){
-      titleToDisplay = "${currentAndLikedElementsProvider.currentClubMeEvent.getEventTitle().substring(0, 40)}...";
-    }else{
-      titleToDisplay = currentAndLikedElementsProvider.currentClubMeEvent.getEventTitle();
-    }
-
-    formattedEventTitle = titleToDisplay;
-  }
-  void formatEventGenres(){
-    String genresToDisplay = "";
-
-    if(currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenres().isNotEmpty){
-      if(
-      currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenres().substring(currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenres().length-1) == ","){
-        genresToDisplay = currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenres().substring(0, currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenres().length-1);
-      }else{
-        genresToDisplay = currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenres();
-      }
-      formattedEventGenres = genresToDisplay;
-    }else{
-      formattedEventGenres = "Es wurden keine Musikrichtungen angegeben";
-    }
-
-  }
-
-
   // BUILD
   AppBar _buildAppBar(){
     return AppBar(
@@ -292,7 +112,7 @@ class _EventDetailViewState extends State<EventDetailView>{
             isContentShown ? Container()
                 :SizedBox(
               child: IconButton(
-                onPressed: () => leavePage(),
+                onPressed: () => clickEventBack(),
                 icon: const Icon(
                   Icons.arrow_back_ios,
                   color: Colors.grey,
@@ -355,79 +175,6 @@ class _EventDetailViewState extends State<EventDetailView>{
               ),
             ):Container(),
 
-          ],
-        ),
-      ),
-    );
-  }
-  Widget _buildIconRow(StateProvider stateProvider, BuildContext context){
-    return Padding(
-      padding: const EdgeInsets.only(
-        bottom: 5
-      ),
-      child: Align(
-        alignment: Alignment.bottomRight,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-
-                // Info
-                if(currentAndLikedElementsProvider.currentClubMeEvent.getTicketLink().isNotEmpty)
-                GestureDetector(
-                    child:Column(
-                      children: [
-                        Icon(
-                          CupertinoIcons.ticket,
-                          color: customStyleClass.primeColor,
-                        ),
-                      ],
-                    ),
-                    onTap: () => clickEventTicket()
-                ),
-
-                SizedBox(
-                  width: screenWidth*0.02,
-                ),
-
-                // Like
-                GestureDetector(
-                    child:Column(
-                      children: [
-                        Icon(
-                          currentAndLikedElementsProvider.checkIfCurrentEventIsAlreadyLiked() ? Icons.star_outlined : Icons.star_border,
-                          color: customStyleClass.primeColor,
-                        ),
-                      ],
-                    ),
-                    onTap: () => clickEventLike(currentAndLikedElementsProvider.currentClubMeEvent.getEventId())
-                ),
-
-                SizedBox(
-                  width: screenWidth*0.02,
-                ),
-
-                // Share
-                GestureDetector(
-                    child:Column(
-                      children: [
-                        Icon(
-                          Icons.share,
-                          color: customStyleClass.primeColor,
-                        ),
-                      ],
-                    ),
-                    onTap: () => clickEventShare()
-                ),
-
-                SizedBox(
-                  width: screenWidth*0.02,
-                ),
-
-              ],
-            )
           ],
         ),
       ),
@@ -497,7 +244,7 @@ class _EventDetailViewState extends State<EventDetailView>{
                               ),
 
                               // Price
-                              SizedBox(
+                              currentAndLikedElementsProvider.currentClubMeEvent.getEventPrice() != 0 ?SizedBox(
                                 width: screenWidth*0.2,
                                 child: Padding(
                                   padding: EdgeInsets.only(
@@ -511,6 +258,18 @@ class _EventDetailViewState extends State<EventDetailView>{
                                     ),
                                   ),
                                 ),
+                              ):SizedBox(
+                                width: screenWidth*0.2,
+                                child: Padding(
+                                  padding: EdgeInsets.only(
+                                      top: screenHeight*0.01
+                                  ),
+                                  child: Text(
+                                      " ",
+                                      textAlign: TextAlign.center,
+                                      style: customStyleClass.getFontStyle3Bold()
+                                  ),
+                                ),
                               ),
 
                             ],
@@ -519,43 +278,38 @@ class _EventDetailViewState extends State<EventDetailView>{
                       ),
 
                       // Location
-                      Container(
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                              left: screenWidth*0.02,
-                              top: 26
-                          ),
-                          child: Align(
-                            alignment: Alignment.topLeft,
-                            child: Text(
-                                currentAndLikedElementsProvider.currentClubMeEvent.getClubName(),
-                                style:customStyleClass.getFontStyle5()
-                            ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: screenWidth*0.02,
+                            top: 26
+                        ),
+                        child: Align(
+                          alignment: Alignment.topLeft,
+                          child: Text(
+                              currentAndLikedElementsProvider.currentClubMeEvent.getClubName(),
+                              style:customStyleClass.getFontStyle5()
                           ),
                         ),
                       ),
 
                       // DJ
-                      Container(
-                        // width: screenWidth*0.6,
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                              left: screenWidth*0.02,
-                              top: 46
-                          ),
-                          child: Align(
-                            alignment: Alignment.topLeft,
-                            child: Text(
-                                formattedDjName,
-                                textAlign: TextAlign.left,
-                                style: customStyleClass.getFontStyle6Bold()
-                            ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: screenWidth*0.02,
+                            top: 46
+                        ),
+                        child: Align(
+                          alignment: Alignment.topLeft,
+                          child: Text(
+                              formattedDjName,
+                              textAlign: TextAlign.left,
+                              style: customStyleClass.getFontStyle6Bold()
                           ),
                         ),
                       ),
 
                       // When
-                      Container(
+                      SizedBox(
                         height: screenHeight*0.14,
                         child: Padding(
                           padding: EdgeInsets.only(
@@ -643,7 +397,7 @@ class _EventDetailViewState extends State<EventDetailView>{
               ),
 
               // Description
-              Container(
+              SizedBox(
                   width: screenWidth,
                   child: Stack(
                     children: [
@@ -706,7 +460,7 @@ class _EventDetailViewState extends State<EventDetailView>{
                                 ),
                               ),
 
-                              Divider(
+                              const Divider(
                                 color: Color(0xff121111),
                                 indent: 0,
                                 endIndent: 0,
@@ -719,7 +473,7 @@ class _EventDetailViewState extends State<EventDetailView>{
                               // Headline lounges
                               Container(
                                 alignment: Alignment.center,
-                                padding: EdgeInsets.only(
+                                padding: const EdgeInsets.only(
                                     bottom: 20
                                 ),
                                 child: Text(
@@ -731,76 +485,74 @@ class _EventDetailViewState extends State<EventDetailView>{
 
 
                               // Lounges scrllview
-                              Container(
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  child: Row(
-                                    children: [
-                                      Stack(
-                                        children: [
-                                          SizedBox(
-                                            width: screenWidth*0.5,
-                                            height: screenHeight*0.17,
-                                            child: Image.asset("assets/images/lounge_blue.png"),
-                                          ),
-                                          SizedBox(
-                                            width: screenWidth*0.5,
-                                            height: screenHeight*0.15,
-                                            child: Center(
-                                              child: Text(
-                                                "Bald verfügbar in der App!",
-                                                style: customStyleClass.getFontStyle5BoldPrimeColor(),
-                                              ),
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  children: [
+                                    Stack(
+                                      children: [
+                                        SizedBox(
+                                          width: screenWidth*0.5,
+                                          height: screenHeight*0.17,
+                                          child: Image.asset("assets/images/lounge_blue.png"),
+                                        ),
+                                        SizedBox(
+                                          width: screenWidth*0.5,
+                                          height: screenHeight*0.15,
+                                          child: Center(
+                                            child: Text(
+                                              "Bald verfügbar in der App!",
+                                              style: customStyleClass.getFontStyle5BoldPrimeColor(),
                                             ),
                                           ),
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        width: screenWidth*0.05,
-                                      ),
-                                      Stack(
-                                        children: [
-                                          SizedBox(
-                                            width: screenWidth*0.5,
-                                            height: screenHeight*0.17,
-                                            child: Image.asset("assets/images/lounge_grey2.png"),
-                                          ),
-                                          SizedBox(
-                                            width: screenWidth*0.5,
-                                            height: screenHeight*0.15,
-                                            child: Center(
-                                              child: Text(
-                                                "Bald verfügbar in der App!",
-                                                style: customStyleClass.getFontStyle5Bold(),
-                                              ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      width: screenWidth*0.05,
+                                    ),
+                                    Stack(
+                                      children: [
+                                        SizedBox(
+                                          width: screenWidth*0.5,
+                                          height: screenHeight*0.17,
+                                          child: Image.asset("assets/images/lounge_grey2.png"),
+                                        ),
+                                        SizedBox(
+                                          width: screenWidth*0.5,
+                                          height: screenHeight*0.15,
+                                          child: Center(
+                                            child: Text(
+                                              "Bald verfügbar in der App!",
+                                              style: customStyleClass.getFontStyle5Bold(),
                                             ),
                                           ),
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        width: screenWidth*0.05,
-                                      ),
-                                      Stack(
-                                        children: [
-                                          SizedBox(
-                                            width: screenWidth*0.5,
-                                            height: screenHeight*0.17,
-                                            child: Image.asset("assets/images/lounge_grey2.png"),
-                                          ),
-                                          SizedBox(
-                                            width: screenWidth*0.5,
-                                            height: screenHeight*0.15,
-                                            child: Center(
-                                              child: Text(
-                                                "Bald verfügbar in der App!",
-                                                style: customStyleClass.getFontStyle5Bold(),
-                                              ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      width: screenWidth*0.05,
+                                    ),
+                                    Stack(
+                                      children: [
+                                        SizedBox(
+                                          width: screenWidth*0.5,
+                                          height: screenHeight*0.17,
+                                          child: Image.asset("assets/images/lounge_grey2.png"),
+                                        ),
+                                        SizedBox(
+                                          width: screenWidth*0.5,
+                                          height: screenHeight*0.15,
+                                          child: Center(
+                                            child: Text(
+                                              "Bald verfügbar in der App!",
+                                              style: customStyleClass.getFontStyle5Bold(),
                                             ),
                                           ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
                               )
 
@@ -824,18 +576,13 @@ class _EventDetailViewState extends State<EventDetailView>{
                 padding: EdgeInsets.only(
                   top: screenHeight*0.13,
                 ),
-                // color: Colors.grey,
-                // height: screenHeight*0.15,
                 width: screenWidth,
                 alignment: Alignment.topRight,
                 child: ClipRRect(
-                  // borderRadius: const BorderRadius.only(
-                  //     topRight: Radius.circular(15),
-                  //     topLeft: Radius.circular(15)
-                  // ),
                   child: Image.asset(
-                    "assets/images/club_me_icon_round.png",
-                    scale: 15,
+                    "assets/images/ClubMe_Logo_weiß.png",
+                    width: 60,
+                    height: 60,
                     // fit: BoxFit.cover,
                   ),
                 ),
@@ -846,56 +593,6 @@ class _EventDetailViewState extends State<EventDetailView>{
       ),
     );
   }
-
-  Future<void> prepareContent() async{
-
-    late String filePath;
-    late Uint8List? marketingFile;
-
-    currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context, listen:  false);
-
-    try{
-
-      // No need to fetch anything if there is nothing to fetch
-      if(currentAndLikedElementsProvider.currentClubMeEvent.getEventMarketingFileName().isNotEmpty){
-
-        // If a file exists, we fetch it
-        marketingFile = await _supabaseService.getEventContent(
-            currentAndLikedElementsProvider.currentClubMeEvent.getEventMarketingFileName()
-        );
-
-        // Could be inlined but the right side is pretty long so I split it.
-        String applicationFilesPath = stateProvider.appDocumentsDir.path;
-        String marketingFileName = currentAndLikedElementsProvider.currentClubMeEvent.getEventMarketingFileName();
-
-        filePath = '$applicationFilesPath/$marketingFileName';
-        file = await File(filePath).writeAsBytes(marketingFile);
-
-        // We can derive the file type from the mime type
-        String mimeStr = lookupMimeType(file.path)!;
-        var fileType = mimeStr.split("/");
-
-        if(fileType.contains('image')){
-          setState(() {
-            isImage = true;
-          });
-        }else if(fileType.contains('video')){
-          _controller = VideoPlayerController.file(file);
-          await _controller.initialize();
-          _createChewieController();
-          setState(() {
-            isVideo = true;
-          });
-        }
-      }
-    }catch(e){
-      print("prepareContent:" + e.toString());
-    }
-
-
-  }
-
-  // View when event content is displayed
   Widget _buildContentView(){
 
     return SizedBox(
@@ -925,8 +622,9 @@ class _EventDetailViewState extends State<EventDetailView>{
                     topLeft: Radius.circular(15)
                 ),
                 child: Image.asset(
-                  "assets/images/club_me_icon_round.png",
-                  scale: 15,
+                  "assets/images/ClubMe_Logo_weiß.png",
+                  width: 60,
+                  height: 60,
                   // fit: BoxFit.cover,
                 ),
               ),
@@ -938,11 +636,11 @@ class _EventDetailViewState extends State<EventDetailView>{
       )
 
       // When video content
-      : Stack(
+          : Stack(
         children: [
 
           // Video container
-          Container(
+          SizedBox(
             width: screenWidth,
             height: screenHeight*0.85,
             child: _chewieController != null &&
@@ -994,6 +692,225 @@ class _EventDetailViewState extends State<EventDetailView>{
       ),
     );
   }
+
+
+
+
+
+  // CLICK HANDLING
+  void clickEventTicket(){
+
+
+    Widget okButton = TextButton(
+      child: Text(
+        "OK",
+        style: customStyleClass.getFontStyle4BoldPrimeColor(),
+      ),
+      onPressed: () async {
+        final Uri url = Uri.parse(currentAndLikedElementsProvider.currentClubMeEvent.getTicketLink());
+        if (!await launchUrl(url)) {
+          throw Exception('Could not launch $url');
+        }
+      },
+    );
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context){
+          return  TitleContentAndButtonDialog(
+              titleToDisplay: "Ticketbuchuchung",
+              contentToDisplay: "Dieser Link führt Sie weiter zu der Seite, wo Sie direkt ein Ticket kaufen können."
+                  "Ist das in Ordnung für Sie?",
+              buttonToDisplay: okButton
+          );
+        }
+    );
+
+  }
+  void clickEventShare(){
+    showDialog<String>(
+        context: context,
+        builder: (BuildContext context) =>
+            TitleAndContentDialog(
+                titleToDisplay: "Event teilen",
+                contentToDisplay: "Die Funktion, ein Event zu teilen, ist derzeit noch "
+                    "nicht implementiert. Wir bitten um Verständnis.")
+    );
+  }
+  void clickEventLike(String eventId){
+    if(stateProvider.getIsEventEditable()){
+      showDialog<String>(
+          context: context,
+          builder: (BuildContext context) =>  TitleAndContentDialog(
+              titleToDisplay: "Event liken",
+              contentToDisplay: "Das Liken des Events ist in dieser Ansicht nicht"
+                  "möglich. Wir bitten um Verständnis.")
+      );
+    }else{
+      if(currentAndLikedElementsProvider.getLikedEvents().contains(eventId)){
+        currentAndLikedElementsProvider.deleteLikedEvent(eventId);
+        _hiveService.deleteFavoriteEvent(eventId);
+      }else{
+        currentAndLikedElementsProvider.addLikedEvent(eventId);
+        _hiveService.insertFavoriteEvent(eventId);
+      }
+    }
+  }
+  void clickEventContent(){
+    setState(() {
+      isContentShown = !isContentShown;
+      if(isVideo){
+        _controller.pause();
+      }
+    });
+  }
+  void clickEventBack(){
+    stateProvider.leaveEventDetailPage(context);
+  }
+
+
+  // ABSTRACT FUNCTIONS
+
+  void editField(int index, String newValue, StateProvider stateProvider){
+    FocusScope.of(context).unfocus();
+    currentAndLikedElementsProvider.updateCurrentEvent(index, newValue);
+    Navigator.pop(context);
+  }
+
+
+  // FORMAT AND CROP
+  void formatPrice(){
+
+    var priceDecimalPosition = currentAndLikedElementsProvider.currentClubMeEvent.getEventPrice().toString().indexOf(".");
+
+    if(priceDecimalPosition + 2 == currentAndLikedElementsProvider.currentClubMeEvent.getEventPrice().toString().length){
+      priceFormatted = "${currentAndLikedElementsProvider.currentClubMeEvent.getEventPrice().toString().replaceFirst(".", ",")}0 €";
+    }else{
+      priceFormatted = "${currentAndLikedElementsProvider.currentClubMeEvent.getEventPrice().toString().replaceFirst(".", ",")} €";
+    }
+  }
+  void formatDjName(){
+    String djNameToDisplay = "";
+
+    if(currentAndLikedElementsProvider.currentClubMeEvent.getDjName().length > 42){
+      djNameToDisplay = "${currentAndLikedElementsProvider.currentClubMeEvent.getDjName().substring(0, 40)}...";
+    }else{
+      djNameToDisplay = currentAndLikedElementsProvider.currentClubMeEvent.getDjName();
+    }
+    formattedDjName = djNameToDisplay;
+  }
+  void formatWeekday(){
+
+    String weekDayToDisplay = "";
+
+    var hourToDisplay = currentAndLikedElementsProvider.currentClubMeEvent.getEventDate().hour < 10
+        ? "0${currentAndLikedElementsProvider.currentClubMeEvent.getEventDate().hour}"
+        : "${currentAndLikedElementsProvider.currentClubMeEvent.getEventDate().hour}";
+
+    var minuteToDisplay = currentAndLikedElementsProvider.currentClubMeEvent.getEventDate().minute < 10
+    ? "0${currentAndLikedElementsProvider.currentClubMeEvent.getEventDate().minute}"
+        : "${currentAndLikedElementsProvider.currentClubMeEvent.getEventDate().minute}";
+
+    weekDayToDisplay = DateFormat('dd.MM.yyyy').format(currentAndLikedElementsProvider.currentClubMeEvent.getEventDate());
+
+    var eventDateWeekday = currentAndLikedElementsProvider.currentClubMeEvent.getEventDate().weekday;
+    switch(eventDateWeekday){
+      case(1): weekDayToDisplay = "Montag, $weekDayToDisplay, $hourToDisplay:$minuteToDisplay Uhr";
+      case(2): weekDayToDisplay = "Dienstag, $weekDayToDisplay, $hourToDisplay:$minuteToDisplay Uhr";
+      case(3): weekDayToDisplay = "Mittwoch, $weekDayToDisplay, $hourToDisplay:$minuteToDisplay Uhr";
+      case(4): weekDayToDisplay = "Donnerstag, $weekDayToDisplay, $hourToDisplay:$minuteToDisplay Uhr";
+      case(5): weekDayToDisplay = "Freitag, $weekDayToDisplay, $hourToDisplay:$minuteToDisplay Uhr";
+      case(6): weekDayToDisplay = "Samstag, $weekDayToDisplay, $hourToDisplay:$minuteToDisplay Uhr";
+      case(7): weekDayToDisplay = "Sonntag, $weekDayToDisplay, $hourToDisplay:$minuteToDisplay Uhr";
+    }
+
+    formattedWeekday = weekDayToDisplay;
+  }
+  void formatEventTitle(){
+    String titleToDisplay = "";
+
+    if(currentAndLikedElementsProvider.currentClubMeEvent.getEventTitle().length > 42){
+      titleToDisplay = "${currentAndLikedElementsProvider.currentClubMeEvent.getEventTitle().substring(0, 40)}...";
+    }else{
+      titleToDisplay = currentAndLikedElementsProvider.currentClubMeEvent.getEventTitle();
+    }
+
+    formattedEventTitle = titleToDisplay;
+  }
+  void formatEventGenres(){
+    String genresToDisplay = "";
+
+    if(currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenres().isNotEmpty){
+      if(
+      currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenres().substring(currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenres().length-1) == ","){
+        genresToDisplay = currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenres().substring(0, currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenres().length-1);
+      }else{
+        genresToDisplay = currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenres();
+      }
+      formattedEventGenres = genresToDisplay;
+    }else{
+      formattedEventGenres = "Es wurden keine Musikrichtungen angegeben";
+    }
+
+  }
+
+
+  // MISC
+  _createChewieController() {
+    _chewieController = ChewieController(
+      videoPlayerController: _controller,
+      looping: true,
+      autoPlay: false,
+      showOptions: true,
+      autoInitialize: true,
+      allowFullScreen: true,
+    );
+  }
+  Future<void> prepareContent() async{
+
+    late String filePath;
+    late Uint8List? marketingFile;
+
+    currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context, listen:  false);
+
+    try{
+
+      // No need to fetch anything if there is nothing to fetch
+      if(currentAndLikedElementsProvider.currentClubMeEvent.getEventMarketingFileName().isNotEmpty){
+
+        // If a file exists, we fetch it
+        marketingFile = await _supabaseService.getEventContent(
+            currentAndLikedElementsProvider.currentClubMeEvent.getEventMarketingFileName()
+        );
+
+        // Could be inlined but the right side is pretty long so I split it.
+        String applicationFilesPath = stateProvider.appDocumentsDir.path;
+        String marketingFileName = currentAndLikedElementsProvider.currentClubMeEvent.getEventMarketingFileName();
+
+        filePath = '$applicationFilesPath/$marketingFileName';
+        file = await File(filePath).writeAsBytes(marketingFile);
+
+        // We can derive the file type from the mime type
+        String mimeStr = lookupMimeType(file.path)!;
+        var fileType = mimeStr.split("/");
+
+        if(fileType.contains('image')){
+          setState(() {
+            isImage = true;
+          });
+        }else if(fileType.contains('video')){
+          _controller = VideoPlayerController.file(file);
+          await _controller.initialize();
+          _createChewieController();
+          setState(() {
+            isVideo = true;
+          });
+        }
+      }
+    }catch(e){}
+  }
+
+
 
   @override
   Widget build(BuildContext context) {

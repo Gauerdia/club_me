@@ -1,25 +1,20 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:club_me/4_map/components/club_info_bottom_sheet.dart';
 import 'package:club_me/models/club.dart';
 import 'package:club_me/models/event.dart';
 import 'package:club_me/services/check_and_fetch_service.dart';
 import 'package:club_me/shared/custom_bottom_navigation_bar.dart';
 import 'package:club_me/utils/utils.dart';
-// import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-// import 'package:latlong2/latlong.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-
 import '../models/parser/club_me_club_parser.dart';
 import '../provider/current_and_liked_elements_provider.dart';
 import '../provider/fetched_content_provider.dart';
@@ -42,6 +37,8 @@ class _UserMapViewState extends State<UserMapView>{
   List<String> headline = ["Karte", "Liste"];
 
   late GoogleMapController mapController;
+
+  late String weekDayDropDownValue;
 
   var log = Logger();
 
@@ -68,9 +65,14 @@ class _UserMapViewState extends State<UserMapView>{
 
   bool allPinsLoaded = false;
 
+  bool isAnyFilterActive = false;
+  bool showFilterMenu = false;
+
   List<String> alreadySetPins = [];
   
   List<Widget> listWidgetsToDisplay = [];
+
+  List<ClubMeClub> clubsToDisplay = [];
 
   late Map<String, Marker> _markers = {};
 
@@ -81,6 +83,8 @@ class _UserMapViewState extends State<UserMapView>{
   @override
   void initState() {
     super.initState();
+
+    weekDayDropDownValue = Utils.weekDaysForFiltering.first;
 
     final fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
 
@@ -112,6 +116,8 @@ class _UserMapViewState extends State<UserMapView>{
 
     for(var element in data){
       ClubMeClub currentClub = parseClubMeClub(element);
+
+
       if(!fetchedContentProvider.getFetchedClubs().contains(currentClub)){
         fetchedContentProvider.addClubToFetchedClubs(currentClub);
       }
@@ -124,6 +130,8 @@ class _UserMapViewState extends State<UserMapView>{
         fetchedContentProvider,
         false
     );
+
+    filterClubs();
 
     _getUserLocation();
 
@@ -201,10 +209,10 @@ class _UserMapViewState extends State<UserMapView>{
 
 
     }
+
+    filterClubs();
+
     setUserLocationMarker();
-
-
-
   }
 
   void setCustomMarker(ClubMeClub club){
@@ -262,17 +270,21 @@ class _UserMapViewState extends State<UserMapView>{
       showListIsActive = !showListIsActive;
     });
   }
+  void toggleShowFilterMenu(){
+    setState(() {
+      showFilterMenu = !showFilterMenu;
+    });
+  }
 
 
   void setUserLocationMarker() async{
     // Set marker for user
-    var icon = await BitmapDescriptor.asset(
-        const ImageConfiguration(size: Size(46,46)),
-        "assets/images/marker1.png"
-    );
+    // var icon = await BitmapDescriptor.asset(
+    //     const ImageConfiguration(size: Size(46,46)),
+    //     "assets/images/marker1.png"
+    // );
 
     _markers['user_location'] = Marker(
-      icon: icon,
       markerId: const MarkerId('user_location'),
       position: LatLng(userDataProvider.getUserLatCoord(), userDataProvider.getUserLongCoord()),
     );
@@ -290,6 +302,7 @@ class _UserMapViewState extends State<UserMapView>{
             zoom: 11.0
         ),
       markers: _markers.values.toSet(),
+      myLocationButtonEnabled: false,
     );
 
   }
@@ -339,22 +352,36 @@ class _UserMapViewState extends State<UserMapView>{
           Container(
             height: 50,
             alignment: Alignment.centerRight,
-            child: GestureDetector(
-              child: Padding(
-                padding: const EdgeInsets.only(
-                  // right: 10
-                ),
-                child: Container(
-                  padding: const EdgeInsets.all(7),
-                  child:  Icon(
-                    Icons.format_list_bulleted,
-                    color: showListIsActive ? customStyleClass.primeColor : Colors.grey,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+
+                GestureDetector(
+                  child: Container(
+                    padding: const EdgeInsets.all(7),
+                    child:  Icon(
+                      Icons.filter_alt_outlined,
+                      color: isAnyFilterActive ? customStyleClass.primeColor : Colors.grey,
+                    ),
                   ),
+                  onTap: (){
+                    toggleShowFilterMenu();
+                  },
                 ),
-              ),
-              onTap: (){
-                toggleShowListIsActive();
-              },
+
+                GestureDetector(
+                  child: Container(
+                    padding: const EdgeInsets.all(7),
+                    child:  Icon(
+                      Icons.format_list_bulleted,
+                      color: showListIsActive ? customStyleClass.primeColor : Colors.grey,
+                    ),
+                  ),
+                  onTap: (){
+                    toggleShowListIsActive();
+                  },
+                )
+              ],
             ),
           )
 
@@ -363,6 +390,59 @@ class _UserMapViewState extends State<UserMapView>{
     );
   }
 
+  void filterClubs(){
+
+    if(weekDayDropDownValue != Utils.weekDaysForFiltering[0]){
+
+      clubsToDisplay = [];
+
+      for(ClubMeClub club in fetchedContentProvider.getFetchedClubs()){
+
+        int chosenDayIndex = Utils.weekDaysForFiltering.indexWhere((element) => element == weekDayDropDownValue);
+
+        bool atleastOneDayFits = false;
+
+        for(var days in club.getOpeningTimes().days!){
+
+          int weekDayToCompare = days.day!;
+
+          // Some clubs start at 0 am so we have to adjust the algorithm to consider them
+          if(days.openingHour! < 10){
+            weekDayToCompare = days.day! - 1;
+          }
+
+          if(weekDayToCompare == chosenDayIndex){
+            atleastOneDayFits = true;
+          }
+        }
+        if(atleastOneDayFits) clubsToDisplay.add(club);
+
+      }
+
+      _markers = {};
+      for(var club in clubsToDisplay){
+        setCustomMarker(club);
+      }
+
+      isAnyFilterActive = true;
+
+      setState(() {});
+
+    }else{
+
+      _markers = {};
+
+      for(var club in fetchedContentProvider.getFetchedClubs()){
+        clubsToDisplay.add(club);
+        setCustomMarker(club);
+      }
+
+      isAnyFilterActive = false;
+      setState(() {
+
+      });
+    }
+  }
 
   // Geo location services
   _getUserLocation() async {
@@ -488,6 +568,7 @@ class _UserMapViewState extends State<UserMapView>{
                 child: Stack(
                   children: [
 
+                    // GOOGLE MAP
                     SizedBox(
                       height:screenHeight*0.8,
                       child: allPinsLoaded ?
@@ -500,7 +581,7 @@ class _UserMapViewState extends State<UserMapView>{
                     ),
 
                     // transparent layer to click out of bottom sheet
-                    showBottomSheet?
+                    if(showBottomSheet)
                       GestureDetector(
                           child: Container(
                             width: screenWidth,
@@ -510,8 +591,7 @@ class _UserMapViewState extends State<UserMapView>{
                           onTap: (){
                             toggleShowBottomSheet();
                           },
-                        ) :
-                      Container(),
+                        ),
 
                     // The bottom info container
                     GestureDetector(
@@ -520,10 +600,9 @@ class _UserMapViewState extends State<UserMapView>{
                             bottom: 10
                         ),
                         alignment: Alignment.bottomCenter,
-                        child:
-                        showBottomSheet ?
-                        noEventAvailable?
-                        ClubInfoBottomSheet
+                        child: showBottomSheet ?
+                          noEventAvailable?
+                          ClubInfoBottomSheet
                           (showBottomSheet: showBottomSheet,
                             clubMeEvent: null,
                             noEventAvailable: noEventAvailable
@@ -542,7 +621,7 @@ class _UserMapViewState extends State<UserMapView>{
                     ),
 
                     // Grey background when list active
-                    showListIsActive?
+                    if(showListIsActive)
                       GestureDetector(
                           child: Container(
                             width: screenWidth,
@@ -554,11 +633,10 @@ class _UserMapViewState extends State<UserMapView>{
                               showListIsActive = false;
                             });
                           },
-                        ) :
-                      Container(),
+                        ),
 
                     // List view of clubs
-                    showListIsActive ?
+                    if(showListIsActive)
                       Padding(
                             padding: const EdgeInsets.only(
                             ),
@@ -582,18 +660,83 @@ class _UserMapViewState extends State<UserMapView>{
                                       height: 10,
                                     ),
 
-                                    for( ClubMeClub club in fetchedContentProvider.getFetchedClubs())
+                                    for( ClubMeClub club in clubsToDisplay)
                                       ClubListItem(
                                           currentClub: club,
-                                      )
+                                      ),
+
+                                    const SizedBox(
+                                      height: 50,
+                                    ),
                                   ],
                                 ),
                               )
 
                             ),
                           )
-                        ) :
-                      Container()
+                        ),
+
+                    if(showFilterMenu)
+                      Container(
+                      height: screenHeight*0.14,
+                      width: screenWidth,
+                      color: customStyleClass.backgroundColorMain,
+                      child: Row(
+                        children: [
+
+                          SizedBox(
+                            width: screenWidth,
+                            child: Column(
+                              children: [
+
+                                // Spacer
+                                SizedBox(
+                                  height: screenHeight*0.01,
+                                ),
+
+                                // Genre
+                                SizedBox(
+                                  width: screenWidth*0.28,
+                                  child: Text(
+                                    "Wochentag",
+                                    textAlign: TextAlign.left,
+                                    style: customStyleClass.getFontStyle3(),
+                                  ),
+                                ),
+
+                                // Dropdown
+                                Theme(
+                                  data: Theme.of(context).copyWith(
+                                      canvasColor: customStyleClass.backgroundColorMain
+                                  ),
+                                  child: DropdownButton(
+                                      value: weekDayDropDownValue,
+                                      menuMaxHeight: 300,
+                                      items: Utils.weekDaysForFiltering.map<DropdownMenuItem<String>>(
+                                              (String value) {
+                                            return DropdownMenuItem(
+                                              value: value,
+                                              child: Text(
+                                                value,
+                                                style: customStyleClass.getFontStyle4Grey2(),
+                                              ),
+                                            );
+                                          }
+                                      ).toList(),
+                                      onChanged: (String? value){
+                                        setState(() {
+                                          weekDayDropDownValue = value!;
+                                          filterClubs();
+                                        });
+                                      }
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 )
               )

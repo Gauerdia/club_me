@@ -23,3 +23,7 @@ apple requires it
 # Nützliche Ressourcen
 
 https://hussainmustafa.com/integrating-google-maps-in-flutter-for-dynamic-location-tracking/
+
+## Google Sign In without firebase
+
+https://medium.com/codebrew/flutter-google-sign-in-without-firebase-3680713966fb

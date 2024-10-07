@@ -1,13 +1,14 @@
 import 'package:chewie/chewie.dart';
 import 'package:club_me/models/event.dart';
 import 'package:club_me/services/hive_service.dart';
+import 'package:club_me/shared/dialogs/TitleAndContentDialog.dart';
+import 'package:club_me/utils/utils.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mime/mime.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 import 'package:uuid/uuid.dart';
@@ -19,9 +20,9 @@ import '../../provider/state_provider.dart';
 import '../../provider/user_data_provider.dart';
 import '../../services/supabase_service.dart';
 import '../../shared/custom_text_style.dart';
-import 'package:gradient_icon/gradient_icon.dart';
 import 'dart:io';
-import 'package:video_thumbnail/video_thumbnail.dart';
+
+import '../../shared/dialogs/title_content_and_two_buttons_dialog.dart';
 
 class ClubNewEventView extends StatefulWidget {
   const ClubNewEventView({Key? key}) : super(key: key);
@@ -81,16 +82,8 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
   double originalFoldHeightFactor = 0.08;
 
   List<String> musicGenresChosen = [];
-  List<String> musicGenresOffer = [
-    "Latin", "Rock", "Hip-Hop", "Electronic", "Pop", "Reggaeton", "Afrobeats",
-    "R&B", "House", "Techno", "Rap", "90er", "80er", "2000er",
-    "Heavy Metal", "Psychedelic", "Balkan"
-  ];
-  List<String> musicGenresToCompare = [
-    "Latin", "Rock", "Hip-Hop", "Electronic", "Pop", "Reggaeton", "Afrobeats",
-    "R&B", "House", "Techno", "Rap", "90er", "80er", "2000er",
-    "Heavy Metal", "Psychedelic", "Balkan"
-  ];
+  List<String> musicGenresOffer = [];
+
 
   File? file;
   String fileExtension = "";
@@ -144,9 +137,6 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
         musicGenresOffer.removeWhere((element) => element == split[i]);
       }
 
-      // _eventMusicGenresController = TextEditingController(
-      //     text: stateProvider.getClubMeEventHive()?.getMusicGenres()
-      // );
       _eventDescriptionController = TextEditingController(
           text: stateProvider.getCurrentEventTemplate()?.getEventDescription()
       );
@@ -185,6 +175,10 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
       _fixedExtentScrollController2 = FixedExtentScrollController(initialItem: 0);
       newSelectedDate = DateTime.now();
     }
+
+    for(var element in Utils.genreListForCreating){
+      musicGenresOffer.add(element);
+    }
   }
 
   // BUILD
@@ -207,7 +201,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                     Icons.clear_rounded,
                   color: Colors.white,
                 ),
-                onPressed: () => clickedOnAbort()
+                onPressed: () => clickEventClose()
               ),
             ),
 
@@ -313,6 +307,21 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
       ),
     );
   }
+  Widget _buildMainView(){
+    return Container(
+        color: customStyleClass.backgroundColorMain,
+        width: screenWidth,
+        height: screenHeight,
+        child: Center(
+          child: isImage ?
+          _buildImagePreview()
+              : isVideo ?
+          _buildVideoPreview()
+              :_buildCheckOverview(),
+        )
+
+    );
+  }
   Widget _buildCheckOverview(){
 
     return SizedBox(
@@ -332,7 +341,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                       ),
 
                       // headline
-                      Container(
+                      SizedBox(
                         width: screenWidth*0.9,
                         child: Text(
                           "Bitte gib die passenden Daten zu deinem Event ein!",
@@ -411,7 +420,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                                 bottom:20
                               ),
                               hintText: "z.B. DJ David Guetta",
-                              border: OutlineInputBorder(),
+                              border: const OutlineInputBorder(),
                               focusedBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
                                       color: customStyleClass.primeColor
@@ -436,7 +445,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                           children: [
 
                             // Datepicker
-                            Container(
+                            SizedBox(
                               height: screenHeight*0.12,
                               child: Column(
                                 children: [
@@ -511,10 +520,6 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                                     ),
                                   ),
 
-                                  // SizedBox(
-                                  //   height: screenHeight*0.01,
-                                  // ),
-
                                   Container(
                                     padding:  EdgeInsets.only(
                                         top: distanceBetweenTitleAndTextField
@@ -548,65 +553,59 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                       ),
 
                       // Price text field
-                      Container(
-                        // padding: const EdgeInsets.only(
-                        //     top: 5
-                        // ),
-                        child: Column(
-                          children: [
+                      Column(
+                        children: [
 
-                            // Text: Price
-                            Container(
-                              width: screenWidth*0.9,
-                              child: Text(
-                                "Eintrittspreis",
-                                style: customStyleClass.getFontStyle3(),
-                                textAlign: TextAlign.left,
-                              ),
+                          // Text: Price
+                          SizedBox(
+                            width: screenWidth*0.9,
+                            child: Text(
+                              "Eintrittspreis",
+                              style: customStyleClass.getFontStyle3(),
+                              textAlign: TextAlign.left,
                             ),
+                          ),
 
-                            // Spacer
-                            SizedBox(
-                              height: screenHeight*0.007,
-                            ),
+                          // Spacer
+                          SizedBox(
+                            height: screenHeight*0.007,
+                          ),
 
-                            // Textfield: Price
-                            Container(
-                              width: screenWidth*0.9,
-                              alignment: Alignment.centerLeft,
-                              child: Container(
-                                width: screenWidth*0.3,
-                                // height: screenHeight*0.085,
-                                child: TextField(
-                                  controller: _eventPriceController,
-                                  keyboardType: TextInputType.number,
-                                  cursorColor: customStyleClass.primeColor,
-                                  decoration: InputDecoration(
-                                    hintText: "z.B. 10",
-                                    contentPadding: const EdgeInsets.only(
-                                        left: 20,
-                                        top:20,
-                                        bottom:20
-                                    ),
-                                    border: const OutlineInputBorder(),
-                                    focusedBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                            color: customStyleClass.primeColor
-                                        )
-                                    ),
+                          // Textfield: Price
+                          Container(
+                            width: screenWidth*0.9,
+                            alignment: Alignment.centerLeft,
+                            child: SizedBox(
+                              width: screenWidth*0.3,
+                              child: TextField(
+                                controller: _eventPriceController,
+                                keyboardType: TextInputType.number,
+                                cursorColor: customStyleClass.primeColor,
+                                decoration: InputDecoration(
+                                  hintText: "z.B. 10",
+                                  contentPadding: const EdgeInsets.only(
+                                      left: 20,
+                                      top:20,
+                                      bottom:20
                                   ),
-                                  style: customStyleClass.getFontStyle4(),
-                                  maxLength: 5,
+                                  border: const OutlineInputBorder(),
+                                  focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: customStyleClass.primeColor
+                                      )
+                                  ),
                                 ),
+                                style: customStyleClass.getFontStyle4(),
+                                maxLength: 5,
                               ),
-                            )
-                          ],
-                        ),
+                            ),
+                          )
+                        ],
                       ),
 
                       // Text: Description
                       Container(
-                        padding: EdgeInsets.only(
+                        padding: const EdgeInsets.only(
                           top: 10
                         ),
                         width: screenWidth*0.9,
@@ -629,7 +628,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                           maxLines: null,
                           cursorColor: customStyleClass.primeColor,
                           decoration: InputDecoration(
-                            border: OutlineInputBorder(),
+                            border: const OutlineInputBorder(),
                             hintText: "Erzähe deinen Kunden etwas über das Event...",
                             focusedBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
@@ -741,7 +740,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                           width: screenWidth*0.9,
                           alignment: Alignment.centerLeft,
                           child: IconButton(
-                              onPressed: () => clickedOnChooseContent(),
+                              onPressed: () => clickEventChooseContent(),
                               icon: Icon(
                                 Icons.add,
                                 size: 30,
@@ -784,7 +783,6 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                             ),
                           ),
                           style: customStyleClass.getFontStyle4(),
-                          maxLength: 35,
                         ),
                       ),
 
@@ -1051,7 +1049,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                                   border: Border.all(
                                       color: customStyleClass.primeColor
                                   ),
-                                  borderRadius: BorderRadius.all(Radius.circular(10))
+                                  borderRadius: const BorderRadius.all(Radius.circular(10))
                               ),
                               child: Text(
                                 "Fertig",
@@ -1186,58 +1184,6 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                                 style: customStyleClass.getFontStyle5(),
                               ),
                             ),
-
-                          // headline
-                          // Text(
-                          //   "Eigene Musikrichtungen",
-                          //   style: customStyleClass.getFontStyle4Bold(),
-                          // ),
-                          //
-                          // // Spacer
-                          // const SizedBox(
-                          //   height: 10,
-                          // ),
-                          //
-                          // // Textfield: own genres
-                          // Row(
-                          //   children: [
-                          //
-                          //     // TEXTFIELD
-                          //     SizedBox(
-                          //       width: screenWidth*0.5,
-                          //       child: TextField(
-                          //         controller: _eventMusicGenresController,
-                          //         cursorColor: customStyleClass.primeColor,
-                          //         decoration: InputDecoration(
-                          //           border: const OutlineInputBorder(),
-                          //           focusedBorder: OutlineInputBorder(
-                          //               borderSide: BorderSide(
-                          //                   color: customStyleClass.primeColor
-                          //               )
-                          //           ),
-                          //         ),
-                          //         style: customStyleClass.getFontStyle4(),
-                          //         maxLength: 15,
-                          //       ),
-                          //     ),
-                          //
-                          //     // ICON
-                          //     Container(
-                          //         height: screenHeight*0.08,
-                          //         alignment: Alignment.topCenter,
-                          //         child: SizedBox(
-                          //             child: IconButton(
-                          //                 onPressed: () => addOwnGenreToChosenGenres(),
-                          //                 icon: Icon(
-                          //                   Icons.add,
-                          //                   size: 35,
-                          //                   color: customStyleClass.primeColor,
-                          //                 )
-                          //             )
-                          //         )
-                          //     ),
-                          //   ],
-                          // ),
                         ],
                       ),
 
@@ -1256,7 +1202,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                                   border: Border.all(
                                       color: customStyleClass.primeColor
                                   ),
-                                  borderRadius: BorderRadius.all(Radius.circular(10))
+                                  borderRadius: const BorderRadius.all(Radius.circular(10))
                               ),
                               child: Text(
                                 "Fertig",
@@ -1281,347 +1227,39 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
         )
     );
   }
-  Widget _buildCheckForMusicGenres(){
-    return SizedBox(
-      height: screenHeight,
-      child: SingleChildScrollView(
-        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        child: Column(
-          children: [
-
-            // 'Which genres' headline
-            Container(
-              // color: Colors.red,
-              width: screenWidth*0.9,
-              padding: EdgeInsets.symmetric(
-                  vertical: screenHeight*0.04,
-                  horizontal: screenWidth*0.02
-              ),
-              child: Text(
-                "Welche Musikrichtungen werden auf diesem Event gespielt?",
-                textAlign: TextAlign.left,
-                style: customStyleClass.getFontStyle1Bold(),
-              ),
-            ),
-
-            // Spacer
-            SizedBox(
-              height: screenHeight*0.05,
-            ),
-
-            // Propositions
-            Container(
-              width: screenWidth,
-              padding: const EdgeInsets.only(
-              ),
-              child: Text(
-                "Vorschläge",
-                textAlign: TextAlign.center,
-                style: customStyleClass.getFontStyle2Bold(),
-              ),
-            ),
-
-            // Spacer
-            SizedBox(
-              height: screenHeight*0.02,
-            ),
-
-            // Tags to use
-            musicGenresOffer.isEmpty?
-            Container(
-              height: screenHeight*0.05,
-              child: Center(
-                child: Text(
-                  "Keine Genres mehr verfügbar.",
-                  style: customStyleClass.getFontStyle4Bold(),
-                ),
-              ),
-            ):SizedBox(
-              width: screenWidth*0.9,
-              child: Wrap(
-                direction: Axis.horizontal,
-                children: musicGenresOffer.map((item){
-                  return Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            vertical: screenHeight*0.01,
-                            horizontal: screenWidth*0.01
-                        ),
-                        child: GestureDetector(
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: screenWidth*0.035,
-                                vertical: screenHeight*0.02
-                            ),
-                            decoration: BoxDecoration(
-                              borderRadius: const BorderRadius.all(
-                                  Radius.circular(10)
-                              ),
-                              gradient: LinearGradient(
-                                  colors: [
-                                    customStyleClass.primeColorDark,
-                                    customStyleClass.primeColor,
-                                  ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  stops: const [0.2, 0.9]
-                              ),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black54,
-                                  spreadRadius: 1,
-                                  blurRadius: 7,
-                                  offset: Offset(3, 3),
-                                ),
-                              ],
-                            ),
-                            child: Text(
-                              item,
-                              style: customStyleClass.getFontStyle6Bold(),
-                            ),
-                          ),
-                          onTap: (){
-                            setState(() {
-                              musicGenresOffer.remove(item);
-                              musicGenresChosen.add(item);
-                              if(eventMusicGenresString.isEmpty){
-                                eventMusicGenresString = "$item,";
-                              }else{
-                                eventMusicGenresString = "${eventMusicGenresString},$item,";
-                              }
-                            });
-                          },
-                        ),
-                      )
-                    ],
-                  );
-                }).toList(),
-              ),
-            ),
-
-            // Spacer
-            SizedBox(
-              height: screenHeight*0.02,
-            ),
-
-            // Chosen
-            Container(
-              width: screenWidth,
-              padding: const EdgeInsets.only(
-                // left: screenWidth*0.05,
-                // top: screenHeight*0.03
-              ),
-              child: Text(
-                "Ausgewählt",
-                textAlign: TextAlign.center,
-                style: customStyleClass.getFontStyle2Bold(),
-              ),
-            ),
-
-            // Spacer
-            SizedBox(
-              height: screenHeight*0.02,
-            ),
-
-            // Chosen tags
-            musicGenresChosen.isEmpty?
-            SizedBox(
-              height: screenHeight*0.05,
-              child: Center(
-                child: Text(
-                  "Noch keine Genres ausgewählt.",
-                  style: customStyleClass.getFontStyle4Bold(),
-                ),
-              ),
-            ):SizedBox(
-              width: screenWidth*0.9,
-              child: Wrap(
-                direction: Axis.horizontal,
-                children: musicGenresChosen.map((item){
-                  return Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            vertical: screenHeight*0.01,
-                            horizontal: screenWidth*0.01
-                        ),
-                        child: GestureDetector(
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: screenWidth*0.035,
-                                vertical: screenHeight*0.02
-                            ),
-                            decoration:  BoxDecoration(
-                              borderRadius: const BorderRadius.all(
-                                  Radius.circular(10)
-                              ),
-                              gradient: LinearGradient(
-                                  colors: [
-                                    customStyleClass.primeColorDark,
-                                    customStyleClass.primeColor,
-                                  ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  stops: const [0.2, 0.9]
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black54,
-                                  spreadRadius: 1,
-                                  blurRadius: 7,
-                                  offset: Offset(3, 3), // changes position of shadow
-                                ),
-                              ],
-                            ),
-                            child: Text(
-                              item,
-                              style: customStyleClass.getFontStyle6Bold(),
-                            ),
-                          ),
-                          onTap: (){
-                            setState(() {
-                              if(musicGenresToCompare.contains(item)){
-                                musicGenresOffer.add(item);
-                              }
-                              musicGenresChosen.remove(item);
-                              eventMusicGenresString.replaceFirst("$item,", "");
-                            });
-                          },
-                        ),
-                      )
-                    ],
-                  );
-                }).toList(),
-              ),
-            ),
-
-            // Spacer
-            SizedBox(
-              height: screenHeight*0.02,
-            ),
-
-            // Own Genre
-            Container(
-              width: screenWidth*0.9,
-              padding: EdgeInsets.only(
-                // left: screenWidth*0.05,
-                  top: screenHeight*0.01,
-                  bottom: screenHeight*0.01
-              ),
-              child: Text(
-                "Eigene Genres hinzufügen",
-                textAlign: TextAlign.left,
-                style: customStyleClass.getFontStyle2Bold(),
-              ),
-            ),
-
-            // Textfield + icon
-            Container(
-                padding: EdgeInsets.only(
-                    bottom: screenHeight*0.025
-                ),
-                width: screenWidth*0.9,
-                child: Row(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(
-                          top: screenHeight*0.03
-                      ),
-                      child: SizedBox(
-                        width: screenWidth*0.65,
-                        child: TextField(
-                          controller: _eventMusicGenresController,
-                          cursorColor: customStyleClass.primeColor,
-                          decoration: const InputDecoration(
-                              hintText: "z.B. Pop",
-                              border: OutlineInputBorder()
-                          ),
-                          style: customStyleClass.getFontStyle3(),
-                          maxLength: 15,
-                        ),
-                      ),
-                    ),
-                    // Icon
-                    Center(
-                      child: IconButton(
-                          onPressed: (){
-                            setState(() {
-                              musicGenresChosen.add("${_eventMusicGenresController.text}");
-                              _eventMusicGenresController.text = "";
-                              FocusScope.of(context).unfocus();
-                            });
-                          },
-                          icon: Icon(
-                            Icons.send,
-                            size:
-                            customStyleClass.getFontSize1(),
-                            color: customStyleClass.primeColor,
-                          )
-                      ),
-                    )
-                  ],
-                )
-            ),
-
-            // Spacer
-            SizedBox(
-              height: screenHeight*0.1,
-            )
-
-          ],
-        ),
-      ),
-    );
-  }
   Widget _buildImagePreview(){
-    return Stack(
-      children: [
-
-        // Image container
-        SizedBox(
-          width: screenWidth,
-          height: screenHeight,
-          child: Image.file(file!),
-        ),
-
-      ],
+    return SizedBox(
+      width: screenWidth,
+      height: screenHeight,
+      child: Image.file(file!),
     );
   }
   Widget _buildVideoPreview(){
-    return Stack(
-      children: [
-
-        // Video container
-        Padding(
-          padding: EdgeInsets.only(
-              bottom: screenHeight*0.15
+    return Padding(
+      padding: EdgeInsets.only(
+          bottom: screenHeight*0.15
+      ),
+      child: SizedBox(
+        width: screenWidth,
+        height: screenHeight*0.75,
+        child: _chewieController != null &&
+            _chewieController!
+                .videoPlayerController.value.isInitialized
+            ? SizedBox(
+          width: screenWidth,
+          height: screenHeight*0.95,
+          child: Chewie(
+            controller: _chewieController!,
           ),
-          child: SizedBox(
-            width: screenWidth,
-            height: screenHeight*0.75,
-            child: _chewieController != null &&
-                _chewieController!
-                    .videoPlayerController.value.isInitialized
-                ? SizedBox(
-              width: screenWidth,
-              height: screenHeight*0.95,
-              child: Chewie(
-                controller: _chewieController!,
-              ),
-            ) :
-            SizedBox(
-              width: screenWidth,
-              height: screenHeight,
-              child: const Center(
-                child: CircularProgressIndicator(),
-              ),
-            ),
+        ) :
+        SizedBox(
+          width: screenWidth,
+          height: screenHeight,
+          child: const Center(
+            child: CircularProgressIndicator(),
           ),
-        )
-      ],
+        ),
+      ),
     );
   }
 
@@ -1633,7 +1271,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
   void removeGenresFromList(String genreToRemove){
     setState(() {
       musicGenresChosen.removeWhere((element) => element == genreToRemove);
-      if(musicGenresToCompare.contains(genreToRemove) && !musicGenresOffer.contains(genreToRemove)){
+      if(Utils.genreListForCreating.contains(genreToRemove) && !musicGenresOffer.contains(genreToRemove)){
         musicGenresOffer.add(genreToRemove);
       }
     });
@@ -1647,9 +1285,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
   void addGenreToChosenGenres(String genreToAdd){
     setState(() {
       musicGenresChosen.add(genreToAdd);
-      if(musicGenresOffer.contains(genreToAdd)){
         musicGenresOffer.remove(genreToAdd);
-      }
     });
   }
   void showDialogToAddGenres(){
@@ -1668,63 +1304,42 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
       showDialogOfMissingValue();
     }
   }
-  void clickedOnAbort(){
-
+  void clickEventClose(){
     showDialog(
         context: context,
         builder: (BuildContext context){
-          return AlertDialog(
-              backgroundColor: Color(0xff121111),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20.0),
-                // side: BorderSide(
-                //     color: customStyleClass.primeColor
-                // )
-              ),
-              title: Text(
-                "Abbrechen",
-                style: customStyleClass.getFontStyle1Bold(),
-              ),
-              content: Text(
-                "Bist du sicher, dass du abbrechen möchtest?",
-                textAlign: TextAlign.left,
-                style: customStyleClass.getFontStyle4(),
-              ),
-              actions: [
-
-                TextButton(
-                  child: Text(
-                    "Zurück",
-                    style: customStyleClass.getFontStyle5BoldPrimeColor(),
-                  ),
-                  onPressed: (){
-                    Navigator.of(context).pop();
-                  },
+          return TitleContentAndTwoButtonsDialog(
+              titleToDisplay: "Abbrechen",
+              contentToDisplay: "Bist du sicher, dass du abbrechen möchtest?",
+              firstButtonToDisplay: TextButton(
+                child: Text(
+                  "Zurück",
+                  style: customStyleClass.getFontStyle3BoldPrimeColor(),
                 ),
-
-                TextButton(
-                  child: Text(
-                    "Ja",
-                    style: customStyleClass.getFontStyle5BoldPrimeColor(),
-                  ),
-                  onPressed: (){
-                    stateProvider.resetCurrentEventTemplate();
-                    switch(stateProvider.pageIndex){
-                      case(0): context.go('/club_events');
-                      case(3): context.go('/club_frontpage');
-                      default: context.go('/club_frontpage');
-                    }
-                  },
+                onPressed: (){
+                  Navigator.of(context).pop();
+                },
+              ),
+              secondButtonToDisplay: TextButton(
+                child: Text(
+                  "Ja",
+                  style: customStyleClass.getFontStyle3BoldPrimeColor(),
                 ),
-
-              ]
-          );
-        }
-    );
+                onPressed: (){
+                  stateProvider.resetCurrentEventTemplate();
+                  switch(stateProvider.pageIndex){
+                    case(0): context.go('/club_events');
+                    case(3): context.go('/club_frontpage');
+                    default: context.go('/club_frontpage');
+                  }
+                },
+              ));
+        });
   }
-  void clickedOnChooseContent() async{
+  void clickEventChooseContent() async{
 
     FilePickerResult? result = await FilePicker.platform.pickFiles(
+        withData: true,
         allowMultiple: false
     );
     if (result != null) {
@@ -1742,7 +1357,6 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
       }
       else if(fileType.contains('video')){
 
-        // file = File(result.files.single.path!);
         _controller = VideoPlayerController.file(file!);
         await _controller!.initialize();
         _createChewieController();
@@ -1756,7 +1370,6 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
   void selectContent() async{
 
     if(isVideo){
-      // screenshot = await genThumbnailFile(file!.path);
       contentType = 2;
     }
     if(isImage){
@@ -1790,20 +1403,6 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
       contentType = 0;
       contentFileName = "";
     });
-  }
-  void iterateScreen(){
-
-    if(genreScreenActive){
-      setState(() {
-        genreScreenActive = false;
-      });
-    }else{
-      setState(() {
-        isUploading = true;
-      });
-      createNewEvent();
-    }
-
   }
 
 
@@ -1976,17 +1575,9 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
   void showDialogOfMissingValue(){
     showDialog(context: context,
         builder: (BuildContext context){
-          return AlertDialog(
-              backgroundColor: customStyleClass.backgroundColorMain,
-              title: Text(
-                  "Fehlende Werte",
-                style: customStyleClass.getFontStyle1Bold(),
-              ),
-              content: Text(
-                  "Bitte füllen Sie mindestens die folgenden Felder aus, bevor Sie weitergehen: \n\n Titel",
-                style: customStyleClass.getFontStyle3(),
-              )
-          );
+          return TitleAndContentDialog(
+              titleToDisplay: "Fehlende Werte",
+              contentToDisplay: "Bitte füllen Sie mindestens die folgenden Felder aus, bevor Sie weitergehen: \n\n Titel");
         });
   }
 
@@ -2064,21 +1655,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
 
       bottomNavigationBar: _buildNavigationBar(),
       appBar: _buildAppBar(),
-      body: Container(
-        color: customStyleClass.backgroundColorMain,
-          width: screenWidth,
-          height: screenHeight,
-          child: Center(
-              child: genreScreenActive ?
-              _buildCheckForMusicGenres()
-                  : isImage ?
-                  _buildImagePreview()
-              : isVideo ?
-              _buildVideoPreview()
-            :_buildCheckOverview(),
-          )
-
-      ),
+      body: _buildMainView(),
     );
   }
 

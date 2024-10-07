@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:club_me/shared/dialogs/title_content_and_button_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -35,48 +36,8 @@ class CouponCard extends StatelessWidget {
   String timeLimitToDisplay = "";
 
 
- // CLICK
-  void clickOnInfo(BuildContext context){
-
-    Widget okButton = TextButton(
-      child: Text(
-          "OK",
-        style: customStyleClass.getFontStyle4BoldPrimeColor(),
-      ),
-      onPressed: () {
-        Navigator.of(context).pop();
-      },
-    );
-
-    showDialog(
-        context: context,
-        builder: (BuildContext context){
-          return AlertDialog(
-            backgroundColor: Color(0xff121111),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20.0),
-            ),
-            title: Text(
-                "Coupon-Informationen",
-              style: customStyleClass.getFontStyle1Bold(),
-            ),
-            content: Text(
-              clubMeDiscount.getDiscountDescription(),
-              style: customStyleClass.getFontStyle4(),
-            ),
-            actions: [
-              okButton
-            ],
-          );
-        }
-    );
-  }
-
-
   // BUILD
   Widget _buildStackView(BuildContext context){
-
-    double newDiscountContainerHeightFactor = 0.6;
 
     return Stack(
       children: [
@@ -98,15 +59,15 @@ class CouponCard extends StatelessWidget {
                       Colors.grey[800]!.withOpacity(0.7),
                       Colors.grey[900]!
                     ],
-                    stops: [0.1,0.9]
+                    stops: const [0.1,0.9]
                 ),
                 borderRadius: BorderRadius.circular(
                     15
                 ),
-              border: Border.all(
-                color: Colors.grey[900]!,
-                width: 2
-              )
+                border: Border.all(
+                    color: Colors.grey[900]!,
+                    width: 2
+                )
             ),
             child: _buildStackViewContent(context),
           ),
@@ -132,21 +93,21 @@ class CouponCard extends StatelessWidget {
                   height: screenHeight*0.35,
                   width: screenWidth,
                   child: ClipRRect(
-                    borderRadius: const BorderRadius.only(
-                        topRight: Radius.circular(15),
-                        topLeft: Radius.circular(15)
-                    ),
-                    child: Image(
-                      image: FileImage(
-                          File("${stateProvider.appDocumentsDir.path}/${clubMeDiscount.getBigBannerFileName()}")
+                      borderRadius: const BorderRadius.only(
+                          topRight: Radius.circular(15),
+                          topLeft: Radius.circular(15)
                       ),
-                      fit: BoxFit.cover,
-                    )
+                      child: Image(
+                        image: FileImage(
+                            File("${stateProvider.appDocumentsDir.path}/${clubMeDiscount.getBigBannerFileName()}")
+                        ),
+                        fit: BoxFit.cover,
+                      )
 
                   ),
                 ):SizedBox(
-                  height: screenHeight*0.3,
-                  width: screenWidth,
+                    height: screenHeight*0.3,
+                    width: screenWidth,
                     child: Center(
                       child: SizedBox(
                         child: CircularProgressIndicator(
@@ -189,8 +150,6 @@ class CouponCard extends StatelessWidget {
                           child: Padding(
                             padding: EdgeInsets.only(
                                 left: screenWidth*0.02
-                              // top: 10,
-                              // left: 10
                             ),
                             child: Align(
                               alignment: Alignment.centerLeft,
@@ -217,25 +176,20 @@ class CouponCard extends StatelessWidget {
                       ),
 
                       // Location
-                      Container(
-
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                            // top: 5,
-                              left: screenWidth*0.02,
-                              // top: screenHeight*0.005
-                          ),
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              clubMeDiscount.getClubName(),
-                              style: customStyleClass.getFontStyle5(),
-                            ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                          left: screenWidth*0.02,
+                        ),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            clubMeDiscount.getClubName(),
+                            style: customStyleClass.getFontStyle5(),
                           ),
                         ),
                       ),
 
-                      SizedBox(
+                      const SizedBox(
                         height: 20,
                       ),
 
@@ -243,56 +197,34 @@ class CouponCard extends StatelessWidget {
                       if(clubMeDiscount.getHasTimeLimit())
                         Padding(
                           padding: const EdgeInsets.only(
-                              left: 10,
-                              // bottom: 7
+                            left: 10,
+                            // bottom: 7
                           ),
                           child: Align(
                             alignment: Alignment.bottomLeft,
                             child: GestureDetector(
-                              child: Container(
-                                // decoration: const BoxDecoration(
-                                //     color: Color(0xff11181f),
-                                //     borderRadius: BorderRadius.all(
-                                //         Radius.circular(10)
-                                //     )
-                                // ),
-                                // padding: const EdgeInsets.all(10),
-                                child: Text(
-                                  "Bis $timeLimitToDisplay Uhr",
-                                  style: customStyleClass.getFontStyle5(),
-                                ),
+                              child: Text(
+                                "Bis $timeLimitToDisplay Uhr",
+                                style: customStyleClass.getFontStyle5(),
                               ),
-                              onTap: (){
-
-                              },
+                              onTap: (){},
                             ),
                           ),
                         ),
                       if(clubMeDiscount.getHasUsageLimit())
                         Padding(
                           padding: const EdgeInsets.only(
-                            left: 10,
-                            top: 5
+                              left: 10,
+                              top: 5
                           ),
                           child: Align(
                             alignment: Alignment.bottomLeft,
                             child: GestureDetector(
-                              child: Container(
-                                // decoration: const BoxDecoration(
-                                //     color: Color(0xff11181f),
-                                //     borderRadius: BorderRadius.all(
-                                //         Radius.circular(10)
-                                //     )
-                                // ),
-
-                                child: Text(
-                                  "${clubMeDiscount.getNumberOfUsages()}x einlösbar",
-                                  style: customStyleClass.getFontStyle5(),
-                                ),
+                              child: Text(
+                                "${clubMeDiscount.getNumberOfUsages()}x einlösbar",
+                                style: customStyleClass.getFontStyle5(),
                               ),
-                              onTap: (){
-
-                              },
+                              onTap: (){},
                             ),
                           ),
                         ),
@@ -324,7 +256,7 @@ class CouponCard extends StatelessWidget {
                                   )
                                 ],
                               ),
-                              onTap: () => clickOnInfo(context),
+                              onTap: () => clickEventInfo(context),
                             ),
                             SizedBox(
                               width: screenWidth*0.02,
@@ -364,8 +296,8 @@ class CouponCard extends StatelessWidget {
                   Center(
                     child: Container(
                       width: screenWidth*0.83,
-                      padding: EdgeInsets.only(
-                        bottom: 10
+                      padding: const EdgeInsets.only(
+                          bottom: 10
                       ),
                       alignment: Alignment.bottomCenter,
                       child: Row(
@@ -395,13 +327,36 @@ class CouponCard extends StatelessWidget {
                       ),
                     ),
                   ),
-
                 ],
               )
           ),
         )
-
       ],
+    );
+  }
+
+
+  // CLICK
+  void clickEventInfo(BuildContext context){
+
+    Widget okButton = TextButton(
+      child: Text(
+          "OK",
+        style: customStyleClass.getFontStyle4BoldPrimeColor(),
+      ),
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+    );
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context){
+          return TitleContentAndButtonDialog(
+              titleToDisplay: "Coupon-Informationen",
+              contentToDisplay: clubMeDiscount.getDiscountDescription(),
+              buttonToDisplay: okButton);
+        }
     );
   }
 
@@ -433,11 +388,6 @@ class CouponCard extends StatelessWidget {
   }
   void formatDateToDisplay(){
 
-    // Get current time for germany
-    // final berlin = tz.getLocation('Europe/Berlin');
-    // final oneWeekFromNowGermanTZ = tz.TZDateTime.from(DateTime.now(), berlin).add(const Duration(days: 7));
-    // var exactOneWeekFromNow = DateTime.now().add(const Duration(days: 7));
-
     weekDayToDisplay = DateFormat('dd.MM.yyyy').format(clubMeDiscount.getDiscountDate());
 
     var eventDateWeekday = clubMeDiscount.getDiscountDate().weekday;
@@ -450,22 +400,6 @@ class CouponCard extends StatelessWidget {
       case(6): weekDayToDisplay = "Samstag, $weekDayToDisplay";
       case(7): weekDayToDisplay = "Sonntag, $weekDayToDisplay";
     }
-
-
-    // if(clubMeDiscount.getDiscountDate().isAfter(oneWeekFromNowGermanTZ)){
-    //   weekDayToDisplay = DateFormat('dd.MM.yyyy').format(clubMeDiscount.getDiscountDate());
-    // }else{
-    //   var eventDateWeekday = clubMeDiscount.getDiscountDate().weekday;
-    //   switch(eventDateWeekday){
-    //     case(1): weekDayToDisplay = "Montag";
-    //     case(2): weekDayToDisplay = "Dienstag";
-    //     case(3): weekDayToDisplay = "Mittwoch";
-    //     case(4): weekDayToDisplay = "Donnerstag";
-    //     case(5): weekDayToDisplay = "Freitag";
-    //     case(6): weekDayToDisplay = "Samstag";
-    //     case(7): weekDayToDisplay = "Sonntag";
-    //   }
-    // }
   }
 
 
@@ -476,35 +410,20 @@ class CouponCard extends StatelessWidget {
   void showRedeemDialog(BuildContext context, StateProvider stateProvider, ClubMeDiscount clubMeDiscount){
     showDialog(context: context,
         builder: (BuildContext context){
-          return AlertDialog(
-            backgroundColor: Color(0xff121111),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20.0),
-                // side: BorderSide(
-                //     color: customStyleClass.primeColor
-                // )
-            ),
-            title: Text(
-                "Coupon einlösen",
-              style: customStyleClass.getFontStyle1Bold(),
-            ),
-            content: Text(
-                "Bist du sicher, dass du den Coupon einlösen möchtest? Du kannst ihn danach womöglich nicht noch einmal einlösen",
-              style: customStyleClass.getFontStyle4(),
-            ),
-            actions: [
-              TextButton(
-                  onPressed: () {
-                    currentAndLikedElementsProvider.setCurrentDiscount(clubMeDiscount);
-                    context.go('/coupon_active');
-                  },
-                  child: Text(
+          return
+            TitleContentAndButtonDialog(
+                titleToDisplay: "Coupon einlösen",
+                contentToDisplay: "Bist du sicher, dass du den Coupon einlösen möchtest? Du kannst ihn danach womöglich nicht noch einmal einlösen.",
+                buttonToDisplay: TextButton(
+                    onPressed: () {
+                      currentAndLikedElementsProvider.setCurrentDiscount(clubMeDiscount);
+                      context.go('/coupon_active');
+                    },
+                    child: Text(
                       "Einlösen",
-                    style: customStyleClass.getFontStyle4BoldPrimeColor(),
-                  )
-              )
-            ],
-          );
+                      style: customStyleClass.getFontStyle4BoldPrimeColor(),
+                    )
+                ));
         }
     );
   }

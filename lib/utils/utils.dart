@@ -1,5 +1,21 @@
 class Utils{
 
+
+  static List<String> weekDaysForFiltering = [
+    "Alle", "Montag", "Dienstag", "Mittwoch", "Donnerstag",
+    "Freitag", "Samstag", "Sonntag"
+  ];
+
+  static List<String> usageLimitAnswers = [
+  "1x", "2x", "3x", "4x", "5x", "6x", "7x", "8x", "9x", "10x"
+  ];
+
+  static List<String> repetitionAnswers = [
+    "Wöchentlich", "Zweiwöchentlich"
+  ];
+
+  static double creationScreensDistanceBetweenTitleAndTextField = 10;
+
   static List<String> imageNames = [
     "Free_ClubMe_500x400.png",
     "Free_Eintritt_500x400.png",
@@ -29,6 +45,12 @@ class Utils{
     "R&B", "House", "Techno", "Rap", "90er", "80er", "2000er",
     "Heavy Metal", "Psychedelic", "Balkan"
   ];
+  static List<String> genreListForCreating = [
+    "Latin", "Rock", "Hip-Hop", "Electronic", "Pop", "Reggaeton", "Afrobeats",
+    "R&B", "House", "Techno", "Rap", "90er", "80er", "2000er",
+    "Heavy Metal", "Psychedelic", "Balkan"
+  ];
+
 
   static String mapStyles = '''
   [

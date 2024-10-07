@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomStyleClass{
 
@@ -36,6 +35,8 @@ class CustomStyleClass{
   double fontSize4 = 14;
   double fontSize5 = 12;
   double fontSize6 = 10;
+
+  double navigationArrowSize = 40;
 
 
   double getIconSize1(){

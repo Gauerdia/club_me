@@ -90,6 +90,7 @@ class _SettingsUserViewState extends State<SettingsUserView> {
         style: customStyleClass.getFontStyle4(),
       ),
       onPressed: () async {
+        Navigator.pop(context);
         // final Uri url = Uri.parse(clubMeEvent.getTicketLink());
         // if (!await launchUrl(url)) {
         //   throw Exception('Could not launch $url');
@@ -124,6 +125,7 @@ class _SettingsUserViewState extends State<SettingsUserView> {
         style: customStyleClass.getFontStyle4(),
       ),
       onPressed: () async {
+        Navigator.pop(context);
         // final Uri url = Uri.parse(clubMeEvent.getTicketLink());
         // if (!await launchUrl(url)) {
         //   throw Exception('Could not launch $url');
@@ -151,8 +153,6 @@ class _SettingsUserViewState extends State<SettingsUserView> {
         }
     );
   }
-
-
   void clickEventNotifications(){
     Widget okButton = TextButton(
       child: Text(
@@ -160,6 +160,7 @@ class _SettingsUserViewState extends State<SettingsUserView> {
         style: customStyleClass.getFontStyle4(),
       ),
       onPressed: () async {
+        Navigator.pop(context);
         // final Uri url = Uri.parse(clubMeEvent.getTicketLink());
         // if (!await launchUrl(url)) {
         //   throw Exception('Could not launch $url');
@@ -194,6 +195,7 @@ class _SettingsUserViewState extends State<SettingsUserView> {
         style: customStyleClass.getFontStyle4(),
       ),
       onPressed: () async {
+        Navigator.pop(context);
         // final Uri url = Uri.parse(clubMeEvent.getTicketLink());
         // if (!await launchUrl(url)) {
         //   throw Exception('Could not launch $url');
@@ -229,6 +231,7 @@ class _SettingsUserViewState extends State<SettingsUserView> {
         style: customStyleClass.getFontStyle4(),
       ),
       onPressed: () async {
+        Navigator.pop(context);
         // final Uri url = Uri.parse(clubMeEvent.getTicketLink());
         // if (!await launchUrl(url)) {
         //   throw Exception('Could not launch $url');

@@ -91,5 +91,14 @@
         <string>protonmail</string>
     </array>
 
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Microphone Access Required</string>
+    <key>NSMotionUsageDescription</key>
+    <string>Motion Usage Required</string>
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>Please allow access to photo library so you can easily upload your photos.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Please allow access to photo library so you can easily upload your photos.</string>
+
 </dict>
 </plist>

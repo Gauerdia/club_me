@@ -43,6 +43,8 @@ class _UserEventsViewState extends State<UserEventsView> {
 
   late String dropdownValue;
 
+  late String weekDayDropDownValue;
+
   late CustomStyleClass customStyleClass;
   late double screenHeight, screenWidth;
 
@@ -77,6 +79,7 @@ class _UserEventsViewState extends State<UserEventsView> {
     super.initState();
     requestStoragePermission();
     dropdownValue = Utils.genreListForFiltering.first;
+    weekDayDropDownValue = Utils.weekDaysForFiltering.first;
 
     final stateProvider = Provider.of<StateProvider>(context, listen: false);
     final userDataProvider = Provider.of<UserDataProvider>(context, listen:  false);
@@ -129,273 +132,7 @@ class _UserEventsViewState extends State<UserEventsView> {
   }
 
 
-  // GEO LOCATION
-
-  Future<Position> _determinePosition() async {
-
-    // Check if location services are enabled
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-
-      log.d("Error in _determinePosition: Location services are disabled.");
-
-      // Location services are not enabled return an error message
-      return Future.error('Location services are disabled.');
-
-    }
-
-    // Check location permissions
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-
-        log.d("Error in _determinePosition: Location permissions are denied.");
-
-        return Future.error('Location permissions are denied');
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      log.d("Error in _determinePosition: Location permissions are permanently denied, we cannot request permissions.");
-      return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
-    }
-
-    log.d("_determinePosition: No error. Returning Location.");
-
-    // If permissions are granted, return the current location
-    return await Geolocator.getCurrentPosition();
-  }
-  void setPositionLocallyAndInSupabase(Position value){
-
-    final userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
-
-    userDataProvider.setUserCoordinates(value);
-    _supabaseService.saveUsersGeoLocation(userDataProvider.getUserDataId(), value.latitude, value.longitude);
-  }
-
-
-  // FETCH
-
-  void getAllLikedEvents(StateProvider stateProvider) async{
-    try{
-      var likedEvents = await _hiveService.getFavoriteEvents();
-      currentAndLikedElementsProvider.setLikedEvents(likedEvents);
-    }catch(e){
-      _supabaseService.createErrorLog("getAllLikedEvents, getAllLikedEvents: $e");
-    }
-  }
-  void processEventsFromProvider(FetchedContentProvider fetchedContentProvider){
-
-    // Events in the provider ought to have all images fetched, already. So, we just sort.
-    eventsToDisplay = fetchedContentProvider.getFetchedEvents();
-    sortUpcomingEvents();
-    filterEvents(fetchedContentProvider);
-
-    setState(() {
-      processingComplete = true;
-    });
-
-    log.d("processEventsFromProvider: Successful");
-  }
-  void processEventsFromQuery(var data){
-
-
-
-    for(var element in data){
-
-      ClubMeEvent currentEvent = parseClubMeEvent(element);
-
-      if(checkIfUpcomingEvent(currentEvent)){
-        if(!fetchedContentProvider.getFetchedEvents().contains(currentEvent)){
-          fetchedContentProvider.addEventToFetchedEvents(currentEvent);
-          eventsToDisplay.add(currentEvent);
-        }
-      }
-    }
-
-    // Check if we need to download the corresponding images
-    _checkAndFetchService.checkAndFetchEventImages(
-        fetchedContentProvider.getFetchedEvents(),
-        stateProvider,
-        fetchedContentProvider
-    );
-
-    sortUpcomingEvents();
-    filterEvents(fetchedContentProvider);
-
-    setState(() {
-      processingComplete = true;
-    });
-
-    log.d("processEventsFromQuery: Successful");
-
-  }
-
-  // FILTER
-
-  void filterEvents(FetchedContentProvider fetchedContentProvider){
-
-    // Just set max at the very beginning
-    if(maxValueRangeSlider == 0){
-      for(var element in fetchedContentProvider.getFetchedEvents()){
-        if(maxValueRangeSlider == 0){
-          maxValueRangeSlider = element.getEventPrice();
-        }else{
-          if(element.getEventPrice() > maxValueRangeSlider){
-            maxValueRangeSlider = element.getEventPrice();
-          }
-        }
-      }
-      _currentRangeValues = RangeValues(0, maxValueRangeSlider);
-    }
-
-    // Check if any filter is applied
-    if(
-    _currentRangeValues.end != maxValueRangeSlider ||
-        _currentRangeValues.start != 0 ||
-        dropdownValue != Utils.genreListForFiltering[0] ||
-        searchValue != "" ||
-        onlyFavoritesIsActive
-    ){
-
-      // set for coloring
-      if(_currentRangeValues.end != maxValueRangeSlider ||
-          _currentRangeValues.start != 0 ||
-          dropdownValue != Utils.genreListForFiltering[0]){
-        isAnyFilterActive = true;
-      }else{
-        isAnyFilterActive = false;
-      }
-
-      // reset array
-      eventsToDisplay = [];
-
-      // Iterate through all available events
-      for(var event in fetchedContentProvider.getFetchedEvents()){
-
-        // when one criterium doesnt match, set to false
-        bool fitsCriteria = true;
-
-        // Search bar used? Then filter
-        if(searchValue != "") {
-          String allInformationLowerCase = "${event.getEventTitle()} ${event
-              .getClubName()} ${event.getDjName()} ${event.getEventDate()}"
-              .toLowerCase();
-          if (allInformationLowerCase.contains(
-              searchValue.toLowerCase())) {} else {
-            fitsCriteria = false;
-          }
-        }
-
-        // Price range changed? Filter
-        if((_currentRangeValues.start != 0 || _currentRangeValues.end != 30)
-            && (event.getEventPrice() < _currentRangeValues.start || event.getEventPrice() > _currentRangeValues.end)
-        ) fitsCriteria = false;
-
-        // music genre doenst match? filter
-        if(dropdownValue != Utils.genreListForFiltering[0] ){
-          if(!event.getMusicGenres().toLowerCase().contains(dropdownValue.toLowerCase())){
-            fitsCriteria = false;
-          }
-        }
-
-        if(onlyFavoritesIsActive){
-          if(!checkIfIsLiked(event)){
-            fitsCriteria = false;
-          }
-        }
-
-        // All filter passed? evaluate
-        if(fitsCriteria){
-          eventsToDisplay.add(event);
-        }
-      }
-
-      // Adjust the price slider
-      for(var element in eventsToDisplay){
-        if(maxValueRangeSliderToDisplay == 0){
-          maxValueRangeSliderToDisplay = element.getEventPrice();
-        }else{
-          if(element.getEventPrice() > maxValueRangeSliderToDisplay){
-            maxValueRangeSliderToDisplay = element.getEventPrice();
-          }
-        }
-      }
-
-    }else{
-      isAnyFilterActive = false;
-      eventsToDisplay = fetchedContentProvider.getFetchedEvents();
-    }
-  }
-  void sortUpcomingEvents(){
-
-    // First sort for date
-    // upcomingEvents.sort((a,b) =>
-    //     a.getEventDate().millisecondsSinceEpoch.compareTo(b.getEventDate().millisecondsSinceEpoch)
-    // );
-    //
-    // // Then go through the sorted array and sort for priority
-    //   upcomingEvents.sort((a,b){
-    //     var tempA = DateTime(a.getEventDate().year, a.getEventDate().month, a.getEventDate().day);
-    //     var tempB = DateTime(b.getEventDate().year, b.getEventDate().month, b.getEventDate().day);
-    //     bool cmp = tempB.isAfter(tempA);
-    //     if(cmp == true) return 0;
-    //     return b.getPriorityScore() > a.getPriorityScore() ?
-    //     1 :  0;
-    //   });
-  }
-  void filterForFavorites(){
-    setState(() {
-      onlyFavoritesIsActive = !onlyFavoritesIsActive;
-      filterEvents(fetchedContentProvider);
-    });
-  }
-
-
-  // Click/TOGGLE
-
-  void clickEventLike(StateProvider stateProvider, String eventId){
-    setState(() {
-      if(currentAndLikedElementsProvider.getLikedEvents().contains(eventId)){
-        currentAndLikedElementsProvider.deleteLikedEvent(eventId);
-        _hiveService.deleteFavoriteEvent(eventId);
-      }else{
-        currentAndLikedElementsProvider.addLikedEvent(eventId);
-        _hiveService.insertFavoriteEvent(eventId);
-      }
-    });
-  }
-  void clickEventShare(){
-    showDialog<String>(
-        context: context,
-        builder: (BuildContext context) =>
-        TitleAndContentDialog(
-            titleToDisplay: "Event teilen",
-            contentToDisplay: "Die Funktion, ein Event zu teilen, ist derzeit noch"
-                   "nicht implementiert. Wir bitten um Verständnis.")
-    );
-  }
-  void toggleIsSearchActive(){
-    setState(() {
-      isSearchActive = !isSearchActive;
-    });
-  }
-  void toggleIsAnyFilterActive(){
-    setState(() {
-      isAnyFilterActive = !isAnyFilterActive;
-    });
-  }
-  void toggleIsFilterMenuActive(){
-    setState(() {
-      isFilterMenuActive = !isFilterMenuActive;
-    });
-  }
-
-
   // BUILD
-
   AppBar _buildAppbar(){
 
     return isSearchActive ?
@@ -637,104 +374,157 @@ class _UserEventsViewState extends State<UserEventsView> {
 
             // Filter menu
             if(isFilterMenuActive)
-            Container(
-              height: screenHeight*0.14,
-              width: screenWidth,
-              color: customStyleClass.backgroundColorMain,
-              child: Row(
-                children: [
+              Container(
+                height: screenHeight*0.14,
+                width: screenWidth,
+                color: customStyleClass.backgroundColorMain,
+                child: Row(
+                  children: [
 
-                  // Preis
-                  SizedBox(
-                    width: screenWidth*0.5,
-                    child: Column(
-                      children: [
+                    // Preis
+                    SizedBox(
+                      width: screenWidth*0.33,
+                      child: Column(
+                        children: [
 
-                        // Spacer
-                        SizedBox(
-                          height: screenHeight*0.01,
-                        ),
-
-                        // Price
-                        Text(
-                          "Preis",
-                          style: customStyleClass.getFontStyle3(),
-                        ),
-
-                        RangeSlider(
-                          max: maxValueRangeSlider,
-                          divisions: 10,
-                          labels: RangeLabels(
-                            "0",
-                            _currentRangeValues.end.round().toString(),
+                          // Spacer
+                          SizedBox(
+                            height: screenHeight*0.01,
                           ),
-                          values: _currentRangeValues,
-                          onChanged: (RangeValues values) {
-                            setState(() {
-                              _currentRangeValues = values;
-                              filterEvents(fetchedContentProvider);
-                            });
-                          },
-                          activeColor: customStyleClass.primeColor,
-                          inactiveColor: customStyleClass.primeColor,
-                          overlayColor: WidgetStateProperty.all(customStyleClass.primeColorDark),
-                        )
-                      ],
+
+                          // Price
+                          Text(
+                            "Preis",
+                            style: customStyleClass.getFontStyle3(),
+                          ),
+
+                          RangeSlider(
+                            max: maxValueRangeSlider,
+                            divisions: 10,
+                            labels: RangeLabels(
+                              "0",
+                              _currentRangeValues.end.round().toString(),
+                            ),
+                            values: _currentRangeValues,
+                            onChanged: (RangeValues values) {
+                              setState(() {
+                                _currentRangeValues = values;
+                                filterEvents(fetchedContentProvider);
+                              });
+                            },
+                            activeColor: customStyleClass.primeColor,
+                            inactiveColor: customStyleClass.primeColor,
+                            overlayColor: WidgetStateProperty.all(customStyleClass.primeColorDark),
+                          )
+                        ],
+                      ),
                     ),
-                  ),
 
-                  // Genre filter
-                  SizedBox(
-                    width: screenWidth*0.5,
-                    child: Column(
-                      children: [
+                    SizedBox(
+                      width: screenWidth*0.33,
+                      child: Column(
+                        children: [
 
-                        // Spacer
-                        SizedBox(
-                          height: screenHeight*0.01,
-                        ),
-
-                        // Genre
-                        Text(
-                          "Musikrichtung",
-                          style: customStyleClass.getFontStyle3(),
-                        ),
-
-                        // Dropdown
-                        Theme(
-                          data: Theme.of(context).copyWith(
-                              canvasColor: customStyleClass.backgroundColorMain
+                          // Spacer
+                          SizedBox(
+                            height: screenHeight*0.01,
                           ),
-                          child: DropdownButton(
-                              value: dropdownValue,
-                              menuMaxHeight: 300,
-                              items: Utils.genreListForFiltering.map<DropdownMenuItem<String>>(
-                                      (String value) {
-                                    return DropdownMenuItem(
-                                      value: value,
-                                      child: Text(
-                                        value,
-                                        style: customStyleClass.getFontStyle4Grey2(),
-                                      ),
-                                    );
-                                  }
-                              ).toList(),
-                              onChanged: (String? value){
-                                setState(() {
-                                  dropdownValue = value!;
-                                  filterEvents(fetchedContentProvider);
-                                });
-                              }
+
+                          // Genre
+                          SizedBox(
+                            width: screenWidth*0.28,
+                            child: Text(
+                              "Wochentag",
+                              textAlign: TextAlign.left,
+                              style: customStyleClass.getFontStyle3(),
+                            ),
                           ),
-                        )
+
+                          // Dropdown
+                          Theme(
+                            data: Theme.of(context).copyWith(
+                                canvasColor: customStyleClass.backgroundColorMain
+                            ),
+                            child: DropdownButton(
+                                value: weekDayDropDownValue,
+                                menuMaxHeight: 300,
+                                items: Utils.weekDaysForFiltering.map<DropdownMenuItem<String>>(
+                                        (String value) {
+                                      return DropdownMenuItem(
+                                        value: value,
+                                        child: Text(
+                                          value,
+                                          style: customStyleClass.getFontStyle4Grey2(),
+                                        ),
+                                      );
+                                    }
+                                ).toList(),
+                                onChanged: (String? value){
+                                  setState(() {
+                                    weekDayDropDownValue = value!;
+                                    filterEvents(fetchedContentProvider);
+                                  });
+                                }
+                            ),
+                          )
 
 
-                      ],
+                        ],
+                      ),
                     ),
-                  )
-                ],
+
+                    // Genre filter
+                    SizedBox(
+                      width: screenWidth*0.33,
+                      child: Column(
+                        children: [
+
+                          // Spacer
+                          SizedBox(
+                            height: screenHeight*0.01,
+                          ),
+
+                          // Genre
+                          Text(
+                            "Musikrichtung",
+                            style: customStyleClass.getFontStyle3(),
+                          ),
+
+                          // Dropdown
+                          Theme(
+                            data: Theme.of(context).copyWith(
+                                canvasColor: customStyleClass.backgroundColorMain
+                            ),
+                            child: DropdownButton(
+                                value: dropdownValue,
+                                menuMaxHeight: 300,
+                                items: Utils.genreListForFiltering.map<DropdownMenuItem<String>>(
+                                        (String value) {
+                                      return DropdownMenuItem(
+                                        value: value,
+                                        child: Text(
+                                          value,
+                                          style: customStyleClass.getFontStyle4Grey2(),
+                                        ),
+                                      );
+                                    }
+                                ).toList(),
+                                onChanged: (String? value){
+                                  setState(() {
+                                    dropdownValue = value!;
+                                    filterEvents(fetchedContentProvider);
+                                  });
+                                }
+                            ),
+                          )
+
+
+                        ],
+                      ),
+                    )
+                  ],
+                ),
               ),
-            ),
           ],
         )
     );
@@ -760,6 +550,7 @@ class _UserEventsViewState extends State<UserEventsView> {
               isLiked: isLiked,
               clickEventLike: clickEventLike,
               clickEventShare: clickEventShare,
+              showMaterialButton: true,
             ),
             onTap: (){
               currentAndLikedElementsProvider.setCurrentEvent(eventsToDisplay[index]);
@@ -829,8 +620,262 @@ class _UserEventsViewState extends State<UserEventsView> {
     );
   }
 
-  // MISC
 
+  // GEO LOCATION
+  Future<Position> _determinePosition() async {
+
+    // Check if location services are enabled
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+
+      log.d("Error in _determinePosition: Location services are disabled.");
+
+      // Location services are not enabled return an error message
+      return Future.error('Location services are disabled.');
+
+    }
+
+    // Check location permissions
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+
+        log.d("Error in _determinePosition: Location permissions are denied.");
+
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      log.d("Error in _determinePosition: Location permissions are permanently denied, we cannot request permissions.");
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
+    log.d("_determinePosition: No error. Returning Location.");
+
+    // If permissions are granted, return the current location
+    return await Geolocator.getCurrentPosition();
+  }
+  void setPositionLocallyAndInSupabase(Position value){
+
+    final userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
+
+    userDataProvider.setUserCoordinates(value);
+    _supabaseService.saveUsersGeoLocation(userDataProvider.getUserDataId(), value.latitude, value.longitude);
+  }
+
+
+  // FETCH
+  void getAllLikedEvents(StateProvider stateProvider) async{
+    try{
+      var likedEvents = await _hiveService.getFavoriteEvents();
+      currentAndLikedElementsProvider.setLikedEvents(likedEvents);
+    }catch(e){
+      _supabaseService.createErrorLog("getAllLikedEvents, getAllLikedEvents: $e");
+    }
+  }
+  void processEventsFromProvider(FetchedContentProvider fetchedContentProvider){
+
+    // Events in the provider ought to have all images fetched, already. So, we just sort.
+    eventsToDisplay = fetchedContentProvider.getFetchedEvents();
+    filterEvents(fetchedContentProvider);
+
+    setState(() {
+      processingComplete = true;
+    });
+
+    log.d("processEventsFromProvider: Successful");
+  }
+  void processEventsFromQuery(var data){
+
+
+
+    for(var element in data){
+
+      ClubMeEvent currentEvent = parseClubMeEvent(element);
+
+      if(checkIfUpcomingEvent(currentEvent)){
+        if(!fetchedContentProvider.getFetchedEvents().contains(currentEvent)){
+          fetchedContentProvider.addEventToFetchedEvents(currentEvent);
+          eventsToDisplay.add(currentEvent);
+        }
+      }
+    }
+
+    // Check if we need to download the corresponding images
+    _checkAndFetchService.checkAndFetchEventImages(
+        fetchedContentProvider.getFetchedEvents(),
+        stateProvider,
+        fetchedContentProvider
+    );
+
+    filterEvents(fetchedContentProvider);
+
+    setState(() {
+      processingComplete = true;
+    });
+
+    log.d("processEventsFromQuery: Successful");
+
+  }
+
+
+  // FILTER
+  void filterEvents(FetchedContentProvider fetchedContentProvider){
+
+    // Just set max at the very beginning
+    if(maxValueRangeSlider == 0){
+      for(var element in fetchedContentProvider.getFetchedEvents()){
+        if(maxValueRangeSlider == 0){
+          maxValueRangeSlider = element.getEventPrice();
+        }else{
+          if(element.getEventPrice() > maxValueRangeSlider){
+            maxValueRangeSlider = element.getEventPrice();
+          }
+        }
+      }
+      _currentRangeValues = RangeValues(0, maxValueRangeSlider);
+    }
+
+    // Check if any filter is applied
+    if(
+    _currentRangeValues.end != maxValueRangeSlider ||
+        _currentRangeValues.start != 0 ||
+        dropdownValue != Utils.genreListForFiltering[0] ||
+        searchValue != "" ||
+        onlyFavoritesIsActive ||
+      weekDayDropDownValue != Utils.weekDaysForFiltering[0]
+    ){
+
+      // set for coloring
+      if(_currentRangeValues.end != maxValueRangeSlider ||
+          _currentRangeValues.start != 0 ||
+          dropdownValue != Utils.genreListForFiltering[0] ||
+        weekDayDropDownValue != Utils.weekDaysForFiltering[0]
+      ){
+        isAnyFilterActive = true;
+      }else{
+        isAnyFilterActive = false;
+      }
+
+      // reset array
+      eventsToDisplay = [];
+
+      // Iterate through all available events
+      for(var event in fetchedContentProvider.getFetchedEvents()){
+
+        // when one criterium doesnt match, set to false
+        bool fitsCriteria = true;
+
+        // Search bar used? Then filter
+        if(searchValue != "") {
+          String allInformationLowerCase = "${event.getEventTitle()} ${event
+              .getClubName()} ${event.getDjName()} ${event.getEventDate()}"
+              .toLowerCase();
+          if (allInformationLowerCase.contains(
+              searchValue.toLowerCase())) {} else {
+            fitsCriteria = false;
+          }
+        }
+
+        // Price range changed? Filter
+        if((_currentRangeValues.start != 0 || _currentRangeValues.end != 30)
+            && (event.getEventPrice() < _currentRangeValues.start || event.getEventPrice() > _currentRangeValues.end)
+        ) fitsCriteria = false;
+
+        // music genre doenst match? filter
+        if(dropdownValue != Utils.genreListForFiltering[0] ){
+          if(!event.getMusicGenres().toLowerCase().contains(dropdownValue.toLowerCase())){
+            fitsCriteria = false;
+          }
+        }
+
+        if(weekDayDropDownValue != Utils.weekDaysForFiltering[0]){
+          int currentEventDayIndex = event.getEventDate().weekday;
+          int chosenDayIndex = Utils.weekDaysForFiltering.indexWhere((element) => element == weekDayDropDownValue);
+          if(currentEventDayIndex != chosenDayIndex){
+            fitsCriteria = false;
+          }
+        }
+
+        if(onlyFavoritesIsActive){
+          if(!checkIfIsLiked(event)){
+            fitsCriteria = false;
+          }
+        }
+
+        // All filter passed? evaluate
+        if(fitsCriteria){
+          eventsToDisplay.add(event);
+        }
+      }
+
+      // Adjust the price slider
+      for(var element in eventsToDisplay){
+        if(maxValueRangeSliderToDisplay == 0){
+          maxValueRangeSliderToDisplay = element.getEventPrice();
+        }else{
+          if(element.getEventPrice() > maxValueRangeSliderToDisplay){
+            maxValueRangeSliderToDisplay = element.getEventPrice();
+          }
+        }
+      }
+
+    }else{
+      isAnyFilterActive = false;
+      eventsToDisplay = fetchedContentProvider.getFetchedEvents();
+    }
+  }
+  void filterForFavorites(){
+    setState(() {
+      onlyFavoritesIsActive = !onlyFavoritesIsActive;
+      filterEvents(fetchedContentProvider);
+    });
+  }
+
+
+  // Click/TOGGLE
+  void clickEventLike(StateProvider stateProvider, String eventId){
+    setState(() {
+      if(currentAndLikedElementsProvider.getLikedEvents().contains(eventId)){
+        currentAndLikedElementsProvider.deleteLikedEvent(eventId);
+        _hiveService.deleteFavoriteEvent(eventId);
+      }else{
+        currentAndLikedElementsProvider.addLikedEvent(eventId);
+        _hiveService.insertFavoriteEvent(eventId);
+      }
+    });
+  }
+  void clickEventShare(){
+    showDialog<String>(
+        context: context,
+        builder: (BuildContext context) =>
+        TitleAndContentDialog(
+            titleToDisplay: "Event teilen",
+            contentToDisplay: "Die Funktion, ein Event zu teilen, ist derzeit noch "
+                   "nicht implementiert. Wir bitten um Verständnis.")
+    );
+  }
+  void toggleIsSearchActive(){
+    setState(() {
+      isSearchActive = !isSearchActive;
+    });
+  }
+  void toggleIsAnyFilterActive(){
+    setState(() {
+      isAnyFilterActive = !isAnyFilterActive;
+    });
+  }
+  void toggleIsFilterMenuActive(){
+    setState(() {
+      isFilterMenuActive = !isFilterMenuActive;
+    });
+  }
+
+
+  // MISC
   void requestStoragePermission() async {
     // Check if the platform is not web, as web has no permissions
     if (!kIsWeb) {
@@ -881,10 +926,7 @@ class _UserEventsViewState extends State<UserEventsView> {
 
 
     return Scaffold(
-
-        // extendBody: true,
         extendBodyBehindAppBar: false,
-
         bottomNavigationBar: CustomBottomNavigationBar(),
         appBar: _buildAppbar(),
         body: _buildMainView()

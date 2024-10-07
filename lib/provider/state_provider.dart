@@ -48,8 +48,7 @@ class StateProvider extends ChangeNotifier{
 
   bool updatedLastLogInForNow = false;
 
-  // 0: user_events, 1: user_clubs, 2:club_details. 3: user_upcoming_events,
-  // 4: map,
+
   int accessedEventDetailFrom = 0;
 
   final SupabaseService _supabaseService = SupabaseService();
@@ -115,6 +114,11 @@ class StateProvider extends ChangeNotifier{
     notifyListeners();
   }
 
+  void removeDiscountTemplate(String id){
+    discountTemplates.removeWhere((element) => element.templateId == id);
+    notifyListeners();
+  }
+
   void setCurrentDiscountTemplate(ClubMeDiscountTemplate newClubMeDiscountTemplate){
     try{
       currentDiscountTemplate = newClubMeDiscountTemplate;
@@ -144,6 +148,11 @@ class StateProvider extends ChangeNotifier{
 
   void resetEventTemplates(){
     eventTemplates = [];
+  }
+
+  void removeEventTemplate(String id){
+    eventTemplates.removeWhere((element) => element.templateId == id);
+    notifyListeners();
   }
 
   void setClubMeEventTemplates(List<ClubMeEventTemplate> newClubMeEventTemplates){

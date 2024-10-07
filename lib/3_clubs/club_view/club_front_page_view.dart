@@ -279,7 +279,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
       height: screenWidth*0.25,
       decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: Colors.white,
+          color: Colors.black,
           border: Border.all(
               color: userDataProvider.getUserClubStoryId().isNotEmpty? customStyleClass.primeColor: Colors.grey,
               width: 2
@@ -545,7 +545,6 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
         // First row images
         Container(
           width: screenWidth*0.95,
-          // padding: EdgeInsets.only(left: screenWidth*0.05),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -627,7 +626,6 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
         // Second row images
         Container(
           width: screenWidth*0.95,
-          // padding: EdgeInsets.only(left: screenWidth*0.05),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -701,32 +699,6 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
         SizedBox(
           height: screenHeight*0.02,
         ),
-
-        // More button
-        // Not yet needed
-
-        // Container(
-        //     width: screenWidth*0.9,
-        //     alignment: Alignment.bottomRight,
-        //     child: GestureDetector(
-        //       child: Container(
-        //         padding: EdgeInsets.symmetric(
-        //             vertical: screenHeight*0.015,
-        //             horizontal: screenWidth*0.03
-        //         ),
-        //         decoration: const BoxDecoration(
-        //             color: Colors.black54,
-        //             borderRadius: BorderRadius.all(Radius.circular(10))
-        //         ),
-        //         child: Text(
-        //           mehrPhotosButtonString[0],
-        //           textAlign: TextAlign.center,
-        //           style: customStyleClass.getFontStyle4BoldPrimeColor(),
-        //         ),
-        //       ),
-        //       onTap: () => clickOnDiscoverMorePhotos(screenHeight, screenWidth),
-        //     )
-        // ),
 
         // Spacer
         SizedBox(
@@ -1081,12 +1053,17 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                 // width: screenWidth*0.35,
                 child: Column(
                   children: [
-                    SizedBox(
-                      width: screenWidth*0.2,
-                      height: screenWidth*0.2,
-                      child: Image.asset(
-                        'assets/images/google_maps_3.png',
+                    InkWell(
+                      child: SizedBox(
+                        width: screenWidth*0.2,
+                        height: screenWidth*0.2,
+                        child: Image.asset(
+                          'assets/images/google_maps_3.png',
+                        ),
                       ),
+                      onTap: ()=> MapUtils.openMap(
+                          userDataProvider.getUserClubCoordLat(),
+                            userDataProvider.getUserClubCoordLng()),
                     )
                   ],
                 ),
@@ -1869,6 +1846,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                             ),
 
                             Container(
+                              width: screenWidth*0.95,
                               padding: const EdgeInsets.only(
                                   top: 5,
                                   right: 5

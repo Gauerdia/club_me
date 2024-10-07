@@ -1,11 +1,9 @@
 import 'dart:io';
 import 'dart:ui';
 
-import 'package:camera/camera.dart';
 import 'package:crop_image/crop_image.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
@@ -42,6 +40,12 @@ class _UpdateFrontpageBannerImageViewState extends State<UpdateFrontpageBannerIm
   String headline = "Banner";
 
   var log = Logger();
+
+  @override
+  void initState() {
+    super.initState();
+    chooseLocalFile();
+  }
 
   late StateProvider stateProvider;
   late UserDataProvider userDataProvider;
@@ -284,13 +288,13 @@ class _UpdateFrontpageBannerImageViewState extends State<UpdateFrontpageBannerIm
                       vertical: 15
                     ),
                     decoration: BoxDecoration(
-                      border: Border.all(
-                        color: customStyleClass.primeColor
-                      )
+                      // border: Border.all(
+                      //   color: customStyleClass.primeColor
+                      // )
                     ),
                     width: screenWidth*0.5,
                     child: Text(
-                      "Bitte wähle ein Foto von deinem Smartphone aus",
+                      "Lädt...",
                       textAlign: TextAlign.center,
                       style: customStyleClass.getFontStyle3BoldPrimeColor(),
                     ),

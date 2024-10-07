@@ -105,10 +105,13 @@ class _ShowStoryChewieState extends State<ShowStoryChewie>
   AppBar _buildAppBar(){
     return AppBar(
       title: Container(
+        height: 40,
           width: screenWidth,
           child: Stack(
             children: [
-              Container(
+
+              SizedBox(
+                height: 40,
                 width: screenWidth,
                 child: Center(
                   child: Text(
@@ -120,6 +123,7 @@ class _ShowStoryChewieState extends State<ShowStoryChewie>
               ),
 
               Container(
+                height: 40,
                 alignment: Alignment.centerLeft,
                 width: screenWidth,
                 child: Text(

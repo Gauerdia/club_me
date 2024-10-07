@@ -111,21 +111,6 @@ class ClubCard extends StatelessWidget {
       _hiveService.insertFavoriteClub(clubId);
     }
   }
-  // void clickEventShare(BuildContext context){
-  //
-  // }
-  // void clickEventLike(StateProvider stateProvider, String clubId){
-  //   if(currentAndLikedElementsProvider.checkIfClubIsAlreadyLiked(clubId)){
-  //     currentAndLikedElementsProvider.deleteLikedClub(clubId);
-  //     _hiveService.deleteFavoriteClub(clubId);
-  //   }else{
-  //     currentAndLikedElementsProvider.addLikedClub(clubId);
-  //     _hiveService.insertFavoriteClub(clubId);
-  //   }
-  // }
-
-  // BUILD
-
 
   Widget _buildStackView(BuildContext context){
     return Stack(
@@ -411,7 +396,7 @@ class ClubCard extends StatelessWidget {
 
                         // Distance to club
                         calculateDistanceToClub() == 0 ?
-                        const CircularProgressIndicator():
+                        CircularProgressIndicator(color: customStyleClass.primeColor,):
                         Container(
                           padding: const EdgeInsets.symmetric(
                             // vertical: screenHeight*0.01,
@@ -490,9 +475,6 @@ class ClubCard extends StatelessWidget {
       ],
     );
   }
-
-
-  // CLICK + FORMAT
 
 
   String getAndFormatMusicGenre() {

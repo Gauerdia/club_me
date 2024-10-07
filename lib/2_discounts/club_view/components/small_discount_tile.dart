@@ -23,8 +23,6 @@ class SmallDiscountTile extends StatelessWidget {
 
     String weekDayToDisplay = "";
 
-    final exactlyOneWeekFromNowGermanTZ = stateProvider.getBerlinTime().add(const Duration(days: 7));
-
     var eventDateWeekday = clubMeDiscount.getDiscountDate().weekday;
     switch(eventDateWeekday){
       case(1): weekDayToDisplay = "Montag";
@@ -77,11 +75,17 @@ class SmallDiscountTile extends StatelessWidget {
                   child:
 
                   fetchedContentProvider.getFetchedBannerImageIds().contains(clubMeDiscount.getBigBannerFileName())?
+                  // Image.asset(
+                  //   "assets/images/free_eintritt_400x300.png",
+                  //   fit: BoxFit.cover,
+                  // )
                   Image(
                     image: FileImage(
                         File("${stateProvider.appDocumentsDir.path}/${clubMeDiscount.getBigBannerFileName()}")),
-                    fit: BoxFit.cover,
-                  ): SizedBox(
+                    // fit: BoxFit.cover,
+                  )
+
+                      : SizedBox(
                     height: screenHeight*0.1,
                     width: screenWidth*0.5,
                     child: Center(
@@ -196,7 +200,7 @@ class SmallDiscountTile extends StatelessWidget {
     return Container(
       padding: EdgeInsets.only(bottom: screenHeight*0.02),
       child: Card(
-        color: Color(0xff121111),
+        color: customStyleClass.backgroundColorEventTile,
         child: _buildMainColumn()
       ),
     );

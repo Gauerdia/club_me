@@ -10,7 +10,6 @@ class CoverImageCard extends StatelessWidget {
   late CustomStyleClass customStyleClass;
 
 
-
   @override
   Widget build(BuildContext context) {
 
@@ -37,24 +36,16 @@ class CoverImageCard extends StatelessWidget {
           // Image container
           SizedBox(
               height: screenHeight*0.35,
-              child: Stack(
-                children: [
-
-                  SizedBox(
-                    height: screenHeight*0.35,
-                    width: screenWidth,
-                    child: ClipRRect(
-                        borderRadius: const BorderRadius.only(
-                            topRight: Radius.circular(15),
-                            topLeft: Radius.circular(15)
-                        ),
-                        child: Image.asset(
-                          "assets/images/$fileName",
-                          fit: BoxFit.cover,
-                        )
-                    ),
+              width: screenWidth,
+              child: ClipRRect(
+                  borderRadius: const BorderRadius.only(
+                      topRight: Radius.circular(15),
+                      topLeft: Radius.circular(15)
+                  ),
+                  child: Image.asset(
+                    "assets/images/$fileName",
+                    fit: BoxFit.cover,
                   )
-                ],
               )
           ),
 
@@ -73,11 +64,6 @@ class CoverImageCard extends StatelessWidget {
                   ),
 
                 ),
-                child: Stack(
-                  children: [
-
-                  ],
-                )
             ),
           )
 

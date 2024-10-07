@@ -226,7 +226,7 @@ class _ClubEventsViewState extends State<ClubEventsView> {
           ),
         ),
 
-        // Show fetched discounts
+        // Show fetched events
         upcomingEvents.isNotEmpty
             ? Stack(
           children: [

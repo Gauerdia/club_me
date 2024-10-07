@@ -16,7 +16,7 @@ class SponsorsView extends StatefulWidget {
 class _SponsorsViewState extends State<SponsorsView>
     with TickerProviderStateMixin{
 
-  String headLine = "Kooperationen";
+  String headLine = "Kooperationspartner";
 
   late CustomStyleClass customStyleClass;
   late StateProvider stateProvider;
@@ -163,7 +163,10 @@ class _SponsorsViewState extends State<SponsorsView>
                           ),
                         ),
 
-                        SizedBox(
+                        Container(
+                          padding: EdgeInsets.only(
+                            top: 10
+                          ),
                           width: screenWidth*0.8,
                           height: screenHeight*0.2,
                           child: Row(
@@ -220,7 +223,7 @@ class _SponsorsViewState extends State<SponsorsView>
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 Text(
-                                  "Zum Online-shop",
+                                  "Zum Online-Shop",
                                   style: customStyleClass.getFontStyle3BoldPrimeColor(),
                                 ),
                                 Icon(

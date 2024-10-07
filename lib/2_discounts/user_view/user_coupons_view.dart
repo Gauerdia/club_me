@@ -62,6 +62,8 @@ class _UserCouponsViewState extends State<UserCouponsView>
 
   bool processingComplete = false;
 
+
+  // INIT
   @override
   void initState() {
     super.initState();
@@ -108,106 +110,7 @@ class _UserCouponsViewState extends State<UserCouponsView>
   }
 
 
-  void processDiscountsFromQuery(var data){
-
-    for(var element in data){
-
-      ClubMeDiscount currentDiscount = parseClubMeDiscount(element);
-
-      if(checkIfIsUpcomingDiscount(currentDiscount)){
-        if(!fetchedContentProvider.getFetchedDiscounts().contains(currentDiscount) &&
-           !checkIfAnyRestrictionsApply(currentDiscount)){
-          fetchedContentProvider.addDiscountToFetchedDiscounts(currentDiscount);
-        }
-      }
-    }
-
-    // Check if we need to download the corresponding images
-    _checkAndFetchService.checkAndFetchDiscountImages(
-        fetchedContentProvider.getFetchedDiscounts(),
-        stateProvider,
-        fetchedContentProvider
-    );
-
-
-  }
-  void processDiscountsFromProvider(FetchedContentProvider fetchedContentProvider){
-    // Events in the provider ought to have all images fetched, already. So, we just sort.
-    // checkDiscountsForRestrictions(fetchedContentProvider.getFetchedDiscounts());
-    setState(() {
-      processingComplete = true;
-    });
-  }
-  void processDiscountsFromHive(var data){
-
-    for(ClubMeLocalDiscount currentLocalDiscount in data){
-
-      ClubMeDiscount currentDiscount = localDiscountToDiscountParser(currentLocalDiscount);
-
-      // If the user didn't open the app for some time, some discounts might
-      // be expired. To check this, we get the current date
-      if(checkIfIsUpcomingDiscount(currentDiscount)){
-        if(!fetchedContentProvider.getFetchedDiscounts().contains(currentDiscount)){
-          fetchedContentProvider.addDiscountToFetchedDiscounts(currentDiscount);
-          discountsToDisplay.add(currentDiscount);
-        }
-      }else{
-        // Cleanse, if not applicable anymore
-        _hiveService.deleteLocalDiscount(currentDiscount.discountId);
-      }
-
-    }
-
-    // Check if we need to download the corresponding images
-    _checkAndFetchService.checkAndFetchDiscountImages(
-        fetchedContentProvider.getFetchedDiscounts(),
-        stateProvider,
-        fetchedContentProvider
-    );
-
-    setState(() {
-      processingComplete = true;
-    });
-
-  }
-
-
-
-
-  // CLICKED
-  toggleIsSearchActive(){
-    setState(() {
-      isSearchActive = !isSearchActive;
-    });
-  }
-  void clickEventShare(){
-    showDialog<String>(
-        context: context,
-        builder: (BuildContext context) =>
-            TitleAndContentDialog(
-                titleToDisplay: "Event teilen",
-                contentToDisplay: "Die Funktion, ein Event zu teilen, ist derzeit noch"
-                    "nicht implementiert. Wir bitten um Verständnis.")
-    );
-  }
-  void clickEventLike(String discountId){
-    setState(() {
-      if(currentAndLikedElementsProvider.getLikedDiscounts().contains(discountId)){
-        currentAndLikedElementsProvider.deleteLikedDiscount(discountId);
-        _hiveService.deleteFavoriteDiscount(discountId);
-      }else{
-        currentAndLikedElementsProvider.addLikedDiscount(discountId);
-        _hiveService.insertFavoriteDiscount(discountId);
-      }
-    });
-  }
-
-
-  // FETCH AND BUILD
-  void getAllLikedDiscounts() async{
-    var likedEvents = await _hiveService.getFavoriteDiscounts();
-    currentAndLikedElementsProvider.setLikedDiscounts(likedEvents);
-  }
+  // BUILD
   Widget _buildSwipeView(){
 
     // If the provider has fetched elements so that the main function in _buildSupabaseDiscounts
@@ -260,7 +163,6 @@ class _UserCouponsViewState extends State<UserCouponsView>
       },
     );
   }
-
   AppBar _buildAppBarWithSearch(){
     return AppBar(
       backgroundColor: customStyleClass.backgroundColorMain,
@@ -280,11 +182,11 @@ class _UserCouponsViewState extends State<UserCouponsView>
             borderSide: BorderSide(color: customStyleClass.primeColor),
           ),
           hintStyle: TextStyle(
-            color: customStyleClass.primeColor
+              color: customStyleClass.primeColor
           ),
         ),
         style: const TextStyle(
-          color: Colors.white
+            color: Colors.white
         ),
         cursorColor: customStyleClass.primeColor,
       ),
@@ -443,6 +345,108 @@ class _UserCouponsViewState extends State<UserCouponsView>
     // );
   }
 
+
+  // PROCESS
+  void processDiscountsFromQuery(var data){
+
+    for(var element in data){
+
+      ClubMeDiscount currentDiscount = parseClubMeDiscount(element);
+
+      if(checkIfIsUpcomingDiscount(currentDiscount)){
+        if(!fetchedContentProvider.getFetchedDiscounts().contains(currentDiscount) &&
+           !checkIfAnyRestrictionsApply(currentDiscount)){
+          fetchedContentProvider.addDiscountToFetchedDiscounts(currentDiscount);
+        }
+      }
+    }
+
+    // Check if we need to download the corresponding images
+    _checkAndFetchService.checkAndFetchDiscountImages(
+        fetchedContentProvider.getFetchedDiscounts(),
+        stateProvider,
+        fetchedContentProvider
+    );
+
+
+  }
+  void processDiscountsFromProvider(FetchedContentProvider fetchedContentProvider){
+    // Events in the provider ought to have all images fetched, already. So, we just sort.
+    // checkDiscountsForRestrictions(fetchedContentProvider.getFetchedDiscounts());
+    setState(() {
+      processingComplete = true;
+    });
+  }
+  void processDiscountsFromHive(var data){
+
+    for(ClubMeLocalDiscount currentLocalDiscount in data){
+
+      ClubMeDiscount currentDiscount = localDiscountToDiscountParser(currentLocalDiscount);
+
+      // If the user didn't open the app for some time, some discounts might
+      // be expired. To check this, we get the current date
+      if(checkIfIsUpcomingDiscount(currentDiscount)){
+        if(!fetchedContentProvider.getFetchedDiscounts().contains(currentDiscount)){
+          fetchedContentProvider.addDiscountToFetchedDiscounts(currentDiscount);
+          discountsToDisplay.add(currentDiscount);
+        }
+      }else{
+        // Cleanse, if not applicable anymore
+        _hiveService.deleteLocalDiscount(currentDiscount.discountId);
+      }
+
+    }
+
+    // Check if we need to download the corresponding images
+    _checkAndFetchService.checkAndFetchDiscountImages(
+        fetchedContentProvider.getFetchedDiscounts(),
+        stateProvider,
+        fetchedContentProvider
+    );
+
+    setState(() {
+      processingComplete = true;
+    });
+
+  }
+
+
+  // CLICKED
+  toggleIsSearchActive(){
+    setState(() {
+      isSearchActive = !isSearchActive;
+    });
+  }
+  void clickEventShare(){
+    showDialog<String>(
+        context: context,
+        builder: (BuildContext context) =>
+            TitleAndContentDialog(
+                titleToDisplay: "Event teilen",
+                contentToDisplay: "Die Funktion, ein Event zu teilen, ist derzeit noch "
+                    "nicht implementiert. Wir bitten um Verständnis.")
+    );
+  }
+  void clickEventLike(String discountId){
+    setState(() {
+      if(currentAndLikedElementsProvider.getLikedDiscounts().contains(discountId)){
+        currentAndLikedElementsProvider.deleteLikedDiscount(discountId);
+        _hiveService.deleteFavoriteDiscount(discountId);
+      }else{
+        currentAndLikedElementsProvider.addLikedDiscount(discountId);
+        _hiveService.insertFavoriteDiscount(discountId);
+      }
+    });
+  }
+
+
+  // FETCH AND BUILD
+  void getAllLikedDiscounts() async{
+    var likedEvents = await _hiveService.getFavoriteDiscounts();
+    currentAndLikedElementsProvider.setLikedDiscounts(likedEvents);
+  }
+
+
   // FILTER
   void filterDiscounts(){
 
@@ -519,7 +523,7 @@ class _UserCouponsViewState extends State<UserCouponsView>
   }
 
 
-
+  // MISC
   void _handlePageViewChanged(int currentPageIndex) {
     _tabController.index = currentPageIndex;
     setState(() {
@@ -529,7 +533,6 @@ class _UserCouponsViewState extends State<UserCouponsView>
 
 
   // CHECK
-
   bool checkIfIsLiked(ClubMeDiscount currentDiscount) {
     var isLiked = false;
     if (currentAndLikedElementsProvider.getLikedDiscounts().contains(
@@ -592,7 +595,6 @@ class _UserCouponsViewState extends State<UserCouponsView>
 
       return false;
   }
-
   bool checkIfIsUpcomingDiscount(ClubMeDiscount currentDiscount){
 
     // We are only interested in the upcoming events. Here, we sort for them
@@ -602,6 +604,7 @@ class _UserCouponsViewState extends State<UserCouponsView>
     }
     return false;
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -647,17 +650,16 @@ class _UserCouponsViewState extends State<UserCouponsView>
                   children: [
                     Icon(
                       Icons.keyboard_arrow_left_sharp,
-                      size: 50,
+                      size: customStyleClass.navigationArrowSize,
                       color: _currentPageIndex > 0 ? customStyleClass.primeColor : Colors.grey,
                     ),
                     Icon(
                       Icons.keyboard_arrow_right_sharp,
-                      size: 50,
+                      size: customStyleClass.navigationArrowSize,
                       color: _currentPageIndex < (discountsToDisplay.length-1) ? customStyleClass.primeColor : Colors.grey,
                     ),
                   ],
                 ),
-
             ],
           )
         )

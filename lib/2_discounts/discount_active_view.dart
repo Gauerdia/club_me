@@ -54,50 +54,6 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
     super.dispose();
   }
 
-  // MISC
-  void startTimer() async{
-
-    const oneSec = Duration(seconds: 1);
-    _timer = Timer.periodic(
-      oneSec,
-          (Timer timer) async {
-        if (_start <= 0) {
-          setState(() {
-            _start = 0;
-            timer.cancel();
-            markDiscountAsRedeemed();
-            context.go('/user_coupons');
-            // Todo: lock the code
-          });
-        } else {
-          setState(() {
-            _start--;
-          });
-        }
-      },
-    );
-  }
-  void markDiscountAsRedeemed(){
-    /// TODO: IMPLEMENT FOR LAUNCH
-  }
-  String formatClock(){
-
-    String hour = stateProvider.getBerlinTime().hour.toString();
-    String minute = stateProvider.getBerlinTime().minute.toString();
-    String second = stateProvider.getBerlinTime().second.toString();
-
-    if(hour.length == 1){
-      hour = "0$hour";
-    }
-    if(minute.length == 1){
-      minute = "0$minute";
-    }
-    if(second.length == 1){
-      second = "0$second";
-    }
-
-    return "$hour:$minute";
-  }
 
   // BUILD
   AppBar _buildAppBar(){
@@ -148,7 +104,6 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
       )
     );
   }
-
   Widget _buildBody(double screenWidth, double screenHeight) {
 
     customStyleClass = CustomStyleClass(context: context);
@@ -236,6 +191,52 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
         ],
       ),
     );
+  }
+
+
+  // MISC
+  void startTimer() async{
+
+    const oneSec = Duration(seconds: 1);
+    _timer = Timer.periodic(
+      oneSec,
+          (Timer timer) async {
+        if (_start <= 0) {
+          setState(() {
+            _start = 0;
+            timer.cancel();
+            markDiscountAsRedeemed();
+            context.go('/user_coupons');
+            // Todo: lock the code
+          });
+        } else {
+          setState(() {
+            _start--;
+          });
+        }
+      },
+    );
+  }
+  void markDiscountAsRedeemed(){
+    /// TODO: IMPLEMENT FOR LAUNCH
+  }
+  String formatClock(){
+
+    String hour = stateProvider.getBerlinTime().hour.toString();
+    String minute = stateProvider.getBerlinTime().minute.toString();
+    String second = stateProvider.getBerlinTime().second.toString();
+
+    if(hour.length == 1){
+      hour = "0$hour";
+    }
+    if(minute.length == 1){
+      minute = "0$minute";
+    }
+    if(second.length == 1){
+      second = "0$second";
+    }
+
+    return "$hour:$minute";
   }
 
 

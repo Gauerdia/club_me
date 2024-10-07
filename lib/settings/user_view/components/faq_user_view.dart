@@ -22,8 +22,6 @@ class _FaqUserViewState extends State<FaqUserView> {
   late FetchedContentProvider fetchedContentProvider;
   late double screenHeight, screenWidth;
 
-  final HiveService _hiveService = HiveService();
-
   late CustomStyleClass customStyleClass;
 
 
@@ -236,7 +234,11 @@ class _FaqUserViewState extends State<FaqUserView> {
                     ),
 
                     for(var element in widgetsToDisplay)
-                      element
+                      element,
+
+                    SizedBox(
+                      height: screenHeight*0.05,
+                    )
 
 
                   ],

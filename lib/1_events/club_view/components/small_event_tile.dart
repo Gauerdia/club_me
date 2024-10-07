@@ -12,19 +12,17 @@ class SmallEventTile extends StatelessWidget {
   SmallEventTile({Key? key, required this.clubMeEvent}) : super(key: key);
 
   ClubMeEvent clubMeEvent;
+
+  late CustomStyleClass customStyleClass;
+
   late StateProvider stateProvider;
   late FetchedContentProvider fetchedContentProvider;
-  late CustomStyleClass customStyleClass;
+
   late String formattedWeekday, formattedEventTitle, formattedDjName;
 
   void formatWeekday(){
 
     String weekDayToDisplay = "";
-
-    // Get current time for germany
-    // final berlin = tz.getLocation('Europe/Berlin');
-    // final todayGermanTZ = tz.TZDateTime.from(DateTime.now(), berlin);
-    final exactlyOneWeekFromNowGermanTZ = stateProvider.getBerlinTime().add(const Duration(days: 7));
 
     weekDayToDisplay = DateFormat('dd.MM.yyyy').format(clubMeEvent.getEventDate());
 
@@ -60,23 +58,14 @@ class SmallEventTile extends StatelessWidget {
   }
   void formatEventTitle(){
 
+    // Before, I cut the length to avoid overflow. Now, we have an input limit and that seems to suffice.
     formattedEventTitle = clubMeEvent.getEventTitle();
 
-    // if(clubMeEvent.getEventTitle().length >= 22){
-    //   formattedEventTitle = "${clubMeEvent.getEventTitle().substring(0, 21)}...";
-    // }else{
-    //   formattedEventTitle = clubMeEvent.getEventTitle().substring(0, clubMeEvent.getEventTitle().length);
-    // }
   }
   void formatDjName(){
 
+    // Before, I cut the length to avoid overflow. Now, we have an input limit and that seems to suffice.
     formattedDjName = clubMeEvent.getDjName();
-
-    // if(clubMeEvent.getDjName().length >= 22){
-    //   formattedDjName = "${clubMeEvent.getDjName().substring(0, 21)}...";
-    // }else{
-    //   formattedDjName = clubMeEvent.getDjName().substring(0, clubMeEvent.getDjName().length);
-    // }
   }
 
   @override
@@ -161,7 +150,7 @@ class SmallEventTile extends StatelessWidget {
                     Column(
                       children: [
 
-                        // Title
+                        //  TITLE
                         Padding(
                           padding: const EdgeInsets.only(
                               top: 10,
@@ -175,7 +164,8 @@ class SmallEventTile extends StatelessWidget {
                             ),
                           ),
                         ),
-                        // Aufgerufen
+
+                        // DJ NAME
                         Padding(
                           padding: const EdgeInsets.only(
                               top: 3,
@@ -192,7 +182,7 @@ class SmallEventTile extends StatelessWidget {
                       ],
                     ),
 
-                    // Date
+                    // WEEKDAY
                     Padding(
                       padding: const EdgeInsets.only(
                           left: 10,

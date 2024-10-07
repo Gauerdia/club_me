@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 import 'package:uuid/uuid.dart';
@@ -52,6 +53,27 @@ class _RegisterViewState extends State<RegisterView> {
 
   double distanceBetweenTitleAndTextField = 10;
 
+  static const List<String> scopes = <String>[
+    'email',
+    'https://www.googleapis.com/auth/contacts.readonly',
+  ];
+
+  GoogleSignIn _googleSignIn = GoogleSignIn(
+    // Optional clientId
+    // clientId: 'your-client_id.apps.googleusercontent.com',
+    scopes: scopes,
+  );
+
+  Future<void> _handleSignIn() async {
+    Navigator.pop(context);
+    // try {
+    //   await _googleSignIn.signIn();
+    // } catch (error) {
+    //   print(error);
+    // }
+  }
+
+
   // INIT
 
 
@@ -98,8 +120,7 @@ class _RegisterViewState extends State<RegisterView> {
         "OK",
         style: customStyleClass.getFontStyle4(),
       ),
-      onPressed: () async {
-      },
+      onPressed: () => _handleSignIn(),
     );
 
     showDialog(

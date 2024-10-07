@@ -1,8 +1,8 @@
 import 'dart:io';
+import 'package:club_me/shared/dialogs/TitleAndContentDialog.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logger/logger.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import '../../models/event.dart';
 import '../../provider/current_and_liked_elements_provider.dart';
@@ -10,7 +10,6 @@ import '../../provider/fetched_content_provider.dart';
 import '../../provider/state_provider.dart';
 import '../../provider/user_data_provider.dart';
 import '../../services/hive_service.dart';
-import '../../services/supabase_service.dart';
 import '../../shared/custom_bottom_navigation_bar_clubs.dart';
 import '../../shared/custom_text_style.dart';
 import 'package:intl/intl.dart';
@@ -55,10 +54,6 @@ class _ClubPastEventsViewState extends State<ClubPastEventsView> {
   RangeValues _currentRangeValues = const RangeValues(0, 30);
 
   final HiveService _hiveService = HiveService();
-  final SupabaseService _supabaseService = SupabaseService();
-  final TextEditingController _textEditingController = TextEditingController();
-
-
 
 
   @override
@@ -67,56 +62,155 @@ class _ClubPastEventsViewState extends State<ClubPastEventsView> {
     dropdownValue = genresDropdownList.first;
   }
 
-  void setApplicationDirectory() async {
-    appDocumentsDir = await getApplicationDocumentsDirectory();
-  }
-
   // BUILD
-  Widget _buildAppBarShowTitle(){
-    return SizedBox(
-      width: screenWidth,
-      child: Stack(
-        children: [
-          // Headline
-          Container(
-              alignment: Alignment.bottomCenter,
-              height: 50,
-              width: screenWidth,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(headLine,
-                      textAlign: TextAlign.center,
-                      style: customStyleClass.getFontStyleHeadline1Bold()
-                  ),
-                ],
-              )
-          ),
+  AppBar _buildAppBar(){
 
-          // back icon
-          Container(
+    return AppBar(
+        surfaceTintColor: customStyleClass.backgroundColorMain,
+        automaticallyImplyLeading: false,
+        backgroundColor: customStyleClass.backgroundColorMain,
+        title: SizedBox(
+          width: screenWidth,
+          child: Stack(
+            children: [
+              // Headline
+              Container(
+                  alignment: Alignment.bottomCenter,
+                  height: 50,
+                  width: screenWidth,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(headLine,
+                          textAlign: TextAlign.center,
+                          style: customStyleClass.getFontStyleHeadline1Bold()
+                      ),
+                    ],
+                  )
+              ),
+
+              // back icon
+              Container(
+                  width: screenWidth,
+                  alignment: Alignment.centerLeft,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        onPressed: () => context.go("/club_events"),
+                        icon: const Icon(
+                          Icons.arrow_back_ios_new_outlined,
+                          color: Colors.grey,
+                          // size: 20,
+                        ),
+                      )
+                    ],
+                  )
+              ),
+
+            ],
+          ),
+        )
+    );
+  }
+  Widget _buildMainView(){
+    return SizedBox(
+        width: screenWidth,
+        height: screenHeight,
+        child: Stack(
+          children: [
+
+            // main view
+            SingleChildScrollView(
+                physics: const ScrollPhysics(),
+                child: Column(
+                  children: [
+
+                    _buildListView(stateProvider, screenHeight),
+
+                    // Spacer
+                    SizedBox(height: screenHeight*0.1,),
+                  ],
+                )
+            ),
+
+            // Filter menu
+            isFilterMenuActive?Container(
+              height: screenHeight*0.14,
               width: screenWidth,
-              alignment: Alignment.centerLeft,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
+              color: const Color(0xff2b353d),
+              child: Row(
                 children: [
-                  IconButton(
-                    onPressed: () => context.go("/club_events"),
-                    icon: const Icon(
-                      Icons.arrow_back_ios_new_outlined,
-                      color: Colors.grey,
-                      // size: 20,
+                  SizedBox(
+                    width: screenWidth*0.5,
+                    child: Column(
+                      children: [
+
+                        SizedBox(
+                          height: screenHeight*0.01,
+                        ),
+
+                        const Text(
+                            "Preis"
+                        ),
+
+                        RangeSlider(
+                            max: 30,
+                            divisions: 10,
+                            labels: RangeLabels(
+                              _currentRangeValues.start.round().toString(),
+                              _currentRangeValues.end.round().toString(),
+                            ),
+                            values: _currentRangeValues,
+                            onChanged: (RangeValues values) {
+                              setState(() {
+                                _currentRangeValues = values;
+                              });
+                            }
+                        )
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    width: screenWidth*0.5,
+                    child: Column(
+                      children: [
+
+                        SizedBox(
+                          height: screenHeight*0.01,
+                        ),
+
+                        const Text(
+                            "Genre"
+                        ),
+
+                        DropdownButton(
+                            value: dropdownValue,
+                            items: genresDropdownList.map<DropdownMenuItem<String>>(
+                                    (String value) {
+                                  return DropdownMenuItem(value: value,child: Text(value));
+                                }
+                            ).toList(),
+                            onChanged: (String? value){
+                              setState(() {
+                                dropdownValue = value!;
+                                filterEvents();
+                              });
+                            }
+                        )
+
+
+                      ],
                     ),
                   )
                 ],
-              )
-          ),
-
-        ],
-      ),
+              ),
+            ):Container()
+          ],
+        )
     );
   }
-  Widget _buildView(StateProvider stateProvider, double screenHeight){
+  Widget _buildListView(StateProvider stateProvider, double screenHeight){
 
     // get today in correct format to check which events are upcoming
     var todayRaw = DateTime.now();
@@ -151,8 +245,8 @@ class _ClubPastEventsViewState extends State<ClubPastEventsView> {
             child: EventTile(
                 clubMeEvent: currentEvent,
                 isLiked: isLiked,
-                clickEventLike: clickedOnLike,
-                clickEventShare: clickedOnShare,
+                clickEventLike: clickEventLike,
+                clickEventShare: clickEventShare,
               showMaterialButton: false,
             ),
             onTap: (){
@@ -186,7 +280,7 @@ class _ClubPastEventsViewState extends State<ClubPastEventsView> {
       // Iterate through all available events
       for(var event in upcomingDbEvents){
 
-        // when one criterium doesnt match, set to false
+        // If one criterium doesnt match, set to false
         bool fitsCriteria = true;
 
         // Search bar used? Then filter
@@ -225,17 +319,14 @@ class _ClubPastEventsViewState extends State<ClubPastEventsView> {
 
 
   // CLICK
-  void clickedOnShare(){
+  void clickEventShare(){
     showDialog<String>(
         context: context,
-        builder: (BuildContext context) => const AlertDialog(
-            title: Text("Teilen noch nicht möglich!"),
-            content: Text("Die Funktion, ein Event zu teilen, ist derzeit noch"
-                "nicht implementiert. Wir bitten um Verständnis.")
-        )
-    );
+        builder: (BuildContext context) => TitleAndContentDialog(
+            titleToDisplay: "Event teilen", contentToDisplay: "Die Funktion, ein Event zu teilen, ist derzeit noch"
+            "nicht implementiert. Wir bitten um Verständnis."));
   }
-  void clickedOnLike(StateProvider stateProvider, String eventId){
+  void clickEventLike(StateProvider stateProvider, String eventId){
     setState(() {
       if(currentAndLikedElementsProvider.getLikedEvents().contains(eventId)){
         currentAndLikedElementsProvider.deleteLikedEvent(eventId);
@@ -265,119 +356,8 @@ class _ClubPastEventsViewState extends State<ClubPastEventsView> {
         extendBody: true,
 
         bottomNavigationBar: CustomBottomNavigationBarClubs(),
-        appBar: AppBar(
-            surfaceTintColor: customStyleClass.backgroundColorMain,
-            automaticallyImplyLeading: false,
-            backgroundColor: customStyleClass.backgroundColorMain,
-            title: _buildAppBarShowTitle()
-        ),
-        body: Container(
-            width: screenWidth,
-            height: screenHeight,
-            // decoration: const BoxDecoration(
-            //   gradient: LinearGradient(
-            //       begin: Alignment.topLeft,
-            //       end: Alignment.bottomRight,
-            //       colors: [
-            //         // Color(0xff11181f),
-            //         Color(0xff2b353d),
-            //         Color(0xff11181f)
-            //       ],
-            //       stops: [0.15, 0.6]
-            //   ),
-            // ),
-            child: Stack(
-              children: [
-
-                // main view
-                SingleChildScrollView(
-                    physics: const ScrollPhysics(),
-                    child: Column(
-                      children: [
-
-                        _buildView(stateProvider, screenHeight),
-
-                        // Spacer
-                        SizedBox(height: screenHeight*0.1,),
-                      ],
-                    )
-                ),
-
-                // Filter menu
-                isFilterMenuActive?Container(
-                  height: screenHeight*0.14,
-                  width: screenWidth,
-                  color: const Color(0xff2b353d),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: screenWidth*0.5,
-                        child: Column(
-                          children: [
-
-                            SizedBox(
-                              height: screenHeight*0.01,
-                            ),
-
-                            Text(
-                                "Preis"
-                            ),
-
-                            RangeSlider(
-                                max: 30,
-                                divisions: 10,
-                                labels: RangeLabels(
-                                  _currentRangeValues.start.round().toString(),
-                                  _currentRangeValues.end.round().toString(),
-                                ),
-                                values: _currentRangeValues,
-                                onChanged: (RangeValues values) {
-                                  setState(() {
-                                    _currentRangeValues = values;
-                                  });
-                                }
-                            )
-                          ],
-                        ),
-                      ),
-                      Container(
-                        width: screenWidth*0.5,
-                        child: Column(
-                          children: [
-
-                            SizedBox(
-                              height: screenHeight*0.01,
-                            ),
-
-                            Text(
-                                "Genre"
-                            ),
-
-                            DropdownButton(
-                                value: dropdownValue,
-                                items: genresDropdownList.map<DropdownMenuItem<String>>(
-                                        (String value) {
-                                      return DropdownMenuItem(value: value,child: Text(value));
-                                    }
-                                ).toList(),
-                                onChanged: (String? value){
-                                  setState(() {
-                                    dropdownValue = value!;
-                                    filterEvents();
-                                  });
-                                }
-                            )
-
-
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                ):Container()
-              ],
-            )
-        )
+        appBar: _buildAppBar(),
+        body: _buildMainView()
     );
   }
 }

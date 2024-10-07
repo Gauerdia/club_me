@@ -20,7 +20,6 @@ class _ClubChooseDiscountTemplateViewState extends State<ClubChooseDiscountTempl
 
   String headLine = "Vorlagen";
 
-  final SupabaseService _supabaseService = SupabaseService();
   late StateProvider stateProvider;
   late CustomStyleClass customStyleClass;
   late double screenHeight, screenWidth;
@@ -43,7 +42,7 @@ class _ClubChooseDiscountTemplateViewState extends State<ClubChooseDiscountTempl
                     Icons.arrow_back_ios,
                     color: Colors.white,
                   ),
-                  onPressed: () => clickedOnAbort()
+                  onPressed: () => clickEventClose()
               ),
             ),
 
@@ -64,8 +63,64 @@ class _ClubChooseDiscountTemplateViewState extends State<ClubChooseDiscountTempl
         )
     );
   }
+  Widget _buildMainView(){
+    return Container(
+        width: screenWidth,
+        height: screenHeight,
+        color: customStyleClass.backgroundColorMain,
+        child: SingleChildScrollView(
+            child: Column(
+              children: [
+                for(var discountTemplate in stateProvider.getDiscountTemplates())
+                  GestureDetector(
+                    child: Container(
+                      padding: const EdgeInsets.only(
+                          top: 10
+                      ),
+                      child: Card(
+                        color: customStyleClass.backgroundColorEventTile,
+                        child: Column(
+                          children: [
+                            Container(
+                              width: screenWidth*0.9,
+                              child: ListTile(
+                                shape: RoundedRectangleBorder(
+                                  side: const BorderSide(color: Colors.grey, width: 1),
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                title: Text(
+                                  discountTemplate.getDiscountTitle(),
+                                  style: customStyleClass.getFontStyle3(),
+                                ),
+                                trailing: Wrap(
+                                  children: [
+                                    InkWell(
+                                      child: Icon(
+                                        Icons.delete,
+                                        color: customStyleClass.primeColor,
+                                      ),
+                                      onTap: () => deleteDiscountTemplate(discountTemplate.getTemplateId()),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                    onTap: (){
+                      stateProvider.setCurrentDiscountTemplate(discountTemplate);
+                      context.go("/club_new_discount");
+                    },
+                  )
+              ],
+            )
+        )
+    );
+  }
 
-  void clickedOnAbort(){
+  void clickEventClose(){
     Navigator.pop(context);
   }
 
@@ -98,10 +153,8 @@ class _ClubChooseDiscountTemplateViewState extends State<ClubChooseDiscountTempl
   }
 
   void afterSuccessfulDeletion(String templateId){
-    setState(() {
-      stateProvider.resetDiscountTemplates();
+      stateProvider.removeDiscountTemplate(templateId);
       Navigator.pop(context);
-    });
   }
 
   @override
@@ -120,60 +173,7 @@ class _ClubChooseDiscountTemplateViewState extends State<ClubChooseDiscountTempl
 
         bottomNavigationBar: CustomBottomNavigationBarClubs(),
         appBar: _buildAppBar(),
-        body: Container(
-            width: screenWidth,
-            height: screenHeight,
-            color: customStyleClass.backgroundColorMain,
-            child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    for(var discountTemplate in stateProvider.getDiscountTemplates())
-                      GestureDetector(
-                        child: Container(
-                          padding: const EdgeInsets.only(
-                              top: 10
-                          ),
-                          child: Card(
-                            color: customStyleClass.backgroundColorEventTile,
-                            child: Column(
-                              children: [
-                                Container(
-                                  width: screenWidth*0.9,
-                                  child: ListTile(
-                                    shape: RoundedRectangleBorder(
-                                      side: const BorderSide(color: Colors.grey, width: 1),
-                                      borderRadius: BorderRadius.circular(5),
-                                    ),
-                                    title: Text(
-                                      discountTemplate.getDiscountTitle(),
-                                      style: customStyleClass.getFontStyle3(),
-                                    ),
-                                    trailing: Wrap(
-                                      children: [
-                                        InkWell(
-                                          child: Icon(
-                                            Icons.delete,
-                                            color: customStyleClass.primeColor,
-                                          ),
-                                          onTap: () => deleteDiscountTemplate(discountTemplate.getTemplateId()),
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
-                        onTap: (){
-                          stateProvider.setCurrentDiscountTemplate(discountTemplate);
-                          context.go("/club_new_discount");
-                        },
-                      )
-                  ],
-                )
-            )
-        )
+        body: _buildMainView()
     );
   }
 }

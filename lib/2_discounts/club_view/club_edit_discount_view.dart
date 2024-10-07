@@ -1,5 +1,7 @@
 import 'package:club_me/models/discount.dart';
 import 'package:club_me/provider/fetched_content_provider.dart';
+import 'package:club_me/shared/dialogs/TitleAndContentDialog.dart';
+import 'package:club_me/shared/dialogs/title_content_and_two_buttons_dialog.dart';
 import 'package:club_me/utils/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +13,6 @@ import '../../provider/current_and_liked_elements_provider.dart';
 import '../../provider/state_provider.dart';
 import '../../services/supabase_service.dart';
 import '../../shared/custom_text_style.dart';
-import '../shared/creation_and_editing_arrays.dart';
 import 'components/cover_image_card.dart';
 
 class ClubEditDiscountView extends StatefulWidget {
@@ -75,25 +76,23 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
   late TabController _tabController;
   late PageController _pageViewController;
 
+
+  // INIT
   @override
   void initState(){
     super.initState();
     initControllers();
   }
-
   void initControllers(){
 
 
     // Get providers to access information
     final currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context, listen: false);
 
-
-
+    // Set the chosen image to not confuse the user. I don't think all 4 setters are necessary but I wasn't sure which one is.
     int chosenImageIndex = Utils.imageNames.indexWhere(
             (element) => element == currentAndLikedElementsProvider.currentClubMeDiscount.getBigBannerFileName());
-
     _currentPageIndex = chosenImageIndex;
-
     _pageViewController = PageController(initialPage: chosenImageIndex);
     _tabController = TabController(length: Utils.imageNames.length, vsync: this);
     _tabController.index = chosenImageIndex;
@@ -143,7 +142,7 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
     }
 
     _usageLimitPickerController = FixedExtentScrollController(
-        initialItem: usageLimitAnswers.indexWhere(
+        initialItem: Utils.usageLimitAnswers.indexWhere(
                 (element) => element == "${currentAndLikedElementsProvider.currentClubMeDiscount.getNumberOfUsages()}x"
         )
     );
@@ -163,6 +162,7 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
   }
 
 
+  // FORMAT
   String formatSelectedDate(){
 
     String tempDay = "";
@@ -206,6 +206,7 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
     return "$hourToDisplay:$minuteToDisplay";
   }
 
+
   // BUILD
   AppBar _buildAppBar(){
     return AppBar(
@@ -227,7 +228,7 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
                   color: Colors.white,
                 ),
                 onPressed: (){
-                  leavePage();
+                  clickEventClose();
                 },
               ),
             ),
@@ -253,6 +254,16 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
       ),
     );
   }
+  Widget _buildMainView(){
+    return Container(
+        width: screenWidth,
+        height: screenHeight,
+        color: customStyleClass.backgroundColorMain,
+        child: Center(
+            child: showGallery ? _buildGalleryView() : _buildFinalOverview()
+        )
+    );
+  }
   Widget _buildFinalOverview(){
 
     return SizedBox(
@@ -272,7 +283,7 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
                       ),
 
                       // Text: Headline
-                      Container(
+                      SizedBox(
                         width: screenWidth*0.9,
                         child: Text(
                           "Bitte gib die passenden Daten zu deinem Coupons ein!",
@@ -306,6 +317,11 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
                           controller: _discountTitleController,
                           cursorColor: customStyleClass.primeColor,
                           decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.only(
+                                left: 20,
+                                top:20,
+                                bottom:20
+                            ),
                             focusedBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
                                     color: customStyleClass.primeColor
@@ -337,7 +353,7 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
                               child: Column(
                                 children: [
 
-                                  Container(
+                                  SizedBox(
                                     width: screenWidth*0.28,
                                     child: Text(
                                       "Datum",
@@ -396,7 +412,7 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
                                 child: Column(
                                     children: [
 
-                                      Container(
+                                      SizedBox(
                                         width: screenWidth*0.28,
                                         child: Text(
                                           "Zeitlimit",
@@ -429,15 +445,12 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
                                                 if(hasTimeLimit == 0){
                                                   setState(() {
                                                     hasTimeLimit = 1;
-                                                    // timeLimitTileHeightFactor = originalFoldHeightFactor*4.5;
                                                   });
                                                 }else{
                                                   setState(() {
                                                     hasTimeLimit = 0;
-                                                    // timeLimitTileHeightFactor = originalFoldHeightFactor*3;
                                                   });
                                                 }
-                                                print('switched to: $index');
                                               });
                                             },
                                           ),
@@ -458,7 +471,7 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
                                   children: [
 
                                     // Text: Time
-                                    Container(
+                                    SizedBox(
                                       width: screenWidth*0.28,
                                       child: Text(
                                         "Uhrzeit",
@@ -468,7 +481,10 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
                                     ),
 
                                     // Button: Time
-                                    SizedBox(
+                                    Container(
+                                      padding:  EdgeInsets.only(
+                                          top: distanceBetweenTitleAndTextField
+                                      ),
                                       width: screenWidth*0.28,
                                       child: OutlinedButton(
                                           onPressed: () => {
@@ -539,7 +555,6 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
                             onToggle: (index) {
                               setState(() {
                                 targetGender = index!;
-                                print('switched taget gender to: $index');
                               });
                             },
                           ),
@@ -548,7 +563,7 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
 
                       // Row: ToggleSwitch, TextField - AgeLimit
                       Container(
-                        padding: EdgeInsets.only(
+                        padding: const EdgeInsets.only(
                           top:30
                         ),
                         width: screenWidth*0.9,
@@ -569,7 +584,7 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
                                   Container(
                                     // width: screenWidth*0.9,
                                     alignment: Alignment.centerLeft,
-                                    padding: EdgeInsets.only(
+                                    padding: const EdgeInsets.only(
                                         top: 20
                                     ),
                                     child: Text(
@@ -601,19 +616,16 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
                                           if(hasAgeLimit == 0){
                                             setState(() {
                                               hasAgeLimit = 1;
-                                              // ageLimitTileHeightFactor = originalDateTileHeightFactor*7.5;
                                             });
                                           }else{
                                             setState(() {
                                               hasAgeLimit = 0;
-                                              // ageLimitTileHeightFactor = originalDateTileHeightFactor*3.5;
                                             });
                                           }
                                         });
                                       },
                                     ),
                                   ),
-
                                 ],
                               )
                             ),
@@ -648,14 +660,15 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
                                             controller: _ageLimitLowerLimitController,
                                             cursorColor: customStyleClass.primeColor,
                                             keyboardType: TextInputType.number,
+                                            textAlign: TextAlign.center,
                                             decoration: InputDecoration(
-                                              border: OutlineInputBorder(),
+                                              border: const OutlineInputBorder(),
                                               focusedBorder: OutlineInputBorder(
                                                   borderSide: BorderSide(
                                                       color: customStyleClass.primeColor
                                                   )
                                               ),
-                                              counterText: ""
+                                              counterText: "",
                                             ),
                                             inputFormatters: <TextInputFormatter>[
                                               FilteringTextInputFormatter.allow(RegExp("[0-9]")),
@@ -696,8 +709,9 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
                                             controller: _ageLimitUpperLimitController,
                                             cursorColor: customStyleClass.primeColor,
                                             keyboardType: TextInputType.number,
+                                            textAlign: TextAlign.center,
                                             decoration: InputDecoration(
-                                              border: OutlineInputBorder(),
+                                              border: const OutlineInputBorder(),
                                               focusedBorder: OutlineInputBorder(
                                                   borderSide: BorderSide(
                                                       color: customStyleClass.primeColor
@@ -733,7 +747,7 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
 
                             Container(
                               width: screenWidth*0.45,
-                              padding: EdgeInsets.only(
+                              padding: const EdgeInsets.only(
                                 top:15
                               ),
                               child: Column(
@@ -750,6 +764,9 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
                                   ),
 
                                   Container(
+                                    padding:  EdgeInsets.only(
+                                        top: distanceBetweenTitleAndTextField
+                                    ),
                                     width: screenWidth*0.45,
                                     // height: screenHeight*0.12,
                                     alignment: Alignment.centerLeft,
@@ -770,19 +787,16 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
                                           if(hasUsageLimit == 0){
                                             setState(() {
                                               hasUsageLimit = 1;
-                                              // ageLimitTileHeightFactor = originalDateTileHeightFactor*7.5;
                                             });
                                           }else{
                                             setState(() {
                                               hasUsageLimit = 0;
-                                              // ageLimitTileHeightFactor = originalDateTileHeightFactor*3.5;
                                             });
                                           }
                                         });
                                       },
                                     ),
                                   ),
-
                                 ],
                               ),
                             ),
@@ -805,17 +819,16 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
                                         hasUsageLimitIndex = index;
                                       });
                                     },
-                                    children: List<Widget>.generate(usageLimitAnswers.length, (index){
+                                    children: List<Widget>.generate(Utils.usageLimitAnswers.length, (index){
                                       return Center(
                                         child: Text(
-                                          usageLimitAnswers[index],
+                                          Utils.usageLimitAnswers[index],
                                           style: customStyleClass.getFontStyle3(),
                                         ),
                                       );
                                     })
                                 ),
                               ),
-
                           ],
                         ),
                       ),
@@ -824,7 +837,7 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
                       Container(
                         width: screenWidth*0.9,
                         alignment: Alignment.centerLeft,
-                        padding: EdgeInsets.only(
+                        padding: const EdgeInsets.only(
                           top: 20
                         ),
                         child: Text(
@@ -834,7 +847,10 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
                       ),
 
                       // TextField: Description
-                      SizedBox(
+                      Container(
+                        padding:  EdgeInsets.only(
+                            top: distanceBetweenTitleAndTextField
+                        ),
                         width: screenWidth*0.9,
                         child: TextField(
                           controller: _discountDescriptionController,
@@ -842,6 +858,11 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
                           keyboardType: TextInputType.multiline,
                           maxLines: null,
                           decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.only(
+                                left: 20,
+                                top:20,
+                                bottom:20
+                            ),
                             border: const OutlineInputBorder(),
                             focusedBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
@@ -906,52 +927,50 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
 
-                            Container(
-                              child:Column(
-                                children: [
+                            Column(
+                              children: [
 
-                                  // Text: "repeat coupon"
-                                  Container(
-                                    width: screenWidth*0.45,
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      "Coupon wiederholen",
-                                      style: customStyleClass.getFontStyle3(),
+                                // Text: "repeat coupon"
+                                Container(
+                                  width: screenWidth*0.45,
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    "Coupon wiederholen",
+                                    style: customStyleClass.getFontStyle3(),
+                                  ),
+                                ),
+
+                                Container(
+                                    padding:  EdgeInsets.only(
+                                        top: distanceBetweenTitleAndTextField
                                     ),
-                                  ),
+                                  width: screenWidth*0.45,
+                                    alignment: Alignment.centerLeft,
+                                    child: ToggleSwitch(
+                                      minHeight: screenHeight*0.07,
+                                      initialLabelIndex: isRepeated,
+                                      totalSwitches: 2,
+                                      activeBgColor: [customStyleClass.primeColor],
+                                      activeFgColor: Colors.white,
+                                      inactiveFgColor: Colors.white,
+                                      inactiveBgColor: customStyleClass.backgroundColorEventTile,
+                                      labels: const [
+                                        'Nein',
+                                        'Ja',
+                                      ],
+                                      onToggle: (index) {
+                                        setState(() {
+                                          isRepeated == 0 ? isRepeated = 1 : isRepeated = 0;
+                                        });
+                                      },
+                                    )
+                                ),
 
-                                  Container(
-                                    width: screenWidth*0.45,
-                                      alignment: Alignment.centerLeft,
-                                      child: ToggleSwitch(
-                                        minHeight: screenHeight*0.07,
-                                        initialLabelIndex: isRepeated,
-                                        totalSwitches: 2,
-                                        activeBgColor: [customStyleClass.primeColor],
-                                        activeFgColor: Colors.white,
-                                        inactiveFgColor: Colors.white,
-                                        inactiveBgColor: customStyleClass.backgroundColorEventTile,
-                                        labels: const [
-                                          'Nein',
-                                          'Ja',
-                                        ],
-                                        onToggle: (index) {
-                                          setState(() {
-                                            isRepeated == 0 ? isRepeated = 1 : isRepeated = 0;
-                                          });
-                                        },
-                                      )
-                                  ),
-
-                                ],
-                              ),
+                              ],
                             ),
 
                             if(isRepeated != 0)
-                              Container(
-                                // padding: const EdgeInsets.only(
-                                //     top: 20
-                                // ),
+                              SizedBox(
                                 width: screenWidth*0.45,
                                 child: CupertinoPicker(
                                     scrollController: _fixedExtentScrollController1,
@@ -961,10 +980,10 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
                                         isRepeatedIndex = index;
                                       });
                                     },
-                                    children: List<Widget>.generate(repetitionAnswers.length, (index){
+                                    children: List<Widget>.generate(Utils.repetitionAnswers.length, (index){
                                       return Center(
                                         child: Text(
-                                          repetitionAnswers[index],
+                                          Utils.repetitionAnswers[index],
                                           style: customStyleClass.getFontStyle3(),
                                         ),
                                       );
@@ -1113,7 +1132,7 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
                                   border: Border.all(
                                       color: customStyleClass.primeColor
                                   ),
-                                  borderRadius: BorderRadius.all(Radius.circular(10))
+                                  borderRadius: const BorderRadius.all(Radius.circular(10))
                               ),
                               child: Text(
                                 "Fertig",
@@ -1203,55 +1222,93 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
       ),
     );
   }
+  Widget _buildGalleryView(){
+    return SizedBox(
+      width: screenWidth,
+      height: screenHeight,
+      child: Column(
+        children: [
+
+          Text(
+            "Bitte wähle ein Coverbild aus",
+            style: customStyleClass.getFontStyle1Bold(),
+          ),
+
+          SizedBox(
+            width: screenWidth,
+            height: screenHeight*0.65,
+            child: PageView(
+              controller: _pageViewController,
+              onPageChanged: _handlePageViewChanged,
+              children: <Widget>[
+
+                for(var i = 0; i<Utils.imageNames.length;i++)
+                  Center(
+                      child: CoverImageCard(fileName: Utils.imageNames[i])
+                  ),
+              ],
+            ),
+          ),
+
+          Container(
+            height: screenHeight*0.1,
+            alignment: Alignment.topCenter,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.keyboard_arrow_left_sharp,
+                  size: 50,
+                  color: _currentPageIndex > 0 ? customStyleClass.primeColor: Colors.grey,
+                ),
+                Icon(
+                  Icons.keyboard_arrow_right_sharp,
+                  size: 50,
+                  color: _currentPageIndex < (Utils.imageNames.length-1) ? customStyleClass.primeColor: Colors.grey,
+                ),
+              ],
+            ),
+          ),
+
+        ],
+      ),
+    );
+  }
+
 
   // MISC
-  void leavePage(){
-
-    // Reset values ?
+  void clickEventClose(){
 
     showDialog(
         context: context,
         builder: (BuildContext context){
-          return AlertDialog(
-              backgroundColor: Color(0xff121111),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20.0),
-                  // side: BorderSide(
-                  //     color: customStyleClass.primeColor
-                  // )
-              ),
-              title: Text(
-                  "Abbrechen",
-                style: customStyleClass.getFontStyle1Bold(),
-              ),
-              content: Text(
-                  "Bist du sicher, dass du abbrechen möchtest?",
-                style: customStyleClass.getFontStyle4(),
-              ),
-              actions: [
-
-                TextButton(
-                  child: Text(
-                      "Zurück",
-                    style: customStyleClass.getFontStyle3(),
-                  ),
-                  onPressed: (){
-                    Navigator.of(context).pop();
-                  },
+          return TitleContentAndTwoButtonsDialog(
+              titleToDisplay: "Abbrechen",
+              contentToDisplay: "Bist du sicher, dass du abbrechen möchtest?",
+              firstButtonToDisplay: TextButton(
+                child: Text(
+                  "Zurück",
+                  style: customStyleClass.getFontStyle3(),
                 ),
-
-                TextButton(
-                  child: Text(
-                      "Ja",
-                    style: customStyleClass.getFontStyle3(),
-                  ),
-                  onPressed: () => context.go("/club_coupons"),
+                onPressed: (){
+                  Navigator.of(context).pop();
+                },
+              ),
+              secondButtonToDisplay: TextButton(
+                child: Text(
+                  "Ja",
+                  style: customStyleClass.getFontStyle3(),
                 ),
-
-              ]
+                onPressed: () => context.go("/club_coupons"),
+              )
           );
         }
     );
+  }
+  void clickEventChooseImage(){
+    setState(() {
+      showGallery = false;
+    });
   }
 
   void finishUpdateDiscount() async{
@@ -1282,8 +1339,8 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
     // Format usage limit if necessary
     int numberOfUsageForDb = 0;
     if(hasUsageLimit != 0){
-      String pickerValueWithoutX = usageLimitAnswers[hasUsageLimitIndex]
-          .substring(0, usageLimitAnswers[hasUsageLimitIndex].length - 1);
+      String pickerValueWithoutX = Utils.usageLimitAnswers[hasUsageLimitIndex]
+          .substring(0, Utils.usageLimitAnswers[hasUsageLimitIndex].length - 1);
       numberOfUsageForDb = int.parse(pickerValueWithoutX);
     }
 
@@ -1345,92 +1402,17 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
           isUploading = false;
         });
         showDialog(context: context, builder: (BuildContext context){
-          return const AlertDialog(
-            title: Text("Fehler aufgetreten"),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-
-                // Question text
-                Text(
-                  "Verzeihung, es ist ein Fehler aufgetreten.",
-                  textAlign: TextAlign.left,
-                ),
-              ],
-            ),
-          );
+          return TitleAndContentDialog(
+              titleToDisplay: "Fehler aufgetreten",
+              contentToDisplay: "Verzeihung, es ist ein Fehler aufgetreten.");
         });
       }
     });
   }
-
-  Widget _buildGalleryView(){
-    return SizedBox(
-      width: screenWidth,
-      height: screenHeight,
-      child: Column(
-        children: [
-
-          Text(
-            "Bitte wähle ein Coverbild aus",
-            style: customStyleClass.getFontStyle1Bold(),
-          ),
-
-          Container(
-            // color: Colors.red,
-            width: screenWidth,
-            height: screenHeight*0.65,
-            child: PageView(
-              controller: _pageViewController,
-              onPageChanged: _handlePageViewChanged,
-              children: <Widget>[
-
-                for(var i = 0; i<Utils.imageNames.length;i++)
-                  Center(
-                      child: CoverImageCard(fileName: Utils.imageNames[i])
-                  ),
-              ],
-            ),
-          ),
-
-          Container(
-            // color: Colors.green,
-            height: screenHeight*0.1,
-            alignment: Alignment.topCenter,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.keyboard_arrow_left_sharp,
-                  size: 50,
-                  color: _currentPageIndex > 0 ? customStyleClass.primeColor: Colors.grey,
-                ),
-                Icon(
-                  Icons.keyboard_arrow_right_sharp,
-                  size: 50,
-                  color: _currentPageIndex < (Utils.imageNames.length-1) ? customStyleClass.primeColor: Colors.grey,
-                ),
-              ],
-            ),
-          ),
-
-
-        ],
-      ),
-    );
-  }
-
   void _handlePageViewChanged(int currentPageIndex) {
     setState(() {
       _tabController.index = currentPageIndex;
       _currentPageIndex = currentPageIndex;
-    });
-  }
-
-
-  void clickEventChooseImage(){
-    setState(() {
-      showGallery = false;
     });
   }
 
@@ -1447,14 +1429,7 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
 
     return Scaffold(
       appBar: _buildAppBar(),
-      body: Container(
-          width: screenWidth,
-          height: screenHeight,
-          color: customStyleClass.backgroundColorMain,
-          child: Center(
-              child: showGallery ? _buildGalleryView() : _buildFinalOverview()
-          )
-      ),
+      body: _buildMainView(),
       bottomNavigationBar: _buildNavigationBar(),
     );
   }

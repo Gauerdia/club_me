@@ -7,8 +7,8 @@ import 'package:intl/intl.dart';
 import '../../../provider/state_provider.dart';
 import '../../../shared/custom_text_style.dart';
 
-class DiscountTile2 extends StatelessWidget {
-  DiscountTile2({
+class DiscountTile extends StatelessWidget {
+  DiscountTile({
     super.key,
     required this.clubMeDiscount,
   });
@@ -30,9 +30,9 @@ class DiscountTile2 extends StatelessWidget {
   Widget _buildStackView(BuildContext context){
 
     return Padding(
-        padding: EdgeInsets.symmetric(
+      padding: EdgeInsets.symmetric(
           vertical: screenHeight*0.01
-        ),
+      ),
       child: Center(
         child: Stack(
           children: [
@@ -160,24 +160,19 @@ class DiscountTile2 extends StatelessWidget {
                   height: topHeight,
                   width: screenWidth,
                   child: ClipRRect(
-                    borderRadius: const BorderRadius.only(
-                        topRight: Radius.circular(15),
-                        topLeft: Radius.circular(15)
-                    ),
-                    child:
-                    Image(
-                      image: FileImage(
-                          File(
-                              "${stateProvider.appDocumentsDir.path}/${clubMeDiscount.getBannerId()}"
-                          )
+                      borderRadius: const BorderRadius.only(
+                          topRight: Radius.circular(15),
+                          topLeft: Radius.circular(15)
                       ),
-                      fit: BoxFit.cover,
-                    )
-
-                    // Image.asset(
-                    //   "assets/images/${clubMeDiscount.getBannerId()}",
-                    //   fit: BoxFit.cover,
-                    // ),
+                      child:
+                      Image(
+                        image: FileImage(
+                            File(
+                                "${stateProvider.appDocumentsDir.path}/${clubMeDiscount.getBannerId()}"
+                            )
+                        ),
+                        fit: BoxFit.cover,
+                      )
                   ),
                 ),
               ],
@@ -293,13 +288,7 @@ class DiscountTile2 extends StatelessWidget {
 
     String weekDayToDisplay = "";
 
-    var exactOneWeekFromNow = DateTime.now().add(const Duration(days: 7));
-
-    // Get current time for germany
-    // final berlin = tz.getLocation('Europe/Berlin');
-    // final todayGermanTZ = tz.TZDateTime.from(DateTime.now(), berlin);
-
-    final exactlyOneWeekFromNowGermanTZ = stateProvider.getBerlinTime().add(Duration(days: 7));
+    final exactlyOneWeekFromNowGermanTZ = stateProvider.getBerlinTime().add(const Duration(days: 7));
 
     if(clubMeDiscount.getDiscountDate().isAfter(exactlyOneWeekFromNowGermanTZ)){
       weekDayToDisplay = DateFormat('dd.MM.yyyy').format(clubMeDiscount.getDiscountDate());

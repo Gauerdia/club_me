@@ -4,6 +4,8 @@ import 'package:chewie/chewie.dart';
 import 'package:club_me/models/event.dart';
 import 'package:club_me/provider/state_provider.dart';
 import 'package:club_me/shared/custom_text_style.dart';
+import 'package:club_me/shared/dialogs/TitleAndContentDialog.dart';
+import 'package:club_me/shared/dialogs/title_content_and_two_buttons_dialog.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +21,7 @@ import '../../provider/current_and_liked_elements_provider.dart';
 import '../../provider/fetched_content_provider.dart';
 import '../../provider/user_data_provider.dart';
 import '../../services/supabase_service.dart';
+import '../../utils/utils.dart';
 
 class ClubEditEventView extends StatefulWidget {
   const ClubEditEventView({super.key});
@@ -29,15 +32,19 @@ class ClubEditEventView extends StatefulWidget {
 
 class _ClubEditEventViewState extends State<ClubEditEventView> {
 
-  final SupabaseService _supabaseService = SupabaseService();
+  String headline = "Event bearbeiten";
 
-  late DateTime newSelectedDate;
-  late StateProvider stateProvider;
-  late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
-  late FetchedContentProvider fetchedContentProvider;
-  late UserDataProvider userDataProvider;
   late CustomStyleClass customStyleClass;
   late double screenHeight, screenWidth;
+
+  late StateProvider stateProvider;
+  late UserDataProvider userDataProvider;
+  late FetchedContentProvider fetchedContentProvider;
+  late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
+
+  final SupabaseService _supabaseService = SupabaseService();
+
+  // FORM VALUES
 
   int selectedFirstHour = 0;
   int selectedSecondMinute = 0;
@@ -47,24 +54,13 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
   bool firstElementChanged = false;
   bool secondElementChanged = false;
 
-  String headline = "Event bearbeiten";
+
+  late DateTime newSelectedDate;
+
   String eventMusicGenresString = "";
 
-  var newDiscountContainerHeightFactor = 0.85;
-
-  bool genreScreenActive = false;
-
   List<String> musicGenresChosen = [];
-  List<String> musicGenresOffer = [
-    "Latin", "Rock", "Hip-Hop", "Electronic", "Pop", "Reggaeton", "Afrobeats",
-    "R&B", "House", "Techno", "Rap", "90er", "80er", "2000er",
-    "Heavy Metal", "Psychedelic", "Balkan"
-  ];
-  List<String> musicGenresToCompare = [
-    "Latin", "Rock", "Hip-Hop", "Electronic", "Pop", "Reggaeton", "Afrobeats",
-    "R&B", "House", "Techno", "Rap", "90er", "80er", "2000er",
-    "Heavy Metal", "Psychedelic", "Balkan"
-  ];
+  List<String> musicGenresOffer = [];
 
   late TextEditingController _eventTitleController;
   late TextEditingController _eventDJController;
@@ -77,7 +73,6 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
 
 
   bool isFromTemplate = false;
-
   bool errorInFileUpload = false;
   bool errorInEventUpload = false;
 
@@ -89,9 +84,6 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
   ];
   int isTemplate = 0;
 
-  double discountContainerHeightFactor = 0.52;
-
-  int creationIndex = 0;
   int selectedHour = TimeOfDay.now().hour;
   int selectedMinute = TimeOfDay.now().minute;
 
@@ -101,23 +93,18 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
   bool isVideo = false;
   // 0: no content, 1: image, 2: video
   int contentType = 0;
-  String? VIDEO_ON;
   ChewieController? _chewieController;
   VideoPlayerController? _controller;
 
-  bool pickHourAndMinuteIsActive = false;
   bool pickGenreIsActive = false;
-
-  String pickedFileNameToDisplay = "";
+  bool pickHourAndMinuteIsActive = false;
 
   String contentFileName = "";
+  String pickedFileNameToDisplay = "";
 
-  ByteData? screenshot;
 
-  double distanceBetweenTitleAndTextField = 10;
 
   // INIT
-
   @override
   void initState(){
     super.initState();
@@ -159,12 +146,14 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
       }
     }
 
+    for(var element in Utils.genreListForCreating){
+      musicGenresOffer.add(element);
+    }
+
   }
 
 
   // BUILD
-
-
   AppBar _buildAppBar(){
     return AppBar(
       automaticallyImplyLeading: false,
@@ -184,7 +173,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                     Icons.clear_rounded,
                     color: Colors.white,
                   ),
-                  onPressed: () => clickedOnAbort()
+                  onPressed: () => clickEventClose()
               ),
             ),
 
@@ -209,7 +198,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
       ),
     );
   }
-  Widget _buildNavigationBar2(){
+  Widget _buildNavigationBar(){
     return (isVideo || isImage) ?
     Container(
       width: screenWidth,
@@ -284,7 +273,21 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
       ),
     );
   }
-  Widget _buildCheckOverview2(){
+  Widget _buildMainView(){
+    return SizedBox(
+        width: screenWidth,
+        height: screenHeight,
+        child: Center(
+          child: isImage ?
+          _buildImagePreview()
+              : isVideo ?
+          _buildVideoPreview()
+              :_buildCheckOverview(),
+        )
+    );
+  }
+
+  Widget _buildCheckOverview(){
 
     return SizedBox(
         height: screenHeight,
@@ -303,7 +306,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                       ),
 
                       // headline
-                      Container(
+                      SizedBox(
                         width: screenWidth*0.9,
                         child: Text(
                           "Bitte gib die passenden Daten zu deinem Event ein!",
@@ -331,7 +334,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                       Container(
                         width: screenWidth*0.9,
                         padding:  EdgeInsets.only(
-                            top: distanceBetweenTitleAndTextField
+                            top: Utils.creationScreensDistanceBetweenTitleAndTextField
                         ),
                         child: TextField(
                           controller: _eventTitleController,
@@ -348,7 +351,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                                 )
                             ),
                             hintText: "z.B. Mixed Music",
-                            border: OutlineInputBorder(),
+                            border: const OutlineInputBorder(),
                           ),
                           style: customStyleClass.getFontStyle4(),
                           maxLength: 35,
@@ -370,7 +373,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                         child: Container(
                           width: screenWidth*0.9,
                           padding:  EdgeInsets.only(
-                              top: distanceBetweenTitleAndTextField
+                              top: Utils.creationScreensDistanceBetweenTitleAndTextField
                           ),
                           child: TextField(
                             controller: _eventDJController,
@@ -382,7 +385,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                                   bottom:20
                               ),
                               hintText: "z.B. DJ David Guetta",
-                              border: OutlineInputBorder(),
+                              border: const OutlineInputBorder(),
                               focusedBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
                                       color: customStyleClass.primeColor
@@ -425,7 +428,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                                   // OutlinedButton with Text
                                   Container(
                                     padding:  EdgeInsets.only(
-                                        top: distanceBetweenTitleAndTextField
+                                        top: Utils.creationScreensDistanceBetweenTitleAndTextField
                                     ),
                                     width: screenWidth*0.4,
                                     child:OutlinedButton(
@@ -488,7 +491,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                                   Container(
                                     width: screenWidth*0.4,
                                     padding:  EdgeInsets.only(
-                                        top: distanceBetweenTitleAndTextField
+                                        top: Utils.creationScreensDistanceBetweenTitleAndTextField
                                     ),
                                     child: OutlinedButton(
                                         onPressed: () => {
@@ -517,63 +520,58 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                       ),
 
                       // Price text field
-                      Container(
-                        // padding: const EdgeInsets.only(
-                        //     top: 5
-                        // ),
-                        child: Column(
-                          children: [
+                      Column(
+                        children: [
 
-                            // Text: Price
-                            Container(
-                              width: screenWidth*0.9,
-                              child: Text(
-                                "Eintrittspreis",
-                                style: customStyleClass.getFontStyle3(),
-                                textAlign: TextAlign.left,
+                          // Text: Price
+                          SizedBox(
+                            width: screenWidth*0.9,
+                            child: Text(
+                              "Eintrittspreis",
+                              style: customStyleClass.getFontStyle3(),
+                              textAlign: TextAlign.left,
+                            ),
+                          ),
+
+                          // Textfield: Price
+                          Container(
+                            width: screenWidth*0.9,
+                            alignment: Alignment.centerLeft,
+                            padding:  EdgeInsets.only(
+                                top: Utils.creationScreensDistanceBetweenTitleAndTextField
+                            ),
+                            child: SizedBox(
+                              width: screenWidth*0.3,
+                              // height: screenHeight*0.085,
+                              child: TextField(
+                                controller: _eventPriceController,
+                                keyboardType: TextInputType.number,
+                                cursorColor: customStyleClass.primeColor,
+                                decoration: InputDecoration(
+                                  hintText: "z.B. 10",
+                                  contentPadding: const EdgeInsets.only(
+                                      left: 20,
+                                      top:20,
+                                      bottom:20
+                                  ),
+                                  border: const OutlineInputBorder(),
+                                  focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: customStyleClass.primeColor
+                                      )
+                                  ),
+                                ),
+                                style: customStyleClass.getFontStyle4(),
+                                maxLength: 5,
                               ),
                             ),
-
-                            // Textfield: Price
-                            Container(
-                              width: screenWidth*0.9,
-                              alignment: Alignment.centerLeft,
-                              padding:  EdgeInsets.only(
-                                  top: distanceBetweenTitleAndTextField
-                              ),
-                              child: SizedBox(
-                                width: screenWidth*0.3,
-                                // height: screenHeight*0.085,
-                                child: TextField(
-                                  controller: _eventPriceController,
-                                  keyboardType: TextInputType.number,
-                                  cursorColor: customStyleClass.primeColor,
-                                  decoration: InputDecoration(
-                                    hintText: "z.B. 10",
-                                    contentPadding: const EdgeInsets.only(
-                                        left: 20,
-                                        top:20,
-                                        bottom:20
-                                    ),
-                                    border: const OutlineInputBorder(),
-                                    focusedBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                            color: customStyleClass.primeColor
-                                        )
-                                    ),
-                                  ),
-                                  style: customStyleClass.getFontStyle4(),
-                                  maxLength: 5,
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
+                          )
+                        ],
                       ),
 
                       // Text: Description
                       Container(
-                        padding: EdgeInsets.only(
+                        padding: const EdgeInsets.only(
                             top: 10
                         ),
                         width: screenWidth*0.9,
@@ -588,7 +586,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                       Container(
                         width: screenWidth*0.9,
                         padding:  EdgeInsets.only(
-                            top: distanceBetweenTitleAndTextField
+                            top: Utils.creationScreensDistanceBetweenTitleAndTextField
                         ),
                         child: TextField(
                           controller: _eventDescriptionController,
@@ -602,7 +600,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                                 bottom:20,
                               right: 10
                             ),
-                            border: OutlineInputBorder(),
+                            border: const OutlineInputBorder(),
                             hintText: "Erzähe deinen Kunden etwas über das Event...",
                             focusedBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
@@ -705,7 +703,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                           width: screenWidth*0.9,
                           alignment: Alignment.centerLeft,
                           child: IconButton(
-                              onPressed: () => clickedOnChooseContent(),
+                              onPressed: () => clickEventChooseContent(),
                               icon: Icon(
                                 Icons.add,
                                 size: 30,
@@ -727,7 +725,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                       // TextField: Ticket
                       Container(
                         padding:  EdgeInsets.only(
-                            top: distanceBetweenTitleAndTextField
+                            top: Utils.creationScreensDistanceBetweenTitleAndTextField
                         ),
                         width: screenWidth*0.9,
                         child: TextField(
@@ -827,7 +825,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                         Container(
                           width: screenWidth*0.9,
                           alignment: Alignment.centerLeft,
-                          child: Container(
+                          child: SizedBox(
                             width: screenWidth*0.45,
                             child: Text(
                               "Als Vorlage speichern",
@@ -1009,7 +1007,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                                   border: Border.all(
                                       color: customStyleClass.primeColor
                                   ),
-                                  borderRadius: BorderRadius.all(Radius.circular(10))
+                                  borderRadius: const BorderRadius.all(Radius.circular(10))
                               ),
                               child: Text(
                                 "Fertig",
@@ -1030,6 +1028,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                 ),
               ),
 
+            // window to ask for genres
             if(pickGenreIsActive)
               Center(
                 child: Container(
@@ -1212,7 +1211,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                                   border: Border.all(
                                       color: customStyleClass.primeColor
                                   ),
-                                  borderRadius: BorderRadius.all(Radius.circular(10))
+                                  borderRadius: const BorderRadius.all(Radius.circular(10))
                               ),
                               child: Text(
                                 "Fertig",
@@ -1237,418 +1236,77 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
         )
     );
   }
-  AlertDialog _buildErrorDialog(){
-    return const AlertDialog(
-      title: Text("Fehler aufgetreten"),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-
-          // Question text
-          Text(
-            "Verzeihung, es ist ein Fehler aufgetreten.",
-            textAlign: TextAlign.left,
-          ),
-        ],
-      ),
-    );
+  TitleAndContentDialog _buildErrorDialog(){
+    return TitleAndContentDialog(
+        titleToDisplay: "Fehler aufgetreten", contentToDisplay: "Verzeihung, es ist ein Fehler aufgetreten.");
   }
-  Widget _buildCheckForMusicGenres(){
-    return SizedBox(
-      height: screenHeight,
-      child: SingleChildScrollView(
-        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        child: Column(
-          children: [
 
-            // 'Which genres' headline
-            Container(
-              width: screenWidth,
-              padding: EdgeInsets.symmetric(
-                  vertical: screenHeight*0.04,
-                  horizontal: screenWidth*0.02
-              ),
-              child: Text(
-                "Welche Musikgenres werden auf desem Event gespielt?",
-                textAlign: TextAlign.center,
-                style: customStyleClass.getFontStyle1Bold(),
-              ),
-            ),
-
-            // Spacer
-            SizedBox(
-              height: screenHeight*0.05,
-            ),
-
-            // Propositions
-            Container(
-              width: screenWidth,
-              padding: const EdgeInsets.only(
-              ),
-              child: Text(
-                "Vorschläge",
-                textAlign: TextAlign.center,
-                style: customStyleClass.getFontStyle2Bold(),
-              ),
-            ),
-
-            // Spacer
-            SizedBox(
-              height: screenHeight*0.02,
-            ),
-
-            // Tags to use
-            musicGenresOffer.isEmpty?
-            Container(
-              height: screenHeight*0.05,
-              child: Center(
-                child: Text(
-                  "Keine Genres mehr verfügbar.",
-                  style: customStyleClass.getFontStyle4Bold(),
-                ),
-              ),
-            ):SizedBox(
-              width: screenWidth*0.9,
-              child: Wrap(
-                direction: Axis.horizontal,
-                children: musicGenresOffer.map((item){
-                  return Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            vertical: screenHeight*0.01,
-                            horizontal: screenWidth*0.01
-                        ),
-                        child: GestureDetector(
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: screenWidth*0.035,
-                                vertical: screenHeight*0.02
-                            ),
-                            decoration: BoxDecoration(
-                              borderRadius: const BorderRadius.all(
-                                  Radius.circular(10)
-                              ),
-                              gradient: LinearGradient(
-                                  colors: [
-                                    customStyleClass.primeColorDark,
-                                    customStyleClass.primeColor,
-                                  ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  stops: const [0.2, 0.9]
-                              ),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black54,
-                                  spreadRadius: 1,
-                                  blurRadius: 7,
-                                  offset: Offset(3, 3),
-                                ),
-                              ],
-                            ),
-                            child: Text(
-                              item,
-                              style: customStyleClass.getFontStyle6Bold(),
-                            ),
-                          ),
-                          onTap: (){
-                            setState(() {
-                              musicGenresOffer.remove(item);
-                              musicGenresChosen.add(item);
-                              if(eventMusicGenresString.isEmpty){
-                                eventMusicGenresString = "$item,";
-                              }else{
-                                eventMusicGenresString = "${eventMusicGenresString},$item,";
-                              }
-                            });
-                          },
-                        ),
-                      )
-                    ],
-                  );
-                }).toList(),
-              ),
-            ),
-
-            // Spacer
-            SizedBox(
-              height: screenHeight*0.02,
-            ),
-
-            // Chosen
-            Container(
-              width: screenWidth,
-              padding: const EdgeInsets.only(
-                // left: screenWidth*0.05,
-                // top: screenHeight*0.03
-              ),
-              child: Text(
-                "Ausgewählt",
-                textAlign: TextAlign.center,
-                style: customStyleClass.getFontStyle2Bold(),
-              ),
-            ),
-
-            // Spacer
-            SizedBox(
-              height: screenHeight*0.02,
-            ),
-
-            // Chosen tags
-            musicGenresChosen.isEmpty?
-            SizedBox(
-              height: screenHeight*0.05,
-              child: Center(
-                child: Text(
-                  "Noch keine Genres ausgewählt.",
-                  style: customStyleClass.getFontStyle4Bold(),
-                ),
-              ),
-            ):SizedBox(
-              width: screenWidth*0.9,
-              child: Wrap(
-                direction: Axis.horizontal,
-                children: musicGenresChosen.map((item){
-                  return Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            vertical: screenHeight*0.01,
-                            horizontal: screenWidth*0.01
-                        ),
-                        child: GestureDetector(
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: screenWidth*0.035,
-                                vertical: screenHeight*0.02
-                            ),
-                            decoration:  BoxDecoration(
-                              borderRadius: const BorderRadius.all(
-                                  Radius.circular(10)
-                              ),
-                              gradient: LinearGradient(
-                                  colors: [
-                                    customStyleClass.primeColorDark,
-                                    customStyleClass.primeColor,
-                                  ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  stops: const [0.2, 0.9]
-                              ),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black54,
-                                  spreadRadius: 1,
-                                  blurRadius: 7,
-                                  offset: Offset(3, 3),
-                                ),
-                              ],
-                            ),
-                            child: Text(
-                              item,
-                              style: customStyleClass.getFontStyle6Bold(),
-                            ),
-                          ),
-                          onTap: (){
-                            setState(() {
-                              if(musicGenresToCompare.contains(item)){
-                                musicGenresOffer.add(item);
-                              }
-                              musicGenresChosen.remove(item);
-                              eventMusicGenresString.replaceFirst("$item,", "");
-                            });
-                          },
-                        ),
-                      )
-                    ],
-                  );
-                }).toList(),
-              ),
-            ),
-
-            // Spacer
-            SizedBox(
-              height: screenHeight*0.02,
-            ),
-
-            // Own Genre
-            Container(
-              width: screenWidth,
-              padding: EdgeInsets.only(
-                // left: screenWidth*0.05,
-                  top: screenHeight*0.01,
-                  bottom: screenHeight*0.01
-              ),
-              child: Text(
-                "Eigene Genres hinzufügen",
-                textAlign: TextAlign.center,
-                style: customStyleClass.getFontStyle2Bold(),
-              ),
-            ),
-
-            // Textfield + icon
-            Container(
-                padding: EdgeInsets.only(
-                    bottom: screenHeight*0.025
-                ),
-                width: screenWidth*0.85,
-                child: Row(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(
-                          top: screenHeight*0.03
-                      ),
-                      child: SizedBox(
-                        width: screenWidth*0.65,
-                        child: TextField(
-                          controller: _eventMusicGenresController,
-                          cursorColor: customStyleClass.primeColor,
-                          decoration: const InputDecoration(
-                              hintText: "z.B. Pop",
-                              border: OutlineInputBorder()
-                          ),
-                          style: customStyleClass.getFontStyle3(),
-                          maxLength: 15,
-                        ),
-                      ),
-                    ),
-                    // Icon
-                    Center(
-                      child: IconButton(
-                          onPressed: (){
-                            setState(() {
-                              musicGenresChosen.add(_eventMusicGenresController.text);
-                              _eventMusicGenresController.text = "";
-                              FocusScope.of(context).unfocus();
-                            });
-                          },
-                          icon: Icon(
-                            Icons.send,
-                            size:
-                            customStyleClass.getFontSize4(),
-                            //screenHeight*stateProvider.getIconSizeFactor(),
-                            color: customStyleClass.primeColor,
-                          )
-                      ),
-                    )
-                  ],
-                )
-            ),
-
-            // Spacer
-            SizedBox(
-              height: screenHeight*0.1,
-            )
-
-          ],
-        ),
-      ),
-    );
-  }
   Widget _buildImagePreview(){
-    return Stack(
-      children: [
-
-        // Image container
-        SizedBox(
-          width: screenWidth,
-          height: screenHeight,
-          child: Image.file(file!),
-        ),
-
-      ],
+    return SizedBox(
+      width: screenWidth,
+      height: screenHeight,
+      child: Image.file(file!),
     );
   }
   Widget _buildVideoPreview(){
-    return Stack(
-      children: [
-
-        // Video container
-        Padding(
-          padding: EdgeInsets.only(
-              bottom: screenHeight*0.15
+    return Padding(
+      padding: EdgeInsets.only(
+          bottom: screenHeight*0.15
+      ),
+      child: SizedBox(
+        width: screenWidth,
+        height: screenHeight*0.75,
+        child: _chewieController != null &&
+            _chewieController!
+                .videoPlayerController.value.isInitialized
+            ? SizedBox(
+          width: screenWidth,
+          height: screenHeight*0.95,
+          child: Chewie(
+            controller: _chewieController!,
           ),
-          child: SizedBox(
-            width: screenWidth,
-            height: screenHeight*0.75,
-            child: _chewieController != null &&
-                _chewieController!
-                    .videoPlayerController.value.isInitialized
-                ? SizedBox(
-              width: screenWidth,
-              height: screenHeight*0.95,
-              child: Chewie(
-                controller: _chewieController!,
-              ),
-            ) :
-            SizedBox(
-              width: screenWidth,
-              height: screenHeight,
-              child: const Center(
-                child: CircularProgressIndicator(),
-              ),
-            ),
+        ) :
+        SizedBox(
+          width: screenWidth,
+          height: screenHeight,
+          child: const Center(
+            child: CircularProgressIndicator(),
           ),
-        )
-      ],
+        ),
+      ),
     );
   }
 
 
   // CLICK EVENTS
 
-
-  void clickedOnAbort(){
-
+  void clickEventClose(){
     showDialog(
         context: context,
         builder: (BuildContext context){
-          return AlertDialog(
-              backgroundColor: Color(0xff121111),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20.0),
-                  // side: BorderSide(
-                  //     color: customStyleClass.primeColor
-                  // )
-              ),
-              title: Text(
-                "Abbrechen",
-                style: customStyleClass.getFontStyle1Bold(),
-              ),
-              content: Text(
-                "Bist du sicher, dass du abbrechen möchtest?",
-                textAlign: TextAlign.left,
-                style: customStyleClass.getFontStyle4(),
-              ),
-              actions: [
-
-                TextButton(
-                  child: Text(
-                    "Zurück",
-                    style: customStyleClass.getFontStyle3BoldPrimeColor(),
-                  ),
-                  onPressed: (){
-                    Navigator.of(context).pop();
-                  },
+          return TitleContentAndTwoButtonsDialog(
+              titleToDisplay: "Abbrechen",
+              contentToDisplay: "Bist du sicher, dass du abbrechen möchtest?",
+              firstButtonToDisplay: TextButton(
+                child: Text(
+                  "Zurück",
+                  style: customStyleClass.getFontStyle3BoldPrimeColor(),
                 ),
-
-                TextButton(
-                  child: Text(
-                    "Ja",
-                    style: customStyleClass.getFontStyle3BoldPrimeColor(),
-                  ),
-                  onPressed: () => resetAndGoBackToEvents(),
+                onPressed: (){
+                  Navigator.of(context).pop();
+                },
+              ),
+              secondButtonToDisplay: TextButton(
+                child: Text(
+                  "Ja",
+                  style: customStyleClass.getFontStyle3BoldPrimeColor(),
                 ),
-
-              ]
-          );
-        }
-    );
+                onPressed: () => resetAndGoBackToEvents(),
+              ));
+        });
   }
-  void clickedOnChooseContent() async{
+
+  void clickEventChooseContent() async{
 
     FilePickerResult? result = await FilePicker.platform.pickFiles(
         allowMultiple: false
@@ -1675,9 +1333,6 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
       setState(() {});
     }
   }
-  void clickEventProcessNewEvent(){
-
-  }
   void clickEventUpdateEvent(){
     setState(() {
       isUploading = true;
@@ -1687,17 +1342,17 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
   void resetAndGoBackToEvents(){
     // TODO: context.go doesnt work !? Need to investigate
     stateProvider.resetCurrentEventTemplate();
-    context.push('/club_events');
+    // context.go('/club_events');
+    Navigator.pop(context);
+    Navigator.pop(context);
   }
 
 
   // LOGIC
-
-
   void removeGenresFromList(String genreToRemove){
     setState(() {
       musicGenresChosen.removeWhere((element) => element == genreToRemove);
-      if(musicGenresToCompare.contains(genreToRemove) && !musicGenresOffer.contains(genreToRemove)){
+      if(Utils.genreListForCreating.contains(genreToRemove) && !musicGenresOffer.contains(genreToRemove)){
         musicGenresOffer.add(genreToRemove);
       }
     });
@@ -1727,7 +1382,6 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
     };
 
     values.forEach((key, value) {
-      musicGenresToCompare.add(value);
       musicGenresChosen.add(value);
     });
 
@@ -1762,7 +1416,9 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
     if(_eventTicketLinkController.text.contains("http")){
       ticketLinkToSave = _eventTicketLinkController.text;
     }else{
-      ticketLinkToSave = "https://${_eventTicketLinkController.text}";
+      if(_eventTicketLinkController.text != ""){
+        ticketLinkToSave = "https://${_eventTicketLinkController.text}";
+      }
     }
 
     int daysToRepeat = 0;
@@ -1794,7 +1450,6 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
       eventId: currentAndLikedElementsProvider.currentClubMeEvent.getEventId(),
       clubName: currentAndLikedElementsProvider.currentClubMeEvent.getClubName(),
       bannerImageFileName: currentAndLikedElementsProvider.currentClubMeEvent.getBannerImageFileName(),
-      // bannerId: currentAndLikedElementsProvider.currentClubMeEvent.getBannerId(),
       clubId: currentAndLikedElementsProvider.currentClubMeEvent.getClubId(),
       priorityScore: currentAndLikedElementsProvider.currentClubMeEvent.getPriorityScore(),
       openingTimes: userDataProvider.getUserClubOpeningTimes(),
@@ -1856,8 +1511,6 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
 
 
   // MISC
-
-
   _createChewieController() {
     _chewieController = ChewieController(
       videoPlayerController: _controller!,
@@ -1926,36 +1579,6 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
       contentFileName = "";
     });
   }
-  void leavePage(){
-
-    showDialog(
-        context: context,
-        builder: (BuildContext context){
-          return AlertDialog(
-              title: const Text("Abbrechen"),
-              content: const Text("Bist du sicher, dass du abbrechen möchtest?"),
-              actions: [
-
-                TextButton(
-                  child: const Text("Zurück"),
-                  onPressed: (){
-                    Navigator.of(context).pop();
-                  },
-                ),
-
-                TextButton(
-                  child: const Text("Ja"),
-                  onPressed: (){
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop();
-                  },
-                ),
-
-              ]
-          );
-        }
-    );
-  }
   String formatSelectedDate(){
 
     String tempDay = "";
@@ -1984,7 +1607,6 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
   }
 
 
-
   @override
   Widget build(BuildContext context) {
 
@@ -2001,21 +1623,8 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
 
     return Scaffold(
       appBar: _buildAppBar(),
-      body: SizedBox(
-          width: screenWidth,
-          height: screenHeight,
-          child: Center(
-            child: genreScreenActive ?
-            _buildCheckForMusicGenres()
-                : isImage ?
-            _buildImagePreview()
-                : isVideo ?
-            _buildVideoPreview()
-                :_buildCheckOverview2(),
-          )
-
-      ),
-      bottomNavigationBar: _buildNavigationBar2(),
+      body: _buildMainView(),
+      bottomNavigationBar: _buildNavigationBar(),
     );
   }
 }

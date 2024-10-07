@@ -385,48 +385,20 @@ class _ClubDetailViewState extends State<ClubDetailView> {
     );
   }
   Widget _buildLogoIcon(){
-    return currentAndLikedElementsProvider.currentClubMeClub.getStoryId().isNotEmpty?
-    Stack(
-      children: [
 
-        // Logo image
-        Container(
-          width: screenWidth*0.25,
-          height: screenWidth*0.25,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.white,
-            border: Border.all(
-              color: customStyleClass.primeColor,
-              width: 2
-            ),
-            image: DecorationImage(
-              fit: BoxFit.cover,
-              // opacity: 0.5,
-              image: FileImage(
-                  File(
-                      "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeClub.getSmallLogoFileName()}"
-                  )
-              ),
-            ),
-          ),
-        ),
-
-      ],
-    ):
-    Container(
+    return Container(
       width: screenWidth*0.25,
       height: screenWidth*0.25,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Colors.black,
+        color: currentAndLikedElementsProvider.currentClubMeClub.getStoryId().isNotEmpty? Colors.black : Colors.grey,
         border: Border.all(
-            color: Colors.grey,
-          width: 2
+            color: customStyleClass.primeColor,
+            width: 2
         ),
-
         image: DecorationImage(
           fit: BoxFit.cover,
+          // opacity: 0.5,
           image: FileImage(
               File(
                   "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeClub.getSmallLogoFileName()}"
@@ -434,9 +406,6 @@ class _ClubDetailViewState extends State<ClubDetailView> {
           ),
         ),
       ),
-      // child: Image.asset(
-      //     "assets/images/WONDERS_100x100px.png"
-      // ),
     );
   }
   Widget _buildNewsSection(){
@@ -595,12 +564,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
     String ContactZipToDisplay = "";
     String ContactCityToDisplay = "";
 
-    // currentAndLikedElementsProvider.currentClubMeClub.getContactZip().length > 6 ?
-    // ContactZipToDisplay = currentAndLikedElementsProvider.currentClubMeClub.getContactZip().substring(0, 6) :
     ContactZipToDisplay = currentAndLikedElementsProvider.currentClubMeClub.getContactZip();
-
-    // currentAndLikedElementsProvider.currentClubMeClub.getContactCity().length > 15 ?
-    // ContactCityToDisplay = currentAndLikedElementsProvider.currentClubMeClub.getContactCity().substring(0, 15) :
     ContactCityToDisplay = currentAndLikedElementsProvider.currentClubMeClub.getContactCity();
 
     return Column(
@@ -695,45 +659,25 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                 // width: screenWidth*0.35,
                 child: Column(
                   children: [
-                    SizedBox(
-                      width: screenWidth*0.2,
-                      height: screenWidth*0.2,
-                      child: Image.asset(
-                        'assets/images/google_maps_3.png',
+
+                    InkWell(
+                      child: SizedBox(
+                        width: screenWidth*0.2,
+                        height: screenWidth*0.2,
+                        child: Image.asset(
+                          'assets/images/google_maps_3.png',
+                        ),
                       ),
-                    )
+                      onTap: ()=> MapUtils.openMap(
+                        currentAndLikedElementsProvider.currentClubMeClub.getGeoCoordLat(),
+                          currentAndLikedElementsProvider.currentClubMeClub.getGeoCoordLng()),
+                    ),
                   ],
                 ),
               )
             ],
           ),
         ),
-
-
-        // Container(
-        //     width: screenWidth*0.9,
-        //     // color: Colors.red,
-        //     alignment: Alignment.bottomRight,
-        //     child: GestureDetector(
-        //       child: Container(
-        //         padding: EdgeInsets.symmetric(
-        //             vertical: screenHeight*0.015,
-        //             horizontal: screenWidth*0.03
-        //         ),
-        //         decoration: const BoxDecoration(
-        //             color: Colors.black54,
-        //             borderRadius: BorderRadius.all(Radius.circular(10))
-        //         ),
-        //         child: Text(
-        //           findOnMapsButtonString[0],
-        //           textAlign: TextAlign.center,
-        //           style: customStyleClass.getFontStyle4BoldPrimeColor(),
-        //         ),
-        //       ),
-        //       onTap: ()=> MapUtils.openMap(
-        //           currentAndLikedElementsProvider.currentClubMeClub.getGeoCoordLat(), currentAndLikedElementsProvider.currentClubMeClub.getGeoCoordLng()),
-        //     )
-        // ),
 
         // Spacer
         SizedBox(
@@ -879,15 +823,16 @@ class _ClubDetailViewState extends State<ClubDetailView> {
         ),
 
         // First row images
-        Padding(
-          padding: EdgeInsets.only(left: screenWidth*0.05),
+        SizedBox(
+          width: screenWidth*0.9,
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
 
               if(
-                currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images!.isNotEmpty &&
-                fetchedContentProvider.getFetchedBannerImageIds()
-                  .contains(currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images![0].id)
+              currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images!.isNotEmpty &&
+                  fetchedContentProvider.getFetchedBannerImageIds()
+                      .contains(currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images![0].id)
               )
                 SizedBox(
                     width: screenWidth*0.29,
@@ -909,7 +854,6 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                 ),
 
 
-              SizedBox(width: screenWidth*0.02,),
               if(
               currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images!.length > 1 &&
                   fetchedContentProvider.getFetchedBannerImageIds()
@@ -933,7 +877,6 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                       }),
                     )
                 ),
-              SizedBox(width: screenWidth*0.02,),
               if(
               currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images!.length > 2 &&
                   fetchedContentProvider.getFetchedBannerImageIds()

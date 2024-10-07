@@ -88,7 +88,13 @@ class _FaqClubViewState extends State<FaqClubView> {
               ),
               child: Text(
                 "Allgemeine Informationen",
-                style: customStyleClass.getFontStyle1Bold(),
+                style: GoogleFonts.inter(
+                    textStyle: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold
+                    )
+                )
               ),
             )
         );
@@ -101,7 +107,13 @@ class _FaqClubViewState extends State<FaqClubView> {
               ),
               child: Text(
                 "Registrierung und Nutzung",
-                style: customStyleClass.getFontStyle1Bold(),
+                style: GoogleFonts.inter(
+                    textStyle: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold
+                    )
+                ),
               ),
             )
         );
@@ -114,7 +126,13 @@ class _FaqClubViewState extends State<FaqClubView> {
               ),
               child: Text(
                 "Coupons",
-                style: customStyleClass.getFontStyle1Bold(),
+                style: GoogleFonts.inter(
+                    textStyle: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold
+                    )
+                ),
               ),
             )
         );
@@ -127,7 +145,13 @@ class _FaqClubViewState extends State<FaqClubView> {
               ),
               child: Text(
                 "Zusammenarbeit",
-                style: customStyleClass.getFontStyle1Bold(),
+                style: GoogleFonts.inter(
+                    textStyle: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold
+                    )
+                ),
               ),
             )
         );
@@ -291,9 +315,11 @@ class _FaqClubViewState extends State<FaqClubView> {
                     ),
 
                     for(var element in widgetsToDisplay)
-                      element
+                      element,
 
-
+                    SizedBox(
+                      height: screenHeight*0.05,
+                    ),
 
                   ],
                 )

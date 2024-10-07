@@ -1,11 +1,7 @@
 import 'dart:io';
-
-
 import 'package:club_me/shared/dialogs/title_content_and_button_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../models/event.dart';
@@ -55,89 +51,7 @@ class EventTile extends StatelessWidget {
   bool showMaterialButton;
 
 
-  // CLICK
-
-  void clickEventTicket(BuildContext context){
-    Widget okButton = TextButton(
-      child: Text(
-          "OK",
-        style: customStyleClass.getFontStyle4BoldPrimeColor(),
-      ),
-      onPressed: () async {
-        final Uri url = Uri.parse(clubMeEvent.getTicketLink());
-        if (!await launchUrl(url)) {
-          throw Exception('Could not launch $url');
-        }
-      },
-    );
-
-    showDialog(
-        context: context,
-        builder: (BuildContext context){
-          return
-            TitleContentAndButtonDialog(
-                titleToDisplay: "Ticketbuchuchung",
-                contentToDisplay: "Dieser Link führt Sie weiter zu der Seite, wo Sie direkt ein Ticket kaufen können."
-                    "Ist das in Ordnung für Sie?",
-                buttonToDisplay: okButton
-            );
-        }
-    );
-  }
-
-
-  // FORMAT TEXTS
-
-  void formatPrice(){
-
-    var priceDecimalPosition = clubMeEvent.getEventPrice().toString().indexOf(".");
-
-    if(priceDecimalPosition + 2 == clubMeEvent.getEventPrice().toString().length){
-      priceFormatted = "${clubMeEvent.getEventPrice().toString().replaceFirst(".", ",")}0 €";
-    }else{
-      priceFormatted = "${clubMeEvent.getEventPrice().toString().replaceFirst(".", ",")} €";
-    }
-  }
-  void formatDJName(){
-    if(clubMeEvent.getDjName().length >= 42){
-      eventDjCut = "${clubMeEvent.getDjName().substring(0, 45)}...";
-    }else{
-      eventDjCut = clubMeEvent.getDjName().substring(0, clubMeEvent.getDjName().length);
-    }
-  }
-  void formatEventTitle(){
-    if(clubMeEvent.getEventTitle().length >= 49){
-      eventTitleCut = "${clubMeEvent.getEventTitle().substring(0, 47)}...";
-    }else{
-      eventTitleCut = clubMeEvent.getEventTitle().substring(0, clubMeEvent.getEventTitle().length);
-    }
-  }
-  void formatDateToDisplay(){
-
-
-    var hourToDisplay = clubMeEvent.getEventDate().hour < 10
-        ? "0${clubMeEvent.getEventDate().hour}" : "${clubMeEvent.getEventDate().hour}";
-
-    var minuteToDisplay = clubMeEvent.getEventDate().minute < 10
-        ? "0${clubMeEvent.getEventDate().minute}"
-        : "${clubMeEvent.getEventDate().minute}";
-
-    weekDayToDisplay = DateFormat('dd.MM.yyyy').format(clubMeEvent.getEventDate());
-
-    var eventDateWeekday = clubMeEvent.getEventDate().weekday;
-    switch(eventDateWeekday){
-      case(1): weekDayToDisplay = "Montag, $weekDayToDisplay, $hourToDisplay:$minuteToDisplay Uhr";
-      case(2): weekDayToDisplay = "Dienstag, $weekDayToDisplay, $hourToDisplay:$minuteToDisplay Uhr";
-      case(3): weekDayToDisplay = "Mittwoch, $weekDayToDisplay, $hourToDisplay:$minuteToDisplay Uhr";
-      case(4): weekDayToDisplay = "Donnerstag, $weekDayToDisplay, $hourToDisplay:$minuteToDisplay Uhr";
-      case(5): weekDayToDisplay = "Freitag, $weekDayToDisplay, $hourToDisplay:$minuteToDisplay Uhr";
-      case(6): weekDayToDisplay = "Samstag, $weekDayToDisplay, $hourToDisplay:$minuteToDisplay Uhr";
-      case(7): weekDayToDisplay = "Sonntag, $weekDayToDisplay, $hourToDisplay:$minuteToDisplay Uhr";
-    }
-  }
-
   // BUILD
-
   Widget _buildStackView(BuildContext context){
 
     return Stack(
@@ -176,7 +90,7 @@ class EventTile extends StatelessWidget {
             decoration: BoxDecoration(
               color: customStyleClass.backgroundColorMain,
               border: Border.all(
-                color: customStyleClass.backgroundColorEventTile
+                  color: customStyleClass.backgroundColorEventTile
               ),
               borderRadius: const BorderRadius.only(
                   topRight: Radius.circular(15),
@@ -189,34 +103,34 @@ class EventTile extends StatelessWidget {
                 // Image or loading indicator
                 fetchedContentProvider.getFetchedBannerImageIds().contains(clubMeEvent.getBannerImageFileName())?
                 SizedBox(
-                  height: topHeight,
-                  width: screenWidth,
-                  child: ClipRRect(
-                      borderRadius: const BorderRadius.only(
-                          topRight: Radius.circular(15),
-                          topLeft: Radius.circular(15)
-                      ),
-                      child: Image(
-                        image: FileImage(
-                            File(
-                                "${stateProvider.appDocumentsDir.path}/${clubMeEvent.getBannerImageFileName()}"
-                            )
+                    height: topHeight,
+                    width: screenWidth,
+                    child: ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                            topRight: Radius.circular(15),
+                            topLeft: Radius.circular(15)
                         ),
-                        fit: BoxFit.cover,
-                      )
-                )):
+                        child: Image(
+                          image: FileImage(
+                              File(
+                                  "${stateProvider.appDocumentsDir.path}/${clubMeEvent.getBannerImageFileName()}"
+                              )
+                          ),
+                          fit: BoxFit.cover,
+                        )
+                    )):
                 SizedBox(
-                  width: screenWidth,
-                  height: topHeight,
-                  child: Center(
-                    child: SizedBox(
-                      height: topHeight*0.5,
-                      width: screenWidth*0.2,
-                      child: CircularProgressIndicator(
-                        color: customStyleClass.primeColor,
+                    width: screenWidth,
+                    height: topHeight,
+                    child: Center(
+                      child: SizedBox(
+                        height: topHeight*0.5,
+                        width: screenWidth*0.2,
+                        child: CircularProgressIndicator(
+                          color: customStyleClass.primeColor,
+                        ),
                       ),
-                    ),
-                  )
+                    )
                 ),
 
                 // Display logo, when content is available
@@ -230,8 +144,9 @@ class EventTile extends StatelessWidget {
                         topLeft: Radius.circular(15)
                     ),
                     child: Image.asset(
-                      "assets/images/club_me_icon_round.png",
-                      scale: 15,
+                      "assets/images/ClubMe_Logo_weiß.png",
+                      height: 60,
+                      width: 60,
                       // fit: BoxFit.cover,
                     ),
                   ),
@@ -246,11 +161,11 @@ class EventTile extends StatelessWidget {
             height: bottomHeight,
             width: screenWidth,
             decoration: BoxDecoration(
-              borderRadius: const BorderRadius.only(
-                  bottomRight: Radius.circular(12),
-                  bottomLeft: Radius.circular(12)
-              ),
-              color: customStyleClass.backgroundColorEventTile
+                borderRadius: const BorderRadius.only(
+                    bottomRight: Radius.circular(12),
+                    bottomLeft: Radius.circular(12)
+                ),
+                color: customStyleClass.backgroundColorEventTile
             ),
             child: Stack(
               children: [
@@ -280,6 +195,7 @@ class EventTile extends StatelessWidget {
                         ),
 
                         // Price
+                        clubMeEvent.getEventPrice() != 0 ?
                         SizedBox(
                           width: screenWidth*0.2,
                           child: Padding(
@@ -294,7 +210,20 @@ class EventTile extends StatelessWidget {
                               ),
                             ),
                           ),
+                        ):SizedBox(
+                          width: screenWidth*0.2,
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                                top: screenHeight*0.01
+                            ),
+                            child: Text(
+                                " ",
+                                textAlign: TextAlign.center,
+                                style: customStyleClass.getFontStyle3Bold()
+                            ),
+                          ),
                         ),
+
 
                       ],
                     ),
@@ -429,6 +358,86 @@ class EventTile extends StatelessWidget {
         ),
 
       ],
+    );
+  }
+
+
+  // FORMAT TEXTS
+  void formatPrice(){
+
+    var priceDecimalPosition = clubMeEvent.getEventPrice().toString().indexOf(".");
+
+    if(priceDecimalPosition + 2 == clubMeEvent.getEventPrice().toString().length){
+      priceFormatted = "${clubMeEvent.getEventPrice().toString().replaceFirst(".", ",")}0 €";
+    }else{
+      priceFormatted = "${clubMeEvent.getEventPrice().toString().replaceFirst(".", ",")} €";
+    }
+  }
+  void formatDJName(){
+    if(clubMeEvent.getDjName().length >= 42){
+      eventDjCut = "${clubMeEvent.getDjName().substring(0, 45)}...";
+    }else{
+      eventDjCut = clubMeEvent.getDjName().substring(0, clubMeEvent.getDjName().length);
+    }
+  }
+  void formatEventTitle(){
+    if(clubMeEvent.getEventTitle().length >= 49){
+      eventTitleCut = "${clubMeEvent.getEventTitle().substring(0, 47)}...";
+    }else{
+      eventTitleCut = clubMeEvent.getEventTitle().substring(0, clubMeEvent.getEventTitle().length);
+    }
+  }
+  void formatDateToDisplay(){
+
+
+    var hourToDisplay = clubMeEvent.getEventDate().hour < 10
+        ? "0${clubMeEvent.getEventDate().hour}" : "${clubMeEvent.getEventDate().hour}";
+
+    var minuteToDisplay = clubMeEvent.getEventDate().minute < 10
+        ? "0${clubMeEvent.getEventDate().minute}"
+        : "${clubMeEvent.getEventDate().minute}";
+
+    weekDayToDisplay = DateFormat('dd.MM.yyyy').format(clubMeEvent.getEventDate());
+
+    var eventDateWeekday = clubMeEvent.getEventDate().weekday;
+    switch(eventDateWeekday){
+      case(1): weekDayToDisplay = "Montag, $weekDayToDisplay, $hourToDisplay:$minuteToDisplay Uhr";
+      case(2): weekDayToDisplay = "Dienstag, $weekDayToDisplay, $hourToDisplay:$minuteToDisplay Uhr";
+      case(3): weekDayToDisplay = "Mittwoch, $weekDayToDisplay, $hourToDisplay:$minuteToDisplay Uhr";
+      case(4): weekDayToDisplay = "Donnerstag, $weekDayToDisplay, $hourToDisplay:$minuteToDisplay Uhr";
+      case(5): weekDayToDisplay = "Freitag, $weekDayToDisplay, $hourToDisplay:$minuteToDisplay Uhr";
+      case(6): weekDayToDisplay = "Samstag, $weekDayToDisplay, $hourToDisplay:$minuteToDisplay Uhr";
+      case(7): weekDayToDisplay = "Sonntag, $weekDayToDisplay, $hourToDisplay:$minuteToDisplay Uhr";
+    }
+  }
+
+
+  // CLICK
+  void clickEventTicket(BuildContext context){
+    Widget okButton = TextButton(
+      child: Text(
+        "OK",
+        style: customStyleClass.getFontStyle4BoldPrimeColor(),
+      ),
+      onPressed: () async {
+        final Uri url = Uri.parse(clubMeEvent.getTicketLink());
+        if (!await launchUrl(url)) {
+          throw Exception('Could not launch $url');
+        }
+      },
+    );
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context){
+          return
+            TitleContentAndButtonDialog(
+                titleToDisplay: "Ticketbuchuchung",
+                contentToDisplay: "Dieser Link führt Sie weiter zu der Seite, wo Sie direkt ein Ticket kaufen können."
+                    "Ist das in Ordnung für Sie?",
+                buttonToDisplay: okButton
+            );
+        }
     );
   }
 

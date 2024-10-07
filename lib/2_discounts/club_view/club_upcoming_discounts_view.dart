@@ -3,14 +3,10 @@ import 'package:club_me/provider/state_provider.dart';
 import 'package:club_me/shared/custom_bottom_navigation_bar_clubs.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../../models/discount.dart';
-import 'package:intl/intl.dart';
-
 import '../../provider/fetched_content_provider.dart';
 import '../../provider/user_data_provider.dart';
 import '../../shared/custom_text_style.dart';
-import 'components/discount_tile_2.dart';
 
 
 
@@ -71,77 +67,116 @@ class _ClubUpcomingDiscountsViewState extends State<ClubUpcomingDiscountsView>
     }
   }
 
+
+
+
+  // CLICK EVENT
+  void clickEventTile(){
+    // TODO: Implement click event
+  }
   bool checkIfIsLiked(ClubMeDiscount discount){
     return false;
   }
-  void clickedOnShare(){
+  void clickEventShare(){
 
   }
-  void clickedOnLike(String input){
+  void clickEventLike(String input){
 
-  }
-
-
-  // CLICKED
-  void clickedOnTile(){
-    // TODO: Implement click event
   }
 
   // BUILD
-  Widget _buildAppBarShowTitle(){
-    return Container(
-      color: customStyleClass.backgroundColorMain,
-      width: screenWidth,
-      child: Stack(
-        children: [
-          // Headline
-          Container(
-              alignment: Alignment.bottomCenter,
-              height: 50,
-              width: screenWidth,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(headline,
-                      textAlign: TextAlign.center,
-                      style: customStyleClass.getFontStyleHeadline1Bold()
-                  ),
-                ],
-              )
-          ),
+  AppBar _buildAppBar(){
 
-          // back icon
-          Container(
-              width: screenWidth,
-              alignment: Alignment.centerLeft,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(
-                      Icons.arrow_back_ios_new_outlined,
-                      color: Colors.grey,
-                    ),
+    return AppBar(
+        surfaceTintColor: customStyleClass.backgroundColorMain,
+        automaticallyImplyLeading: false,
+        backgroundColor: customStyleClass.backgroundColorMain,
+        title: Container(
+          color: customStyleClass.backgroundColorMain,
+          width: screenWidth,
+          child: Stack(
+            children: [
+              // Headline
+              Container(
+                  alignment: Alignment.bottomCenter,
+                  height: 50,
+                  width: screenWidth,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(headline,
+                          textAlign: TextAlign.center,
+                          style: customStyleClass.getFontStyleHeadline1Bold()
+                      ),
+                    ],
                   )
-                ],
-              )
-          ),
+              ),
 
-        ],
-      ),
+              // back icon
+              Container(
+                  width: screenWidth,
+                  alignment: Alignment.centerLeft,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(
+                          Icons.arrow_back_ios_new_outlined,
+                          color: Colors.grey,
+                        ),
+                      )
+                    ],
+                  )
+              ),
+
+            ],
+          ),
+        )
+    );
+  }
+
+  Widget _buildMainView(){
+
+    var fetchedUpcomingDiscounts = fetchedContentProvider.getFetchedUpcomingDiscounts(userDataProvider.getUserClubId());
+
+    return Container(
+        color: customStyleClass.backgroundColorMain,
+        width: screenWidth,
+        height: screenHeight,
+        child: Stack(
+          children: [
+
+            _buildSwipeView(),
+
+            // Progress marker
+            if(fetchedUpcomingDiscounts.isNotEmpty)
+              Container(
+                height: screenHeight*0.7,
+                alignment: Alignment.bottomCenter,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.keyboard_arrow_left_sharp,
+                      size: customStyleClass.navigationArrowSize,
+                      color: _currentPageIndex > 0 ? customStyleClass.primeColor: Colors.grey,
+                    ),
+                    Icon(
+                      Icons.keyboard_arrow_right_sharp,
+                      size: customStyleClass.navigationArrowSize,
+                      color: _currentPageIndex < (fetchedUpcomingDiscounts.length-1) ? customStyleClass.primeColor: Colors.grey,
+                    ),
+                  ],
+                ),
+              ),
+
+          ],
+        )
     );
   }
 
   Widget _buildSwipeView(){
-
-    // If the provider has fetched elements so that the main function in _buildSupabaseDiscounts
-    // is not called, we still need to add the ids to the array to display the banners.
-    // for(var discount in discountsToDisplay){
-    //   if(!fetchedContentProvider.getFetchedBannerImageIds().contains(discount.getBannerId())){
-    //     fetchedContentProvider.addFetchedBannerImageId(discount.getBannerId());
-    //   }
-    // }
 
     List<ClubMeDiscount> fetchedUpcomingDiscounts = fetchedContentProvider.getFetchedUpcomingDiscounts(
         userDataProvider.getUserClubId()
@@ -166,8 +201,8 @@ class _ClubUpcomingDiscountsViewState extends State<ClubUpcomingDiscountsView>
                                 child: CouponCardClub(
                                   clubMeDiscount: discount,
                                   isLiked: checkIfIsLiked(discount),
-                                  clickedOnShare: clickedOnShare,
-                                  clickedOnLike: clickedOnLike,
+                                  clickedOnShare: clickEventShare,
+                                  clickedOnLike: clickEventLike,
                                   isEditable: true,
                                 )
                             ),
@@ -209,52 +244,12 @@ class _ClubUpcomingDiscountsViewState extends State<ClubUpcomingDiscountsView>
     customStyleClass = CustomStyleClass(context: context);
 
 
-    var fetchedUpcomingDiscounts = fetchedContentProvider.getFetchedUpcomingDiscounts(userDataProvider.getUserClubId());
-
     return Scaffold(
 
       extendBody: true,
 
-      appBar: AppBar(
-          surfaceTintColor: customStyleClass.backgroundColorMain,
-          automaticallyImplyLeading: false,
-          backgroundColor: customStyleClass.backgroundColorMain,
-          title: _buildAppBarShowTitle()
-      ),
-      body: Container(
-          color: customStyleClass.backgroundColorMain,
-            width: screenWidth,
-            height: screenHeight,
-            child: Stack(
-              children: [
-
-                _buildSwipeView(),
-
-                // Progress marker
-                if(fetchedUpcomingDiscounts.isNotEmpty)
-                  Container(
-                    height: screenHeight*0.7,
-                    alignment: Alignment.bottomCenter,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.keyboard_arrow_left_sharp,
-                          size: 50,
-                          color: _currentPageIndex > 0 ? customStyleClass.primeColor: Colors.grey,
-                        ),
-                        Icon(
-                          Icons.keyboard_arrow_right_sharp,
-                          size: 50,
-                          color: _currentPageIndex < (fetchedUpcomingDiscounts.length-1) ? customStyleClass.primeColor: Colors.grey,
-                        ),
-                      ],
-                    ),
-                  ),
-
-              ],
-            )
-        ),
+      appBar: _buildAppBar(),
+      body: _buildMainView(),
       bottomNavigationBar: CustomBottomNavigationBarClubs(),
     );
   }

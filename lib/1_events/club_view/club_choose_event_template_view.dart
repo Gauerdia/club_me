@@ -18,9 +18,8 @@ class ClubChooseEventTemplateView extends StatefulWidget {
 
 class _ClubChooseEventTemplateViewState extends State<ClubChooseEventTemplateView> {
 
-  String headLine = "Vorlagen";
+  String headline = "Vorlagen";
 
-  final SupabaseService _supabaseService = SupabaseService();
   late StateProvider stateProvider;
   late CustomStyleClass customStyleClass;
   late double screenHeight, screenWidth;
@@ -35,6 +34,7 @@ class _ClubChooseEventTemplateViewState extends State<ClubChooseEventTemplateVie
         title: Stack(
           children: [
 
+            // ICON
             Container(
               alignment: Alignment.centerLeft,
               height: 50,
@@ -43,17 +43,18 @@ class _ClubChooseEventTemplateViewState extends State<ClubChooseEventTemplateVie
                     Icons.arrow_back_ios,
                     color: Colors.white,
                   ),
-                  onPressed: () => clickedOnAbort()
+                  onPressed: () => clickEventGoBack()
               ),
             ),
 
-            Container(
+            // HEADLINE
+            SizedBox(
               height: 50,
               width: screenWidth,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(headLine,
+                  Text(headline,
                     textAlign: TextAlign.center,
                     style: customStyleClass.getFontStyleHeadline1Bold(),
                   )
@@ -65,11 +66,70 @@ class _ClubChooseEventTemplateViewState extends State<ClubChooseEventTemplateVie
     );
   }
 
-  void clickedOnAbort(){
+  Widget _buildMainView(){
+    return Container(
+        width: screenWidth,
+        height: screenHeight,
+        color: customStyleClass.backgroundColorMain,
+        child: SingleChildScrollView(
+            child: Column(
+              children: [
+                for(var eventTemplate in stateProvider.getClubMeEventTemplates())
+                  GestureDetector(
+                    child: Container(
+                      padding: const EdgeInsets.only(
+                          top: 10
+                      ),
+                      child: Card(
+                        color: customStyleClass.backgroundColorEventTile,
+                        child: Column(
+                          children: [
+
+                            SizedBox(
+                              width: screenWidth*0.9,
+                              child: ListTile(
+                                shape: RoundedRectangleBorder(
+                                  side: const BorderSide(color: Colors.grey, width: 1),
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                title: Text(
+                                  eventTemplate.getEventTitle(),
+                                  style: customStyleClass.getFontStyle3(),
+                                ),
+                                trailing: Wrap(
+                                  children: [
+
+                                    InkWell(
+                                      child: Icon(
+                                        Icons.delete,
+                                        color: customStyleClass.primeColor,
+                                      ),
+                                      onTap: ()=> clickEventDeleteEventTemplate(eventTemplate.getTemplateId()),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                    onTap: (){
+                      stateProvider.setCurrentEventTemplate(eventTemplate);
+                      context.go("/club_new_event");
+                    },
+                  )
+              ],
+            )
+        )
+    );
+  }
+
+  void clickEventGoBack(){
     Navigator.of(context).pop();
   }
 
-  void deleteEventTemplate(String templateId){
+  void clickEventDeleteEventTemplate(String templateId){
 
     Widget okButton = TextButton(
         onPressed: () {
@@ -98,10 +158,10 @@ class _ClubChooseEventTemplateViewState extends State<ClubChooseEventTemplateVie
   }
 
   void afterSuccessfulDeletion(String templateId){
-    setState(() {
-      stateProvider.resetEventTemplates();
+
+      stateProvider.removeEventTemplate(templateId);
       Navigator.pop(context);
-    });
+
   }
 
   @override
@@ -120,63 +180,7 @@ class _ClubChooseEventTemplateViewState extends State<ClubChooseEventTemplateVie
 
         bottomNavigationBar: CustomBottomNavigationBarClubs(),
         appBar: _buildAppBar(),
-        body: Container(
-            width: screenWidth,
-            height: screenHeight,
-            color: customStyleClass.backgroundColorMain,
-            child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    for(var eventTemplate in stateProvider.getClubMeEventTemplates())
-                      GestureDetector(
-                        child: Container(
-                          padding: const EdgeInsets.only(
-                            top: 10
-                          ),
-                          child: Card(
-                            color: customStyleClass.backgroundColorEventTile,
-                            child: Column(
-                              children: [
-
-                                SizedBox(
-                                  width: screenWidth*0.9,
-                                  child: ListTile(
-                                    shape: RoundedRectangleBorder(
-                                      side: const BorderSide(color: Colors.grey, width: 1),
-                                      borderRadius: BorderRadius.circular(5),
-                                    ),
-                                    title: Text(
-                                      eventTemplate.getEventTitle(),
-                                      style: customStyleClass.getFontStyle3(),
-                                    ),
-                                    trailing: Wrap(
-                                      children: [
-
-                                        InkWell(
-                                          child: Icon(
-                                            Icons.delete,
-                                            color: customStyleClass.primeColor,
-                                          ),
-                                          onTap: ()=> deleteEventTemplate(eventTemplate.getTemplateId()),
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                )
-
-                              ],
-                            ),
-                          ),
-                        ),
-                        onTap: (){
-                          stateProvider.setCurrentEventTemplate(eventTemplate);
-                          context.go("/club_new_event");
-                        },
-                      )
-                  ],
-                )
-            )
-        )
+        body: _buildMainView()
     );
   }
 }

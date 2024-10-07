@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:club_me/models/club.dart';
 import 'package:club_me/models/event.dart';
 import 'package:club_me/services/check_and_fetch_service.dart';
+import 'package:club_me/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
@@ -30,9 +31,9 @@ class _UserClubsViewState extends State<UserClubsView>
   var log = Logger();
   String headline = "Clubs";
 
-  // late Future getClubs;
-
   late String dropdownValue;
+  late String weekDayDropDownValue;
+
 
   late StateProvider stateProvider;
   late FetchedContentProvider fetchedContentProvider;
@@ -71,6 +72,7 @@ class _UserClubsViewState extends State<UserClubsView>
   void initState() {
 
     dropdownValue = genresDropdownList.first;
+    weekDayDropDownValue = Utils.weekDaysForFiltering.first;
 
     _pageViewController = PageController();
     _tabController = TabController(length: 3, vsync: this);
@@ -151,10 +153,14 @@ class _UserClubsViewState extends State<UserClubsView>
   // FILTER
   void filterClubs(){
 
-    if(searchValue != "" || dropdownValue != genresDropdownList[0] || onlyFavoritesIsActive){
+    if(
+    searchValue != "" ||
+        dropdownValue != genresDropdownList[0] ||
+        weekDayDropDownValue != Utils.weekDaysForFiltering[0] ||
+        onlyFavoritesIsActive){
 
       // set for coloring
-      if(dropdownValue != genresDropdownList[0]){
+      if(dropdownValue != genresDropdownList[0] || weekDayDropDownValue != Utils.weekDaysForFiltering[0]){
         isAnyFilterActive = true;
       }else{
         isAnyFilterActive = false;
@@ -182,6 +188,28 @@ class _UserClubsViewState extends State<UserClubsView>
           if(!club.getMusicGenres().toLowerCase().contains(dropdownValue.toLowerCase())){
             fitsCriteria = false;
           }
+        }
+
+        if(weekDayDropDownValue != Utils.weekDaysForFiltering[0]){
+
+          int chosenDayIndex = Utils.weekDaysForFiltering.indexWhere((element) => element == weekDayDropDownValue);
+
+          bool atleastOneDayFits = false;
+
+          for(var days in club.getOpeningTimes().days!){
+
+            int weekDayToCompare = days.day!;
+
+            // Some clubs start at 0 am so we have to adjust the algorithm to consider them
+            if(days.openingHour! < 10){
+              weekDayToCompare = days.day! - 1;
+            }
+
+            if(weekDayToCompare == chosenDayIndex){
+              atleastOneDayFits = true;
+            }
+          }
+          if(!atleastOneDayFits) fitsCriteria = false;
         }
 
         if(onlyFavoritesIsActive){
@@ -484,8 +512,6 @@ class _UserClubsViewState extends State<UserClubsView>
       ),
     );
   }
-
-
   Widget _buildFilterMenu(){
     return Container(
       padding: EdgeInsets.only(
@@ -505,14 +531,68 @@ class _UserClubsViewState extends State<UserClubsView>
 
       child: Row(
         children: [
+
           SizedBox(
-            width: screenWidth*1,
+            width: screenWidth*0.5,
             child: Column(
               children: [
 
-                // Genre text
+                // Spacer
+                SizedBox(
+                  height: screenHeight*0.01,
+                ),
+
+                // Genre
+                SizedBox(
+                  // width: screenWidth*0.5,
+                  child: Text(
+                    "Wochentag",
+                    textAlign: TextAlign.left,
+                    style: customStyleClass.getFontStyle3(),
+                  ),
+                ),
+
+                // Dropdown
+                Theme(
+                  data: Theme.of(context).copyWith(
+                      canvasColor: customStyleClass.backgroundColorMain
+                  ),
+                  child: DropdownButton(
+                      value: weekDayDropDownValue,
+                      menuMaxHeight: 300,
+                      items: Utils.weekDaysForFiltering.map<DropdownMenuItem<String>>(
+                              (String value) {
+                            return DropdownMenuItem(
+                              value: value,
+                              child: Text(
+                                value,
+                                style: customStyleClass.getFontStyle4Grey2(),
+                              ),
+                            );
+                          }
+                      ).toList(),
+                      onChanged: (String? value){
+                        setState(() {
+                          weekDayDropDownValue = value!;
+                          filterClubs();
+                        });
+                      }
+                  ),
+                )
+
+
+              ],
+            ),
+          ),
+
+          // Genre text
+          SizedBox(
+            width: screenWidth*0.5,
+            child: Column(
+              children: [
+
                 Text(
-                    "Musikrichtung",
+                  "Musikrichtung",
                   style: customStyleClass.getFontStyle3(),
                 ),
 
@@ -543,6 +623,7 @@ class _UserClubsViewState extends State<UserClubsView>
                         }
                     )
                 )
+
               ],
             ),
           )
@@ -633,19 +714,19 @@ class _UserClubsViewState extends State<UserClubsView>
                 // Progress marker
                 if(clubsToDisplay.isNotEmpty)
                   Container(
-                    height: screenHeight*0.785,
+                    height: screenHeight*0.775,
                     alignment: Alignment.bottomCenter,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
                           Icons.keyboard_arrow_left_sharp,
-                          size: 50,
+                          size: customStyleClass.navigationArrowSize,
                           color: _currentPageIndex > 0 ? customStyleClass.primeColor: Colors.grey,
                         ),
                         Icon(
                           Icons.keyboard_arrow_right_sharp,
-                          size: 50,
+                          size:  customStyleClass.navigationArrowSize,
                           color: _currentPageIndex < (clubsToDisplay.length-1) ? customStyleClass.primeColor: Colors.grey,
                         ),
                       ],

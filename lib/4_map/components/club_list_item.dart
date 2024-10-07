@@ -12,6 +12,7 @@ import '../../models/club.dart';
 import '../../provider/current_and_liked_elements_provider.dart';
 import '../../provider/user_data_provider.dart';
 import '../../shared/custom_text_style.dart';
+import '../../shared/map_utils.dart';
 import '../../stories/show_story_chewie.dart';
 
 class ClubListItem extends StatelessWidget {
@@ -193,56 +194,76 @@ class ClubListItem extends StatelessWidget {
                     ),
 
                     // ICONS
-                    SizedBox(
-                      width: screenWidth*0.7,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
+                    Container(
+                      // color: Colors.red,
+                      alignment: Alignment.centerLeft,
+                      width: screenWidth*0.9,
+                      child: SizedBox(
+                        width: screenWidth*0.6,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
 
 
-                          // Distance
-                          Padding(
-                            padding: EdgeInsets.only(right: 10),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.location_on_outlined,
-                                  color: customStyleClass.primeColor,
-                                  size: customStyleClass.getIconSize2(),
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 5
+                            // Distance
+                            Padding(
+                              padding: const EdgeInsets.only(right: 10),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.location_on_outlined,
+                                    color: customStyleClass.primeColor,
+                                    size: customStyleClass.getIconSize2(),
                                   ),
-                                  child: Text(
-                                    "${calculateDistanceToClub().toStringAsFixed(2)} km",
-                                    style: customStyleClass.getFontStyle5(),
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-
-                          // Genre
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.library_music_outlined,
-                                color: customStyleClass.primeColor,
-                                size: customStyleClass.getIconSize2(),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 5
+                                    ),
+                                    child: Text(
+                                      "${calculateDistanceToClub().toStringAsFixed(2)} km",
+                                      style: customStyleClass.getFontStyle5(),
+                                    ),
+                                  )
+                                ],
                               ),
-                              Container(
-                                padding: const EdgeInsets.only(
-                                    left: 5
+                            ),
+
+                            // Genre
+                            Padding(
+                              padding:  const EdgeInsets.only(right: 10),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.library_music_outlined,
+                                    color: customStyleClass.primeColor,
+                                    size: customStyleClass.getIconSize2(),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.only(
+                                        left: 5
+                                    ),
+                                    child: Text(
+                                      getAndFormatMusicGenre(),
+                                      style:customStyleClass.getFontStyle5(),
+                                    ),
+                                  )
+                                ],
+                              ),),
+
+                            InkWell(
+                              child: SizedBox(
+                                width: screenWidth*0.06,
+                                height: screenWidth*0.06,
+                                child: Image.asset(
+                                  'assets/images/google_maps_3.png',
                                 ),
-                                child: Text(
-                                  getAndFormatMusicGenre(),
-                                  style:customStyleClass.getFontStyle5(),
-                                ),
-                              )
-                            ],
-                          )
-                        ],
+                              ),
+                              onTap: ()=> MapUtils.openMap(
+                                  currentClub.getGeoCoordLat(),
+                                  currentClub.getGeoCoordLng()),
+                            )
+                          ],
+                        ),
                       ),
                     ),
 

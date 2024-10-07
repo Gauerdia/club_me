@@ -1,5 +1,6 @@
 import 'package:club_me/models/event.dart';
 import 'package:club_me/shared/custom_bottom_navigation_bar.dart';
+import 'package:club_me/shared/dialogs/TitleAndContentDialog.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -21,7 +22,7 @@ class UserUpcomingEventsView extends StatefulWidget {
 
 class _UserUpcomingEventsViewState extends State<UserUpcomingEventsView> {
 
-  String headLine = "Events";
+  String headline = "Events";
 
   late double screenHeight, screenWidth;
 
@@ -35,51 +36,79 @@ class _UserUpcomingEventsViewState extends State<UserUpcomingEventsView> {
 
   List<ClubMeEvent> eventsToDisplay = [];
 
-  Widget _buildAppBarShowTitle(){
-    return SizedBox(
-      width: screenWidth,
-      child: Stack(
-        children: [
-          // Headline
-          Container(
-              alignment: Alignment.bottomCenter,
-              height: 50,
+  AppBar _buildAppBar(){
+    return AppBar(
+        surfaceTintColor: Colors.black,
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.transparent,
+        title: SizedBox(
               width: screenWidth,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+              child: Stack(
                 children: [
-                  Text(headLine,
-                      textAlign: TextAlign.center,
-                      style: customStyleClass.getFontStyle1()
+                  // Headline
+                  Container(
+                      alignment: Alignment.bottomCenter,
+                      height: 50,
+                      width: screenWidth,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(headline,
+                              textAlign: TextAlign.center,
+                              style: customStyleClass.getFontStyle1()
+                          ),
+                        ],
+                      )
+                  ),
+
+                  // back icon
+                  Container(
+                      width: screenWidth,
+                      alignment: Alignment.centerLeft,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          IconButton(
+                            onPressed: () => clickEventBack(),
+                            icon: const Icon(
+                              Icons.arrow_back_ios_new_outlined,
+                              color: Colors.grey,
+                              // size: 20,
+                            ),
+                          )
+                        ],
+                      )
                   ),
                 ],
-              )
-          ),
-
-          // back icon
-          Container(
-              width: screenWidth,
-              alignment: Alignment.centerLeft,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  IconButton(
-                    onPressed: () => backButtonPressed(),
-                    icon: const Icon(
-                      Icons.arrow_back_ios_new_outlined,
-                      color: Colors.grey,
-                      // size: 20,
-                    ),
-                  )
-                ],
-              )
-          ),
-        ],
-      ),
+              ),
+            )
     );
   }
+  Widget _buildMainView(){
+    return SizedBox(
+        width: screenWidth,
+        height: screenHeight,
+        child: Stack(
+          children: [
 
-  Widget _buildView(){
+            // main view
+            SingleChildScrollView(
+                physics: const ScrollPhysics(),
+                child: Column(
+                  children: [
+
+                    _buildListView(),
+
+                    // Spacer
+                    SizedBox(height: screenHeight*0.1,),
+                  ],
+                )
+            ),
+          ],
+        )
+    );
+  }
+  Widget _buildListView(){
     return ListView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
@@ -97,8 +126,8 @@ class _UserUpcomingEventsViewState extends State<UserUpcomingEventsView> {
             child: EventTile(
               clubMeEvent: currentEvent,
               isLiked: isLiked,
-              clickEventLike: clickedOnLike,
-              clickEventShare: clickedOnShare,
+              clickEventLike: clickEventLike,
+              clickEventShare: clickEventShare,
             ),
             onTap: (){
               stateProvider.setAccessedEventDetailFrom(4);
@@ -111,17 +140,17 @@ class _UserUpcomingEventsViewState extends State<UserUpcomingEventsView> {
     );
   }
 
-  void clickedOnShare(){
+  void clickEventShare(){
     showDialog<String>(
         context: context,
-        builder: (BuildContext context) => const AlertDialog(
-            title: Text("Teilen noch nicht möglich!"),
-            content: Text("Die Funktion, ein Event zu teilen, ist derzeit noch"
+        builder: (BuildContext context) =>
+        TitleAndContentDialog(
+            titleToDisplay: "Event teilen",
+            contentToDisplay: "Die Funktion, ein Event zu teilen, ist derzeit noch "
                 "nicht implementiert. Wir bitten um Verständnis.")
-        )
     );
   }
-  void clickedOnLike(StateProvider stateProvider, String eventId){
+  void clickEventLike(StateProvider stateProvider, String eventId){
     setState(() {
       if(currentAndLikedElementsProvider.getLikedEvents().contains(eventId)){
         currentAndLikedElementsProvider.deleteLikedEvent(eventId);
@@ -133,7 +162,7 @@ class _UserUpcomingEventsViewState extends State<UserUpcomingEventsView> {
     });
   }
 
-  void backButtonPressed(){
+  void clickEventBack(){
     context.go("/club_details");
   }
 
@@ -168,38 +197,9 @@ class _UserUpcomingEventsViewState extends State<UserUpcomingEventsView> {
     filterEvents();
 
     return Scaffold(
-
       extendBody: true,
-
-
-      appBar: AppBar(
-          surfaceTintColor: Colors.black,
-          automaticallyImplyLeading: false,
-          backgroundColor: Colors.transparent,
-          title: _buildAppBarShowTitle()
-      ),
-      body: SizedBox(
-          width: screenWidth,
-          height: screenHeight,
-          child: Stack(
-            children: [
-
-              // main view
-              SingleChildScrollView(
-                  physics: const ScrollPhysics(),
-                  child: Column(
-                    children: [
-
-                      _buildView(),
-
-                      // Spacer
-                      SizedBox(height: screenHeight*0.1,),
-                    ],
-                  )
-              ),
-            ],
-          )
-      ),
+      appBar: _buildAppBar(),
+      body: _buildMainView(),
       bottomNavigationBar: CustomBottomNavigationBar(),
     );
   }

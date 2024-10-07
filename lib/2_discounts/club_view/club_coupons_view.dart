@@ -8,6 +8,7 @@ import 'package:club_me/provider/fetched_content_provider.dart';
 import 'package:club_me/provider/user_data_provider.dart';
 import 'package:club_me/services/check_and_fetch_service.dart';
 import 'package:club_me/services/hive_service.dart';
+import 'package:club_me/shared/dialogs/title_content_and_button_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logger/logger.dart';
@@ -36,23 +37,17 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
   late FetchedContentProvider fetchedContentProvider;
   late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
 
-
-  // late Future getDiscounts;
   late double screenHeight, screenWidth;
   late CustomStyleClass customStyleClass;
 
-
   List<ClubMeDiscount> pastDiscounts = [];
   List<ClubMeDiscount> upcomingDiscounts = [];
-
 
   final HiveService _hiveService = HiveService();
   final SupabaseService _supabaseService = SupabaseService();
   final CheckAndFetchService _checkAndFetchService = CheckAndFetchService();
 
   // INIT
-
-
   @override
   void initState(){
     super.initState();
@@ -69,8 +64,6 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
 
 
   // FILTER
-
-
   void checkIfFilteringIsNecessary(){
 
     // Check if provider is full, but local arrays are empty
@@ -186,8 +179,6 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
 
 
   // BUILD
-
-
   AppBar _buildAppBar(){
     return AppBar(
       title: SizedBox(
@@ -202,264 +193,271 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
     );
   }
   Widget _buildMainView(){
-    return Column(
-      children: [
-
-        // Spacer
-        SizedBox(
-          height: screenHeight*0.05,
-        ),
-
-        // Neues Event
-        SizedBox(
-          width: screenWidth*0.9,
-          child: Text(
-            "Neuer Coupon",
-            textAlign: TextAlign.center,
-            style: customStyleClass.getFontStyle1Bold(),
-          ),
-        ),
-
-        // New event
-        GestureDetector(
-          child: Container(
-            padding: const EdgeInsets.only(
-                top: 10,
-                bottom: 7
-            ),
-            width: screenWidth*0.9,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+    return Container(
+        width: screenWidth,
+        height: screenHeight,
+        color: customStyleClass.backgroundColorMain,
+        child: SingleChildScrollView(
+            child: Column(
               children: [
-                Row(
-                  children: [
-                    Text(
-                      "Neuen Coupon erstellen",
-                      textAlign: TextAlign.left,
-                      style: customStyleClass.getFontStyle4BoldPrimeColor(),
+
+                // Spacer
+                SizedBox(
+                  height: screenHeight*0.05,
+                ),
+
+                // Neues Event
+                SizedBox(
+                  width: screenWidth*0.9,
+                  child: Text(
+                    "Neuer Coupon",
+                    textAlign: TextAlign.center,
+                    style: customStyleClass.getFontStyle1Bold(),
+                  ),
+                ),
+
+                // New event
+                GestureDetector(
+                  child: Container(
+                    padding: const EdgeInsets.only(
+                        top: 10,
+                        bottom: 7
                     ),
-                    Icon(
-                      Icons.arrow_forward_outlined,
-                      color: customStyleClass.primeColor,
-                    )
+                    width: screenWidth*0.9,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              "Neuen Coupon erstellen",
+                              textAlign: TextAlign.left,
+                              style: customStyleClass.getFontStyle4BoldPrimeColor(),
+                            ),
+                            Icon(
+                              Icons.arrow_forward_outlined,
+                              color: customStyleClass.primeColor,
+                            )
+                          ],
+                        )
+                      ],
+
+                    ),
+                  ),
+                  onTap: () => clickEventNewCoupon(),
+                ),
+
+                // Template event
+                if(stateProvider.getDiscountTemplates().isNotEmpty)
+                  GestureDetector(
+                    child: Container(
+                      padding: const EdgeInsets.only(
+                          bottom: 30
+                      ),
+                      width: screenWidth*0.9,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                "Coupon aus Vorlage erstellen",
+                                textAlign: TextAlign.left,
+                                style: customStyleClass.getFontStyle4BoldPrimeColor(),
+                              ),
+                              Icon(
+                                Icons.arrow_forward_outlined,
+                                color: customStyleClass.primeColor,
+                              )
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                    onTap: () => clickEventNewCouponFromTemplate(),
+                  ),
+
+                if(stateProvider.getDiscountTemplates().isEmpty)
+                  const SizedBox(
+                    height: 30,
+                  ),
+
+
+                // Current events
+                SizedBox(
+                  width: screenWidth*0.9,
+                  child: Text(
+                    "Aktuelle Coupons",
+                    textAlign: TextAlign.center,
+                    style: customStyleClass.getFontStyle1Bold(),
+                  ),
+                ),
+
+                // Show fetched discounts
+                upcomingDiscounts.isNotEmpty
+                    ? Stack(
+                  children: [
+
+                    // Event Tile
+                    GestureDetector(
+                      child: Center(
+                        child: SmallDiscountTile(
+                            clubMeDiscount: upcomingDiscounts[0]
+                        ),
+                      ),
+                      onTap: () => clickEventCurrentDiscount(),
+                    ),
+
+                    // Edit button
+                    Container(
+                      padding: EdgeInsets.only(
+                          right: screenWidth*0.07,
+                          top: screenWidth*0.03
+                      ),
+                      alignment: Alignment.topRight,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+
+                          InkWell(
+                            child: Icon(
+                                Icons.edit,
+                                color: customStyleClass.primeColor,
+                                size: screenWidth*0.06
+                            ),
+                            onTap: () => clickEventEditDiscount(),
+                          ),
+
+                          InkWell(
+                            child: Icon(
+                                Icons.clear_rounded,
+                                color: customStyleClass.primeColor,
+                                size: screenWidth*0.06
+                            ),
+                            onTap: () => clickEventDeleteDiscount(),
+                          ),
+
+                        ],
+                      ),
+                    ),
+
                   ],
                 )
+                    :Container(
+                  padding: const EdgeInsets.only(
+                      bottom: 20,
+                      top: 20
+                  ),
+                  child: Text(
+                    "Keine Coupons verfügbar",
+                    style: customStyleClass.getFontStyle3(),
+                  ),
+                ),
+
+                // More events
+                if(upcomingDiscounts.isNotEmpty)
+                  GestureDetector(
+                    child: Container(
+                      width: screenWidth*0.9,
+                      alignment: Alignment.centerRight,
+                      padding: const EdgeInsets.only(
+                          bottom: 30
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                "Mehr Coupons",
+                                style: customStyleClass.getFontStyle4BoldPrimeColor(),
+                              ),
+                              Icon(
+                                Icons.arrow_forward_outlined,
+                                color: customStyleClass.primeColor,
+                              )
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                    onTap: () => clickEventGoToMoreDiscounts(0),
+                  ),
+
+                // past events
+                SizedBox(
+                  width: screenWidth*0.9,
+                  child: Text(
+                    "Vergangene Coupons",
+                    textAlign: TextAlign.center,
+                    style: customStyleClass.getFontStyle1Bold(),
+                  ),
+                ),
+
+                // Show fetched discounts
+                pastDiscounts.isNotEmpty
+                    ? Stack(
+                  children: [
+                    GestureDetector(
+                      child: Center(
+                        child: SmallDiscountTile(
+                            clubMeDiscount: pastDiscounts[0]
+                        ),
+                      ),
+                      onTap: (){
+                      },
+                    ),
+
+                  ],
+                ) :Container(
+                    padding: const EdgeInsets.only(
+                        bottom: 20,
+                        top: 20
+                    ),
+                    child: Text(
+                      "Keine Coupons verfügbar",
+                      style: customStyleClass.getFontStyle4(),
+                    )
+                ),
+
+                // More events
+                if(pastDiscounts.isNotEmpty)
+                  GestureDetector(
+                    child: Container(
+                      width: screenWidth*0.9,
+                      alignment: Alignment.centerRight,
+                      padding: const EdgeInsets.only(
+                          bottom: 30
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                "Mehr Coupons",
+                                style: customStyleClass.getFontStyle4BoldPrimeColor(),
+                              ),
+                              Icon(
+                                Icons.arrow_forward_outlined,
+                                color: customStyleClass.primeColor,
+                              )
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                    onTap: () => clickEventGoToMoreDiscounts(1),
+                  ),
+
+
+                // Spacer
+                SizedBox(
+                  height: screenHeight*0.15,
+                ),
               ],
-
-            ),
-          ),
-          onTap: () => clickEventNewCoupon(),
-        ),
-
-        // Template event
-        if(stateProvider.getDiscountTemplates().isNotEmpty)
-          GestureDetector(
-            child: Container(
-              padding: const EdgeInsets.only(
-                  bottom: 30
-              ),
-              width: screenWidth*0.9,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        "Coupon aus Vorlage erstellen",
-                        textAlign: TextAlign.left,
-                        style: customStyleClass.getFontStyle4BoldPrimeColor(),
-                      ),
-                      Icon(
-                        Icons.arrow_forward_outlined,
-                        color: customStyleClass.primeColor,
-                      )
-                    ],
-                  )
-                ],
-              ),
-            ),
-            onTap: () => clickEventNewCouponFromTemplate(),
-          ),
-
-        if(stateProvider.getDiscountTemplates().isEmpty)
-          const SizedBox(
-            height: 30,
-          ),
-
-
-        // Current events
-        SizedBox(
-          width: screenWidth*0.9,
-          child: Text(
-            "Aktuelle Coupons",
-            textAlign: TextAlign.center,
-            style: customStyleClass.getFontStyle1Bold(),
-          ),
-        ),
-
-        // Show fetched discounts
-        upcomingDiscounts.isNotEmpty
-            ? Stack(
-          children: [
-
-            // Event Tile
-            GestureDetector(
-              child: Center(
-                child: SmallDiscountTile(
-                  clubMeDiscount: upcomingDiscounts[0]
-                ),
-              ),
-              onTap: () => clickEventCurrentDiscount(),
-            ),
-
-            // Edit button
-            Container(
-              padding: EdgeInsets.only(
-                right: screenWidth*0.07,
-                top: screenWidth*0.03
-              ),
-              alignment: Alignment.topRight,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-
-                  InkWell(
-                    child: Icon(
-                        Icons.edit,
-                      color: customStyleClass.primeColor,
-                        size: screenWidth*0.06
-                    ),
-                    onTap: () => clickEventEditDiscount(),
-                  ),
-
-                  InkWell(
-                    child: Icon(
-                        Icons.clear_rounded,
-                      color: customStyleClass.primeColor,
-                        size: screenWidth*0.06
-                    ),
-                    onTap: () => clickEventDeleteDiscount(),
-                  ),
-
-                ],
-              ),
-            ),
-
-          ],
-        )
-            :Container(
-          padding: const EdgeInsets.only(
-              bottom: 20,
-              top: 20
-          ),
-          child: Text(
-            "Keine Coupons verfügbar",
-            style: customStyleClass.getFontStyle3(),
-          ),
-        ),
-
-        // More events
-        if(upcomingDiscounts.isNotEmpty)
-          GestureDetector(
-            child: Container(
-              width: screenWidth*0.9,
-              alignment: Alignment.centerRight,
-              padding: const EdgeInsets.only(
-                  bottom: 30
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        "Mehr Coupons",
-                        style: customStyleClass.getFontStyle4BoldPrimeColor(),
-                      ),
-                      Icon(
-                        Icons.arrow_forward_outlined,
-                        color: customStyleClass.primeColor,
-                      )
-                    ],
-                  )
-                ],
-              ),
-            ),
-            onTap: () => clickEventGoToMoreDiscounts(0),
-          ),
-
-        // past events
-        SizedBox(
-          width: screenWidth*0.9,
-          child: Text(
-            "Vergangene Coupons",
-            textAlign: TextAlign.center,
-            style: customStyleClass.getFontStyle1Bold(),
-          ),
-        ),
-
-        // Show fetched discounts
-        pastDiscounts.isNotEmpty
-            ? Stack(
-          children: [
-            GestureDetector(
-              child: Center(
-                child: SmallDiscountTile(
-                  clubMeDiscount: pastDiscounts[0]
-                ),
-              ),
-              onTap: (){
-              },
-            ),
-
-          ],
-        ) :Container(
-            padding: const EdgeInsets.only(
-                bottom: 20,
-                top: 20
-            ),
-            child: Text(
-              "Keine Coupons verfügbar",
-              style: customStyleClass.getFontStyle4(),
             )
-        ),
-
-        // More events
-        if(pastDiscounts.isNotEmpty)
-          GestureDetector(
-            child: Container(
-              width: screenWidth*0.9,
-              alignment: Alignment.centerRight,
-              padding: const EdgeInsets.only(
-                  bottom: 30
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        "Mehr Coupons",
-                        style: customStyleClass.getFontStyle4BoldPrimeColor(),
-                      ),
-                      Icon(
-                        Icons.arrow_forward_outlined,
-                        color: customStyleClass.primeColor,
-                      )
-                    ],
-                  )
-                ],
-              ),
-            ),
-            onTap: () => clickEventGoToMoreDiscounts(1),
-          ),
-
-
-        // Spacer
-        SizedBox(
-          height: screenHeight*0.15,
-        ),
-      ],
+        )
     );
   }
 
@@ -476,19 +474,10 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
   }
   void clickEventDeleteDiscount(){
     showDialog(context: context, builder: (BuildContext context){
-      return AlertDialog(
-        backgroundColor: Color(0xff121111),
-        title:  Text(
-          "Achtung!",
-          style: customStyleClass.getFontStyle1Bold(),
-        ),
-        content:  Text(
-          "Bist du sicher, dass du diesen Coupon löschen möchtest?",
-          textAlign: TextAlign.left,
-          style: customStyleClass.getFontStyle3(),
-        ),
-        actions: [
-          TextButton(
+      return TitleContentAndButtonDialog(
+          titleToDisplay: "Achtung",
+          contentToDisplay: "Bist du sicher, dass du diesen Coupon löschen möchtest?",
+          buttonToDisplay: TextButton(
               onPressed: () => _supabaseService.deleteDiscount(upcomingDiscounts[0].getDiscountId()).then((value){
                 if(value == 0){
                   setState(() {
@@ -504,9 +493,8 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
                 "Löschen",
                 style: customStyleClass.getFontStyle4BoldPrimeColor(),
               )
-          )
-        ],
-      );
+          ));
+
     });
   }
   void clickEventCurrentDiscount(){
@@ -525,8 +513,6 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
 
 
   // Fetch content from DB
-
-
   void getAllDiscountTemplates() async{
 
     final stateProvider = Provider.of<StateProvider>(context, listen: false);
@@ -564,15 +550,7 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
       extendBody: true,
 
       appBar: _buildAppBar(),
-      body: Container(
-            width: screenWidth,
-            height: screenHeight,
-            color: customStyleClass.backgroundColorMain,
-            child: SingleChildScrollView(
-                child:
-                _buildMainView()
-            )
-        ),
+      body: _buildMainView(),
       bottomNavigationBar: CustomBottomNavigationBarClubs(),
     );
   }
