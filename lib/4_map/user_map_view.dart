@@ -406,79 +406,94 @@ class _UserMapViewState extends State<UserMapView>{
   // PROCESS
   void processClubsFromQuery(var data) async{
 
-    for(var element in data){
-      ClubMeClub currentClub = parseClubMeClub(element);
+    try{
+
+      for(var element in data){
+        ClubMeClub currentClub = parseClubMeClub(element);
 
 
-      if(!fetchedContentProvider.getFetchedClubs().contains(currentClub)){
-        fetchedContentProvider.addClubToFetchedClubs(currentClub);
+        if(!fetchedContentProvider.getFetchedClubs().contains(currentClub)){
+          fetchedContentProvider.addClubToFetchedClubs(currentClub);
+        }
       }
-    }
 
-    // Check if we need to download the corresponding images
-    _checkAndFetchService.checkAndFetchClubImages(
-        fetchedContentProvider.getFetchedClubs(),
-        stateProvider,
-        fetchedContentProvider,
-        false
-    );
-
-    filterClubs();
-
-    _getUserLocation();
-
-    for(var club in fetchedContentProvider.getFetchedClubs()){
-
-      var icon = await BitmapDescriptor.asset(
-          const ImageConfiguration(size: Size(46,46)),
-          "assets/images/beispiel_100x100.png"
+      // Check if we need to download the corresponding images
+      _checkAndFetchService.checkAndFetchClubImages(
+          fetchedContentProvider.getFetchedClubs(),
+          stateProvider,
+          fetchedContentProvider,
+          false
       );
 
-      // Set base markers for all clubs
-      final marker = Marker(
-        icon: icon,
-        onTap: () => onTapEventMarker(club),
-        markerId: MarkerId(club.getClubId()),
-        position: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng(),
-        ),
-      );
-      _markers[club.getClubId()] = marker;
+      filterClubs();
 
+      _getUserLocation();
+
+      for(var club in fetchedContentProvider.getFetchedClubs()){
+
+        var icon = await BitmapDescriptor.asset(
+            const ImageConfiguration(size: Size(46,46)),
+            "assets/images/beispiel_100x100.png"
+        );
+
+        // Set base markers for all clubs
+        final marker = Marker(
+          icon: icon,
+          onTap: () => onTapEventMarker(club),
+          markerId: MarkerId(club.getClubId()),
+          position: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng(),
+          ),
+        );
+        _markers[club.getClubId()] = marker;
+
+      }
+
+      checkForMapPinImagesUntilAllAreLoaded();
+
+      setUserLocationMarker();
+
+      setState(() {
+
+      });
+
+    }catch(e){
+      _supabaseService.createErrorLog(
+        "Error in UserMapView. Fct: processClubsFromQuery. Error: $e"
+      );
     }
 
-    checkForMapPinImagesUntilAllAreLoaded();
-    
-    setUserLocationMarker();
-
-    setState(() {
-
-    });
   }
   void processClubsFromProvider(FetchedContentProvider fetchedContentProvider) async{
 
-    for(var club in fetchedContentProvider.getFetchedClubs()){
+    try{
+      for(var club in fetchedContentProvider.getFetchedClubs()){
 
-      var icon = await BitmapDescriptor.asset(
-          const ImageConfiguration(size: Size(46,46)),
-          "assets/images/beispiel_100x100.png"
+        var icon = await BitmapDescriptor.asset(
+            const ImageConfiguration(size: Size(46,46)),
+            "assets/images/beispiel_100x100.png"
+        );
+
+        // Set base markers for all clubs
+        final marker = Marker(
+          icon: icon,
+          onTap: () => onTapEventMarker(club),
+          markerId: MarkerId(club.getClubId()),
+          position: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng(),
+          ),
+        );
+        _markers[club.getClubId()] = marker;
+
+
+      }
+
+      filterClubs();
+
+      setUserLocationMarker();
+    }catch(e){
+      _supabaseService.createErrorLog(
+          "Error in UserMapView. Fct: processClubsFromProvider. Error: $e"
       );
-
-      // Set base markers for all clubs
-      final marker = Marker(
-        icon: icon,
-        onTap: () => onTapEventMarker(club),
-        markerId: MarkerId(club.getClubId()),
-        position: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng(),
-        ),
-      );
-      _markers[club.getClubId()] = marker;
-
-
     }
-
-    filterClubs();
-
-    setUserLocationMarker();
   }
   
 
@@ -516,16 +531,18 @@ class _UserMapViewState extends State<UserMapView>{
 
   }
   void setUserLocationMarker() async{
-    // Set marker for user
-    // var icon = await BitmapDescriptor.asset(
-    //     const ImageConfiguration(size: Size(46,46)),
-    //     "assets/images/marker1.png"
-    // );
 
-    _markers['user_location'] = Marker(
-      markerId: const MarkerId('user_location'),
-      position: LatLng(userDataProvider.getUserLatCoord(), userDataProvider.getUserLongCoord()),
-    );
+    try{
+      _markers['user_location'] = Marker(
+        markerId: const MarkerId('user_location'),
+        position: LatLng(userDataProvider.getUserLatCoord(), userDataProvider.getUserLongCoord()),
+      );
+    }catch(e){
+      _supabaseService.createErrorLog(
+          "Error in UserMapView. Fct: setUserLocationMarker. Error: $e"
+      );
+    }
+
   }
 
 
@@ -535,20 +552,27 @@ class _UserMapViewState extends State<UserMapView>{
   }
   void onTapEventMarker(ClubMeClub club){
 
-    if(fetchedContentProvider.fetchedEvents
-        .where(
-            (event) => (event.getClubId() == club.getClubId() && event.getEventDate().isAfter(DateTime.now()))
-        ).isEmpty
-    ){
-      noEventAvailable = true;
-    }else{
-      clubMeEventToDisplay = fetchedContentProvider.fetchedEvents.firstWhere(
+    try{
+      if(fetchedContentProvider.fetchedEvents
+          .where(
               (event) => (event.getClubId() == club.getClubId() && event.getEventDate().isAfter(DateTime.now()))
+      ).isEmpty
+      ){
+        noEventAvailable = true;
+      }else{
+        clubMeEventToDisplay = fetchedContentProvider.fetchedEvents.firstWhere(
+                (event) => (event.getClubId() == club.getClubId() && event.getEventDate().isAfter(DateTime.now()))
+        );
+        noEventAvailable = false;
+      }
+      currentAndLikedElementsProvider.setCurrentClub(club);
+      toggleShowBottomSheet();
+    }catch(e){
+      _supabaseService.createErrorLog(
+          "Error in UserMapView. Fct: onTapEventMarker. Error: $e"
       );
-      noEventAvailable = false;
     }
-    currentAndLikedElementsProvider.setCurrentClub(club);
-    toggleShowBottomSheet();
+
   }
 
 
