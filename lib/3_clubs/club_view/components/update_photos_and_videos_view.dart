@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:club_me/models/front_page_images.dart';
+import 'package:club_me/shared/dialogs/title_content_and_button_dialog.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -116,7 +117,6 @@ class _UpdatePhotosAndVideosViewState extends State<UpdatePhotosAndVideosView> {
                 child: Container(
                     decoration: const BoxDecoration(
                         shape: BoxShape.circle,
-                        // color: Color(0xff11181f)
                     ),
                     child: const Padding(
                       padding: EdgeInsets.only(bottom: 15),
@@ -183,53 +183,18 @@ class _UpdatePhotosAndVideosViewState extends State<UpdatePhotosAndVideosView> {
 
   void askIfWantToDeleteFrontPageImage(String imageId){
     showDialog(context: context, builder: (BuildContext context){
-      return AlertDialog(
-        title: const Text("Foto löschen"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-
-            // Question text
-            const Text(
-              "Möchtest du dieses Foto wirklich löschen?",
-              textAlign: TextAlign.left,
-            ),
-
-            // Spacer
-            SizedBox(
-              height: screenHeight*0.03,
-            ),
-
-            // "New event" button
-            Container(
-                width: screenWidth*0.9,
-                // color: Colors.red,
-                alignment: Alignment.bottomRight,
-                child: GestureDetector(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                        vertical: screenHeight*0.015,
-                        horizontal: screenWidth*0.03
-                    ),
-                    decoration: const BoxDecoration(
-                        color: Colors.black54,
-                        borderRadius: BorderRadius.all(Radius.circular(10))
-                    ),
-                    child: isLoading ?
-                      const CircularProgressIndicator() :
-                    Text(
-                      "Löschen",
-                      textAlign: TextAlign.center,
-                      style: customStyleClass.getFontStyle4BoldPrimeColor(),
-                    ),
-                  ),
-                  onTap: () => deleteFrontPageImage(imageId),
+      return
+        TitleContentAndButtonDialog(
+            titleToDisplay: "Foto löschen",
+            contentToDisplay: "Möchtest du dieses Foto wirklich löschen?",
+            buttonToDisplay: TextButton(
+                onPressed: () => deleteFrontPageImage(imageId),
+                child: Text(
+                  "Löschen",
+                  textAlign: TextAlign.center,
+                  style: customStyleClass.getFontStyle4BoldPrimeColor(),
                 )
-            ),
-
-          ],
-        ),
-      );
+            ));
     });
   }
 
