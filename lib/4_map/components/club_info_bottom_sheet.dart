@@ -224,7 +224,7 @@ class _ClubInfoBottomSheetState extends State<ClubInfoBottomSheet> {
                   child: EventCard(
                     clubMeEvent: clubMeEvent!,
                     accessedEventDetailFrom: 3,
-                    backgroundColorIndex: 1,
+                    backgroundColorIndex: 0,
                   ),
                   onTap: (){
                     currentAndLikedElementsProvider.setCurrentEvent(clubMeEvent!);
@@ -248,7 +248,6 @@ class _ClubInfoBottomSheetState extends State<ClubInfoBottomSheet> {
                     Container(
 
                       decoration: const BoxDecoration(
-                        // color: Color(0xff11181f),
                         borderRadius: BorderRadius.all(
                             Radius.circular(12)
                         ),
