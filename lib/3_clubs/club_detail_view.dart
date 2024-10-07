@@ -75,8 +75,6 @@ class _ClubDetailViewState extends State<ClubDetailView> {
 
 
   // CLICKED
-
-
   void clickEventOfferList(double screenHeight, double screenWidth){
 
     if(currentAndLikedElementsProvider.currentClubMeClub.clubOffers.offers.isNotEmpty){
@@ -118,8 +116,6 @@ class _ClubDetailViewState extends State<ClubDetailView> {
 
 
   // BUILD
-
-
   AppBar _buildAppBar(){
     return AppBar(
         surfaceTintColor: customStyleClass.backgroundColorMain,
@@ -189,199 +185,205 @@ class _ClubDetailViewState extends State<ClubDetailView> {
     );
   }
   Widget _buildMainView(){
-    // Stack for the image full screen view
-    return Stack(
-      children: [
 
-        // The main view
-        Column(
+    // Stack for the image full screen view
+    return Container(
+        width: screenWidth,
+        height: screenHeight,
+        color: customStyleClass.backgroundColorMain,
+        child: Stack(
           children: [
 
-            // Spacer
-            SizedBox(
-              height: screenHeight*0.12,
-            ),
-
-            // MAIN CONTENT
-            Stack(
+            // The main view
+            Column(
               children: [
 
-                // BG Image
-                Container(
-                    height: screenHeight*0.19,
-                    color: currentAndLikedElementsProvider.currentClubMeClub.getBackgroundColorId() == 0 ?
-                    Colors.white :
-                    Colors.black,
-                    child: Center(
-                        child: SizedBox(
-                            height: screenHeight,
-                            width: screenWidth,
-                            child: Image(
-                              image: FileImage(
-                                File(
-                                  "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeClub.getFrontpageBannerFileName()}",
-                                ),
-                              ),
-                              fit:BoxFit.cover,
+                // Spacer
+                SizedBox(
+                  height: screenHeight*0.12,
+                ),
+
+                // MAIN CONTENT
+                Stack(
+                  children: [
+
+                    // BG Image
+                    Container(
+                        height: screenHeight*0.19,
+                        color: currentAndLikedElementsProvider.currentClubMeClub.getBackgroundColorId() == 0 ?
+                        Colors.white :
+                        Colors.black,
+                        child: Center(
+                            child: SizedBox(
+                                height: screenHeight,
+                                width: screenWidth,
+                                child: Image(
+                                  image: FileImage(
+                                    File(
+                                      "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeClub.getFrontpageBannerFileName()}",
+                                    ),
+                                  ),
+                                  fit:BoxFit.cover,
+                                )
                             )
                         )
-                    )
-                ),
-
-                // main Content
-                Padding(
-                  padding: EdgeInsets.only(
-                    top: screenHeight*0.19,
-                  ),
-                  child: Container(
-                    width: screenWidth,
-                    height: screenHeight*0.6,
-                    color: customStyleClass.backgroundColorMain,
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-
-                          // Container for the bg gradient
-                          Container(
-                            color: customStyleClass.backgroundColorMain,
-
-                            child: Column(
-                              children: [
-
-                                _buildMapAndPricelistIconSection(),
-
-                                // White line
-                                Divider(
-                                  height:10,
-                                  thickness: 1,
-                                  color: Colors.grey[900],
-                                  indent: 0,
-                                  endIndent: 0,
-                                ),
-
-                                _buildEventSection(),
-
-                                // White line
-                                Divider(
-                                  height:10,
-                                  thickness: 1,
-                                  color: Colors.grey[900],
-                                  indent: 0,
-                                  endIndent: 0,
-                                ),
-
-                                _buildNewsSection(),
-
-                                // White line
-                                Divider(
-                                  height:10,
-                                  thickness: 1,
-                                  color: Colors.grey[900],
-                                  indent: 0,
-                                  endIndent: 0,
-                                ),
-
-                                _buildPhotosAndVideosSection(),
-
-                                // White line
-                                Divider(
-                                  height:10,
-                                  thickness: 1,
-                                  color: Colors.grey[900],
-                                  indent: 0,
-                                  endIndent: 0,
-                                ),
-
-                                _buildSocialMediaSection(),
-
-                                // White line
-                                Divider(
-                                  height:10,
-                                  thickness: 1,
-                                  color: Colors.grey[900],
-                                  indent: 0,
-                                  endIndent: 0,
-                                ),
-
-                                _buildMusicGenresSection(),
-
-                                // White line
-                                Divider(
-                                  height:10,
-                                  thickness: 1,
-                                  color: Colors.grey[900],
-                                  indent: 0,
-                                  endIndent: 0,
-                                ),
-
-                                _buildOpeningHoursSection(),
-
-                                // White line
-                                Divider(
-                                  height:10,
-                                  thickness: 1,
-                                  color: Colors.grey[900],
-                                  indent: 0,
-                                  endIndent: 0,
-                                ),
-
-                                _buildContactSection(),
-
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
                     ),
-                  ),
-                ),
 
-                // Centered logo
-                Padding(
-                  padding: EdgeInsets.only(
-                      top: screenHeight*0.135
-                  ),
-                  child: Align(
-                      alignment: Alignment.center,
-                      child: GestureDetector(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    // main Content
+                    Padding(
+                      padding: EdgeInsets.only(
+                        top: screenHeight*0.19,
+                      ),
+                      child: Container(
+                        width: screenWidth,
+                        height: screenHeight*0.6,
+                        color: customStyleClass.backgroundColorMain,
+                        child: SingleChildScrollView(
+                          child: Column(
                             children: [
-                              _buildLogoIcon()
+
+                              // Container for the bg gradient
+                              Container(
+                                color: customStyleClass.backgroundColorMain,
+
+                                child: Column(
+                                  children: [
+
+                                    _buildMapAndPricelistIconSection(),
+
+                                    // White line
+                                    Divider(
+                                      height:10,
+                                      thickness: 1,
+                                      color: Colors.grey[900],
+                                      indent: 0,
+                                      endIndent: 0,
+                                    ),
+
+                                    _buildEventSection(),
+
+                                    // White line
+                                    Divider(
+                                      height:10,
+                                      thickness: 1,
+                                      color: Colors.grey[900],
+                                      indent: 0,
+                                      endIndent: 0,
+                                    ),
+
+                                    _buildNewsSection(),
+
+                                    // White line
+                                    Divider(
+                                      height:10,
+                                      thickness: 1,
+                                      color: Colors.grey[900],
+                                      indent: 0,
+                                      endIndent: 0,
+                                    ),
+
+                                    _buildPhotosAndVideosSection(),
+
+                                    // White line
+                                    Divider(
+                                      height:10,
+                                      thickness: 1,
+                                      color: Colors.grey[900],
+                                      indent: 0,
+                                      endIndent: 0,
+                                    ),
+
+                                    _buildSocialMediaSection(),
+
+                                    // White line
+                                    Divider(
+                                      height:10,
+                                      thickness: 1,
+                                      color: Colors.grey[900],
+                                      indent: 0,
+                                      endIndent: 0,
+                                    ),
+
+                                    _buildMusicGenresSection(),
+
+                                    // White line
+                                    Divider(
+                                      height:10,
+                                      thickness: 1,
+                                      color: Colors.grey[900],
+                                      indent: 0,
+                                      endIndent: 0,
+                                    ),
+
+                                    _buildOpeningHoursSection(),
+
+                                    // White line
+                                    Divider(
+                                      height:10,
+                                      thickness: 1,
+                                      color: Colors.grey[900],
+                                      indent: 0,
+                                      endIndent: 0,
+                                    ),
+
+                                    _buildContactSection(),
+
+                                  ],
+                                ),
+                              ),
                             ],
                           ),
-                          onTap: () => clickEventStoryButton(context, screenHeight, screenWidth, stateProvider)
-                      )
+                        ),
+                      ),
+                    ),
+
+                    // Centered logo
+                    Padding(
+                      padding: EdgeInsets.only(
+                          top: screenHeight*0.135
+                      ),
+                      child: Align(
+                          alignment: Alignment.center,
+                          child: GestureDetector(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                children: [
+                                  _buildLogoIcon()
+                                ],
+                              ),
+                              onTap: () => clickEventStoryButton(context, screenHeight, screenWidth, stateProvider)
+                          )
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            ),
+
+            if(showGalleryImageFullScreen)
+              Container(
+                width: screenWidth,
+                height: screenHeight,
+                color:Colors.black.withOpacity(0.7),
+                child: Center(
+                  child: InkWell(
+                    child: Image(
+                      image: FileImage(
+                          File(
+                              "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images![galleryImageToShowIndex].id}"
+                          )
+                      ),
+                      // fit: BoxFit.cover,
+                    ),
+                    onTap: () => setState(() {
+                      showGalleryImageFullScreen = false;
+                    }),
                   ),
                 ),
-              ],
-            )
+              )
+
           ],
-        ),
-
-        if(showGalleryImageFullScreen)
-        Container(
-          width: screenWidth,
-          height: screenHeight,
-          color:Colors.black.withOpacity(0.7),
-          child: Center(
-            child: InkWell(
-              child: Image(
-                image: FileImage(
-                    File(
-                        "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images![galleryImageToShowIndex].id}"
-                    )
-                ),
-                // fit: BoxFit.cover,
-              ),
-              onTap: () => setState(() {
-                showGalleryImageFullScreen = false;
-              }),
-            ),
-          ),
         )
-
-      ],
     );
   }
   Widget _buildLogoIcon(){
@@ -1153,8 +1155,6 @@ class _ClubDetailViewState extends State<ClubDetailView> {
 
 
   // CHECK
-
-
   bool checkIfIsEventIsAfterToday(ClubMeEvent event){
 
     if(event.getEventDate().isBefore(stateProvider.getBerlinTime())){
@@ -1175,7 +1175,6 @@ class _ClubDetailViewState extends State<ClubDetailView> {
       noEventsAvailable = true;
     }
   }
-
   void checkForGalleryImages(){
 
     print("checkForGalleryImages");
@@ -1210,6 +1209,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
 
@@ -1231,12 +1231,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
       extendBodyBehindAppBar: true,
 
       appBar: _buildAppBar(),
-      body: Container(
-        width: screenWidth,
-        height: screenHeight,
-        color: customStyleClass.backgroundColorMain,
-        child: _buildMainView()
-      ),
+      body: _buildMainView(),
       bottomNavigationBar: CustomBottomNavigationBar(),
     );
   }

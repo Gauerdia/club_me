@@ -95,8 +95,8 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
     }
   }
 
-  // BUILD
 
+  // BUILD
   Widget _buildMainView(){
     return Stack(
       children: [
@@ -1116,8 +1116,6 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
 
 
   // FILTER
-
-
   void checkIfFilteringIsNecessary(){
     if(upcomingEvents.isEmpty && pastEvents.isEmpty){
       filterEventsFromProvider(stateProvider);
@@ -1164,8 +1162,6 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
 
 
   // CLICK
-
-
   void toggleShowVideoIsActive(){
     setState(() {
       showVideoIsActive = !showVideoIsActive;
@@ -1666,8 +1662,6 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
 
 
   // MISC
-
-
   static Future<void> goToSocialMedia(String socialMediaLink) async{
 
     print("Link: $socialMediaLink");
@@ -1794,6 +1788,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
     }
 
   }
+
 
   @override
   Widget build(BuildContext context) {

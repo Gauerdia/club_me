@@ -53,8 +53,6 @@ class _UserClubsViewState extends State<UserClubsView>
   String searchValue = "";
   int _currentPageIndex = 0;
 
-  bool dataFetched = false;
-
   bool isSearchbarActive = false;
   bool isAnyFilterActive = false;
   bool isFilterMenuActive = false;
@@ -93,11 +91,457 @@ class _UserClubsViewState extends State<UserClubsView>
   }
 
 
-  void processClubsFromQuery(var data){
+  // BUILD
+  Widget _buildMainView(){
+   return Container(
+       width: screenWidth,
+       height: screenHeight,
+       color: customStyleClass.backgroundColorMain,
+       child: Stack(
+         children: [
 
-    setState(() {
-      dataFetched = true;
-    });
+           // Pageview of the club cards
+
+           SizedBox(
+               height: screenHeight*1,
+               width: screenWidth,
+               child: clubsToDisplay.isNotEmpty?
+               _buildPageView() :  (isAnyFilterActive || isSearchbarActive) ?
+               SizedBox(
+                 width: screenWidth,
+                 height: screenHeight*0.8,
+                 child: Center(
+                   child: Text(
+                     textAlign: TextAlign.center,
+                     "Entschuldigung, im Rahmen dieser Filter sind keine Events verfügbar.",
+                     style: customStyleClass.getFontStyle3(),
+                   ),
+                 ),
+               ): onlyFavoritesIsActive ?
+               SizedBox(
+                 width: screenWidth,
+                 height: screenHeight*0.8,
+                 child: Center(
+                   child: Text(
+                     textAlign: TextAlign.center,
+                     "Derzeit sind keine Events als Favoriten markiert.",
+                     style: customStyleClass.getFontStyle3(),
+                   ),
+                 ),
+               ):
+               Center(
+                 child: CircularProgressIndicator(
+                   color: customStyleClass.primeColor,
+                 ),
+               )
+           ),
+
+           // Progress marker
+           if(clubsToDisplay.isNotEmpty)
+             Container(
+               height: screenHeight*0.775,
+               alignment: Alignment.bottomCenter,
+               child: Row(
+                 mainAxisAlignment: MainAxisAlignment.center,
+                 children: [
+                   Icon(
+                     Icons.keyboard_arrow_left_sharp,
+                     size: customStyleClass.navigationArrowSize,
+                     color: _currentPageIndex > 0 ? customStyleClass.primeColor: Colors.grey,
+                   ),
+                   Icon(
+                     Icons.keyboard_arrow_right_sharp,
+                     size:  customStyleClass.navigationArrowSize,
+                     color: _currentPageIndex < (clubsToDisplay.length-1) ? customStyleClass.primeColor: Colors.grey,
+                   ),
+                 ],
+               ),
+             ),
+
+           // Filter menu
+           if(isFilterMenuActive)_buildFilterMenu()
+         ],
+       )
+   );
+  }
+  AppBar _buildAppBar(){
+
+    return isSearchbarActive ?
+    AppBar(
+      backgroundColor: customStyleClass.backgroundColorMain,
+      surfaceTintColor: customStyleClass.backgroundColorMain,
+      title: Container(
+        width: screenWidth,
+        color: customStyleClass.backgroundColorMain,
+        child: Stack(
+          children: [
+            // Headline
+            Container(
+                alignment: Alignment.bottomCenter,
+                height: 50,
+                width: screenWidth,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: screenWidth*0.4,
+                      child: TextField(
+                        autofocus: true,
+                        controller: _textEditingController,
+                        cursorColor: customStyleClass.primeColor,
+                        decoration: InputDecoration(
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: customStyleClass.primeColor),
+                          ),
+                          hintStyle: TextStyle(
+                              color: customStyleClass.primeColor
+                          ),
+                        ),
+                        style: const TextStyle(
+                            color: Colors.white
+                        ),
+                        onChanged: (text){
+                          _textEditingController.text = text;
+                          searchValue = text;
+                          setState(() {
+                            filterClubs();
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                )
+            ),
+
+            // Search icon
+            Container(
+                width: screenWidth,
+                alignment: Alignment.centerLeft,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                        onPressed: () => toggleIsSearchbarActive(),
+                        icon: Icon(
+                          Icons.search,
+                          color: searchValue != "" ? customStyleClass.primeColor : Colors.grey,
+                          // size: 20,
+                        )
+                    )
+                  ],
+                )
+            ),
+
+            // Right icons
+            Container(
+              width: screenWidth,
+              alignment: Alignment.centerRight,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                      onPressed: () => filterForFavorites(),
+                      icon: Icon(
+                        onlyFavoritesIsActive? Icons.star : Icons.star_border,
+                        color: onlyFavoritesIsActive ? customStyleClass.primeColor : Colors.white,
+                      )
+                  ),
+                  Padding(
+                      padding: const EdgeInsets.only(right: 0),
+                      child: GestureDetector(
+                        child: Container(
+                            padding: const EdgeInsets.all(7),
+                            child: Icon(
+                              Icons.filter_alt_outlined,
+                              color: isAnyFilterActive ? customStyleClass.primeColor : Colors.white,
+                            )
+                        ),
+                        onTap: (){
+                          toggleIsFilterMenuActive();
+                        },
+                      )
+                  )
+                ],
+              ),
+            ),
+
+          ],
+        ),
+      ),
+    ) :
+    AppBar(
+      backgroundColor: customStyleClass.backgroundColorMain,
+      surfaceTintColor: customStyleClass.backgroundColorMain,
+      title: Container(
+        width: screenWidth,
+        color: customStyleClass.backgroundColorMain,
+        child: Stack(
+          children: [
+            // Headline
+            Container(
+                alignment: Alignment.bottomCenter,
+                height: 50,
+                width: screenWidth,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                                headline,
+                                textAlign: TextAlign.center,
+                                style: customStyleClass.getFontStyleHeadline1Bold()
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  bottom: 15
+                              ),
+                              child: Text(
+                                "VIP",
+                                style: customStyleClass.getFontStyleVIPGold(),
+                              ),
+                            )
+                          ],
+                        ),
+                      ],
+                    )
+                  ],
+                )
+            ),
+
+            // Search icon
+            Container(
+                width: screenWidth,
+                alignment: Alignment.centerLeft,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                        onPressed: () => toggleIsSearchbarActive(),
+                        icon: Icon(
+                          Icons.search,
+                          color: searchValue != "" ? customStyleClass.primeColor : Colors.grey,
+                          // size: 20,
+                        )
+                    )
+                  ],
+                )
+            ),
+
+            // Right icons
+            Container(
+              width: screenWidth,
+              alignment: Alignment.centerRight,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                      onPressed: () => filterForFavorites(),
+                      icon: Icon(
+                        onlyFavoritesIsActive ? Icons.star : Icons.star_border,
+                        color: onlyFavoritesIsActive ? customStyleClass.primeColor : Colors.white,
+                      )
+                  ),
+                  Padding(
+                      padding: const EdgeInsets.only(right: 0),
+                      child: GestureDetector(
+                        child: Container(
+                            padding: const EdgeInsets.all(7),
+                            // decoration: BoxDecoration(
+                            //   color: const Color(0xff11181f),
+                            //   borderRadius: BorderRadius.circular(45),
+                            // ),
+                            child: Icon(
+                              Icons.filter_alt_outlined,
+                              color: isAnyFilterActive || isFilterMenuActive ? customStyleClass.primeColor : Colors.white,
+                            )
+                        ),
+                        onTap: (){
+                          toggleIsFilterMenuActive();
+                        },
+                      )
+                  )
+                ],
+              ),
+            ),
+
+          ],
+        ),
+      ),
+    );
+  }
+  Widget _buildPageView(){
+    return SingleChildScrollView(
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+
+          if(clubsToDisplay.isNotEmpty)
+            SizedBox(
+              height: screenHeight*0.73,
+              width: screenWidth,
+              child: PageView(
+                controller: _pageViewController,
+                onPageChanged: _handlePageViewChanged,
+                children: <Widget>[
+
+                  for(var club in clubsToDisplay)
+                    ClubCard(
+                      events: fetchedContentProvider.getFetchedEvents().where((event){
+                        return (event.getClubId() == club.getClubId() && checkIfIsEventIsAfterToday(event));
+                      }).toList(),
+                      clubMeClub: club,
+                      triggerSetState: triggerSetState,
+                      clickEventShare: clickEventShare,
+                    )
+                ],
+              ),
+            ),
+          if(clubsToDisplay.isEmpty)
+            SizedBox(
+              height: screenHeight*0.8,
+              width: screenWidth,
+              child: Center(
+                child: Text(
+                  onlyFavoritesIsActive ? "Derzeit sind keine Clubs als Favoriten markiert.":
+                  "Derzeit sind keine Clubs verfügbar.",
+                  style: customStyleClass.getFontStyle3(),
+                )
+                ,
+              ),
+            ),
+
+        ],
+      ),
+    );
+  }
+  Widget _buildFilterMenu(){
+    return Container(
+      padding: EdgeInsets.only(
+          top: screenHeight*0.02
+      ),
+      decoration: BoxDecoration(
+          color: customStyleClass.backgroundColorMain,
+          border: Border(
+              bottom: BorderSide(
+                  color: Colors.grey[900]!,
+                  width: 1
+              )
+          )
+      ),
+      height: screenHeight*0.12,
+      width: screenWidth,
+
+      child: Row(
+        children: [
+
+          SizedBox(
+            width: screenWidth*0.5,
+            child: Column(
+              children: [
+
+                // Spacer
+                SizedBox(
+                  height: screenHeight*0.01,
+                ),
+
+                // Genre
+                SizedBox(
+                  // width: screenWidth*0.5,
+                  child: Text(
+                    "Wochentag",
+                    textAlign: TextAlign.left,
+                    style: customStyleClass.getFontStyle3(),
+                  ),
+                ),
+
+                // Dropdown
+                Theme(
+                  data: Theme.of(context).copyWith(
+                      canvasColor: customStyleClass.backgroundColorMain
+                  ),
+                  child: DropdownButton(
+                      value: weekDayDropDownValue,
+                      menuMaxHeight: 300,
+                      items: Utils.weekDaysForFiltering.map<DropdownMenuItem<String>>(
+                              (String value) {
+                            return DropdownMenuItem(
+                              value: value,
+                              child: Text(
+                                value,
+                                style: customStyleClass.getFontStyle4Grey2(),
+                              ),
+                            );
+                          }
+                      ).toList(),
+                      onChanged: (String? value){
+                        setState(() {
+                          weekDayDropDownValue = value!;
+                          filterClubs();
+                        });
+                      }
+                  ),
+                )
+
+
+              ],
+            ),
+          ),
+
+          // Genre text
+          SizedBox(
+            width: screenWidth*0.5,
+            child: Column(
+              children: [
+
+                Text(
+                  "Musikrichtung",
+                  style: customStyleClass.getFontStyle3(),
+                ),
+
+                // Dropdown
+                Theme(
+                    data: Theme.of(context).copyWith(
+                        canvasColor: customStyleClass.backgroundColorMain
+                    ),
+                    child: DropdownButton(
+                        value: dropdownValue,
+                        menuMaxHeight: 200,
+                        items: genresDropdownList.map<DropdownMenuItem<String>>(
+                                (String value) {
+                              return DropdownMenuItem(
+                                  value: value,
+                                  child: Text(
+                                    value,
+                                    style: customStyleClass.getFontStyle4Grey2(),
+                                  )
+                              );
+                            }
+                        ).toList(),
+                        onChanged: (String? value){
+                          setState(() {
+                            dropdownValue = value!;
+                            filterClubs();
+                          });
+                        }
+                    )
+                )
+
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+
+  // PROCESS
+  void processClubsFromQuery(var data){
 
     for(var element in data){
 
@@ -262,376 +706,6 @@ class _UserClubsViewState extends State<UserClubsView>
   }
 
 
-  // BUILD
-  Widget _buildAppBarShowSearch(){
-    return Container(
-      width: screenWidth,
-      color: customStyleClass.backgroundColorMain,
-      child: Stack(
-        children: [
-          // Headline
-          Container(
-              alignment: Alignment.bottomCenter,
-              height: 50,
-              width: screenWidth,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: screenWidth*0.4,
-                    child: TextField(
-                      autofocus: true,
-                      controller: _textEditingController,
-                      cursorColor: customStyleClass.primeColor,
-                      decoration: InputDecoration(
-                        focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: customStyleClass.primeColor),
-                        ),
-                        hintStyle: TextStyle(
-                            color: customStyleClass.primeColor
-                        ),
-                      ),
-                      style: const TextStyle(
-                          color: Colors.white
-                      ),
-                      onChanged: (text){
-                  _textEditingController.text = text;
-                        searchValue = text;
-                        setState(() {
-                          filterClubs();
-                        });
-                      },
-                    ),
-                  ),
-                ],
-              )
-          ),
-
-          // Search icon
-          Container(
-              width: screenWidth,
-              alignment: Alignment.centerLeft,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  IconButton(
-                      onPressed: () => toggleIsSearchbarActive(),
-                      icon: Icon(
-                        Icons.search,
-                        color: searchValue != "" ? customStyleClass.primeColor : Colors.grey,
-                        // size: 20,
-                      )
-                  )
-                ],
-              )
-          ),
-
-          // Right icons
-          Container(
-            width: screenWidth,
-            alignment: Alignment.centerRight,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                IconButton(
-                    onPressed: () => filterForFavorites(),
-                    icon: Icon(
-                      onlyFavoritesIsActive? Icons.star : Icons.star_border,
-                      color: onlyFavoritesIsActive ? customStyleClass.primeColor : Colors.white,
-                    )
-                ),
-                Padding(
-                    padding: const EdgeInsets.only(right: 0),
-                    child: GestureDetector(
-                      child: Container(
-                          padding: const EdgeInsets.all(7),
-                          child: Icon(
-                            Icons.filter_alt_outlined,
-                            color: isAnyFilterActive ? customStyleClass.primeColor : Colors.white,
-                          )
-                      ),
-                      onTap: (){
-                        toggleIsFilterMenuActive();
-                      },
-                    )
-                )
-              ],
-            ),
-          ),
-
-        ],
-      ),
-    );
-  }
-  Widget _buildAppBarShowHeadline(){
-    return Container(
-      width: screenWidth,
-      color: customStyleClass.backgroundColorMain,
-      child: Stack(
-        children: [
-          // Headline
-          Container(
-              alignment: Alignment.bottomCenter,
-              height: 50,
-              width: screenWidth,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                              headline,
-                              textAlign: TextAlign.center,
-                              style: customStyleClass.getFontStyleHeadline1Bold()
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(
-                                bottom: 15
-                            ),
-                            child: Text(
-                              "VIP",
-                              style: customStyleClass.getFontStyleVIPGold(),
-                            ),
-                          )
-                        ],
-                      ),
-                    ],
-                  )
-                ],
-              )
-          ),
-
-          // Search icon
-          Container(
-              width: screenWidth,
-              alignment: Alignment.centerLeft,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  IconButton(
-                      onPressed: () => toggleIsSearchbarActive(),
-                      icon: Icon(
-                        Icons.search,
-                        color: searchValue != "" ? customStyleClass.primeColor : Colors.grey,
-                        // size: 20,
-                      )
-                  )
-                ],
-              )
-          ),
-
-          // Right icons
-          Container(
-            width: screenWidth,
-            alignment: Alignment.centerRight,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                IconButton(
-                    onPressed: () => filterForFavorites(),
-                    icon: Icon(
-                      onlyFavoritesIsActive ? Icons.star : Icons.star_border,
-                      color: onlyFavoritesIsActive ? customStyleClass.primeColor : Colors.white,
-                    )
-                ),
-                Padding(
-                    padding: const EdgeInsets.only(right: 0),
-                    child: GestureDetector(
-                      child: Container(
-                          padding: const EdgeInsets.all(7),
-                          // decoration: BoxDecoration(
-                          //   color: const Color(0xff11181f),
-                          //   borderRadius: BorderRadius.circular(45),
-                          // ),
-                          child: Icon(
-                            Icons.filter_alt_outlined,
-                            color: isAnyFilterActive || isFilterMenuActive ? customStyleClass.primeColor : Colors.white,
-                          )
-                      ),
-                      onTap: (){
-                        toggleIsFilterMenuActive();
-                      },
-                    )
-                )
-              ],
-            ),
-          ),
-
-        ],
-      ),
-    );
-  }
-
-
-  Widget _buildPageView(){
-    return SingleChildScrollView(
-      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-
-          if(clubsToDisplay.isNotEmpty)
-            SizedBox(
-              height: screenHeight*0.73,
-              width: screenWidth,
-              child: PageView(
-                controller: _pageViewController,
-                onPageChanged: _handlePageViewChanged,
-                children: <Widget>[
-
-                  for(var club in clubsToDisplay)
-                    ClubCard(
-                      events: fetchedContentProvider.getFetchedEvents().where((event){
-                        return (event.getClubId() == club.getClubId() && checkIfIsEventIsAfterToday(event));
-                      }).toList(),
-                      clubMeClub: club,
-                      triggerSetState: triggerSetState,
-                      clickEventShare: clickEventShare,
-                    )
-                ],
-              ),
-            ),
-          if(clubsToDisplay.isEmpty)
-            SizedBox(
-              height: screenHeight*0.8,
-              width: screenWidth,
-              child: Center(
-                child: Text(
-                  onlyFavoritesIsActive ? "Derzeit sind keine Clubs als Favoriten markiert.":
-                  "Derzeit sind keine Clubs verfügbar.",
-                  style: customStyleClass.getFontStyle3(),
-                )
-                ,
-              ),
-            ),
-
-        ],
-      ),
-    );
-  }
-  Widget _buildFilterMenu(){
-    return Container(
-      padding: EdgeInsets.only(
-          top: screenHeight*0.02
-      ),
-      decoration: BoxDecoration(
-        color: customStyleClass.backgroundColorMain,
-        border: Border(
-          bottom: BorderSide(
-            color: Colors.grey[900]!,
-            width: 1
-          )
-        )
-      ),
-      height: screenHeight*0.12,
-      width: screenWidth,
-
-      child: Row(
-        children: [
-
-          SizedBox(
-            width: screenWidth*0.5,
-            child: Column(
-              children: [
-
-                // Spacer
-                SizedBox(
-                  height: screenHeight*0.01,
-                ),
-
-                // Genre
-                SizedBox(
-                  // width: screenWidth*0.5,
-                  child: Text(
-                    "Wochentag",
-                    textAlign: TextAlign.left,
-                    style: customStyleClass.getFontStyle3(),
-                  ),
-                ),
-
-                // Dropdown
-                Theme(
-                  data: Theme.of(context).copyWith(
-                      canvasColor: customStyleClass.backgroundColorMain
-                  ),
-                  child: DropdownButton(
-                      value: weekDayDropDownValue,
-                      menuMaxHeight: 300,
-                      items: Utils.weekDaysForFiltering.map<DropdownMenuItem<String>>(
-                              (String value) {
-                            return DropdownMenuItem(
-                              value: value,
-                              child: Text(
-                                value,
-                                style: customStyleClass.getFontStyle4Grey2(),
-                              ),
-                            );
-                          }
-                      ).toList(),
-                      onChanged: (String? value){
-                        setState(() {
-                          weekDayDropDownValue = value!;
-                          filterClubs();
-                        });
-                      }
-                  ),
-                )
-
-
-              ],
-            ),
-          ),
-
-          // Genre text
-          SizedBox(
-            width: screenWidth*0.5,
-            child: Column(
-              children: [
-
-                Text(
-                  "Musikrichtung",
-                  style: customStyleClass.getFontStyle3(),
-                ),
-
-                // Dropdown
-                Theme(
-                    data: Theme.of(context).copyWith(
-                        canvasColor: customStyleClass.backgroundColorMain
-                    ),
-                    child: DropdownButton(
-                        value: dropdownValue,
-                        menuMaxHeight: 200,
-                        items: genresDropdownList.map<DropdownMenuItem<String>>(
-                                (String value) {
-                              return DropdownMenuItem(
-                                  value: value,
-                                  child: Text(
-                                    value,
-                                    style: customStyleClass.getFontStyle4Grey2(),
-                                  )
-                              );
-                            }
-                        ).toList(),
-                        onChanged: (String? value){
-                          setState(() {
-                            dropdownValue = value!;
-                            filterClubs();
-                          });
-                        }
-                    )
-                )
-
-              ],
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
 
@@ -646,99 +720,12 @@ class _UserClubsViewState extends State<UserClubsView>
 
     filterClubs();
 
-    // We only want to display the loading at the first launch
-    if(fetchedContentProvider.getFetchedClubs().isNotEmpty){
-      dataFetched = true;
-    }
-
     return Scaffold(
-
       extendBody: true,
       resizeToAvoidBottomInset: false,
 
-      appBar: isSearchbarActive ?
-            AppBar(
-              backgroundColor: customStyleClass.backgroundColorMain,
-              surfaceTintColor: customStyleClass.backgroundColorMain,
-              title: _buildAppBarShowSearch(),
-            ) :
-            AppBar(
-              backgroundColor: customStyleClass.backgroundColorMain,
-              surfaceTintColor: customStyleClass.backgroundColorMain,
-              title: _buildAppBarShowHeadline(),
-            ),
-
-      body: Container(
-            width: screenWidth,
-            height: screenHeight,
-            color: customStyleClass.backgroundColorMain,
-            child: Stack(
-              children: [
-
-                // Pageview of the club cards
-
-                SizedBox(
-                    height: screenHeight*1,
-                    width: screenWidth,
-                    child: clubsToDisplay.isNotEmpty?
-                    _buildPageView() :  (isAnyFilterActive || isSearchbarActive) ?
-                    SizedBox(
-                      width: screenWidth,
-                      height: screenHeight*0.8,
-                      child: Center(
-                        child: Text(
-                          textAlign: TextAlign.center,
-                          "Entschuldigung, im Rahmen dieser Filter sind keine Events verfügbar.",
-                          style: customStyleClass.getFontStyle3(),
-                        ),
-                      ),
-                    ): onlyFavoritesIsActive ?
-                    SizedBox(
-                      width: screenWidth,
-                      height: screenHeight*0.8,
-                      child: Center(
-                        child: Text(
-                          textAlign: TextAlign.center,
-                          "Derzeit sind keine Events als Favoriten markiert.",
-                          style: customStyleClass.getFontStyle3(),
-                        ),
-                      ),
-                    ):
-                    Center(
-                      child: CircularProgressIndicator(
-                        color: customStyleClass.primeColor,
-                      ),
-                    )
-                ),
-
-                // Progress marker
-                if(clubsToDisplay.isNotEmpty)
-                  Container(
-                    height: screenHeight*0.775,
-                    alignment: Alignment.bottomCenter,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.keyboard_arrow_left_sharp,
-                          size: customStyleClass.navigationArrowSize,
-                          color: _currentPageIndex > 0 ? customStyleClass.primeColor: Colors.grey,
-                        ),
-                        Icon(
-                          Icons.keyboard_arrow_right_sharp,
-                          size:  customStyleClass.navigationArrowSize,
-                          color: _currentPageIndex < (clubsToDisplay.length-1) ? customStyleClass.primeColor: Colors.grey,
-                        ),
-                      ],
-                    ),
-                  ),
-
-                // Filter menu
-                if(isFilterMenuActive)_buildFilterMenu()
-              ],
-            )
-        ),
-
+      appBar: _buildAppBar(),
+      body: _buildMainView(),
       bottomNavigationBar: CustomBottomNavigationBar(),
     );
   }

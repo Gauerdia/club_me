@@ -75,8 +75,6 @@ class _RegisterViewState extends State<RegisterView> {
 
 
   // INIT
-
-
   @override
   void initState() {
     super.initState();
@@ -84,78 +82,7 @@ class _RegisterViewState extends State<RegisterView> {
   }
 
 
-  void clickEventAppleRegistration(){
-    Widget okButton = TextButton(
-      child: Text(
-        "OK",
-        style: customStyleClass.getFontStyle4(),
-      ),
-      onPressed: () async {
-      },
-    );
-
-    showDialog(
-        context: context,
-        builder: (BuildContext context){
-          return AlertDialog(
-            backgroundColor: customStyleClass.backgroundColorEventTile,
-            title: Text(
-              "Apple-Authentifizierung",
-              style: customStyleClass.getFontStyle1(),
-            ),
-            content: Text(
-              "Diese Funktion ist derzeit noch nicht implementiert. Wir bitten um Verständnis.",
-              style: customStyleClass.getFontStyle4(),
-            ),
-            actions: [
-              okButton
-            ],
-          );
-        }
-    );
-  }
-  void clickEventGoogleRegistration(){
-    Widget okButton = TextButton(
-      child: Text(
-        "OK",
-        style: customStyleClass.getFontStyle4(),
-      ),
-      onPressed: () => _handleSignIn(),
-    );
-
-    showDialog(
-        context: context,
-        builder: (BuildContext context){
-          return AlertDialog(
-            backgroundColor: customStyleClass.backgroundColorEventTile,
-            title: Text(
-              "Google-Authentifizierung",
-              style: customStyleClass.getFontStyle1(),
-            ),
-            content: Text(
-              "Diese Funktion ist derzeit noch nicht implementiert. Wir bitten um Verständnis.",
-              style: customStyleClass.getFontStyle4(),
-            ),
-            actions: [
-              okButton
-            ],
-          );
-        }
-    );
-  }
-  void clickEventEMailRegistration(){
-    setState(() {
-      progressIndex = 1;
-    });
-  }
-
-  void clickEventReadPremiumAdvantages(){
-    context.go("/user_events");
-  }
-
-
   // BUILD
-
   AppBar _buildAppBar(){
     return AppBar(
         automaticallyImplyLeading: false,
@@ -197,7 +124,6 @@ class _RegisterViewState extends State<RegisterView> {
         )
     );
   }
-
   Widget _buildChooseRegistrationMethod(){
     return Container(
       height: screenHeight,
@@ -334,11 +260,10 @@ class _RegisterViewState extends State<RegisterView> {
       ),
     );
   }
-
   Widget _buildShowPremiumAdvantages(){
     return Container(
-        height: screenHeight,
-        color: customStyleClass.backgroundColorMain,
+      height: screenHeight,
+      color: customStyleClass.backgroundColorMain,
       child: Column(
         children: [
 
@@ -347,17 +272,16 @@ class _RegisterViewState extends State<RegisterView> {
           ),
 
           Image.asset(
-            "assets/images/premium_advantages.png"
+              "assets/images/premium_advantages.png"
           )
 
         ],
       ),
     );
   }
-
   Widget _buildRegisterAsUser(){
     return Container(
-        // height: screenHeight,
+      // height: screenHeight,
         width: screenWidth,
         color: customStyleClass.backgroundColorMain,
         child: SingleChildScrollView(
@@ -394,7 +318,7 @@ class _RegisterViewState extends State<RegisterView> {
                     height: screenHeight*0.12,
                     width: screenWidth*0.9,
                     padding:  EdgeInsets.only(
-                      top: distanceBetweenTitleAndTextField
+                        top: distanceBetweenTitleAndTextField
                     ),
                     child: TextField(
                       controller: _firstNameController,
@@ -798,6 +722,152 @@ class _RegisterViewState extends State<RegisterView> {
 
     }
   }
+
+
+  // CLICK
+  void clickEventAppleRegistration(){
+    Widget okButton = TextButton(
+      child: Text(
+        "OK",
+        style: customStyleClass.getFontStyle4(),
+      ),
+      onPressed: () async {
+      },
+    );
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context){
+          return AlertDialog(
+            backgroundColor: customStyleClass.backgroundColorEventTile,
+            title: Text(
+              "Apple-Authentifizierung",
+              style: customStyleClass.getFontStyle1(),
+            ),
+            content: Text(
+              "Diese Funktion ist derzeit noch nicht implementiert. Wir bitten um Verständnis.",
+              style: customStyleClass.getFontStyle4(),
+            ),
+            actions: [
+              okButton
+            ],
+          );
+        }
+    );
+  }
+  void clickEventGoogleRegistration(){
+    Widget okButton = TextButton(
+      child: Text(
+        "OK",
+        style: customStyleClass.getFontStyle4(),
+      ),
+      onPressed: () => _handleSignIn(),
+    );
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context){
+          return AlertDialog(
+            backgroundColor: customStyleClass.backgroundColorEventTile,
+            title: Text(
+              "Google-Authentifizierung",
+              style: customStyleClass.getFontStyle1(),
+            ),
+            content: Text(
+              "Diese Funktion ist derzeit noch nicht implementiert. Wir bitten um Verständnis.",
+              style: customStyleClass.getFontStyle4(),
+            ),
+            actions: [
+              okButton
+            ],
+          );
+        }
+    );
+  }
+  void clickEventEMailRegistration(){
+    setState(() {
+      progressIndex = 1;
+    });
+  }
+  void clickEventReadPremiumAdvantages(){
+    context.go("/user_events");
+  }
+  void clickEventRegister() async{
+
+    setState(() {
+      isLoading = true;
+    });
+
+    if(profileType == 0){
+
+      if(RegExp(r'^.+@[a-zA-Z]+\.{1}[a-zA-Z]+(\.{0,1}[a-zA-Z]+)$')
+          .hasMatch(_eMailController.text)){
+        transferToHiveAndDB();
+      }else{
+        setState(() {
+          isLoading = false;
+        });
+        showDialog(context: context, builder: (BuildContext context){
+          return AlertDialog(
+              title: const Text("E-Mail Adresse"),
+              content: Text(
+                "Bitte gib eine gültige E-Mail-Adresse ein!",
+                textAlign: TextAlign.left,
+                style: customStyleClass.getFontStyle4(),
+              )
+          );
+        });
+      }
+    }else{
+      transferToHiveAndDB();
+    }
+  }
+  void clickEventShowInfo(int index){
+
+    List<String> answers =[
+      "Deine E-Mail-Adresse hilft uns, dich wieder in die App zu lassen, falls du irgendwann "
+          "dein Handy wechseln solltest.",
+      "Dein Geschlecht hilft uns, dir Angebote der Clubs vorzuschlagen, die auf ein bestimmtes "
+          "Geschlecht begrenzt sind.",
+      "Dein Geburtsdatum hilft uns, dir Angebote der Clubs vorzuschlagen, die auf ein gewisses "
+          "Alter begrenzt sind."
+
+    ];
+
+    showDialog(context: context, builder: (BuildContext context){
+      return AlertDialog(
+        backgroundColor: customStyleClass.backgroundColorMain,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.0),
+        ),
+        title: Text(
+          "Information",
+          style: customStyleClass.getFontStyle1Bold(),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+
+            // Question text
+            Text(
+              answers[index],
+              textAlign: TextAlign.left,
+              style: customStyleClass.getFontStyle4(),
+            ),
+
+            // Spacer
+            SizedBox(
+              height: screenHeight*0.03,
+            ),
+
+          ],
+        ),
+      );
+    });
+  }
+
+
+  // FORMAT
   String formatSelectedDate(){
 
     String tempDay = "";
@@ -898,83 +968,7 @@ class _RegisterViewState extends State<RegisterView> {
   }
 
 
-  // CLICK
-
-  void clickEventRegister() async{
-
-    setState(() {
-      isLoading = true;
-    });
-
-    if(profileType == 0){
-
-      if(RegExp(r'^.+@[a-zA-Z]+\.{1}[a-zA-Z]+(\.{0,1}[a-zA-Z]+)$')
-          .hasMatch(_eMailController.text)){
-        transferToHiveAndDB();
-      }else{
-        setState(() {
-          isLoading = false;
-        });
-        showDialog(context: context, builder: (BuildContext context){
-          return AlertDialog(
-              title: const Text("E-Mail Adresse"),
-              content: Text(
-                "Bitte gib eine gültige E-Mail-Adresse ein!",
-                textAlign: TextAlign.left,
-                style: customStyleClass.getFontStyle4(),
-              )
-          );
-        });
-      }
-    }else{
-      transferToHiveAndDB();
-    }
-  }
-
-  void clickEventShowInfo(int index){
-
-    List<String> answers =[
-      "Deine E-Mail-Adresse hilft uns, dich wieder in die App zu lassen, falls du irgendwann "
-          "dein Handy wechseln solltest.",
-      "Dein Geschlecht hilft uns, dir Angebote der Clubs vorzuschlagen, die auf ein bestimmtes "
-          "Geschlecht begrenzt sind.",
-      "Dein Geburtsdatum hilft uns, dir Angebote der Clubs vorzuschlagen, die auf ein gewisses "
-          "Alter begrenzt sind."
-
-    ];
-
-    showDialog(context: context, builder: (BuildContext context){
-      return AlertDialog(
-        backgroundColor: customStyleClass.backgroundColorMain,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.0),
-        ),
-        title: Text(
-          "Information",
-          style: customStyleClass.getFontStyle1Bold(),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-
-            // Question text
-            Text(
-              answers[index],
-              textAlign: TextAlign.left,
-              style: customStyleClass.getFontStyle4(),
-            ),
-
-            // Spacer
-            SizedBox(
-              height: screenHeight*0.03,
-            ),
-
-          ],
-        ),
-      );
-    });
-  }
-
+  // MISC
   void showErrorDialog(){
     showDialog(context: context, builder: (BuildContext context){
       return AlertDialog(
@@ -987,7 +981,6 @@ class _RegisterViewState extends State<RegisterView> {
       );
     });
   }
-
   void iterateProgressIndex(){
     setState(() {
       if(progressIndex == 0){
@@ -1002,13 +995,6 @@ class _RegisterViewState extends State<RegisterView> {
     });
   }
 
-
-
-
-
-  void _goBack(){
-    context.go("/");
-  }
 
   @override
   Widget build(BuildContext context) {

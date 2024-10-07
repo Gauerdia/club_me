@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:club_me/shared/dialogs/TitleAndContentDialog.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
@@ -49,12 +50,6 @@ class _ClubInfoBottomSheetState extends State<ClubInfoBottomSheet> {
   late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
 
 
-  // bool closedToday = true;
-  // bool alreadyOpen = false;
-  // bool lessThanThreeMoreHoursOpen = false;
-  // int todaysOpeningHour = 0;
-  // int todaysClosingHour = 0;
-
   double iconWidthFactor = 0.05;
   double imageHeightFactor = 0.09;
   double headlineHeightFactor = 0.09;
@@ -64,89 +59,7 @@ class _ClubInfoBottomSheetState extends State<ClubInfoBottomSheet> {
 
   final HiveService _hiveService = HiveService();
 
-  // CLICK
-  void clickOnInfo(){
-    /// TODO: Make something with the click
-    print("Info");
-  }
-  void clickOnLike(){
-    likeIconClicked(currentAndLikedElementsProvider.currentClubMeClub.getClubId());
-  }
-  void clickOnShare(){
-    showDialog(context: context, builder: (BuildContext context){
-      return AlertDialog(
-        backgroundColor: Color(0xff121111),
-        title: Text(
-            "Teilen",
-          style: customStyleClass.getFontStyle3Bold(),
-        ),
-        content: Text(
-          "Diese Funktion steht zurzeit noch nicht zur Verfügung! Wir bitten um Verständnis!",
-          textAlign: TextAlign.left,
-          style: customStyleClass.getFontStyle4(),
-        ),
-      );
-    });
-  }
-  void likeIconClicked(String clubId){
-    if(currentAndLikedElementsProvider.checkIfClubIsAlreadyLiked(clubId)){
-      currentAndLikedElementsProvider.deleteLikedClub(clubId);
-      _hiveService.deleteFavoriteClub(clubId);
-    }else{
-      currentAndLikedElementsProvider.addLikedClub(clubId);
-      _hiveService.insertFavoriteClub(clubId);
-    }
-  }
-
-  // CALCULATE
-  String getRandomNumber(){
-
-    final random = Random();
-    int next(int min, int max) => min + random.nextInt(max - min);
-
-    return next(20, 50).toString();
-
-  }
-  double calculateDistanceToClub(){
-
-    if(userDataProvider.getUserLatCoord() != 0){
-
-      var distance = Geolocator.distanceBetween(
-          userDataProvider.getUserLatCoord(),
-          userDataProvider.getUserLongCoord(),
-          currentAndLikedElementsProvider.currentClubMeClub.getGeoCoordLat(),
-          currentAndLikedElementsProvider.currentClubMeClub.getGeoCoordLng()
-      );
-
-      if(distance/1000 > 1000){
-        return 999;
-      }else{
-        return distance/1000;
-      }
-    }else{
-      return 0;
-    }
-  }
-
-  // FORMAT
-  String getAndFormatMusicGenre() {
-
-    String genreToReturn = "";
-
-    if (currentAndLikedElementsProvider.currentClubMeClub.getMusicGenres().contains(",")) {
-      var index = currentAndLikedElementsProvider.currentClubMeClub.getMusicGenres().indexOf(",");
-      genreToReturn = currentAndLikedElementsProvider.currentClubMeClub.getMusicGenres().substring(0, index);
-    } else {
-      genreToReturn = currentAndLikedElementsProvider.currentClubMeClub.getMusicGenres();
-    }
-
-    if(genreToReturn.length>8){
-      genreToReturn = "${genreToReturn.substring(0, 7)}...";
-    }
-    return genreToReturn;
-
-  }
-
+  // BUILD
   Widget _buildStackView(BuildContext context){
 
     return Stack(
@@ -184,9 +97,9 @@ class _ClubInfoBottomSheetState extends State<ClubInfoBottomSheet> {
             width: screenWidth*0.95,
             height: topHeight+bottomHeight,
             decoration: BoxDecoration(
-                color: Color(0xff121111),
+                color: customStyleClass.backgroundColorEventTile,
                 border: Border.all(
-                  color: Colors.grey[900]!
+                    color: Colors.grey[900]!
                 ),
                 borderRadius: BorderRadius.circular(
                     15
@@ -205,16 +118,8 @@ class _ClubInfoBottomSheetState extends State<ClubInfoBottomSheet> {
       children: [
 
         // Image container
-        Container(
+        SizedBox(
             height: topHeight,
-            // decoration: BoxDecoration(
-            //   color: customStyleClass.backgroundColorMain,
-            //   border: Border.,
-            //   borderRadius: const BorderRadius.only(
-            //       topRight: Radius.circular(15),
-            //       topLeft: Radius.circular(15)
-            //   ),
-            // ),
             child: Stack(
               children: [
 
@@ -366,7 +271,7 @@ class _ClubInfoBottomSheetState extends State<ClubInfoBottomSheet> {
                                       Icons.info_outline,
                                       color: customStyleClass.primeColor,
                                     ),
-                                    onTap: () => clickOnInfo(),
+                                    onTap: () => clickEventInfo(),
                                   )
                               ),
 
@@ -386,7 +291,7 @@ class _ClubInfoBottomSheetState extends State<ClubInfoBottomSheet> {
                                         : Icons.star_border,
                                     color: customStyleClass.primeColor,
                                   ),
-                                  onTap: () => clickOnLike(),
+                                  onTap: () => clickEventLike(),
                                 ),
                               ),
 
@@ -405,7 +310,7 @@ class _ClubInfoBottomSheetState extends State<ClubInfoBottomSheet> {
                                     color: customStyleClass.primeColor,
                                     size: screenWidth*iconWidthFactor,
                                   ),
-                                  onTap: () => clickOnShare(),
+                                  onTap: () => clickEventShare(),
                                 ),
                               ),
                             ],
@@ -417,7 +322,7 @@ class _ClubInfoBottomSheetState extends State<ClubInfoBottomSheet> {
                     // Icon Row
                     Padding(
                       padding: const EdgeInsets.only(
-                        right: 50
+                          right: 50
                       ),
                       child: Align(
                         alignment: Alignment.bottomRight,
@@ -477,13 +382,85 @@ class _ClubInfoBottomSheetState extends State<ClubInfoBottomSheet> {
                   ],
                 ),
               ),
-
             ],
           ),
         )
-
       ],
     );
+  }
+
+
+  // CLICK
+  void clickEventInfo(){
+    /// TODO: Make something with the click
+    print("Info");
+  }
+  void clickEventShare(){
+    showDialog(context: context, builder: (BuildContext context){
+      return TitleAndContentDialog(
+          titleToDisplay: "Club Teilen",
+          contentToDisplay: "Diese Funktion steht zurzeit noch nicht zur Verfügung! Wir bitten um Verständnis!");
+    });
+  }
+  void clickEventLike(){
+    if(currentAndLikedElementsProvider.checkIfClubIsAlreadyLiked(currentAndLikedElementsProvider.currentClubMeClub.getClubId())){
+      currentAndLikedElementsProvider.deleteLikedClub(currentAndLikedElementsProvider.currentClubMeClub.getClubId());
+      _hiveService.deleteFavoriteClub(currentAndLikedElementsProvider.currentClubMeClub.getClubId());
+    }else{
+      currentAndLikedElementsProvider.addLikedClub(currentAndLikedElementsProvider.currentClubMeClub.getClubId());
+      _hiveService.insertFavoriteClub(currentAndLikedElementsProvider.currentClubMeClub.getClubId());
+    }
+  }
+
+
+  // CALCULATE
+  String getRandomNumber(){
+
+    final random = Random();
+    int next(int min, int max) => min + random.nextInt(max - min);
+
+    return next(20, 50).toString();
+
+  }
+  double calculateDistanceToClub(){
+
+    if(userDataProvider.getUserLatCoord() != 0){
+
+      var distance = Geolocator.distanceBetween(
+          userDataProvider.getUserLatCoord(),
+          userDataProvider.getUserLongCoord(),
+          currentAndLikedElementsProvider.currentClubMeClub.getGeoCoordLat(),
+          currentAndLikedElementsProvider.currentClubMeClub.getGeoCoordLng()
+      );
+
+      if(distance/1000 > 1000){
+        return 999;
+      }else{
+        return distance/1000;
+      }
+    }else{
+      return 0;
+    }
+  }
+
+
+  // FORMAT
+  String getAndFormatMusicGenre() {
+
+    String genreToReturn = "";
+
+    if (currentAndLikedElementsProvider.currentClubMeClub.getMusicGenres().contains(",")) {
+      var index = currentAndLikedElementsProvider.currentClubMeClub.getMusicGenres().indexOf(",");
+      genreToReturn = currentAndLikedElementsProvider.currentClubMeClub.getMusicGenres().substring(0, index);
+    } else {
+      genreToReturn = currentAndLikedElementsProvider.currentClubMeClub.getMusicGenres();
+    }
+
+    if(genreToReturn.length>8){
+      genreToReturn = "${genreToReturn.substring(0, 7)}...";
+    }
+    return genreToReturn;
+
   }
 
 

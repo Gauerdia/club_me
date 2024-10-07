@@ -32,56 +32,8 @@ class ClubListItem extends StatelessWidget {
   double bottomHeight = 55;
 
 
-  // FORMAT
-  String getAndFormatMusicGenre() {
-
-    String genreToReturn = "";
-
-    if (currentClub.getMusicGenres().contains(",")) {
-      var index = currentClub.getMusicGenres().indexOf(",");
-      genreToReturn = currentClub.getMusicGenres().substring(0, index);
-    } else {
-      genreToReturn = currentClub.getMusicGenres();
-    }
-
-    return genreToReturn;
-
-  }
-
-  // CALCULATE
-  String getRandomNumber(){
-
-    final random = Random();
-    int next(int min, int max) => min + random.nextInt(max - min);
-
-    return next(20, 50).toString();
-
-  }
-  double calculateDistanceToClub(){
-
-    if(userDataProvider.getUserLatCoord() != 0){
-
-      var distance = Geolocator.distanceBetween(
-          userDataProvider.getUserLatCoord(),
-          userDataProvider.getUserLongCoord(),
-          currentClub.getGeoCoordLat(),
-          currentClub.getGeoCoordLng()
-      );
-
-      if(distance/1000 > 1000){
-        return 999;
-      }else{
-        return distance/1000;
-      }
-    }else{
-      return 0;
-    }
-  }
-
   // BUILD
-
-
-  Widget _buildStackView2(BuildContext context){
+  Widget _buildStackView(BuildContext context){
     return Column(
 
       children: [
@@ -104,21 +56,21 @@ class ClubListItem extends StatelessWidget {
                           height: screenHeight*0.1,
                           decoration: BoxDecoration(
                               border: Border(
-                                  left: BorderSide(
-                                      color: currentClub.getStoryId().isNotEmpty ?
-                                      customStyleClass.primeColor: Colors.grey,
-                                      width: 2
-                                  ),
-                                  right: BorderSide(
-                                      color: currentClub.getStoryId().isNotEmpty ?
-                                      customStyleClass.primeColor: Colors.grey,
-                                      width: 2
-                                  ),
-                                  top: BorderSide(
-                                      color: currentClub.getStoryId().isNotEmpty ?
-                                      customStyleClass.primeColor: Colors.grey,
-                                      width: 2
-                                  ),
+                                left: BorderSide(
+                                    color: currentClub.getStoryId().isNotEmpty ?
+                                    customStyleClass.primeColor: Colors.grey,
+                                    width: 2
+                                ),
+                                right: BorderSide(
+                                    color: currentClub.getStoryId().isNotEmpty ?
+                                    customStyleClass.primeColor: Colors.grey,
+                                    width: 2
+                                ),
+                                top: BorderSide(
+                                    color: currentClub.getStoryId().isNotEmpty ?
+                                    customStyleClass.primeColor: Colors.grey,
+                                    width: 2
+                                ),
                                 bottom: BorderSide(
                                     color: currentClub.getStoryId().isNotEmpty ?
                                     customStyleClass.primeColor: Colors.grey,
@@ -146,7 +98,7 @@ class ClubListItem extends StatelessWidget {
                                 ),
                               ),
                             ):
-                                // rounded image
+                            // rounded image
                             Container(
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
@@ -289,6 +241,55 @@ class ClubListItem extends StatelessWidget {
     );
   }
 
+
+  // FORMAT
+  String getAndFormatMusicGenre() {
+
+    String genreToReturn = "";
+
+    if (currentClub.getMusicGenres().contains(",")) {
+      var index = currentClub.getMusicGenres().indexOf(",");
+      genreToReturn = currentClub.getMusicGenres().substring(0, index);
+    } else {
+      genreToReturn = currentClub.getMusicGenres();
+    }
+
+    return genreToReturn;
+
+  }
+
+
+  // CALCULATE
+  String getRandomNumber(){
+
+    final random = Random();
+    int next(int min, int max) => min + random.nextInt(max - min);
+
+    return next(20, 50).toString();
+
+  }
+  double calculateDistanceToClub(){
+
+    if(userDataProvider.getUserLatCoord() != 0){
+
+      var distance = Geolocator.distanceBetween(
+          userDataProvider.getUserLatCoord(),
+          userDataProvider.getUserLongCoord(),
+          currentClub.getGeoCoordLat(),
+          currentClub.getGeoCoordLng()
+      );
+
+      if(distance/1000 > 1000){
+        return 999;
+      }else{
+        return distance/1000;
+      }
+    }else{
+      return 0;
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
 
@@ -299,6 +300,6 @@ class ClubListItem extends StatelessWidget {
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
 
-    return _buildStackView2(context);
+    return _buildStackView(context);
   }
 }

@@ -64,8 +64,6 @@ class _ProfileViewState extends State<ProfileView> {
 
 
   // INIT
-
-
   @override
   void initState() {
     super.initState();
@@ -84,80 +82,81 @@ class _ProfileViewState extends State<ProfileView> {
 
 
   // BUILD
-
   AppBar _buildAppBar(){
-    return AppBar(
-        surfaceTintColor: customStyleClass.backgroundColorMain,
-        backgroundColor: customStyleClass.backgroundColorMain,
-        title: SizedBox(
-          width: screenWidth,
-          child: Stack(
-            children: [
-              // Headline
-              Container(
+    return
+      AppBar(
+          backgroundColor: customStyleClass.backgroundColorMain,
+          surfaceTintColor: customStyleClass.backgroundColorMain,
+          title: SizedBox(
+        width: screenWidth,
+        child: Stack(
+          children: [
+            // Headline
+            Container(
                 padding: const EdgeInsets.only(
-                  right: 20
+                    right: 20
                 ),
-                  alignment: Alignment.bottomCenter,
-                  height: 50,
-                  width: screenWidth,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                  headLine,
-                                  textAlign: TextAlign.center,
-                                  style: customStyleClass.getFontStyleHeadline1Bold()
+                alignment: Alignment.bottomCenter,
+                height: 50,
+                width: screenWidth,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                                headLine,
+                                textAlign: TextAlign.center,
+                                style: customStyleClass.getFontStyleHeadline1Bold()
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  bottom: 15
                               ),
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                    bottom: 15
-                                ),
-                                child: Text(
-                                  "VIP",
-                                  style: customStyleClass.getFontStyleVIPGold(),
-                                ),
-                              )
-                            ],
-                          ),
-                        ],
-                      )
-                    ],
-                  )
-              ),
-            ],
-          ),
-        ),
-      leading: const Icon(
-          Icons.search,
-          color: Colors.transparent
-        // size: 20,
-      ),
-      actions: [
-
-        if(showEditScreen)
-          InkWell(
-            child: const Icon(
-              Icons.close,
-              color: Colors.white,
+                              child: Text(
+                                "VIP",
+                                style: customStyleClass.getFontStyleVIPGold(),
+                              ),
+                            )
+                          ],
+                        ),
+                      ],
+                    )
+                  ],
+                )
             ),
-            onTap: () => clickEventClose(),
-          ),
-        if(!showEditScreen)
-        InkWell(
-          child: const Icon(
-            Icons.settings,
-            color: Colors.white,
-          ),
-          onTap: () => context.push("/user_settings"),
-        )
-      ],
-    );
+          ],
+        ),
+      ),
+        leading: const Icon(
+            Icons.search,
+            color: Colors.transparent
+          // size: 20,
+        ),
+        actions: [
+
+          if(showEditScreen)
+            InkWell(
+              child: const Icon(
+                Icons.close,
+                color: Colors.white,
+              ),
+              onTap: () => clickEventClose(),
+            ),
+          if(!showEditScreen)
+            InkWell(
+              child: const Icon(
+                Icons.settings,
+                color: Colors.white,
+              ),
+              onTap: () => context.push("/user_settings"),
+            )
+        ],
+      );
+
   }
   Widget _buildBasicView(){
 
@@ -367,7 +366,7 @@ class _ProfileViewState extends State<ProfileView> {
                                         )
                                     ),
                                     hintText: "Vorname",
-                                    border: OutlineInputBorder(),
+                                    border: const OutlineInputBorder(),
                                     contentPadding: EdgeInsets.only(
                                         left: screenWidth*0.1,
                                         top: 20,
@@ -391,7 +390,7 @@ class _ProfileViewState extends State<ProfileView> {
                                         )
                                     ),
                                     hintText: "Nachname",
-                                    border: OutlineInputBorder(),
+                                    border: const OutlineInputBorder(),
                                     contentPadding: EdgeInsets.only(
                                         left: screenWidth*0.1,
                                         top: 20,
@@ -414,10 +413,8 @@ class _ProfileViewState extends State<ProfileView> {
                   ),
 
                   // EMAIL
-                  Container(
-                    // color: Colors.red,
+                  SizedBox(
                     width: screenWidth*0.9,
-                    // height: screenHeight*0.08,
                     child: Stack(
                       children: [
                         TextField(
@@ -430,7 +427,7 @@ class _ProfileViewState extends State<ProfileView> {
                                   )
                               ),
                               hintText: "z.B. Mixed Music",
-                              border: OutlineInputBorder(),
+                              border: const OutlineInputBorder(),
                               contentPadding: EdgeInsets.only(
                                   left: screenWidth*0.1,
                                   top: 20,
@@ -441,13 +438,10 @@ class _ProfileViewState extends State<ProfileView> {
                           maxLength: 35,
                         ),
                         Container(
-                          padding: EdgeInsets.only(
+                          padding: const EdgeInsets.only(
                             top: 17
                           ),
-                          // color: Colors.grey,
-                          // alignment: Alignment.centerLeft,
                           width: screenWidth*0.1,
-                          // height: screenHeight*0.06,
                           child: Icon(
                             Icons.mail,
                             color: customStyleClass.primeColor,
@@ -464,7 +458,7 @@ class _ProfileViewState extends State<ProfileView> {
                   ),
 
                   // GENDER
-                  Container(
+                  SizedBox(
                       width: screenWidth*0.9,
                       child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -488,7 +482,6 @@ class _ProfileViewState extends State<ProfileView> {
                                   onToggle: (index) {
                                     setState(() {
                                       genderChoice = index!;
-                                      print("toggled: $index");
                                     });
                                   },
                                 )
@@ -567,7 +560,7 @@ class _ProfileViewState extends State<ProfileView> {
                     padding: const EdgeInsets.only(
                         right: 10
                     ),
-                    child: isLoading ? CircularProgressIndicator()
+                    child: isLoading ? const CircularProgressIndicator()
                         : InkWell(
                       child:SizedBox(
                         child: Row(
@@ -618,13 +611,10 @@ class _ProfileViewState extends State<ProfileView> {
 
 
   // CLICK EVENTS
-
-
   void clickedOnLogOut(){
     stateProvider.setPageIndex(0);
     stateProvider.activeLogOut = true;
     context.go("/log_in");
-    // _hiveService.resetUserData().then((value) => context.go("/log_in"));
   }
   void clickEventSaveEdit() async{
 
@@ -695,7 +685,7 @@ class _ProfileViewState extends State<ProfileView> {
                           border: Border.all(
                               color: customStyleClass.primeColor
                           ),
-                          borderRadius: BorderRadius.all(Radius.circular(10))
+                          borderRadius: const BorderRadius.all(Radius.circular(10))
                       ),
                       child: Text(
                         "Ja, bitte meinen Account löschen!",
@@ -727,7 +717,6 @@ class _ProfileViewState extends State<ProfileView> {
 
 
   // MISC
-
   void clickEventClose(){
     setState(() {
       showEditScreen = false;
@@ -794,8 +783,6 @@ class _ProfileViewState extends State<ProfileView> {
   }
 
 
-
-
   @override
   Widget build(BuildContext context) {
 
@@ -813,11 +800,7 @@ class _ProfileViewState extends State<ProfileView> {
 
       bottomNavigationBar: CustomBottomNavigationBar(),
 
-      appBar: AppBar(
-        backgroundColor: customStyleClass.backgroundColorMain,
-        surfaceTintColor: customStyleClass.backgroundColorMain,
-        title: _buildAppBar()
-      ),
+      appBar: _buildAppBar(),
       body: Container(
           width: screenWidth,
           height: screenHeight,

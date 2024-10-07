@@ -17,14 +17,20 @@ class EventCard extends StatelessWidget {
     this.wentFromClubDetailToEventDetail = false
   }) : super(key: key);
 
-  int accessedEventDetailFrom;
-  late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
   ClubMeEvent clubMeEvent;
+
+  int backgroundColorIndex;
+  int accessedEventDetailFrom;
+
   late StateProvider stateProvider;
+  late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
+  late String formattedEventTitle, formattedEventGenres, formattedWeekDay;
+
+
   late CustomStyleClass customStyleClass;
   bool wentFromClubDetailToEventDetail;
-  late String formattedEventTitle, formattedEventGenres, formattedWeekDay;
-  int backgroundColorIndex;
+
+
 
   String startingHoursFormatted = "";
   List<String> buttonString = ["Erfahre mehr!", "Check it out!"];
@@ -34,10 +40,6 @@ class EventCard extends StatelessWidget {
   void formatWeekday(){
 
     String weekDayToDisplay = "";
-
-    // final berlin = tz.getLocation('Europe/Berlin');
-    // final todayTimestampGermany = tz.TZDateTime.from(DateTime.now(), berlin);
-    final exactlyOneWeekFromNow = stateProvider.getBerlinTime().add(const Duration(days: 7));
 
     weekDayToDisplay = DateFormat('dd.MM.yyyy').format(clubMeEvent.getEventDate());
 
@@ -123,8 +125,7 @@ class EventCard extends StatelessWidget {
     double screenHeight = MediaQuery.of(context).size.height;
 
     return InkWell(
-      child: Container(
-        // color: Colors.red,
+      child: SizedBox(
           height: 130,
           child: Column(
             children: [
@@ -195,10 +196,8 @@ class EventCard extends StatelessWidget {
                                     style: customStyleClass.getFontStyle5BoldPrimeColor(),
                                   ),
                                 ),
-
                               ],
                             ),
-
                           ],
                         )
                     ),
@@ -206,7 +205,6 @@ class EventCard extends StatelessWidget {
 
                   // Icon
                   Container(
-                    // color: Colors.green,
                     height: 80,
                     alignment: Alignment.centerRight,
                     padding: const EdgeInsets.only(

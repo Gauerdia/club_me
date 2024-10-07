@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-
 import '../../provider/current_and_liked_elements_provider.dart';
 import '../../provider/state_provider.dart';
-import '../../provider/user_data_provider.dart';
 import '../../shared/custom_bottom_navigation_bar.dart';
-import '../../shared/custom_bottom_navigation_bar_clubs.dart';
 import '../../shared/custom_text_style.dart';
 
 class OffersListView extends StatefulWidget {
@@ -65,28 +62,6 @@ class _OffersListViewState extends State<OffersListView> {
                 ],
               )
           ),
-
-          // back icon
-          // Container(
-          //     width: screenWidth,
-          //     height: 50,
-          //     alignment: Alignment.centerLeft,
-          //     child: Column(
-          //       mainAxisAlignment: MainAxisAlignment.center,
-          //       children: [
-          //
-          //         InkWell(
-          //           child: const Icon(
-          //             Icons.arrow_back_ios_new_outlined,
-          //             color: Colors.white,
-          //             // size: 20,
-          //           ),
-          //           onTap: () => ,
-          //         ),
-          //
-          //       ],
-          //     )
-          // ),
         ],
       ),
     );
@@ -100,7 +75,42 @@ class _OffersListViewState extends State<OffersListView> {
     }
   }
 
-  Widget _buildView(){
+  Widget _buildMainView(){
+    return SizedBox(
+        width: screenWidth,
+        height: screenHeight,
+        child: Stack(
+          children: [
+
+            // main view
+            SingleChildScrollView(
+                physics: const ScrollPhysics(),
+                child: Column(
+                  children: [
+
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10
+                      ),
+                      child: Text(
+                        currentAndLikedElementsProvider.currentClubMeClub.getClubName(),
+                        style: customStyleClass.getFontStyle1(),
+                      ),
+                    ),
+
+                    _buildListView(),
+
+                    // Spacer
+                    SizedBox(height: screenHeight*0.1,),
+                  ],
+                )
+            ),
+          ],
+        )
+    );
+  }
+
+  Widget _buildListView(){
     return ListView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
@@ -118,7 +128,6 @@ class _OffersListViewState extends State<OffersListView> {
                 children: [
                   Container(
                     width: screenWidth*0.7,
-                    // color: Colors.red,
                     alignment: Alignment.centerLeft,
                     child: Column(
                       children: [
@@ -186,38 +195,7 @@ class _OffersListViewState extends State<OffersListView> {
             onTap: () => backButtonPressed(),
           )
       ),
-      body: SizedBox(
-          width: screenWidth,
-          height: screenHeight,
-          child: Stack(
-            children: [
-
-              // main view
-              SingleChildScrollView(
-                  physics: const ScrollPhysics(),
-                  child: Column(
-                    children: [
-
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          vertical: 10
-                        ),
-                        child: Text(
-                          currentAndLikedElementsProvider.currentClubMeClub.getClubName(),
-                          style: customStyleClass.getFontStyle1(),
-                        ),
-                      ),
-
-                      _buildView(),
-
-                      // Spacer
-                      SizedBox(height: screenHeight*0.1,),
-                    ],
-                  )
-              ),
-            ],
-          )
-      ),
+      body: _buildMainView(),
       bottomNavigationBar: CustomBottomNavigationBar(),
     );
   }

@@ -79,7 +79,6 @@ class _UserMapViewState extends State<UserMapView>{
 
 
   // INIT
-
   @override
   void initState() {
     super.initState();
@@ -111,7 +110,300 @@ class _UserMapViewState extends State<UserMapView>{
   }
 
 
-  // PROCESS FETCHED CONTENT
+  // BUILD
+  Widget _buildMainView(){
+    return Container(
+        width: screenWidth,
+        height: screenHeight,
+        color:customStyleClass.backgroundColorMain,
+        child: Column(
+          children: [
+            // Content
+            SizedBox(
+                width: screenWidth,
+                height: screenHeight*0.83,
+                child: Stack(
+                  children: [
+
+                    // GOOGLE MAP
+                    SizedBox(
+                        height:screenHeight*0.8,
+                        child: allPinsLoaded ?
+                        _buildFlutterMap():
+                        Center(
+                          child: CircularProgressIndicator(
+                            color: customStyleClass.primeColor,
+                          ),
+                        )
+                    ),
+
+                    // transparent layer to click out of bottom sheet
+                    if(showBottomSheet)
+                      GestureDetector(
+                        child: Container(
+                          width: screenWidth,
+                          height: screenHeight*0.83,
+                          color: Colors.transparent,
+                        ),
+                        onTap: (){
+                          toggleShowBottomSheet();
+                        },
+                      ),
+
+                    // The bottom info container
+                    GestureDetector(
+                      child: Container(
+                        padding: const EdgeInsets.only(
+                            bottom: 10
+                        ),
+                        alignment: Alignment.bottomCenter,
+                        child: showBottomSheet ?
+                        noEventAvailable?
+                        ClubInfoBottomSheet
+                          (showBottomSheet: showBottomSheet,
+                            clubMeEvent: null,
+                            noEventAvailable: noEventAvailable
+                        ):ClubInfoBottomSheet
+                          (showBottomSheet: showBottomSheet,
+                            clubMeEvent: clubMeEventToDisplay,
+                            noEventAvailable: noEventAvailable
+                        )
+                            : Container(),
+
+                      ),
+                      onTap: (){
+                        // club will be set in stateprovider when clicked on marker
+                        context.push("/club_details");
+                      },
+                    ),
+
+                    // Grey background when list active
+                    if(showListIsActive)
+                      GestureDetector(
+                        child: Container(
+                          width: screenWidth,
+                          height: screenHeight,
+                          color: customStyleClass.backgroundColorMain.withOpacity(0.95),
+                        ),
+                        onTap: (){
+                          setState(() {
+                            showListIsActive = false;
+                          });
+                        },
+                      ),
+
+                    // List view of clubs
+                    if(showListIsActive)
+                      Padding(
+                          padding: const EdgeInsets.only(
+                          ),
+                          child: Center(
+
+                            // Whole list background
+                            child: Container(
+                                height: screenHeight,
+                                // color: Colors.red,
+                                padding: const EdgeInsets.only(
+                                  // top: 20,
+                                    bottom: 20
+                                ),
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+
+                                      // Spacer
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
+
+                                      for( ClubMeClub club in clubsToDisplay)
+                                        ClubListItem(
+                                          currentClub: club,
+                                        ),
+
+                                      const SizedBox(
+                                        height: 50,
+                                      ),
+                                    ],
+                                  ),
+                                )
+
+                            ),
+                          )
+                      ),
+
+                    // Filter menu
+                    if(showFilterMenu)
+                      Container(
+                        height: screenHeight*0.14,
+                        width: screenWidth,
+                        color: customStyleClass.backgroundColorMain,
+                        child: Row(
+                          children: [
+
+                            SizedBox(
+                              width: screenWidth,
+                              child: Column(
+                                children: [
+
+                                  // Spacer
+                                  SizedBox(
+                                    height: screenHeight*0.01,
+                                  ),
+
+                                  // Genre
+                                  SizedBox(
+                                    width: screenWidth*0.28,
+                                    child: Text(
+                                      "Wochentag",
+                                      textAlign: TextAlign.left,
+                                      style: customStyleClass.getFontStyle3(),
+                                    ),
+                                  ),
+
+                                  // Dropdown
+                                  Theme(
+                                    data: Theme.of(context).copyWith(
+                                        canvasColor: customStyleClass.backgroundColorMain
+                                    ),
+                                    child: DropdownButton(
+                                        value: weekDayDropDownValue,
+                                        menuMaxHeight: 300,
+                                        items: Utils.weekDaysForFiltering.map<DropdownMenuItem<String>>(
+                                                (String value) {
+                                              return DropdownMenuItem(
+                                                value: value,
+                                                child: Text(
+                                                  value,
+                                                  style: customStyleClass.getFontStyle4Grey2(),
+                                                ),
+                                              );
+                                            }
+                                        ).toList(),
+                                        onChanged: (String? value){
+                                          setState(() {
+                                            weekDayDropDownValue = value!;
+                                            filterClubs();
+                                          });
+                                        }
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                )
+            )
+          ],
+        )
+    );
+  }
+  Widget _buildFlutterMap(){
+    return GoogleMap(
+      style: Utils.mapStyles,
+      onMapCreated: _onMapCreated,
+      mapToolbarEnabled: false,
+      initialCameraPosition: const CameraPosition(
+          target: LatLng(48.773809, 9.182959),
+          zoom: 11.0
+      ),
+      markers: _markers.values.toSet(),
+      myLocationButtonEnabled: false,
+    );
+  }
+  AppBar _buildAppBar(){
+    return AppBar(
+      backgroundColor: customStyleClass.backgroundColorMain,
+      surfaceTintColor: customStyleClass.backgroundColorMain,
+      title: SizedBox(
+        width: screenWidth,
+        child: Stack(
+          children: [
+
+
+            // Headline
+            Container(
+                alignment: Alignment.bottomCenter,
+                height: 50,
+                width: screenWidth,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                                showListIsActive ? headline[1] : headline[0],
+                                textAlign: TextAlign.center,
+                                style: customStyleClass.getFontStyleHeadline1Bold()
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  bottom: 15
+                              ),
+                              child: Text(
+                                "VIP",
+                                style: customStyleClass.getFontStyleVIPGold(),
+                              ),
+                            )
+                          ],
+                        ),
+                      ],
+                    )
+                  ],
+                )
+            ),
+
+            Container(
+              height: 50,
+              alignment: Alignment.centerRight,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+
+                  GestureDetector(
+                    child: Container(
+                      padding: const EdgeInsets.all(7),
+                      child:  Icon(
+                        Icons.filter_alt_outlined,
+                        color: isAnyFilterActive ? customStyleClass.primeColor : Colors.grey,
+                      ),
+                    ),
+                    onTap: (){
+                      toggleShowFilterMenu();
+                    },
+                  ),
+
+                  GestureDetector(
+                    child: Container(
+                      padding: const EdgeInsets.all(7),
+                      child:  Icon(
+                        Icons.format_list_bulleted,
+                        color: showListIsActive ? customStyleClass.primeColor : Colors.grey,
+                      ),
+                    ),
+                    onTap: (){
+                      toggleShowListIsActive();
+                    },
+                  )
+                ],
+              ),
+            )
+
+          ],
+        ),
+      ),
+    );
+  }
+
+
+  // PROCESS
   void processClubsFromQuery(var data) async{
 
     for(var element in data){
@@ -162,32 +454,6 @@ class _UserMapViewState extends State<UserMapView>{
 
     });
   }
-  
-  void checkForMapPinImagesUntilAllAreLoaded() async{
-
-    bool allPinsSet = true;
-
-    for(var club in fetchedContentProvider.getFetchedClubs()){
-
-      if(!alreadySetPins.contains(club.getMapPinImageName())){
-
-        bool fileExists = await _checkAndFetchService.checkIfImageExistsLocally(club.getMapPinImageName(), stateProvider);
-        if(fileExists){
-          setState(() {
-            alreadySetPins.add(club.getMapPinImageName());
-            setCustomMarker(club);
-          });
-        }else{
-          allPinsSet = false;
-        }
-      }
-    }
-
-    if(allPinsSet){
-      allPinsLoaded = true;
-    }
-  }
-  
   void processClubsFromProvider(FetchedContentProvider fetchedContentProvider) async{
 
     for(var club in fetchedContentProvider.getFetchedClubs()){
@@ -214,7 +480,9 @@ class _UserMapViewState extends State<UserMapView>{
 
     setUserLocationMarker();
   }
+  
 
+  // MARKERS
   void setCustomMarker(ClubMeClub club){
 
     File file = File(
@@ -236,7 +504,20 @@ class _UserMapViewState extends State<UserMapView>{
     );
     _markers[club.getClubId()] = marker;
   }
-  
+  void setUserLocationMarker() async{
+    // Set marker for user
+    // var icon = await BitmapDescriptor.asset(
+    //     const ImageConfiguration(size: Size(46,46)),
+    //     "assets/images/marker1.png"
+    // );
+
+    _markers['user_location'] = Marker(
+      markerId: const MarkerId('user_location'),
+      position: LatLng(userDataProvider.getUserLatCoord(), userDataProvider.getUserLongCoord()),
+    );
+  }
+
+
   // MAP
   Future<void> _onMapCreated(GoogleMapController controller) async{
     mapController = controller;
@@ -259,6 +540,7 @@ class _UserMapViewState extends State<UserMapView>{
     toggleShowBottomSheet();
   }
 
+
   // TOGGLE
   void toggleShowBottomSheet(){
     setState(() {
@@ -276,173 +558,6 @@ class _UserMapViewState extends State<UserMapView>{
     });
   }
 
-
-  void setUserLocationMarker() async{
-    // Set marker for user
-    // var icon = await BitmapDescriptor.asset(
-    //     const ImageConfiguration(size: Size(46,46)),
-    //     "assets/images/marker1.png"
-    // );
-
-    _markers['user_location'] = Marker(
-      markerId: const MarkerId('user_location'),
-      position: LatLng(userDataProvider.getUserLatCoord(), userDataProvider.getUserLongCoord()),
-    );
-  }
-
-  // BUILD
-  Widget _buildFlutterMap(){
-
-    return GoogleMap(
-      style: Utils.mapStyles,
-      onMapCreated: _onMapCreated,
-        mapToolbarEnabled: false,
-        initialCameraPosition: const CameraPosition(
-            target: LatLng(48.773809, 9.182959),
-            zoom: 11.0
-        ),
-      markers: _markers.values.toSet(),
-      myLocationButtonEnabled: false,
-    );
-
-  }
-  Widget _buildAppBar(){
-
-    return SizedBox(
-      width: screenWidth,
-      child: Stack(
-        children: [
-
-
-          // Headline
-          Container(
-              alignment: Alignment.bottomCenter,
-              height: 50,
-              width: screenWidth,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                              showListIsActive ? headline[1] : headline[0],
-                              textAlign: TextAlign.center,
-                              style: customStyleClass.getFontStyleHeadline1Bold()
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(
-                                bottom: 15
-                            ),
-                            child: Text(
-                              "VIP",
-                              style: customStyleClass.getFontStyleVIPGold(),
-                            ),
-                          )
-                        ],
-                      ),
-                    ],
-                  )
-                ],
-              )
-          ),
-
-          Container(
-            height: 50,
-            alignment: Alignment.centerRight,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-
-                GestureDetector(
-                  child: Container(
-                    padding: const EdgeInsets.all(7),
-                    child:  Icon(
-                      Icons.filter_alt_outlined,
-                      color: isAnyFilterActive ? customStyleClass.primeColor : Colors.grey,
-                    ),
-                  ),
-                  onTap: (){
-                    toggleShowFilterMenu();
-                  },
-                ),
-
-                GestureDetector(
-                  child: Container(
-                    padding: const EdgeInsets.all(7),
-                    child:  Icon(
-                      Icons.format_list_bulleted,
-                      color: showListIsActive ? customStyleClass.primeColor : Colors.grey,
-                    ),
-                  ),
-                  onTap: (){
-                    toggleShowListIsActive();
-                  },
-                )
-              ],
-            ),
-          )
-
-        ],
-      ),
-    );
-  }
-
-  void filterClubs(){
-
-    if(weekDayDropDownValue != Utils.weekDaysForFiltering[0]){
-
-      clubsToDisplay = [];
-
-      for(ClubMeClub club in fetchedContentProvider.getFetchedClubs()){
-
-        int chosenDayIndex = Utils.weekDaysForFiltering.indexWhere((element) => element == weekDayDropDownValue);
-
-        bool atleastOneDayFits = false;
-
-        for(var days in club.getOpeningTimes().days!){
-
-          int weekDayToCompare = days.day!;
-
-          // Some clubs start at 0 am so we have to adjust the algorithm to consider them
-          if(days.openingHour! < 10){
-            weekDayToCompare = days.day! - 1;
-          }
-
-          if(weekDayToCompare == chosenDayIndex){
-            atleastOneDayFits = true;
-          }
-        }
-        if(atleastOneDayFits) clubsToDisplay.add(club);
-
-      }
-
-      _markers = {};
-      for(var club in clubsToDisplay){
-        setCustomMarker(club);
-      }
-
-      isAnyFilterActive = true;
-
-      setState(() {});
-
-    }else{
-
-      _markers = {};
-
-      for(var club in fetchedContentProvider.getFetchedClubs()){
-        clubsToDisplay.add(club);
-        setCustomMarker(club);
-      }
-
-      isAnyFilterActive = false;
-      setState(() {
-
-      });
-    }
-  }
 
   // Geo location services
   _getUserLocation() async {
@@ -535,6 +650,86 @@ class _UserMapViewState extends State<UserMapView>{
     _supabaseService.saveUsersGeoLocation(userDataProvider.getUserDataId(), value.latitude, value.longitude);
   }
 
+
+  // MISC
+  void filterClubs(){
+
+    if(weekDayDropDownValue != Utils.weekDaysForFiltering[0]){
+
+      clubsToDisplay = [];
+
+      for(ClubMeClub club in fetchedContentProvider.getFetchedClubs()){
+
+        int chosenDayIndex = Utils.weekDaysForFiltering.indexWhere((element) => element == weekDayDropDownValue);
+
+        bool atleastOneDayFits = false;
+
+        for(var days in club.getOpeningTimes().days!){
+
+          int weekDayToCompare = days.day!;
+
+          // Some clubs start at 0 am so we have to adjust the algorithm to consider them
+          if(days.openingHour! < 10){
+            weekDayToCompare = days.day! - 1;
+          }
+
+          if(weekDayToCompare == chosenDayIndex){
+            atleastOneDayFits = true;
+          }
+        }
+        if(atleastOneDayFits) clubsToDisplay.add(club);
+
+      }
+
+      _markers = {};
+      for(var club in clubsToDisplay){
+        setCustomMarker(club);
+      }
+
+      isAnyFilterActive = true;
+
+      setState(() {});
+
+    }else{
+
+      _markers = {};
+
+      for(var club in fetchedContentProvider.getFetchedClubs()){
+        clubsToDisplay.add(club);
+        setCustomMarker(club);
+      }
+
+      isAnyFilterActive = false;
+      setState(() {
+
+      });
+    }
+  }
+  void checkForMapPinImagesUntilAllAreLoaded() async{
+
+    bool allPinsSet = true;
+
+    for(var club in fetchedContentProvider.getFetchedClubs()){
+
+      if(!alreadySetPins.contains(club.getMapPinImageName())){
+
+        bool fileExists = await _checkAndFetchService.checkIfImageExistsLocally(club.getMapPinImageName(), stateProvider);
+        if(fileExists){
+          setState(() {
+            alreadySetPins.add(club.getMapPinImageName());
+            setCustomMarker(club);
+          });
+        }else{
+          allPinsSet = false;
+        }
+      }
+    }
+
+    if(allPinsSet){
+      allPinsLoaded = true;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -545,205 +740,10 @@ class _UserMapViewState extends State<UserMapView>{
     }
 
     return Scaffold(
-
       extendBody: true,
-
       bottomNavigationBar: CustomBottomNavigationBar(),
-      appBar: AppBar(
-        backgroundColor: customStyleClass.backgroundColorMain,
-        surfaceTintColor: customStyleClass.backgroundColorMain,
-        title: _buildAppBar(),
-      ),
-      body: Container(
-        width: screenWidth,
-          height: screenHeight,
-          color:customStyleClass.backgroundColorMain,
-          child: Column(
-            children: [
-
-              // Content
-              SizedBox(
-                width: screenWidth,
-                height: screenHeight*0.83,
-                child: Stack(
-                  children: [
-
-                    // GOOGLE MAP
-                    SizedBox(
-                      height:screenHeight*0.8,
-                      child: allPinsLoaded ?
-                        _buildFlutterMap():
-                        Center(
-                          child: CircularProgressIndicator(
-                            color: customStyleClass.primeColor,
-                          ),
-                        )
-                    ),
-
-                    // transparent layer to click out of bottom sheet
-                    if(showBottomSheet)
-                      GestureDetector(
-                          child: Container(
-                            width: screenWidth,
-                            height: screenHeight*0.83,
-                            color: Colors.transparent,
-                          ),
-                          onTap: (){
-                            toggleShowBottomSheet();
-                          },
-                        ),
-
-                    // The bottom info container
-                    GestureDetector(
-                      child: Container(
-                        padding: const EdgeInsets.only(
-                            bottom: 10
-                        ),
-                        alignment: Alignment.bottomCenter,
-                        child: showBottomSheet ?
-                          noEventAvailable?
-                          ClubInfoBottomSheet
-                          (showBottomSheet: showBottomSheet,
-                            clubMeEvent: null,
-                            noEventAvailable: noEventAvailable
-                        ):ClubInfoBottomSheet
-                          (showBottomSheet: showBottomSheet,
-                            clubMeEvent: clubMeEventToDisplay,
-                            noEventAvailable: noEventAvailable
-                        )
-                            : Container(),
-
-                      ),
-                      onTap: (){
-                        // club will be set in stateprovider when clicked on marker
-                        context.push("/club_details");
-                      },
-                    ),
-
-                    // Grey background when list active
-                    if(showListIsActive)
-                      GestureDetector(
-                          child: Container(
-                            width: screenWidth,
-                            height: screenHeight,
-                            color: customStyleClass.backgroundColorMain.withOpacity(0.95),
-                          ),
-                          onTap: (){
-                            setState(() {
-                              showListIsActive = false;
-                            });
-                          },
-                        ),
-
-                    // List view of clubs
-                    if(showListIsActive)
-                      Padding(
-                            padding: const EdgeInsets.only(
-                            ),
-                          child: Center(
-
-                            // Whole list background
-                            child: Container(
-                              height: screenHeight,
-                              // color: Colors.red,
-                              padding: const EdgeInsets.only(
-                                // top: 20,
-                                bottom: 20
-                              ),
-                              child: SingleChildScrollView(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-
-                                    // Spacer
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-
-                                    for( ClubMeClub club in clubsToDisplay)
-                                      ClubListItem(
-                                          currentClub: club,
-                                      ),
-
-                                    const SizedBox(
-                                      height: 50,
-                                    ),
-                                  ],
-                                ),
-                              )
-
-                            ),
-                          )
-                        ),
-
-                    if(showFilterMenu)
-                      Container(
-                      height: screenHeight*0.14,
-                      width: screenWidth,
-                      color: customStyleClass.backgroundColorMain,
-                      child: Row(
-                        children: [
-
-                          SizedBox(
-                            width: screenWidth,
-                            child: Column(
-                              children: [
-
-                                // Spacer
-                                SizedBox(
-                                  height: screenHeight*0.01,
-                                ),
-
-                                // Genre
-                                SizedBox(
-                                  width: screenWidth*0.28,
-                                  child: Text(
-                                    "Wochentag",
-                                    textAlign: TextAlign.left,
-                                    style: customStyleClass.getFontStyle3(),
-                                  ),
-                                ),
-
-                                // Dropdown
-                                Theme(
-                                  data: Theme.of(context).copyWith(
-                                      canvasColor: customStyleClass.backgroundColorMain
-                                  ),
-                                  child: DropdownButton(
-                                      value: weekDayDropDownValue,
-                                      menuMaxHeight: 300,
-                                      items: Utils.weekDaysForFiltering.map<DropdownMenuItem<String>>(
-                                              (String value) {
-                                            return DropdownMenuItem(
-                                              value: value,
-                                              child: Text(
-                                                value,
-                                                style: customStyleClass.getFontStyle4Grey2(),
-                                              ),
-                                            );
-                                          }
-                                      ).toList(),
-                                      onChanged: (String? value){
-                                        setState(() {
-                                          weekDayDropDownValue = value!;
-                                          filterClubs();
-                                        });
-                                      }
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                )
-              )
-
-            ],
-          )
-          ),
+      appBar: _buildAppBar(),
+      body: _buildMainView(),
     );
   }
 }
