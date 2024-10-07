@@ -20,7 +20,6 @@ class ShowStoryChewie extends StatefulWidget {
 class _ShowStoryChewieState extends State<ShowStoryChewie>
     with WidgetsBindingObserver {
 
-  String? VIDEO_ON;
   ChewieController? _chewieController;
   late CustomStyleClass customStyleClass;
   late VideoPlayerController _controller;

@@ -4,6 +4,7 @@ import 'package:club_me/mock_ups/class_mock_ups.dart';
 import 'package:club_me/models/club.dart';
 import 'package:club_me/models/opening_times.dart';
 import 'package:club_me/models/parser/club_me_club_parser.dart';
+import 'package:club_me/provider/current_and_liked_elements_provider.dart';
 import 'package:club_me/shared/map_utils.dart';
 import 'package:club_me/stories/show_story_chewie.dart';
 import 'package:flutter/material.dart';
@@ -48,15 +49,20 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
   bool isLoading = false;
   bool showVideoIsActive = false;
   double moreButtonWidthFactor = 0.04;
-  late UserDataProvider userDataProvider;
+
   late Future getClub;
   late Future getEvents;
   late String zipAndCity;
-  late StateProvider stateProvider;
+  late VideoPlayerController _videoPlayerController;
+
   late CustomStyleClass customStyleClass;
   late double screenHeight, screenWidth;
+
+  late StateProvider stateProvider;
+  late UserDataProvider userDataProvider;
   late FetchedContentProvider fetchedContentProvider;
-  late VideoPlayerController _videoPlayerController;
+  late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
+
 
   final SupabaseService _supabaseService = SupabaseService();
 
@@ -1547,16 +1553,9 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                       ],
                     ),
                   ),
-                  onTap: () =>  {
-                    context.push("/show_story")
-                    // Navigator.of(context).push(
-                    //   MaterialPageRoute(
-                    //     builder: (context) => ShowStoryChewie(
-                    //         storyUUID: userDataProvider.getUserClubStoryId(),
-                    //         clubName:  userDataProvider.getUserClubName(),
-                    //     ),
-                    //   ),
-                    // )
+                  onTap: (){
+                    currentAndLikedElementsProvider.setCurrentClub(userDataProvider.getUserClub());
+                    context.push("/show_story");
                   },
                 )
             ): Container(),
@@ -1732,6 +1731,9 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
     stateProvider = Provider.of<StateProvider>(context);
     userDataProvider = Provider.of<UserDataProvider>(context);
     fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
+    currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context);
+
+
     customStyleClass = CustomStyleClass(context: context);
 
     zipAndCity = "${userDataProvider.getUserClubContact()[3]} ${userDataProvider.getUserClubContact()[4]}";

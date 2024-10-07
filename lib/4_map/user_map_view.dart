@@ -484,25 +484,36 @@ class _UserMapViewState extends State<UserMapView>{
 
   // MARKERS
   void setCustomMarker(ClubMeClub club){
+    try{
+      File file = File(
+          "${stateProvider.appDocumentsDir.path}/${club.getMapPinImageName()}"
+      );
 
-    File file = File(
-        "${stateProvider.appDocumentsDir.path}/${club.getMapPinImageName()}"
-    );
+      Uint8List bytes = file.readAsBytesSync();
 
-    Uint8List bytes = file.readAsBytesSync();
+      var icon = BitmapDescriptor.bytes(bytes, width: 46, height: 46);
 
-    var icon = BitmapDescriptor.bytes(bytes, width: 46, height: 46);
+      customIcons.add(icon);
 
-    customIcons.add(icon);
+      final marker = Marker(
+        icon: icon,
+        onTap: () => onTapEventMarker(club),
+        markerId: MarkerId(club.getClubId()),
+        position: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng(),
+        ),
+      );
+      _markers[club.getClubId()] = marker;
+    }catch(e){
+      log.d("No custom icon possible because: ${e.toString()}. Fall back to default marker.");
+      final marker = Marker(
+        onTap: () => onTapEventMarker(club),
+        markerId: MarkerId(club.getClubId()),
+        position: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng(),
+        ),
+      );
+      _markers[club.getClubId()] = marker;
+    }
 
-    final marker = Marker(
-      icon: icon,
-      onTap: () => onTapEventMarker(club),
-      markerId: MarkerId(club.getClubId()),
-      position: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng(),
-      ),
-    );
-    _markers[club.getClubId()] = marker;
   }
   void setUserLocationMarker() async{
     // Set marker for user
