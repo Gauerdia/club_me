@@ -391,14 +391,13 @@ class _ClubDetailViewState extends State<ClubDetailView> {
       height: screenWidth*0.25,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: currentAndLikedElementsProvider.currentClubMeClub.getStoryId().isNotEmpty? Colors.black : Colors.grey,
+        color: Colors.black,
         border: Border.all(
-            color: customStyleClass.primeColor,
+            color: currentAndLikedElementsProvider.currentClubMeClub.getStoryId().isNotEmpty?  customStyleClass.primeColor: Colors.grey,
             width: 2
         ),
         image: DecorationImage(
           fit: BoxFit.cover,
-          // opacity: 0.5,
           image: FileImage(
               File(
                   "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeClub.getSmallLogoFileName()}"
@@ -654,26 +653,22 @@ class _ClubDetailViewState extends State<ClubDetailView> {
               ),
 
               // Google maps icon
-              Container(
+              Column(
+                children: [
 
-                // width: screenWidth*0.35,
-                child: Column(
-                  children: [
-
-                    InkWell(
-                      child: SizedBox(
-                        width: screenWidth*0.2,
-                        height: screenWidth*0.2,
-                        child: Image.asset(
-                          'assets/images/google_maps_3.png',
-                        ),
+                  InkWell(
+                    child: SizedBox(
+                      width: screenWidth*0.2,
+                      height: screenWidth*0.2,
+                      child: Image.asset(
+                        'assets/images/google_maps_3.png',
                       ),
-                      onTap: ()=> MapUtils.openMap(
-                        currentAndLikedElementsProvider.currentClubMeClub.getGeoCoordLat(),
-                          currentAndLikedElementsProvider.currentClubMeClub.getGeoCoordLng()),
                     ),
-                  ],
-                ),
+                    onTap: ()=> MapUtils.openMap(
+                      currentAndLikedElementsProvider.currentClubMeClub.getGeoCoordLat(),
+                        currentAndLikedElementsProvider.currentClubMeClub.getGeoCoordLng()),
+                  ),
+                ],
               )
             ],
           ),
