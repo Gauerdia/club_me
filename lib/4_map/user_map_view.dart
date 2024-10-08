@@ -46,7 +46,7 @@ class _UserMapViewState extends State<UserMapView>{
 
   List<BitmapDescriptor> customIcons = [];
 
-  late BitmapDescriptor userIcon, clubIcon;
+  BitmapDescriptor? userIcon, clubIcon;
 
   late ClubMeEvent clubMeEventToDisplay;
   late double screenWidth, screenHeight;
@@ -157,6 +157,18 @@ class _UserMapViewState extends State<UserMapView>{
     // Have we already fetched?
     else{
       for(var currentClub in fetchedContentProvider.getFetchedClubs()){
+
+        if(clubIcon == null){
+          await BitmapDescriptor.asset(
+              const ImageConfiguration(size: Size(32,32)),
+              "assets/images/beispiel_100x100.png"
+          ).then((icon){
+            setState(() {
+              clubIcon = icon;
+            });
+          });
+        }
+
         setBasicMarker(currentClub);
       }
 
@@ -168,10 +180,22 @@ class _UserMapViewState extends State<UserMapView>{
           false
       );
 
-      setUserLocationMarker();
-    }
+      if(userIcon == null){
+        await BitmapDescriptor.asset(
+            const ImageConfiguration(size: Size(32,32)),
+            "assets/images/marker1.png"
+        ).then((icon){
+          setState(() {
+            userIcon = icon;
+          });
+        });
+      }
 
-    filterClubs();
+      setUserLocationMarker();
+
+      filterClubs();
+
+    }
 
     setState(() {
       showMap = true;
@@ -575,7 +599,7 @@ class _UserMapViewState extends State<UserMapView>{
 
     // Set base markers for all clubs
     final marker = Marker(
-      icon: clubIcon,
+      icon: clubIcon!,
       onTap: () => onTapEventMarker(club),
       markerId: MarkerId(club.getClubId()),
       position: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng(),
@@ -626,7 +650,7 @@ class _UserMapViewState extends State<UserMapView>{
       userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
 
       _markers['user_location'] = Marker(
-        icon: userIcon,
+        icon: userIcon!,
         markerId: const MarkerId('user_location'),
         position: LatLng(userDataProvider.getUserLatCoord(), userDataProvider.getUserLongCoord()),
       );
@@ -836,6 +860,9 @@ class _UserMapViewState extends State<UserMapView>{
       //
       // });
     }
+
+    clubsToDisplay.sort((a,b) => b.getPriorityScore().compareTo(a.getPriorityScore()));
+
   }
   void checkForMapPinImagesUntilAllAreLoaded() async{
 
