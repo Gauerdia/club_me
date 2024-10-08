@@ -1342,32 +1342,41 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
   }
   void clickEventChooseContent() async{
 
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-        withData: true,
-        allowMultiple: false
-    );
-    if (result != null) {
+    try{
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+          withData: true,
+          allowMultiple: false,
+        type: FileType.custom,
+        allowedExtensions: ['jpg', 'jpeg', 'png', 'mp4', 'mov']
+      );
+      if (result != null) {
 
-      file = File(result.files.single.path!);
-      PlatformFile pFile = result.files.first;
-      String mimeStr = lookupMimeType(file!.path)!;
-      var fileType = mimeStr.split("/");
-      fileExtension = pFile.extension.toString();
+        file = File(result.files.single.path!);
+        PlatformFile pFile = result.files.first;
+        String mimeStr = lookupMimeType(file!.path)!;
+        var fileType = mimeStr.split("/");
+        fileExtension = pFile.extension.toString();
 
-      pickedFileNameToDisplay = result.files.single.name;
+        pickedFileNameToDisplay = result.files.single.name;
 
-      if(fileType.contains('image')){
-        isImage = true;
+        if(fileType.contains('image')){
+          isImage = true;
+        }
+        else if(fileType.contains('video')){
+
+          _controller = VideoPlayerController.file(file!);
+          await _controller!.initialize();
+          _createChewieController();
+          isVideo = true;
+        }
+        setState(() {});
       }
-      else if(fileType.contains('video')){
-
-        _controller = VideoPlayerController.file(file!);
-        await _controller!.initialize();
-        _createChewieController();
-        isVideo = true;
-      }
-      setState(() {});
+    }catch(e){
+      _supabaseService.createErrorLog(
+        "Error in ClubNewEventView. Fct: clickEventChooseContent. Error: ${e.toString()}"
+      );
     }
+
   }
 
   // MISC
