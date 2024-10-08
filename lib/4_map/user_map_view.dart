@@ -93,6 +93,15 @@ class _UserMapViewState extends State<UserMapView>{
         fetchedContentProvider.addClubToFetchedClubs(currentClub);
         setBasicMarker(currentClub);
       }
+
+      // Check if we need to download the corresponding images
+      _checkAndFetchService.checkAndFetchClubImages(
+          fetchedContentProvider.getFetchedClubs(),
+          stateProvider,
+          fetchedContentProvider,
+          false
+      );
+
       setUserLocationMarker();
 
     }
@@ -101,6 +110,15 @@ class _UserMapViewState extends State<UserMapView>{
       for(var currentClub in fetchedContentProvider.getFetchedClubs()){
         setBasicMarker(currentClub);
       }
+
+      // Check if we need to download the corresponding images
+      _checkAndFetchService.checkAndFetchClubImages(
+          fetchedContentProvider.getFetchedClubs(),
+          stateProvider,
+          fetchedContentProvider,
+          false
+      );
+
       setUserLocationMarker();
     }
 
@@ -216,7 +234,7 @@ class _UserMapViewState extends State<UserMapView>{
             GestureDetector(
               child: Container(
                 padding: const EdgeInsets.only(
-                    bottom: 10
+                    bottom: 15
                 ),
                 alignment: Alignment.bottomCenter,
                 child: showBottomSheet ?
@@ -224,8 +242,8 @@ class _UserMapViewState extends State<UserMapView>{
                 ClubInfoBottomSheet
                   (showBottomSheet: showBottomSheet,
                     clubMeEvent: null,
-                    noEventAvailable: noEventAvailable
-                ):ClubInfoBottomSheet
+                    noEventAvailable: noEventAvailable):
+                ClubInfoBottomSheet
                   (showBottomSheet: showBottomSheet,
                     clubMeEvent: clubMeEventToDisplay,
                     noEventAvailable: noEventAvailable
