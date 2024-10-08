@@ -46,6 +46,8 @@ class _UserMapViewState extends State<UserMapView>{
 
   List<BitmapDescriptor> customIcons = [];
 
+  late BitmapDescriptor userIcon, clubIcon;
+
   late ClubMeEvent clubMeEventToDisplay;
   late double screenWidth, screenHeight;
   late CustomStyleClass customStyleClass;
@@ -137,15 +139,26 @@ class _UserMapViewState extends State<UserMapView>{
 
     weekDayDropDownValue = Utils.weekDaysForFiltering.first;
 
+    BitmapDescriptor.asset(
+      const ImageConfiguration(size: Size(32,32)),
+      "assets/images/pin1.png"
+    ).then((icon){
+      setState(() {
+        clubIcon = icon;
+      });
+    });
+
+    BitmapDescriptor.asset(
+        const ImageConfiguration(size: Size(32,32)),
+        "assets/images/marker1.png"
+    ).then((icon){
+      setState(() {
+        userIcon = icon;
+      });
+    });
 
 
     checkAndFetchClubs();
-
-    // if(fetchedContentProvider.getFetchedClubs().isEmpty){
-    //   _supabaseService.getAllClubs().then((data) => processClubsFromQuery(data));
-    // }else{
-    //   processClubsFromProvider(fetchedContentProvider);
-    // }
 
     _determinePosition().then((value) => uploadPositionToSupabase(value));
 
@@ -563,6 +576,7 @@ class _UserMapViewState extends State<UserMapView>{
 
     // Set base markers for all clubs
     final marker = Marker(
+      icon: clubIcon,
       onTap: () => onTapEventMarker(club),
       markerId: MarkerId(club.getClubId()),
       position: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng(),
@@ -613,6 +627,7 @@ class _UserMapViewState extends State<UserMapView>{
       userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
 
       _markers['user_location'] = Marker(
+        icon: userIcon,
         markerId: const MarkerId('user_location'),
         position: LatLng(userDataProvider.getUserLatCoord(), userDataProvider.getUserLongCoord()),
       );
