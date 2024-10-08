@@ -45,6 +45,25 @@ class CheckAndFetchService{
         }
       });
 
+      // Make sure we can show the corresponding image(s)
+      checkIfImageExistsLocally(currentDiscount.getSmallBannerFileName(), stateProvider).then((exists){
+        if(!exists){
+
+          // If we haven't started to fetch the image yet, we ought to
+          if(!fetchedContentProvider.getFetchedBannerImageIds().contains(currentDiscount.getSmallBannerFileName())){
+
+            fetchAndSaveBannerImage(
+                currentDiscount.getSmallBannerFileName(),
+                "discount_small_banner_images",
+                stateProvider,
+                fetchedContentProvider
+            );
+          }
+        }else{
+          fetchedContentProvider.addFetchedBannerImageId(currentDiscount.getSmallBannerFileName());
+        }
+      });
+
     }
   }
 
@@ -246,15 +265,21 @@ class CheckAndFetchService{
       // We add the file name to a separate array so that we don't fetch the same image several times
       currentlyLoadingFileNames.add(fileName);
 
-      var imageFile = await _supabaseService.getBannerImage(fileName, folder);
-
       final String dirPath = stateProvider.appDocumentsDir.path;
 
       try{
-        await File("$dirPath/$fileName").writeAsBytes(imageFile).then((onValue){
-          log.d("CheckAndFetchService, Fct: fetchAndSaveBannerImage: Finished successfully. Path: $dirPath/$fileName");
-          fetchedContentProvider.addFetchedBannerImageId(fileName);
-        });
+        await _supabaseService.getBannerImage(fileName, folder).then(
+            (response) async {
+              if(response != null){
+                await File("$dirPath/$fileName").writeAsBytes(response).then((onValue){
+                  log.d("CheckAndFetchService, Fct: fetchAndSaveBannerImage: Finished successfully. Path: $dirPath/$fileName");
+                  fetchedContentProvider.addFetchedBannerImageId(fileName);
+                });
+              }else{
+                log.d("Error in CheckAndFetchService, fetchAndSaveBannerImage. Error: Response is null. Image couln't be fetched. Path: $dirPath/$fileName");
+              }
+            }
+        );
       }catch(e){
         log.d("Error in CheckAndFetchService, fetchAndSaveBannerImage. Error: $e. Path: $dirPath/$fileName");
       }

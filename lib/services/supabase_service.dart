@@ -459,7 +459,8 @@ class SupabaseService{
         'age_limit_upper_limit': clubMeDiscount.getAgeLimitUpperLimit(),
 
         'is_repeated_days': clubMeDiscount.getIsRepeatedDays(),
-        'big_banner_file_name': clubMeDiscount.getBigBannerFileName()
+        'big_banner_file_name': clubMeDiscount.getBigBannerFileName(),
+        'small_banner_file_name': clubMeDiscount.getSmallBannerFileName()
 
       }).select();
       log.d("insertDiscount: Finished successfully. Response: $data");
@@ -753,7 +754,7 @@ class SupabaseService{
       return Uint8List(0);
     }
   }
-  Future<Uint8List> getBannerImage(String fileName, String folder) async {
+  Future<Uint8List?> getBannerImage(String fileName, String folder) async {
 
     String finalPath = "";
 
@@ -771,7 +772,7 @@ class SupabaseService{
     }catch(e){
       log.d("Error in SupabaseService. Function: getBannerImage. Error: ${e.toString()}. finalPath: $finalPath");
       createErrorLog("Error in SupabaseService. Function: getBannerImage. Error: ${e.toString()}. finalPath: $finalPath");
-      return Uint8List(0);
+      return null;
     }
   }
   Future<Uint8List> getClubVideo(String uuid) async {

@@ -16,7 +16,7 @@ class Utils{
 
   static double creationScreensDistanceBetweenTitleAndTextField = 10;
 
-  static List<String> imageNames = [
+  static List<String> discountBigImageNames = [
     "Free_ClubMe_500x400.png",
     "Free_Eintritt_500x400.png",
     "Free_Getraenk_500x400.png",
@@ -28,6 +28,20 @@ class Utils{
     "Special_Offer_Getraenk_500x400.png",
     "Special_Offer_Getraenke_500x400.png",
     "Special_Offer_Sonstiges_500x400.png",
+  ];
+
+  static List<String> discountSmallImageNames = [
+    "free_clubme_600x300.png",
+    "free_eintritt_600x300.png",
+    "free_getraenk_600x300.png",
+    "free_Sshots_600x300.png",
+    "free_sonstiges_600x300.png",
+    "special_offer_clubme_600x300.png",
+    "special_offer_eintritt_600x300.png",
+    "special_offer_flaschen_600x300.png",
+    "special_offer_getraenk_600x300.png",
+    "special_offer_getraenke_600x300.png",
+    "special_offer_sonstiges_600x300.png",
   ];
 
   static String noEventElementsDueToNoFavorites = "Derzeit sind keine Events als Favoriten markiert.";

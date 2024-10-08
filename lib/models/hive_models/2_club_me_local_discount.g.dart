@@ -35,13 +35,14 @@ class ClubMeLocalDiscountAdapter extends TypeAdapter<ClubMeLocalDiscount> {
       ageLimitLowerLimit: fields[14] as int,
       isRepeatedDays: fields[16] as int,
       bigBannerFileName: fields[17] as String,
+      smallBannerFileName: fields[18] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, ClubMeLocalDiscount obj) {
     writer
-      ..writeByte(18)
+      ..writeByte(19)
       ..writeByte(0)
       ..write(obj.clubId)
       ..writeByte(1)
@@ -77,7 +78,9 @@ class ClubMeLocalDiscountAdapter extends TypeAdapter<ClubMeLocalDiscount> {
       ..writeByte(16)
       ..write(obj.isRepeatedDays)
       ..writeByte(17)
-      ..write(obj.bigBannerFileName);
+      ..write(obj.bigBannerFileName)
+      ..writeByte(18)
+      ..write(obj.smallBannerFileName);
   }
 
   @override

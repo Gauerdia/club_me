@@ -101,7 +101,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
     initControllers();
 
     _pageViewController = PageController();
-    _tabController = TabController(length: Utils.imageNames.length, vsync: this);
+    _tabController = TabController(length: Utils.discountBigImageNames.length, vsync: this);
 
   }
   void initControllers(){
@@ -1266,9 +1266,9 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
               onPageChanged: _handlePageViewChanged,
               children: <Widget>[
 
-                for(var i = 0; i<Utils.imageNames.length;i++)
+                for(var i = 0; i<Utils.discountBigImageNames.length;i++)
                   Center(
-                      child: CoverImageCard(fileName: Utils.imageNames[i])
+                      child: CoverImageCard(fileName: Utils.discountBigImageNames[i])
                   ),
               ],
             ),
@@ -1289,7 +1289,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
                 Icon(
                   Icons.keyboard_arrow_right_sharp,
                   size: 50,
-                  color: _currentPageIndex < (Utils.imageNames.length-1) ? customStyleClass.primeColor: Colors.grey,
+                  color: _currentPageIndex < (Utils.discountBigImageNames.length-1) ? customStyleClass.primeColor: Colors.grey,
                 ),
               ],
             ),
@@ -1352,7 +1352,8 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
         ageLimitUpperLimit: int.parse(_ageLimitUpperLimitController.text),
 
          isRepeatedDays: isRepeatedDaysToSave,
-      bigBannerFileName: Utils.imageNames[_currentPageIndex]
+        bigBannerFileName: Utils.discountBigImageNames[_currentPageIndex],
+        smallBannerFileName: Utils.discountSmallImageNames[_currentPageIndex]
     );
 
     if(isSupposedToBeTemplate == 1){

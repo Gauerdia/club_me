@@ -28,6 +28,7 @@ ClubMeLocalDiscount discountToLocalDiscountParser(ClubMeDiscount clubMeDiscount)
 
       ageLimitUpperLimit: clubMeDiscount.getAgeLimitUpperLimit(),
       ageLimitLowerLimit: clubMeDiscount.getAgeLimitLowerLimit(),
-    bigBannerFileName: clubMeDiscount.getBigBannerFileName()
+    bigBannerFileName: clubMeDiscount.getBigBannerFileName(),
+    smallBannerFileName: clubMeDiscount.getSmallBannerFileName()
   );
 }

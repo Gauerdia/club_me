@@ -90,11 +90,11 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
     final currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context, listen: false);
 
     // Set the chosen image to not confuse the user. I don't think all 4 setters are necessary but I wasn't sure which one is.
-    int chosenImageIndex = Utils.imageNames.indexWhere(
+    int chosenImageIndex = Utils.discountBigImageNames.indexWhere(
             (element) => element == currentAndLikedElementsProvider.currentClubMeDiscount.getBigBannerFileName());
     _currentPageIndex = chosenImageIndex;
     _pageViewController = PageController(initialPage: chosenImageIndex);
-    _tabController = TabController(length: Utils.imageNames.length, vsync: this);
+    _tabController = TabController(length: Utils.discountBigImageNames.length, vsync: this);
     _tabController.index = chosenImageIndex;
 
     _discountTitleController = TextEditingController(
@@ -1255,9 +1255,9 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
               onPageChanged: _handlePageViewChanged,
               children: <Widget>[
 
-                for(var i = 0; i<Utils.imageNames.length;i++)
+                for(var i = 0; i<Utils.discountBigImageNames.length;i++)
                   Center(
-                      child: CoverImageCard(fileName: Utils.imageNames[i])
+                      child: CoverImageCard(fileName: Utils.discountBigImageNames[i])
                   ),
               ],
             ),
@@ -1277,7 +1277,7 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
                 Icon(
                   Icons.keyboard_arrow_right_sharp,
                   size: 50,
-                  color: _currentPageIndex < (Utils.imageNames.length-1) ? customStyleClass.primeColor: Colors.grey,
+                  color: _currentPageIndex < (Utils.discountBigImageNames.length-1) ? customStyleClass.primeColor: Colors.grey,
                 ),
               ],
             ),
@@ -1391,7 +1391,8 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
         ageLimitLowerLimit: int.parse(_ageLimitLowerLimitController.text),
         ageLimitUpperLimit: int.parse(_ageLimitUpperLimitController.text),
 
-        bigBannerFileName: Utils.imageNames[_currentPageIndex]
+        bigBannerFileName: Utils.discountBigImageNames[_currentPageIndex],
+      smallBannerFileName: Utils.discountSmallImageNames[_currentPageIndex]
 
     );
 

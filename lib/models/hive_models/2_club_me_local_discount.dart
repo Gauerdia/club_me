@@ -23,7 +23,8 @@ class ClubMeLocalDiscount{
     required this.ageLimitUpperLimit,
     required this.ageLimitLowerLimit,
     required this.isRepeatedDays,
-    required this.bigBannerFileName
+    required this.bigBannerFileName,
+    required this.smallBannerFileName
   });
 
   @HiveField(0)
@@ -69,6 +70,13 @@ class ClubMeLocalDiscount{
 
   @HiveField(17)
   String bigBannerFileName;
+
+  @HiveField(18)
+  String smallBannerFileName;
+
+  String getSmallBannerFileName(){
+    return smallBannerFileName;
+  }
 
   String getBigBannerFileName(){
     return bigBannerFileName;

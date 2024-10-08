@@ -28,6 +28,7 @@ ClubMeDiscount parseClubMeDiscount(var data){
 
       isRepeatedDays: data['is_repeated_days'],
 
-      bigBannerFileName: data['big_banner_file_name']
+      bigBannerFileName: data['big_banner_file_name'],
+    smallBannerFileName: data['small_banner_file_name']
   );
 }
