@@ -1309,7 +1309,9 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
   void clickEventChooseContent() async{
 
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-        allowMultiple: false
+        withData: true,
+        allowMultiple: false,
+        type: FileType.media,
     );
     if (result != null) {
 

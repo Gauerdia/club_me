@@ -4,9 +4,11 @@ import 'package:club_me/services/hive_service.dart';
 import 'package:club_me/shared/dialogs/TitleAndContentDialog.dart';
 import 'package:club_me/utils/utils.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:full_picker/full_picker.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mime/mime.dart';
 import 'package:provider/provider.dart';
@@ -1343,11 +1345,11 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
   void clickEventChooseContent() async{
 
     try{
+
       FilePickerResult? result = await FilePicker.platform.pickFiles(
           withData: true,
           allowMultiple: false,
-        type: FileType.custom,
-        allowedExtensions: ['jpg', 'jpeg', 'png', 'mp4', 'mov']
+        type: FileType.media,
       );
       if (result != null) {
 
@@ -1371,6 +1373,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
         }
         setState(() {});
       }
+
     }catch(e){
       _supabaseService.createErrorLog(
         "Error in ClubNewEventView. Fct: clickEventChooseContent. Error: ${e.toString()}"
