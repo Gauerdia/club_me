@@ -575,7 +575,7 @@ class _UserClubsViewState extends State<UserClubsView>
         builder: (BuildContext context) =>
             TitleAndContentDialog(
                 titleToDisplay: "Event teilen",
-                contentToDisplay: "Die Funktion, ein Event zu teilen, ist derzeit noch"
+                contentToDisplay: "Die Funktion, ein Event zu teilen, ist derzeit noch "
                     "nicht implementiert. Wir bitten um Verständnis.")
     );
   }

@@ -76,6 +76,40 @@ class _UserMapViewState extends State<UserMapView>{
 
   late Map<String, Marker> _markers = {};
 
+  bool showMap = false;
+
+  Future<void> checkAndFetchClubs() async{
+
+    log.d("UserMapView, checkAndFetchClubs: Start");
+
+    final fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
+
+    // Do we need to fetch?
+    if(fetchedContentProvider.getFetchedClubs().isEmpty){
+      var data = await _supabaseService.getAllClubs();
+
+      for(var element in data){
+        ClubMeClub currentClub = parseClubMeClub(element);
+        fetchedContentProvider.addClubToFetchedClubs(currentClub);
+        setBasicMarker(currentClub);
+      }
+      setUserLocationMarker();
+
+    }
+    // Have we already fetched?
+    else{
+      for(var currentClub in fetchedContentProvider.getFetchedClubs()){
+        setBasicMarker(currentClub);
+      }
+      setUserLocationMarker();
+    }
+
+    setState(() {
+      print("finished");
+      showMap = true;
+    });
+
+  }
 
 
   // INIT
@@ -85,13 +119,15 @@ class _UserMapViewState extends State<UserMapView>{
 
     weekDayDropDownValue = Utils.weekDaysForFiltering.first;
 
-    final fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
 
-    if(fetchedContentProvider.getFetchedClubs().isEmpty){
-      _supabaseService.getAllClubs().then((data) => processClubsFromQuery(data));
-    }else{
-      processClubsFromProvider(fetchedContentProvider);
-    }
+
+    checkAndFetchClubs();
+
+    // if(fetchedContentProvider.getFetchedClubs().isEmpty){
+    //   _supabaseService.getAllClubs().then((data) => processClubsFromQuery(data));
+    // }else{
+    //   processClubsFromProvider(fetchedContentProvider);
+    // }
 
     _determinePosition().then((value) => uploadPositionToSupabase(value));
 
@@ -116,188 +152,211 @@ class _UserMapViewState extends State<UserMapView>{
         width: screenWidth,
         height: screenHeight,
         color:customStyleClass.backgroundColorMain,
-        child: Column(
+        child: Stack(
           children: [
-            // Content
+
+            // GOOGLE MAP
+
             SizedBox(
+                height:screenHeight*0.79,
+                child: showMap ? _buildFlutterMap() :
+                    Center(
+                      child: CircularProgressIndicator(
+                        color: customStyleClass.primeColor,
+                      ),
+                    )
+            ),
+
+            // FutureBuilder(
+            //     future: checkAndFetchClubs(),
+            //     builder: (BuildContext context, AsyncSnapshot snapshot){
+            //       if( snapshot.connectionState == ConnectionState.waiting){
+            //         return Center(
+            //           child: CircularProgressIndicator(
+            //               color: customStyleClass.primeColor)
+            //         );
+            //       }else{
+            //
+            //         if(snapshot.hasError){
+            //           _supabaseService.createErrorLog(
+            //             "Error in UserMapView. Fct: _buildMainView, FutureBuilder. Error: ${snapshot.error.toString}"
+            //           );
+            //           return Center(
+            //             child: Text(
+            //               "Verzeihung, ein Fehler ist aufgetreten",
+            //               style: customStyleClass.getFontStyle3(),
+            //             ),
+            //           );
+            //         }else{
+            //           return SizedBox(
+            //               height:screenHeight*0.79,
+            //               child: _buildFlutterMap()
+            //           );
+            //         }
+            //       }
+            //     }
+            // ),
+            
+
+
+            // transparent layer to click out of bottom sheet
+            if(showBottomSheet)
+              GestureDetector(
+                child: Container(
+                  width: screenWidth,
+                  height: screenHeight*0.83,
+                  color: Colors.transparent,
+                ),
+                onTap: (){
+                  toggleShowBottomSheet();
+                },
+              ),
+
+            // The bottom info container
+            GestureDetector(
+              child: Container(
+                padding: const EdgeInsets.only(
+                    bottom: 10
+                ),
+                alignment: Alignment.bottomCenter,
+                child: showBottomSheet ?
+                noEventAvailable?
+                ClubInfoBottomSheet
+                  (showBottomSheet: showBottomSheet,
+                    clubMeEvent: null,
+                    noEventAvailable: noEventAvailable
+                ):ClubInfoBottomSheet
+                  (showBottomSheet: showBottomSheet,
+                    clubMeEvent: clubMeEventToDisplay,
+                    noEventAvailable: noEventAvailable
+                )
+                    : Container(),
+
+              ),
+              onTap: (){
+                // club will be set in stateprovider when clicked on marker
+                context.push("/club_details");
+              },
+            ),
+
+            // Grey background when list active
+            if(showListIsActive)
+              GestureDetector(
+                child: Container(
+                  width: screenWidth,
+                  height: screenHeight,
+                  color: customStyleClass.backgroundColorMain.withOpacity(0.95),
+                ),
+                onTap: (){
+                  setState(() {
+                    showListIsActive = false;
+                  });
+                },
+              ),
+
+            // List view of clubs
+            if(showListIsActive)
+              Padding(
+                  padding: const EdgeInsets.only(
+                  ),
+                  child: Center(
+
+                    // Whole list background
+                    child: Container(
+                        height: screenHeight,
+                        // color: Colors.red,
+                        padding: const EdgeInsets.only(
+                          // top: 20,
+                            bottom: 20
+                        ),
+                        child: SingleChildScrollView(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+
+                              // Spacer
+                              const SizedBox(
+                                height: 10,
+                              ),
+
+                              for( ClubMeClub club in clubsToDisplay)
+                                ClubListItem(
+                                  currentClub: club,
+                                ),
+
+                              const SizedBox(
+                                height: 50,
+                              ),
+                            ],
+                          ),
+                        )
+
+                    ),
+                  )
+              ),
+
+            // Filter menu
+            if(showFilterMenu)
+              Container(
+                height: screenHeight*0.14,
                 width: screenWidth,
-                height: screenHeight*0.83,
-                child: Stack(
+                color: customStyleClass.backgroundColorMain,
+                child: Row(
                   children: [
 
-                    // GOOGLE MAP
                     SizedBox(
-                        height:screenHeight*0.8,
-                        child: allPinsLoaded ?
-                        _buildFlutterMap():
-                        Center(
-                          child: CircularProgressIndicator(
-                            color: customStyleClass.primeColor,
+                      width: screenWidth,
+                      child: Column(
+                        children: [
+
+                          // Spacer
+                          SizedBox(
+                            height: screenHeight*0.01,
                           ),
-                        )
-                    ),
 
-                    // transparent layer to click out of bottom sheet
-                    if(showBottomSheet)
-                      GestureDetector(
-                        child: Container(
-                          width: screenWidth,
-                          height: screenHeight*0.83,
-                          color: Colors.transparent,
-                        ),
-                        onTap: (){
-                          toggleShowBottomSheet();
-                        },
-                      ),
-
-                    // The bottom info container
-                    GestureDetector(
-                      child: Container(
-                        padding: const EdgeInsets.only(
-                            bottom: 10
-                        ),
-                        alignment: Alignment.bottomCenter,
-                        child: showBottomSheet ?
-                        noEventAvailable?
-                        ClubInfoBottomSheet
-                          (showBottomSheet: showBottomSheet,
-                            clubMeEvent: null,
-                            noEventAvailable: noEventAvailable
-                        ):ClubInfoBottomSheet
-                          (showBottomSheet: showBottomSheet,
-                            clubMeEvent: clubMeEventToDisplay,
-                            noEventAvailable: noEventAvailable
-                        )
-                            : Container(),
-
-                      ),
-                      onTap: (){
-                        // club will be set in stateprovider when clicked on marker
-                        context.push("/club_details");
-                      },
-                    ),
-
-                    // Grey background when list active
-                    if(showListIsActive)
-                      GestureDetector(
-                        child: Container(
-                          width: screenWidth,
-                          height: screenHeight,
-                          color: customStyleClass.backgroundColorMain.withOpacity(0.95),
-                        ),
-                        onTap: (){
-                          setState(() {
-                            showListIsActive = false;
-                          });
-                        },
-                      ),
-
-                    // List view of clubs
-                    if(showListIsActive)
-                      Padding(
-                          padding: const EdgeInsets.only(
+                          // Genre
+                          SizedBox(
+                            width: screenWidth*0.28,
+                            child: Text(
+                              "Wochentag",
+                              textAlign: TextAlign.left,
+                              style: customStyleClass.getFontStyle3(),
+                            ),
                           ),
-                          child: Center(
 
-                            // Whole list background
-                            child: Container(
-                                height: screenHeight,
-                                // color: Colors.red,
-                                padding: const EdgeInsets.only(
-                                  // top: 20,
-                                    bottom: 20
-                                ),
-                                child: SingleChildScrollView(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-
-                                      // Spacer
-                                      const SizedBox(
-                                        height: 10,
-                                      ),
-
-                                      for( ClubMeClub club in clubsToDisplay)
-                                        ClubListItem(
-                                          currentClub: club,
+                          // Dropdown
+                          Theme(
+                            data: Theme.of(context).copyWith(
+                                canvasColor: customStyleClass.backgroundColorMain
+                            ),
+                            child: DropdownButton(
+                                value: weekDayDropDownValue,
+                                menuMaxHeight: 300,
+                                items: Utils.weekDaysForFiltering.map<DropdownMenuItem<String>>(
+                                        (String value) {
+                                      return DropdownMenuItem(
+                                        value: value,
+                                        child: Text(
+                                          value,
+                                          style: customStyleClass.getFontStyle4Grey2(),
                                         ),
-
-                                      const SizedBox(
-                                        height: 50,
-                                      ),
-                                    ],
-                                  ),
-                                )
-
+                                      );
+                                    }
+                                ).toList(),
+                                onChanged: (String? value){
+                                  setState(() {
+                                    weekDayDropDownValue = value!;
+                                    filterClubs();
+                                  });
+                                }
                             ),
                           )
+                        ],
                       ),
-
-                    // Filter menu
-                    if(showFilterMenu)
-                      Container(
-                        height: screenHeight*0.14,
-                        width: screenWidth,
-                        color: customStyleClass.backgroundColorMain,
-                        child: Row(
-                          children: [
-
-                            SizedBox(
-                              width: screenWidth,
-                              child: Column(
-                                children: [
-
-                                  // Spacer
-                                  SizedBox(
-                                    height: screenHeight*0.01,
-                                  ),
-
-                                  // Genre
-                                  SizedBox(
-                                    width: screenWidth*0.28,
-                                    child: Text(
-                                      "Wochentag",
-                                      textAlign: TextAlign.left,
-                                      style: customStyleClass.getFontStyle3(),
-                                    ),
-                                  ),
-
-                                  // Dropdown
-                                  Theme(
-                                    data: Theme.of(context).copyWith(
-                                        canvasColor: customStyleClass.backgroundColorMain
-                                    ),
-                                    child: DropdownButton(
-                                        value: weekDayDropDownValue,
-                                        menuMaxHeight: 300,
-                                        items: Utils.weekDaysForFiltering.map<DropdownMenuItem<String>>(
-                                                (String value) {
-                                              return DropdownMenuItem(
-                                                value: value,
-                                                child: Text(
-                                                  value,
-                                                  style: customStyleClass.getFontStyle4Grey2(),
-                                                ),
-                                              );
-                                            }
-                                        ).toList(),
-                                        onChanged: (String? value){
-                                          setState(() {
-                                            weekDayDropDownValue = value!;
-                                            filterClubs();
-                                          });
-                                        }
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                    ),
                   ],
-                )
-            )
+                ),
+              ),
           ],
         )
     );
@@ -431,20 +490,7 @@ class _UserMapViewState extends State<UserMapView>{
 
       for(var club in fetchedContentProvider.getFetchedClubs()){
 
-        var icon = await BitmapDescriptor.asset(
-            const ImageConfiguration(size: Size(46,46)),
-            "assets/images/beispiel_100x100.png"
-        );
 
-        // Set base markers for all clubs
-        final marker = Marker(
-          icon: icon,
-          onTap: () => onTapEventMarker(club),
-          markerId: MarkerId(club.getClubId()),
-          position: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng(),
-          ),
-        );
-        _markers[club.getClubId()] = marker;
 
       }
 
@@ -452,9 +498,7 @@ class _UserMapViewState extends State<UserMapView>{
 
       setUserLocationMarker();
 
-      setState(() {
-
-      });
+      setState(() {});
 
     }catch(e){
       _supabaseService.createErrorLog(
@@ -489,6 +533,9 @@ class _UserMapViewState extends State<UserMapView>{
       filterClubs();
 
       setUserLocationMarker();
+
+      setState(() {});
+
     }catch(e){
       _supabaseService.createErrorLog(
           "Error in UserMapView. Fct: processClubsFromProvider. Error: $e"
@@ -498,6 +545,24 @@ class _UserMapViewState extends State<UserMapView>{
   
 
   // MARKERS
+
+  void setBasicMarker(ClubMeClub club) async{
+    var icon = await BitmapDescriptor.asset(
+        const ImageConfiguration(size: Size(46,46)),
+        "assets/images/beispiel_100x100.png"
+    );
+
+    // Set base markers for all clubs
+    final marker = Marker(
+      icon: icon,
+      onTap: () => onTapEventMarker(club),
+      markerId: MarkerId(club.getClubId()),
+      position: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng(),
+      ),
+    );
+    _markers[club.getClubId()] = marker;
+  }
+
   void setCustomMarker(ClubMeClub club){
     try{
       File file = File(
@@ -518,6 +583,9 @@ class _UserMapViewState extends State<UserMapView>{
         ),
       );
       _markers[club.getClubId()] = marker;
+
+      setState(() {});
+
     }catch(e){
       log.d("No custom icon possible because: ${e.toString()}. Fall back to default marker.");
       final marker = Marker(
@@ -718,12 +786,13 @@ class _UserMapViewState extends State<UserMapView>{
 
       _markers = {};
       for(var club in clubsToDisplay){
-        setCustomMarker(club);
+        setBasicMarker(club);
+        // setCustomMarker(club);
       }
 
       isAnyFilterActive = true;
 
-      setState(() {});
+      // setState(() {});
 
     }else{
 
@@ -735,9 +804,9 @@ class _UserMapViewState extends State<UserMapView>{
       }
 
       isAnyFilterActive = false;
-      setState(() {
-
-      });
+      // setState(() {
+      //
+      // });
     }
   }
   void checkForMapPinImagesUntilAllAreLoaded() async{
@@ -769,10 +838,6 @@ class _UserMapViewState extends State<UserMapView>{
   Widget build(BuildContext context) {
 
     initGeneralSettings();
-
-    if(!allPinsLoaded){
-      checkForMapPinImagesUntilAllAreLoaded();
-    }
 
     return Scaffold(
       extendBody: true,

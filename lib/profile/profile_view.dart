@@ -128,6 +128,35 @@ class _ProfileViewState extends State<ProfileView> {
                   ],
                 )
             ),
+
+            if(!showEditScreen)
+              Container(
+                height: 50,
+                width: screenWidth*0.95,
+                alignment: Alignment.centerRight,
+                child: InkWell(
+                  child: const Icon(
+                    Icons.settings,
+                    color: Colors.white,
+                  ),
+                  onTap: () => context.push("/user_settings"),
+                ),
+              ),
+
+            if(showEditScreen)
+              Container(
+                height: 50,
+                width: screenWidth*0.95,
+                alignment: Alignment.centerRight,
+                child: InkWell(
+                  child: const Icon(
+                    Icons.close,
+                    color: Colors.white,
+                  ),
+                  onTap: () => clickEventClose(),
+                ),
+              ),
+
           ],
         ),
       ),
@@ -138,22 +167,8 @@ class _ProfileViewState extends State<ProfileView> {
         ),
         actions: [
 
-          if(showEditScreen)
-            InkWell(
-              child: const Icon(
-                Icons.close,
-                color: Colors.white,
-              ),
-              onTap: () => clickEventClose(),
-            ),
-          if(!showEditScreen)
-            InkWell(
-              child: const Icon(
-                Icons.settings,
-                color: Colors.white,
-              ),
-              onTap: () => context.push("/user_settings"),
-            )
+
+
         ],
       );
 

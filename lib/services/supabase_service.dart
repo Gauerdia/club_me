@@ -832,7 +832,7 @@ class SupabaseService{
       log.d("insertEventContent: Finished successfully. Response: $data");
       return 0;
     }catch(e){
-      log.d("Error in SupabaseService. Function: insertEventContent. Error: ${e.toString()}");
+      log.d("Error in SupabaseService. Function: insertEventContent. Error: ${e.toString()}. Vars: fileName, $fileName, eventId, $eventId");
       createErrorLog("Error in SupabaseService. Function: insertEventContent. Error: ${e.toString()}");
       return 1;
     }

@@ -75,15 +75,15 @@ class SmallDiscountTile extends StatelessWidget {
                   child:
 
                   fetchedContentProvider.getFetchedBannerImageIds().contains(clubMeDiscount.getBigBannerFileName())?
-                  // Image.asset(
-                  //   "assets/images/free_eintritt_400x300.png",
-                  //   fit: BoxFit.cover,
-                  // )
-                  Image(
-                    image: FileImage(
-                        File("${stateProvider.appDocumentsDir.path}/${clubMeDiscount.getBigBannerFileName()}")),
-                    // fit: BoxFit.cover,
+                  Image.asset(
+                    "assets/images/free_clubme_500x300.png",
+                    fit: BoxFit.cover,
                   )
+                  // Image(
+                  //   image: FileImage(
+                  //       File("${stateProvider.appDocumentsDir.path}/${clubMeDiscount.getBigBannerFileName()}")),
+                  //   // fit: BoxFit.cover,
+                  // )
 
                       : SizedBox(
                     height: screenHeight*0.1,

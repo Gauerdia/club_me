@@ -613,24 +613,24 @@ class _EventDetailViewState extends State<EventDetailView>{
           ),
 
           // Icon
-          GestureDetector(
-            child: Container(
-              alignment: Alignment.bottomRight,
-              child: ClipRRect(
-                borderRadius: const BorderRadius.only(
-                    topRight: Radius.circular(15),
-                    topLeft: Radius.circular(15)
-                ),
-                child: Image.asset(
-                  "assets/images/ClubMe_Logo_weiß.png",
-                  width: 60,
-                  height: 60,
-                  // fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            onTap: () => clickEventContent(),
-          )
+          // GestureDetector(
+          //   child: Container(
+          //     alignment: Alignment.bottomRight,
+          //     child: ClipRRect(
+          //       borderRadius: const BorderRadius.only(
+          //           topRight: Radius.circular(15),
+          //           topLeft: Radius.circular(15)
+          //       ),
+          //       child: Image.asset(
+          //         "assets/images/ClubMe_Logo_weiß.png",
+          //         width: 60,
+          //         height: 60,
+          //         // fit: BoxFit.cover,
+          //       ),
+          //     ),
+          //   ),
+          //   onTap: () => clickEventContent(),
+          // )
 
         ],
       )
@@ -664,25 +664,25 @@ class _EventDetailViewState extends State<EventDetailView>{
             ),
           ),
 
-          GestureDetector(
-            child: Container(
-              height: screenHeight*0.91,
-              width: screenWidth*0.95,
-              alignment: Alignment.bottomRight,
-              child: ClipRRect(
-                borderRadius: const BorderRadius.only(
-                    topRight: Radius.circular(15),
-                    topLeft: Radius.circular(15)
-                ),
-                child: Image.asset(
-                  "assets/images/club_me_icon_round.png",
-                  scale: 15,
-                  // fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            onTap: () => clickEventContent(),
-          )
+          // GestureDetector(
+          //   child: Container(
+          //     height: screenHeight*0.91,
+          //     width: screenWidth*0.95,
+          //     alignment: Alignment.bottomRight,
+          //     child: ClipRRect(
+          //       borderRadius: const BorderRadius.only(
+          //           topRight: Radius.circular(15),
+          //           topLeft: Radius.circular(15)
+          //       ),
+          //       child: Image.asset(
+          //         "assets/images/club_me_icon_round.png",
+          //         scale: 15,
+          //         // fit: BoxFit.cover,
+          //       ),
+          //     ),
+          //   ),
+          //   onTap: () => clickEventContent(),
+          // )
         ],
       ) :
       Center(

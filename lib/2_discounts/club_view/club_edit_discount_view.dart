@@ -876,6 +876,19 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
                         ),
                       ),
 
+                      // Text: Description
+                      Container(
+                        width: screenWidth*0.9,
+                        alignment: Alignment.centerLeft,
+                        padding: const EdgeInsets.only(
+                            top: 20
+                        ),
+                        child: Text(
+                          "Auswahl des Bildes",
+                          style: customStyleClass.getFontStyle3(),
+                        ),
+                      ),
+
                       // GALLERY
                       InkWell(
                         child: Container(

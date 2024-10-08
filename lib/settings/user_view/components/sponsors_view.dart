@@ -155,10 +155,10 @@ class _SponsorsViewState extends State<SponsorsView>
                         ),
 
                         SizedBox(
-                          width: screenWidth*0.8,
+                          width: screenWidth*0.81,
                           height: screenHeight*0.55,
                           child: Image.asset(
-                            "assets/images/runes_1.PNG",
+                            "assets/images/runes_info_2.PNG",
                             fit: BoxFit.cover,
                           ),
                         ),

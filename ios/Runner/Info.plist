@@ -91,6 +91,8 @@
         <string>protonmail</string>
     </array>
 
+    <key>NSBluetoothAlwaysUsageDescription</key>
+    <string>Bluetooth Access Required</string>
     <key>NSMicrophoneUsageDescription</key>
     <string>Microphone Access Required</string>
     <key>NSMotionUsageDescription</key>
