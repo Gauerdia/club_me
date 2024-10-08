@@ -598,6 +598,9 @@ class _UserMapViewState extends State<UserMapView>{
   void setUserLocationMarker() async{
 
     try{
+
+      userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
+
       _markers['user_location'] = Marker(
         markerId: const MarkerId('user_location'),
         position: LatLng(userDataProvider.getUserLatCoord(), userDataProvider.getUserLongCoord()),
