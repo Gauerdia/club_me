@@ -80,58 +80,6 @@ class _UserMapViewState extends State<UserMapView>{
 
   bool showMap = false;
 
-  Future<void> checkAndFetchClubs() async{
-
-    log.d("UserMapView, checkAndFetchClubs: Start");
-
-    final fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
-
-    // Do we need to fetch?
-    if(fetchedContentProvider.getFetchedClubs().isEmpty){
-      var data = await _supabaseService.getAllClubs();
-
-      for(var element in data){
-        ClubMeClub currentClub = parseClubMeClub(element);
-        fetchedContentProvider.addClubToFetchedClubs(currentClub);
-        setBasicMarker(currentClub);
-      }
-
-      // Check if we need to download the corresponding images
-      _checkAndFetchService.checkAndFetchClubImages(
-          fetchedContentProvider.getFetchedClubs(),
-          stateProvider,
-          fetchedContentProvider,
-          false
-      );
-
-      setUserLocationMarker();
-
-    }
-    // Have we already fetched?
-    else{
-      for(var currentClub in fetchedContentProvider.getFetchedClubs()){
-        setBasicMarker(currentClub);
-      }
-
-      // Check if we need to download the corresponding images
-      _checkAndFetchService.checkAndFetchClubImages(
-          fetchedContentProvider.getFetchedClubs(),
-          stateProvider,
-          fetchedContentProvider,
-          false
-      );
-
-      setUserLocationMarker();
-    }
-
-    setState(() {
-      print("finished");
-      showMap = true;
-    });
-
-  }
-
-
   // INIT
   @override
   void initState() {
@@ -141,7 +89,7 @@ class _UserMapViewState extends State<UserMapView>{
 
     BitmapDescriptor.asset(
       const ImageConfiguration(size: Size(32,32)),
-      "assets/images/pin1.png"
+      "assets/images/beispiel_100x100.png"
     ).then((icon){
       setState(() {
         clubIcon = icon;
@@ -173,6 +121,61 @@ class _UserMapViewState extends State<UserMapView>{
     screenHeight = MediaQuery.of(context).size.height;
     currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context);
     userDataProvider = Provider.of<UserDataProvider>(context);
+
+  }
+
+
+  Future<void> checkAndFetchClubs() async{
+
+    log.d("UserMapView, checkAndFetchClubs: Start");
+
+    final fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
+
+    // Do we need to fetch?
+    if(fetchedContentProvider.getFetchedClubs().isEmpty){
+      var data = await _supabaseService.getAllClubs();
+
+      for(var element in data){
+        ClubMeClub currentClub = parseClubMeClub(element);
+        fetchedContentProvider.addClubToFetchedClubs(currentClub);
+        setBasicMarker(currentClub);
+      }
+
+      // Check if we need to download the corresponding images
+      _checkAndFetchService.checkAndFetchClubImages(
+          fetchedContentProvider.getFetchedClubs(),
+          stateProvider,
+          fetchedContentProvider,
+          false
+      );
+
+      filterClubs();
+
+      setUserLocationMarker();
+
+    }
+    // Have we already fetched?
+    else{
+      for(var currentClub in fetchedContentProvider.getFetchedClubs()){
+        setBasicMarker(currentClub);
+      }
+
+      // Check if we need to download the corresponding images
+      _checkAndFetchService.checkAndFetchClubImages(
+          fetchedContentProvider.getFetchedClubs(),
+          stateProvider,
+          fetchedContentProvider,
+          false
+      );
+
+      setUserLocationMarker();
+    }
+
+    filterClubs();
+
+    setState(() {
+      showMap = true;
+    });
 
   }
 
@@ -569,10 +572,6 @@ class _UserMapViewState extends State<UserMapView>{
   // MARKERS
 
   void setBasicMarker(ClubMeClub club) async{
-    // var icon = await BitmapDescriptor.asset(
-    //     const ImageConfiguration(size: Size(46,46)),
-    //     "assets/images/beispiel_100x100.png"
-    // );
 
     // Set base markers for all clubs
     final marker = Marker(
