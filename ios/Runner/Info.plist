@@ -91,6 +91,13 @@
         <string>protonmail</string>
     </array>
 
+    <key>UIBackgroundModes</key>
+    <array>
+       <string>fetch</string>
+       <string>remote-notification</string>
+    </array>
+    <key>LSSupportsOpeningDocumentsInPlace</key>
+    <true/>
     <key>NSBluetoothAlwaysUsageDescription</key>
     <string>Bluetooth Access Required</string>
     <key>NSMicrophoneUsageDescription</key>

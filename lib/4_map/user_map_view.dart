@@ -494,8 +494,6 @@ class _UserMapViewState extends State<UserMapView>{
 
       }
 
-      checkForMapPinImagesUntilAllAreLoaded();
-
       setUserLocationMarker();
 
       setState(() {});
@@ -547,14 +545,13 @@ class _UserMapViewState extends State<UserMapView>{
   // MARKERS
 
   void setBasicMarker(ClubMeClub club) async{
-    var icon = await BitmapDescriptor.asset(
-        const ImageConfiguration(size: Size(46,46)),
-        "assets/images/beispiel_100x100.png"
-    );
+    // var icon = await BitmapDescriptor.asset(
+    //     const ImageConfiguration(size: Size(46,46)),
+    //     "assets/images/beispiel_100x100.png"
+    // );
 
     // Set base markers for all clubs
     final marker = Marker(
-      icon: icon,
       onTap: () => onTapEventMarker(club),
       markerId: MarkerId(club.getClubId()),
       position: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng(),
@@ -789,6 +786,7 @@ class _UserMapViewState extends State<UserMapView>{
         setBasicMarker(club);
         // setCustomMarker(club);
       }
+      setUserLocationMarker();
 
       isAnyFilterActive = true;
 
@@ -800,8 +798,10 @@ class _UserMapViewState extends State<UserMapView>{
 
       for(var club in fetchedContentProvider.getFetchedClubs()){
         clubsToDisplay.add(club);
-        setCustomMarker(club);
+        setBasicMarker(club);
+        // setCustomMarker(club);
       }
+      setUserLocationMarker();
 
       isAnyFilterActive = false;
       // setState(() {

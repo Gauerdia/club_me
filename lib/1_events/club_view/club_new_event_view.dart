@@ -788,25 +788,25 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
 
                       // Text: 'Repeat event'
                       Container(
+                        padding: const EdgeInsets.only(
+                          top: 15
+                        ),
                         width: screenWidth*0.9,
                         alignment: Alignment.centerLeft,
-                        child: SizedBox(
-                          width: screenWidth*0.45,
-                          child: Text(
-                            "Event wiederholen",
-                            style: customStyleClass.getFontStyle4(),
-                            textAlign: TextAlign.left,
-                          ),
+                        child: Text(
+                          "Event wiederholen",
+                          style: customStyleClass.getFontStyle3(),
                         ),
                       ),
 
                       // ToggleSwitch: isRepeated
                       Container(
+                        // color: Colors.red,
                         width: screenWidth*0.9,
-                        height: screenHeight*0.1,
+                        height: screenHeight*0.09,
                         alignment: Alignment.centerLeft,
-                        padding:  EdgeInsets.only(
-                            top: distanceBetweenTitleAndTextField
+                        padding:  const EdgeInsets.only(
+                            // top: distanceBetweenTitleAndTextField
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -834,8 +834,12 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                             ),
 
                             if(isRepeated != 0)
-                              SizedBox(
+                              Container(
+                                padding: const EdgeInsets.only(
+                                  top: 10
+                                ),
                                 width: screenWidth*0.4,
+                                height: screenHeight*0.1,
                                 child: CupertinoPicker(
                                     scrollController: _fixedExtentScrollController1,
                                     itemExtent: 50,
@@ -871,7 +875,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                             width: screenWidth*0.45,
                             child: Text(
                               "Als Vorlage speichern",
-                              style: customStyleClass.getFontStyle4(),
+                              style: customStyleClass.getFontStyle3(),
                               textAlign: TextAlign.left,
                             ),
                           ),
