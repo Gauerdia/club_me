@@ -231,25 +231,18 @@ class _UserMapViewState extends State<UserMapView>{
               ),
 
             // The bottom info container
+            if(showBottomSheet)
             GestureDetector(
               child: Container(
                 padding: const EdgeInsets.only(
-                    bottom: 15
+                    bottom: 35
                 ),
                 alignment: Alignment.bottomCenter,
-                child: showBottomSheet ?
-                noEventAvailable?
-                ClubInfoBottomSheet
-                  (showBottomSheet: showBottomSheet,
-                    clubMeEvent: null,
-                    noEventAvailable: noEventAvailable):
-                ClubInfoBottomSheet
-                  (showBottomSheet: showBottomSheet,
-                    clubMeEvent: clubMeEventToDisplay,
+                child: ClubInfoBottomSheet(
+                    showBottomSheet: showBottomSheet,
+                    clubMeEvent: noEventAvailable ? null : clubMeEventToDisplay,
                     noEventAvailable: noEventAvailable
-                )
-                    : Container(),
-
+                ),
               ),
               onTap: (){
                 // club will be set in stateprovider when clicked on marker
