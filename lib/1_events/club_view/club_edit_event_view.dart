@@ -746,7 +746,6 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                             ),
                           ),
                           style: customStyleClass.getFontStyle4(),
-                          maxLength: 35,
                         ),
                       ),
 

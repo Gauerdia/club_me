@@ -224,7 +224,7 @@ class _UserClubsViewState extends State<UserClubsView>
                         onPressed: () => toggleIsSearchbarActive(),
                         icon: Icon(
                           Icons.search,
-                          color: searchValue != "" ? customStyleClass.primeColor : Colors.grey,
+                          color: searchValue != "" ? customStyleClass.primeColor : Colors.white,
                           // size: 20,
                         )
                     )
@@ -323,7 +323,7 @@ class _UserClubsViewState extends State<UserClubsView>
                         onPressed: () => toggleIsSearchbarActive(),
                         icon: Icon(
                           Icons.search,
-                          color: searchValue != "" ? customStyleClass.primeColor : Colors.grey,
+                          color: searchValue != "" ? customStyleClass.primeColor : Colors.white,
                           // size: 20,
                         )
                     )
@@ -443,11 +443,6 @@ class _UserClubsViewState extends State<UserClubsView>
             width: screenWidth*0.5,
             child: Column(
               children: [
-
-                // Spacer
-                SizedBox(
-                  height: screenHeight*0.01,
-                ),
 
                 // Genre
                 SizedBox(

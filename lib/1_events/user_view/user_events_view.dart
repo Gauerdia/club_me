@@ -436,7 +436,7 @@ class _UserEventsViewState extends State<UserEventsView> {
 
                           // Genre
                           SizedBox(
-                            width: screenWidth*0.28,
+                            // width: screenWidth*0.28,
                             child: Text(
                               "Wochentag",
                               textAlign: TextAlign.left,

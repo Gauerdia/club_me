@@ -129,7 +129,7 @@ class ClubListItem extends StatelessWidget {
             // text, distance, music
             InkWell(
               child: SizedBox(
-                width: screenWidth*0.7,
+                // width: screenWidth*0.7,
                 height: screenHeight*0.07,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -149,16 +149,16 @@ class ClubListItem extends StatelessWidget {
                     Container(
                       // color: Colors.red,
                       alignment: Alignment.centerLeft,
-                      width: screenWidth*0.9,
+                      // width: screenWidth*0.9,
                       child: SizedBox(
-                        width: screenWidth*0.6,
+                        // width: screenWidth*0.6,
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
 
-
                             // Distance
-                            Padding(
+                            Container(
+                              width: screenWidth*0.27,
                               padding: const EdgeInsets.only(right: 10),
                               child: Row(
                                 children: [
@@ -181,9 +181,12 @@ class ClubListItem extends StatelessWidget {
                             ),
 
                             // Genre
-                            Padding(
+                            Container(
+                              // color: Colors.grey,
+                              width: screenWidth*0.26,
                               padding:  const EdgeInsets.only(right: 10),
                               child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
                                   Icon(
                                     Icons.library_music_outlined,
@@ -202,17 +205,21 @@ class ClubListItem extends StatelessWidget {
                                 ],
                               ),),
 
-                            InkWell(
-                              child: SizedBox(
-                                width: screenWidth*0.06,
-                                height: screenWidth*0.06,
-                                child: Image.asset(
-                                  'assets/images/google_maps_3.png',
+                            Container(
+                              width: screenWidth*0.15,
+                              // color: Colors.green,
+                              child: InkWell(
+                                child: SizedBox(
+                                  width: screenWidth*0.06,
+                                  height: screenWidth*0.06,
+                                  child: Image.asset(
+                                    'assets/images/google_maps_3.png',
+                                  ),
                                 ),
+                                onTap: ()=> MapUtils.openMap(
+                                    currentClub.getGeoCoordLat(),
+                                    currentClub.getGeoCoordLng()),
                               ),
-                              onTap: ()=> MapUtils.openMap(
-                                  currentClub.getGeoCoordLat(),
-                                  currentClub.getGeoCoordLng()),
                             )
                           ],
                         ),

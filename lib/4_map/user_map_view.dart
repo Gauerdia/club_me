@@ -98,7 +98,7 @@ class _UserMapViewState extends State<UserMapView>{
 
     BitmapDescriptor.asset(
         const ImageConfiguration(size: Size(32,32)),
-        "assets/images/marker1.png"
+        "assets/images/1_standort_blau_weiss.png"
     ).then((icon){
       setState(() {
         userIcon = icon;
@@ -183,7 +183,7 @@ class _UserMapViewState extends State<UserMapView>{
       if(userIcon == null){
         await BitmapDescriptor.asset(
             const ImageConfiguration(size: Size(32,32)),
-            "assets/images/marker1.png"
+            "assets/images/1_standort_blau_weiss.png"
         ).then((icon){
           setState(() {
             userIcon = icon;
@@ -482,7 +482,7 @@ class _UserMapViewState extends State<UserMapView>{
                       padding: const EdgeInsets.all(7),
                       child:  Icon(
                         Icons.filter_alt_outlined,
-                        color: isAnyFilterActive ? customStyleClass.primeColor : Colors.grey,
+                        color: (isAnyFilterActive || showFilterMenu) ? customStyleClass.primeColor : Colors.white,
                       ),
                     ),
                     onTap: (){
@@ -495,7 +495,7 @@ class _UserMapViewState extends State<UserMapView>{
                       padding: const EdgeInsets.all(7),
                       child:  Icon(
                         Icons.format_list_bulleted,
-                        color: showListIsActive ? customStyleClass.primeColor : Colors.grey,
+                        color: showListIsActive ? customStyleClass.primeColor : Colors.white,
                       ),
                     ),
                     onTap: (){

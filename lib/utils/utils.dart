@@ -17,24 +17,24 @@ class Utils{
   static double creationScreensDistanceBetweenTitleAndTextField = 10;
 
   static List<String> discountBigImageNames = [
-    "Free_ClubMe_500x400.png",
-    "Free_Eintritt_500x400.png",
-    "Free_Getraenk_500x400.png",
-    "Free_Shots_500x400.png",
-    "Free_Sonstiges_500x400.png",
-    "Special_Offer_ClubMe_500x400.png",
-    "Special_Offer_Eintritt_500x400.png",
-    "Special_Offer_Flaschen_500x400.png",
-    "Special_Offer_Getraenk_500x400.png",
-    "Special_Offer_Getraenke_500x400.png",
-    "Special_Offer_Sonstiges_500x400.png",
+    "free_clubme_500x400.png",
+    "free_eintritt_500x400.png",
+    "free_getraenk_500x400.png",
+    "free_shots_500x400.png",
+    "free_sonstiges_500x400.png",
+    "special_offer_clubme_500x400.png",
+    "special_offer_eintritt_500x400.png",
+    "special_offer_flaschen_500x400.png",
+    "special_offer_getraenk_500x400.png",
+    "special_offer_getraenke_500x400.png",
+    "special_offer_sonstiges_500x400.png",
   ];
 
   static List<String> discountSmallImageNames = [
     "free_clubme_600x300.png",
     "free_eintritt_600x300.png",
     "free_getraenk_600x300.png",
-    "free_Sshots_600x300.png",
+    "free_shots_600x300.png",
     "free_sonstiges_600x300.png",
     "special_offer_clubme_600x300.png",
     "special_offer_eintritt_600x300.png",

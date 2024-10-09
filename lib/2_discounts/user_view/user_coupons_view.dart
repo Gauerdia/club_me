@@ -193,7 +193,7 @@ class _UserCouponsViewState extends State<UserCouponsView>
       leading:GestureDetector(
         child: Icon(
           Icons.search,
-          color: searchValue != "" ? customStyleClass.primeColor : Colors.grey,
+          color: searchValue != "" ? customStyleClass.primeColor : Colors.white,
           // size: 20,
         ),
         onTap: () => toggleIsSearchActive(),
@@ -203,7 +203,7 @@ class _UserCouponsViewState extends State<UserCouponsView>
             onPressed: () => filterForFavorites(),
             icon: Icon(
               onlyFavoritesIsActive ? Icons.star : Icons.star_border,
-              color: onlyFavoritesIsActive ? customStyleClass.primeColor : Colors.grey,
+              color: onlyFavoritesIsActive ? customStyleClass.primeColor : Colors.white,
             )
         )
       ],
@@ -213,10 +213,11 @@ class _UserCouponsViewState extends State<UserCouponsView>
     return AppBar(
       backgroundColor: customStyleClass.backgroundColorMain,
       surfaceTintColor: customStyleClass.backgroundColorMain,
-      title: SizedBox(
+      title: Container(
         width: screenWidth,
         child: Stack(
           children: [
+
             // Headline
             Container(
                 alignment: Alignment.bottomCenter,
@@ -251,26 +252,38 @@ class _UserCouponsViewState extends State<UserCouponsView>
                   ],
                 )
             ),
+
+
+            Container(
+              alignment: Alignment.centerLeft,
+              width: screenWidth,
+              height: 50,
+              child: IconButton(
+                  onPressed: () => toggleIsSearchActive(),
+                  icon: Icon(
+                    Icons.search,
+                    color: searchValue != "" ? customStyleClass.primeColor : Colors.white,
+                    // size: 20,
+                  )
+              )
+            ),
+
+            Container(
+              width: screenWidth,
+              height: 50,
+              alignment: Alignment.centerRight,
+              child: IconButton(
+                  onPressed: () => filterForFavorites(),
+                  icon: Icon(
+                    onlyFavoritesIsActive ? Icons.star : Icons.star_border,
+                    color: onlyFavoritesIsActive ? customStyleClass.primeColor : Colors.white,
+                  )
+              )
+            )
+
           ],
         ),
       ),
-      leading: GestureDetector(
-        child: Icon(
-          Icons.search,
-          color: searchValue != "" ? customStyleClass.primeColor : Colors.grey,
-          // size: 20,
-        ),
-        onTap: () => toggleIsSearchActive(),
-      ),
-      actions: [
-        IconButton(
-            onPressed: () => filterForFavorites(),
-            icon: Icon(
-              onlyFavoritesIsActive ? Icons.star : Icons.star_border,
-              color: onlyFavoritesIsActive ? customStyleClass.primeColor : Colors.grey,
-            )
-        )
-      ],
     );
   }
   Widget _buildNothingToDisplay(){
