@@ -317,7 +317,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
 
                       // Spacer
                       SizedBox(
-                        height: screenHeight*0.03,
+                        height: screenHeight*0.05,
                       ),
 
                       // Text: Title
@@ -751,15 +751,14 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
 
                       // Text: 'Repeat event'
                       Container(
+                        padding: const EdgeInsets.only(
+                            top: 15
+                        ),
                         width: screenWidth*0.9,
                         alignment: Alignment.centerLeft,
-                        child: SizedBox(
-                          width: screenWidth*0.45,
-                          child: Text(
-                            "Event wiederholen",
-                            style: customStyleClass.getFontStyle4(),
-                            textAlign: TextAlign.left,
-                          ),
+                        child: Text(
+                          "Event wiederholen",
+                          style: customStyleClass.getFontStyle3(),
                         ),
                       ),
 

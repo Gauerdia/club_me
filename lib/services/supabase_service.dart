@@ -764,7 +764,6 @@ class SupabaseService{
       finalPath = "$folder/$fileName";
     }
 
-
     try{
       var data = await supabase.storage.from('club_me_banner_images').download(finalPath);
       log.d("getBannerImage: Finished successfully. File: $folder/$fileName");

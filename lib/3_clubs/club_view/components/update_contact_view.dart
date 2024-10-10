@@ -159,7 +159,7 @@ class _UpdateContactViewState extends State<UpdateContactView> {
                   width: screenWidth*0.18,
                   child: TextFormField(
                     controller: streetNumberController,
-                    keyboardType: TextInputType.number,
+                    // keyboardType: TextInputType.number,
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
                     ],

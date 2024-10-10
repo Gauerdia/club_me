@@ -459,27 +459,61 @@ class _UserClubsViewState extends State<UserClubsView>
                   data: Theme.of(context).copyWith(
                       canvasColor: customStyleClass.backgroundColorMain
                   ),
-                  child: DropdownButton(
-                      value: weekDayDropDownValue,
-                      menuMaxHeight: 300,
-                      items: Utils.weekDaysForFiltering.map<DropdownMenuItem<String>>(
-                              (String value) {
-                            return DropdownMenuItem(
-                              value: value,
-                              child: Text(
-                                value,
-                                style: customStyleClass.getFontStyle4Grey2(),
-                              ),
-                            );
-                          }
-                      ).toList(),
-                      onChanged: (String? value){
-                        setState(() {
-                          weekDayDropDownValue = value!;
-                          filterClubs();
-                        });
-                      }
-                  ),
+                  child:
+
+                  DropdownMenu<String>(
+                    width: 160,
+                    initialSelection: weekDayDropDownValue,
+                    onSelected: (String? value){
+                      setState(() {
+                        weekDayDropDownValue = value!;
+                        filterClubs();
+                      });
+                    },
+                    textStyle: const TextStyle(
+                        color: Colors.white
+                    ),
+                    menuStyle: MenuStyle(
+                      surfaceTintColor: WidgetStateProperty.all<Color>(customStyleClass.backgroundColorEventTile),
+                      backgroundColor: WidgetStateProperty.all<Color>(customStyleClass.backgroundColorEventTile),
+                      alignment: Alignment.bottomLeft,
+                      maximumSize: const WidgetStatePropertyAll(
+                        Size.fromHeight(300),
+                      ),
+                    ),
+                    dropdownMenuEntries: Utils.weekDaysForFiltering
+                        .map<DropdownMenuEntry<String>>((String value){
+                      return DropdownMenuEntry(
+                          value: value,
+                          label: value,
+                          style: ButtonStyle(
+                              foregroundColor: WidgetStateProperty.all<Color>(Colors.white)
+                          )
+                      );
+                    }).toList(),
+                  )
+
+                  // DropdownButton(
+                  //     value: weekDayDropDownValue,
+                  //     menuMaxHeight: 300,
+                  //     items: Utils.weekDaysForFiltering.map<DropdownMenuItem<String>>(
+                  //             (String value) {
+                  //           return DropdownMenuItem(
+                  //             value: value,
+                  //             child: Text(
+                  //               value,
+                  //               style: customStyleClass.getFontStyle4Grey2(),
+                  //             ),
+                  //           );
+                  //         }
+                  //     ).toList(),
+                  //     onChanged: (String? value){
+                  //       setState(() {
+                  //         weekDayDropDownValue = value!;
+                  //         filterClubs();
+                  //       });
+                  //     }
+                  // ),
                 )
 
 
@@ -503,27 +537,61 @@ class _UserClubsViewState extends State<UserClubsView>
                     data: Theme.of(context).copyWith(
                         canvasColor: customStyleClass.backgroundColorMain
                     ),
-                    child: DropdownButton(
-                        value: dropdownValue,
-                        menuMaxHeight: 200,
-                        items: genresDropdownList.map<DropdownMenuItem<String>>(
-                                (String value) {
-                              return DropdownMenuItem(
-                                  value: value,
-                                  child: Text(
-                                    value,
-                                    style: customStyleClass.getFontStyle4Grey2(),
-                                  )
-                              );
-                            }
-                        ).toList(),
-                        onChanged: (String? value){
-                          setState(() {
-                            dropdownValue = value!;
-                            filterClubs();
-                          });
-                        }
+                    child:
+
+                    DropdownMenu<String>(
+                      width: 160,
+                      initialSelection: dropdownValue,
+                      onSelected: (String? value){
+                        setState(() {
+                          dropdownValue = value!;
+                          filterClubs();
+                        });
+                      },
+                      textStyle: const TextStyle(
+                          color: Colors.white
+                      ),
+                      menuStyle: MenuStyle(
+                        surfaceTintColor: WidgetStateProperty.all<Color>(customStyleClass.backgroundColorEventTile),
+                        backgroundColor: WidgetStateProperty.all<Color>(customStyleClass.backgroundColorEventTile),
+                        alignment: Alignment.bottomLeft,
+                        maximumSize: const WidgetStatePropertyAll(
+                          Size.fromHeight(200),
+                        ),
+                      ),
+                      dropdownMenuEntries: Utils.genreListForFiltering
+                          .map<DropdownMenuEntry<String>>((String value){
+                        return DropdownMenuEntry(
+                            value: value,
+                            label: value,
+                            style: ButtonStyle(
+                                foregroundColor: WidgetStateProperty.all<Color>(Colors.white)
+                            )
+                        );
+                      }).toList(),
                     )
+
+                    // DropdownButton(
+                    //     value: dropdownValue,
+                    //     menuMaxHeight: 200,
+                    //     items: genresDropdownList.map<DropdownMenuItem<String>>(
+                    //             (String value) {
+                    //           return DropdownMenuItem(
+                    //               value: value,
+                    //               child: Text(
+                    //                 value,
+                    //                 style: customStyleClass.getFontStyle4Grey2(),
+                    //               )
+                    //           );
+                    //         }
+                    //     ).toList(),
+                    //     onChanged: (String? value){
+                    //       setState(() {
+                    //         dropdownValue = value!;
+                    //         filterClubs();
+                    //       });
+                    //     }
+                    // )
                 )
 
               ],

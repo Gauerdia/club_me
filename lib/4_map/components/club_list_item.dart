@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:club_me/provider/fetched_content_provider.dart';
 import 'package:club_me/provider/state_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +23,7 @@ class ClubListItem extends StatelessWidget {
   }) : super(key: key);
 
   ClubMeClub currentClub;
+  late FetchedContentProvider fetchedContentProvider;
   late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
   late UserDataProvider userDataProvider;
   late StateProvider stateProvider;
@@ -82,37 +84,26 @@ class ClubListItem extends StatelessWidget {
                           child: CircleAvatar(
                             // radius: 45,
                             backgroundColor: Colors.black,
-                            child: currentClub.getStoryId().isNotEmpty?
-                            Container(
-                              decoration: BoxDecoration(
+                            child: Container(
+                              decoration: const BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: Colors.black,
-                                image: DecorationImage(
-                                  fit: BoxFit.cover,
-                                  image:
-                                  FileImage(
-                                      File(
-                                          "${stateProvider.appDocumentsDir.path}/${currentClub.getSmallLogoFileName()}"
-                                      )
-                                  ),
-                                ),
                               ),
-                            ):
-                            // rounded image
-                            Container(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.black,
-                                image: DecorationImage(
-                                  fit: BoxFit.cover,
-                                  image: FileImage(
-                                      File(
-                                          "${stateProvider.appDocumentsDir.path}/${currentClub.getSmallLogoFileName()}"
-                                      )
-                                  ),
+                              child: fetchedContentProvider.getFetchedBannerImageIds().contains(currentClub.getSmallLogoFileName()) ?
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(45),
+                                child: Image(
+                                    image: FileImage(
+                                        File(
+                                            "${stateProvider.appDocumentsDir.path}/${currentClub.getSmallLogoFileName()}"
+                                        )
+                                    )
                                 ),
-                              ),
-                            ),
+                              ):
+                              Center(
+                                child: CircularProgressIndicator(color: customStyleClass.primeColor,)
+                              )
+                            )
                           ),
                         ),
                         onTap: (){
@@ -302,6 +293,8 @@ class ClubListItem extends StatelessWidget {
 
     stateProvider = Provider.of<StateProvider>(context);
     userDataProvider = Provider.of<UserDataProvider>(context);
+    fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
+
     customStyleClass = CustomStyleClass(context: context);
     currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context);
     screenWidth = MediaQuery.of(context).size.width;

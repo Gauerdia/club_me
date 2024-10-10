@@ -352,7 +352,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
 
                       // Spacer
                       SizedBox(
-                        height: screenHeight*0.03,
+                        height: screenHeight*0.05,
                       ),
 
                       // Text: Title

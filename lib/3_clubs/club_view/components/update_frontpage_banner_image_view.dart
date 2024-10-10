@@ -23,11 +23,6 @@ import 'package:image/image.dart' as img;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 
-
-
-
-
-
 class UpdateFrontpageBannerImageView extends StatefulWidget {
   const UpdateFrontpageBannerImageView({super.key});
 
@@ -169,7 +164,7 @@ class _UpdateFrontpageBannerImageViewState extends State<UpdateFrontpageBannerIm
   void chooseLocalFile() async{
     FilePickerResult? result = await FilePicker.platform.pickFiles(
         allowMultiple: false,
-      type: FileType.image
+      type: FileType.media
     );
     if (result != null) {
       setState(() {
@@ -200,42 +195,45 @@ class _UpdateFrontpageBannerImageViewState extends State<UpdateFrontpageBannerIm
       child: Column(
         children: [
 
-          CropImage(
-            /// Only needed if you expect to make use of its functionality like setting initial values of
-            /// [aspectRatio] and [defaultCrop].
-              controller: cropController,
-              /// The image to be cropped. Use [Image.file] or [Image.network] or any other [Image].
-              image: imageToCrop,
-              /// The crop grid color of the outer lines. Defaults to 70% white.
-              gridColor: Colors.white,
-              /// The crop grid color of the inner lines. Defaults to [gridColor].
-              gridInnerColor: Colors.white,
-              /// The crop grid color of the corner lines. Defaults to [gridColor].
-              gridCornerColor: Colors.white,
-              /// The size of the corner of the crop grid. Defaults to 25.
-              gridCornerSize: 50,
-              /// Whether to display the corners. Defaults to true.
-              showCorners: true,
-              /// The width of the crop grid thin lines. Defaults to 2.
-              gridThinWidth: 3,
-              /// The width of the crop grid thick lines. Defaults to 5.
-              gridThickWidth: 6,
-              /// The crop grid scrim (outside area overlay) color. Defaults to 54% black.
-              scrimColor: Colors.grey.withOpacity(0.5),
-              /// True: Always show third lines of the crop grid.
-              /// False: third lines are only displayed while the user manipulates the grid (default).
-              alwaysShowThirdLines: true,
-              /// Event called when the user changes the crop rectangle.
-              /// The passed [Rect] is normalized between 0 and 1.
-              onCrop: (rect) => print(rect),
-              /// The minimum pixel size the crop rectangle can be shrunk to. Defaults to 100.
-              minimumImageSize: 50,
-              /// The maximum pixel size the crop rectangle can be grown to. Defaults to infinity.
-              /// You can constrain the crop rectangle to a fixed size by setting
-              /// both [minimumImageSize] and [maximumImageSize] to the same value (the width) and using
-              /// the [aspectRatio] of the controller to force the other dimension (width / height).
-              /// Doing so disables the display of the corners.
-              maximumImageSize: 2000
+          SizedBox(
+            height: screenHeight*0.7,
+            child: CropImage(
+              /// Only needed if you expect to make use of its functionality like setting initial values of
+              /// [aspectRatio] and [defaultCrop].
+                controller: cropController,
+                /// The image to be cropped. Use [Image.file] or [Image.network] or any other [Image].
+                image: imageToCrop,
+                /// The crop grid color of the outer lines. Defaults to 70% white.
+                gridColor: Colors.white,
+                /// The crop grid color of the inner lines. Defaults to [gridColor].
+                gridInnerColor: Colors.white,
+                /// The crop grid color of the corner lines. Defaults to [gridColor].
+                gridCornerColor: Colors.white,
+                /// The size of the corner of the crop grid. Defaults to 25.
+                gridCornerSize: 50,
+                /// Whether to display the corners. Defaults to true.
+                showCorners: true,
+                /// The width of the crop grid thin lines. Defaults to 2.
+                gridThinWidth: 3,
+                /// The width of the crop grid thick lines. Defaults to 5.
+                gridThickWidth: 6,
+                /// The crop grid scrim (outside area overlay) color. Defaults to 54% black.
+                scrimColor: Colors.grey.withOpacity(0.5),
+                /// True: Always show third lines of the crop grid.
+                /// False: third lines are only displayed while the user manipulates the grid (default).
+                alwaysShowThirdLines: true,
+                /// Event called when the user changes the crop rectangle.
+                /// The passed [Rect] is normalized between 0 and 1.
+                onCrop: (rect) => print(rect),
+                /// The minimum pixel size the crop rectangle can be shrunk to. Defaults to 100.
+                minimumImageSize: 50,
+                /// The maximum pixel size the crop rectangle can be grown to. Defaults to infinity.
+                /// You can constrain the crop rectangle to a fixed size by setting
+                /// both [minimumImageSize] and [maximumImageSize] to the same value (the width) and using
+                /// the [aspectRatio] of the controller to force the other dimension (width / height).
+                /// Doing so disables the display of the corners.
+                maximumImageSize: 2000
+            ),
           ),
 
           SizedBox(

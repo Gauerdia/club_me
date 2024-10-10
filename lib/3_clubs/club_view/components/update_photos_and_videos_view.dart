@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:club_me/models/front_page_images.dart';
 import 'package:club_me/shared/dialogs/title_content_and_button_dialog.dart';
+import 'package:club_me/shared/dialogs/title_content_and_two_buttons_dialog.dart';
+import 'package:club_me/shared/dialogs/title_content_image_two_buttons_dialog.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -247,7 +249,39 @@ class _UpdatePhotosAndVideosViewState extends State<UpdatePhotosAndVideosView> {
 
   void dialogToConfirmUpload(){
     showDialog(context: context, builder: (BuildContext context){
-      return AlertDialog(
+      return TitleContentImageAndTwoButtonsDialog(
+          titleToDisplay: "Neues Bild hochladen",
+          contentToDisplay: "Möchtest du dieses Bild hochladen?",
+          file: file!,
+          firstButtonToDisplay: TextButton(
+              onPressed: () => uploadAndInsertImage().then((result){
+                if(result == 0){
+                  if(context.mounted){
+                    Navigator.pop(context);
+                  }
+                }else{
+                  if(context.mounted){
+                    Navigator.pop(context);
+                  }
+                }
+              }),
+              child: Text(
+                "Ja",
+                textAlign: TextAlign.center,
+                style: customStyleClass.getFontStyle4BoldPrimeColor(),
+              )
+          ),
+          secondButtonToDisplay: TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                "Nein",
+                textAlign: TextAlign.center,
+                style: customStyleClass.getFontStyle4BoldPrimeColor(),
+              )
+          )
+      );
+
+        AlertDialog(
         title: const Text("Neues Bild hochladen"),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -347,7 +381,6 @@ class _UpdatePhotosAndVideosViewState extends State<UpdatePhotosAndVideosView> {
     FrontPageGalleryImages newFrontPageImages = userDataProvider.getUserClub().getFrontPageGalleryImages();
     newFrontPageImages.images!.add(Images(id: newUuid));
 
-
     return _supabaseService.uploadFrontPageGalleryImage(
         file,
         newUuid,
@@ -356,6 +389,7 @@ class _UpdatePhotosAndVideosViewState extends State<UpdatePhotosAndVideosView> {
     ).then((result){
       if(result == 0){
         saveImageLocally(newUuid, file);
+
       }else{
         print("Error");
       }

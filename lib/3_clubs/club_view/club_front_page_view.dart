@@ -5,6 +5,7 @@ import 'package:club_me/models/club.dart';
 import 'package:club_me/models/opening_times.dart';
 import 'package:club_me/models/parser/club_me_club_parser.dart';
 import 'package:club_me/provider/current_and_liked_elements_provider.dart';
+import 'package:club_me/services/check_and_fetch_service.dart';
 import 'package:club_me/shared/map_utils.dart';
 import 'package:club_me/stories/show_story_chewie.dart';
 import 'package:flutter/material.dart';
@@ -65,6 +66,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
 
 
   final SupabaseService _supabaseService = SupabaseService();
+  final CheckAndFetchService _checkAndFetchService = CheckAndFetchService();
 
   bool showGalleryImageFullScreen = false;
   int galleryImageToShowIndex = 0;
@@ -93,12 +95,14 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
 
     userDataProvider.setUserClub(fetchedClub);
 
-    if(fetchedClub.getFrontPageGalleryImages().images != null){
-      for(var element in fetchedClub.getFrontPageGalleryImages().images!){
-        checkIfAllImagesAreFetched();
-        // checkIfFrontPageImageIsFetched(element.id!);
-      }
-    }
+    _checkAndFetchService.checkAndFetchSpecificClubImages(fetchedClub, stateProvider, fetchedContentProvider);
+
+    // if(fetchedClub.getFrontPageGalleryImages().images != null){
+    //   for(var element in fetchedClub.getFrontPageGalleryImages().images!){
+    //     checkIfAllImagesAreFetched();
+    //     // checkIfFrontPageImageIsFetched(element.id!);
+    //   }
+    // }
   }
 
 
@@ -277,10 +281,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
   }
   Widget _buildLogoIcon(){
 
-    return fetchedContentProvider
-        .getFetchedBannerImageIds()
-        .contains(userDataProvider.getUserClub().getSmallLogoFileName()) ?
-    Container(
+    return Container(
       width: screenWidth*0.25,
       height: screenWidth*0.25,
       decoration: BoxDecoration(
@@ -290,29 +291,22 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
               color: userDataProvider.getUserClubStoryId().isNotEmpty? customStyleClass.primeColor: Colors.grey,
               width: 2
           ),
-          image: DecorationImage(
-              fit: BoxFit.cover,
-              image: Image.file(
-                  File("${stateProvider.appDocumentsDir.path}/${userDataProvider.getUserClub().getSmallLogoFileName()}")
-              ).image
-          )
       ),
-    ):
-    // Show the loading indicator while we are waiting
-    Container(
-      width: screenWidth*0.25,
-      height: screenWidth*0.25,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.white,
-        border: Border.all(
-            color: Colors.black
+      child: fetchedContentProvider
+          .getFetchedBannerImageIds()
+          .contains(userDataProvider.getUserClub().getSmallLogoFileName()) ?
+      ClipRRect(
+        borderRadius: BorderRadius.circular(55),
+        child: Image(
+            image: FileImage(
+                File(
+                    "${stateProvider.appDocumentsDir.path}/${userDataProvider.getUserClub().getSmallLogoFileName()}"
+                )
+            )
         ),
-      ),
-      child: Center(
-        child: CircularProgressIndicator(
-          color: customStyleClass.primeColor,
-        ),
+      ):
+      Center(
+          child: CircularProgressIndicator(color: customStyleClass.primeColor,)
       ),
     );
   }
@@ -1737,58 +1731,6 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
     customStyleClass = CustomStyleClass(context: context);
 
     zipAndCity = "${userDataProvider.getUserClubContact()[3]} ${userDataProvider.getUserClubContact()[4]}";
-  }
-  void checkIfAllImagesAreFetched() async{
-
-    final String dirPath = stateProvider.appDocumentsDir.path;
-
-    List<String> imageFileNamesToCheckAndFetch = [];
-    List<String> folderOfImage = [];
-
-
-    imageFileNamesToCheckAndFetch.add(userDataProvider.getUserClub().getSmallLogoFileName());
-    folderOfImage.add("small_banner_images");
-
-    imageFileNamesToCheckAndFetch.add(userDataProvider.getUserClub().getBigLogoFileName());
-    folderOfImage.add("big_banner_images");
-
-    imageFileNamesToCheckAndFetch.add(userDataProvider.getUserClub().getFrontpageBannerFileName());
-    folderOfImage.add("frontpage_banner_images");
-
-    if(userDataProvider.getUserClub().getFrontPageGalleryImages().images != null){
-      for(var element in userDataProvider.getUserClub().getFrontPageGalleryImages().images!){
-
-        imageFileNamesToCheckAndFetch.add(element.id!);
-        folderOfImage.add("frontpage_gallery_images");
-
-        // checkIfFrontPageImageIsFetched(element.id!);
-      }
-    }
-
-    for(var i = 0; i<imageFileNamesToCheckAndFetch.length;i++){
-
-      final filePath = '$dirPath/${imageFileNamesToCheckAndFetch[i]}';
-
-      File(filePath).exists().then((exists) async {
-        if(!exists){
-          await _supabaseService.getClubImagesByFolder(imageFileNamesToCheckAndFetch[i], folderOfImage[i]).then((imageFile) async {
-            await File(filePath).writeAsBytes(imageFile).then((onValue){
-              setState(() {
-                log.d("checkIfFrontPageImageIsFetched: Finished successfully. Path: $dirPath/${imageFileNamesToCheckAndFetch[i]}");
-                fetchedContentProvider.addFetchedBannerImageId(imageFileNamesToCheckAndFetch[i]);
-                // alreadyFetchedFrontPageImages.add(imageFileNamesToCheckAndFetch[i]);
-              });
-            });
-          });
-        }else{
-          setState(() {
-            fetchedContentProvider.addFetchedBannerImageId(imageFileNamesToCheckAndFetch[i]);
-          });
-        }
-      });
-
-    }
-
   }
 
 

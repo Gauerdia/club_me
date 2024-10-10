@@ -367,7 +367,7 @@ class _UserMapViewState extends State<UserMapView>{
 
                           // Genre
                           SizedBox(
-                            width: screenWidth*0.28,
+                            // width: screenWidth*0.28,
                             child: Text(
                               "Wochentag",
                               textAlign: TextAlign.left,
@@ -380,27 +380,62 @@ class _UserMapViewState extends State<UserMapView>{
                             data: Theme.of(context).copyWith(
                                 canvasColor: customStyleClass.backgroundColorMain
                             ),
-                            child: DropdownButton(
-                                value: weekDayDropDownValue,
-                                menuMaxHeight: 300,
-                                items: Utils.weekDaysForFiltering.map<DropdownMenuItem<String>>(
-                                        (String value) {
-                                      return DropdownMenuItem(
-                                        value: value,
-                                        child: Text(
-                                          value,
-                                          style: customStyleClass.getFontStyle4Grey2(),
-                                        ),
-                                      );
-                                    }
-                                ).toList(),
-                                onChanged: (String? value){
-                                  setState(() {
-                                    weekDayDropDownValue = value!;
-                                    filterClubs();
-                                  });
-                                }
-                            ),
+                            child:
+
+                            DropdownMenu<String>(
+                              width: 150,
+                              initialSelection: weekDayDropDownValue,
+                              onSelected: (String? value){
+                                setState(() {
+                                  weekDayDropDownValue = value!;
+                                  filterClubs();
+                                });
+                              },
+                              textStyle: const TextStyle(
+                                  color: Colors.white
+                              ),
+                              menuStyle: MenuStyle(
+                                surfaceTintColor: WidgetStateProperty.all<Color>(customStyleClass.backgroundColorEventTile),
+                                backgroundColor: WidgetStateProperty.all<Color>(customStyleClass.backgroundColorEventTile),
+                                alignment: Alignment.bottomLeft,
+                                maximumSize: const WidgetStatePropertyAll(
+                                  Size.fromHeight(300),
+                                ),
+                              ),
+                              dropdownMenuEntries: Utils.weekDaysForFiltering
+                                  .map<DropdownMenuEntry<String>>((String value){
+                                return DropdownMenuEntry(
+                                    value: value,
+                                    label: value,
+                                    style: ButtonStyle(
+                                        foregroundColor: WidgetStateProperty.all<Color>(Colors.white)
+                                    )
+                                );
+                              }).toList(),
+                            )
+
+
+                            // DropdownButton(
+                            //     value: weekDayDropDownValue,
+                            //     menuMaxHeight: 300,
+                            //     items: Utils.weekDaysForFiltering.map<DropdownMenuItem<String>>(
+                            //             (String value) {
+                            //           return DropdownMenuItem(
+                            //             value: value,
+                            //             child: Text(
+                            //               value,
+                            //               style: customStyleClass.getFontStyle4Grey2(),
+                            //             ),
+                            //           );
+                            //         }
+                            //     ).toList(),
+                            //     onChanged: (String? value){
+                            //       setState(() {
+                            //         weekDayDropDownValue = value!;
+                            //         filterClubs();
+                            //       });
+                            //     }
+                            // ),
                           )
                         ],
                       ),

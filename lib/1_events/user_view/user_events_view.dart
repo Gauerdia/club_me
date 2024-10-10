@@ -381,7 +381,16 @@ class _UserEventsViewState extends State<UserEventsView> {
               Container(
                 height: screenHeight*0.14,
                 width: screenWidth,
-                color: customStyleClass.backgroundColorMain,
+
+                decoration: BoxDecoration(
+                    color: customStyleClass.backgroundColorMain,
+                  border: Border(
+                    bottom: BorderSide(
+                      color: customStyleClass.backgroundColorEventTile,
+                      width: 2
+                    )
+                  )
+                ),
                 child: Row(
                   children: [
 
@@ -449,30 +458,38 @@ class _UserEventsViewState extends State<UserEventsView> {
                             data: Theme.of(context).copyWith(
                                 canvasColor: customStyleClass.backgroundColorMain
                             ),
-                            child: DropdownButton(
-                                value: weekDayDropDownValue,
-                                menuMaxHeight: 300,
-                                items: Utils.weekDaysForFiltering.map<DropdownMenuItem<String>>(
-                                        (String value) {
-                                      return DropdownMenuItem(
+                            child: DropdownMenu<String>(
+                              width: 110,
+                              initialSelection: weekDayDropDownValue,
+                              onSelected: (String? value){
+                                setState(() {
+                                  weekDayDropDownValue = value!;
+                                  filterEvents(fetchedContentProvider);
+                                });
+                              },
+                              textStyle: const TextStyle(
+                                color: Colors.white
+                              ),
+                              menuStyle: MenuStyle(
+                                surfaceTintColor: WidgetStateProperty.all<Color>(customStyleClass.backgroundColorEventTile),
+                                backgroundColor: WidgetStateProperty.all<Color>(customStyleClass.backgroundColorEventTile),
+                                alignment: Alignment.bottomLeft,
+                                maximumSize: const WidgetStatePropertyAll(
+                                    Size.fromHeight(300),
+                                ),
+                              ),
+                              dropdownMenuEntries: Utils.weekDaysForFiltering
+                                  .map<DropdownMenuEntry<String>>((String value){
+                                    return DropdownMenuEntry(
                                         value: value,
-                                        child: Text(
-                                          value,
-                                          style: customStyleClass.getFontStyle4Grey2(),
-                                        ),
-                                      );
-                                    }
-                                ).toList(),
-                                onChanged: (String? value){
-                                  setState(() {
-                                    weekDayDropDownValue = value!;
-                                    filterEvents(fetchedContentProvider);
-                                  });
-                                }
-                            ),
+                                        label: value,
+                                      style: ButtonStyle(
+                                        foregroundColor: WidgetStateProperty.all<Color>(Colors.white)
+                                      )
+                                    );
+                              }).toList(),
+                            )
                           )
-
-
                         ],
                       ),
                     ),
@@ -499,28 +516,61 @@ class _UserEventsViewState extends State<UserEventsView> {
                             data: Theme.of(context).copyWith(
                                 canvasColor: customStyleClass.backgroundColorMain
                             ),
-                            child: DropdownButton(
-                                value: dropdownValue,
-                                menuMaxHeight: 300,
-                                items: Utils.genreListForFiltering.map<DropdownMenuItem<String>>(
-                                        (String value) {
-                                      return DropdownMenuItem(
-                                        value: value,
-                                        child: Text(
-                                          value,
-                                          style: customStyleClass.getFontStyle4Grey2(),
-                                        ),
-                                      );
-                                    }
-                                ).toList(),
-                                onChanged: (String? value){
-                                  setState(() {
-                                    dropdownValue = value!;
-                                    filterEvents(fetchedContentProvider);
-                                  });
-                                }
-                            ),
-                          )
+                            child: DropdownMenu<String>(
+                              width: 120,
+                              initialSelection: dropdownValue,
+                              onSelected: (String? value){
+                                setState(() {
+                                  dropdownValue = value!;
+                                  filterEvents(fetchedContentProvider);
+                                });
+                              },
+                              textStyle: const TextStyle(
+                                  color: Colors.white
+                              ),
+                              menuStyle: MenuStyle(
+                                surfaceTintColor: WidgetStateProperty.all<Color>(customStyleClass.backgroundColorEventTile),
+                                backgroundColor: WidgetStateProperty.all<Color>(customStyleClass.backgroundColorEventTile),
+                                alignment: Alignment.bottomLeft,
+                                maximumSize: const WidgetStatePropertyAll(
+                                  Size.fromHeight(300),
+                                ),
+                              ),
+                              dropdownMenuEntries: Utils.genreListForFiltering
+                                  .map<DropdownMenuEntry<String>>((String value){
+                                return DropdownMenuEntry(
+                                    value: value,
+                                    label: value,
+                                    style: ButtonStyle(
+                                        foregroundColor: WidgetStateProperty.all<Color>(Colors.white)
+                                    )
+                                );
+                              }).toList(),
+                            )
+                          ),
+
+                          //   DropdownButton(
+                          //       value: dropdownValue,
+                          //       menuMaxHeight: 300,
+                          //       items: Utils.genreListForFiltering.map<DropdownMenuItem<String>>(
+                          //               (String value) {
+                          //             return DropdownMenuItem(
+                          //               value: value,
+                          //               child: Text(
+                          //                 value,
+                          //                 style: customStyleClass.getFontStyle4Grey2(),
+                          //               ),
+                          //             );
+                          //           }
+                          //       ).toList(),
+                          //       onChanged: (String? value){
+                          //         setState(() {
+                          //           dropdownValue = value!;
+                          //           filterEvents(fetchedContentProvider);
+                          //         });
+                          //       }
+                          //   ),
+                          // )
 
 
                         ],
