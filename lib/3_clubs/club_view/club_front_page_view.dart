@@ -6,6 +6,7 @@ import 'package:club_me/models/opening_times.dart';
 import 'package:club_me/models/parser/club_me_club_parser.dart';
 import 'package:club_me/provider/current_and_liked_elements_provider.dart';
 import 'package:club_me/services/check_and_fetch_service.dart';
+import 'package:club_me/shared/dialogs/title_content_and_button_dialog.dart';
 import 'package:club_me/shared/map_utils.dart';
 import 'package:club_me/stories/show_story_chewie.dart';
 import 'package:flutter/material.dart';
@@ -887,26 +888,26 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
               ),
 
               // New event icon
-              // Padding(
-              //     padding: EdgeInsets.only(
-              //         right: screenWidth*0.05
-              //     ),
-              //     child: GestureDetector(
-              //       child: Container(
-              //           alignment: Alignment.centerRight,
-              //           padding: const EdgeInsets.all(7),
-              //           decoration: BoxDecoration(
-              //             // color: Colors.black,
-              //             borderRadius: BorderRadius.circular(45),
-              //           ),
-              //           child: Icon(
-              //             Icons.edit,
-              //             color: customStyleClass.primeColor,
-              //           )
-              //       ),
-              //       onTap: () =>  clickOnEditContact(screenHeight, screenWidth),
-              //     )
-              // )
+              Padding(
+                  padding: EdgeInsets.only(
+                      right: screenWidth*0.05
+                  ),
+                  child: GestureDetector(
+                    child: Container(
+                        alignment: Alignment.centerRight,
+                        padding: const EdgeInsets.all(7),
+                        decoration: BoxDecoration(
+                          // color: Colors.black,
+                          borderRadius: BorderRadius.circular(45),
+                        ),
+                        child: Icon(
+                          Icons.edit,
+                          color: customStyleClass.primeColor,
+                        )
+                    ),
+                    onTap: () =>  clickOnEditOpeningTimes(),
+                  )
+              )
             ],
           ),
         ),
@@ -1583,7 +1584,19 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
   }
   void clickEventChangeBannerImage(){
     showDialog(context: context, builder: (BuildContext context){
-      return AlertDialog(
+      return TitleContentAndButtonDialog(
+          titleToDisplay: "Bannerbild",
+          contentToDisplay: "Möchtest du das Bannerbild anpassen?",
+          buttonToDisplay: TextButton(
+              onPressed: () => context.go('/club_change_banner_image'),
+              child: Text(
+                "Banner anpassen",
+                textAlign: TextAlign.center,
+                style: customStyleClass.getFontStyle4BoldPrimeColor(),
+              ))
+      );
+
+        AlertDialog(
           backgroundColor: Color(0xff121111),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20.0),
@@ -1651,6 +1664,21 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
           )
       );
     });
+  }
+  void clickOnEditOpeningTimes(){
+    showDialog(context: context, builder: (BuildContext context){
+      return TitleContentAndButtonDialog(
+          titleToDisplay: "Öffnungszeiten",
+          contentToDisplay: "Möchtest du deine Öffnungszeiten anpassen?",
+          buttonToDisplay: TextButton(
+              onPressed: () => context.go('/club_change_opening_times'),
+              child: Text(
+                "Öffnunsgzeiten anpassen",
+                textAlign: TextAlign.center,
+                style: customStyleClass.getFontStyle4BoldPrimeColor(),
+              ))
+      );
+  });
   }
 
 

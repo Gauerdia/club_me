@@ -74,7 +74,9 @@ class _UserCouponsViewState extends State<UserCouponsView>
 
     final fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
 
-    _hiveService.getUsedDiscounts().then((usedDiscounts) => fetchedContentProvider.setUsedDiscounts(usedDiscounts));
+    _hiveService.getUsedDiscounts().then(
+            (usedDiscounts) => fetchedContentProvider.setUsedDiscounts(usedDiscounts)
+    );
 
     // Get and process data
     if(fetchedContentProvider.getFetchedDiscounts().isEmpty) {
@@ -82,8 +84,8 @@ class _UserCouponsViewState extends State<UserCouponsView>
       _supabaseService.getAllDiscounts().then((data) => processDiscountsFromQuery(data));
     }else{
       processDiscountsFromProvider(fetchedContentProvider);
+      _tabController = TabController(length:fetchedContentProvider.getFetchedDiscounts().length, vsync: this);
     }
-
 
     // Fetch from db or from provider
     getAllLikedDiscounts();
@@ -374,6 +376,8 @@ class _UserCouponsViewState extends State<UserCouponsView>
       }
     }
 
+    _tabController = TabController(length:fetchedContentProvider.getFetchedDiscounts().length, vsync: this);
+
     // Check if we need to download the corresponding images
     _checkAndFetchService.checkAndFetchDiscountImages(
         fetchedContentProvider.getFetchedDiscounts(),
@@ -573,6 +577,8 @@ class _UserCouponsViewState extends State<UserCouponsView>
   }
   bool checkIfAnyRestrictionsApply(ClubMeDiscount currentDiscount) {
 
+    print("Test: ${currentDiscount.getDiscountId()}");
+
       int userAge = userDataProvider.getUserData().getUserAge();
 
       if(currentDiscount.getTargetGender() != 0 &&
@@ -590,12 +596,13 @@ class _UserCouponsViewState extends State<UserCouponsView>
 
       // usage limit
       if(currentDiscount.hasUsageLimit){
-        for(ClubMeUsedDiscount usedDiscount in fetchedContentProvider.getUsedDiscounts()){
-          if(currentDiscount.getDiscountId() == usedDiscount.discountId &&
-              usedDiscount.howManyTimes >= currentDiscount.getNumberOfUsages()){
-            return true;
-          }
+
+        if(fetchedContentProvider.getUsedDiscounts().where((element) => element.discountId
+                == currentDiscount.getDiscountId()).length >= currentDiscount.getNumberOfUsages()
+        ){
+          return true;
         }
+
       }
 
       if(

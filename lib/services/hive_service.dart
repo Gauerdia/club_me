@@ -211,7 +211,7 @@ class HiveService{
     try{
       var box = await _clubMeUserClubBox;
       await box.add(clubMeUserData);
-
+      log.d("HiveService. Function: addUserData. Successful.");
     }catch(e){
       log.d("HiveService. Function: addUserData. Error: $e");
       _supabaseService.createErrorLog(e.toString());
@@ -223,6 +223,7 @@ class HiveService{
     try{
       var box = await _clubMeUserClubBox;
       await box.deleteAll(box.keys);
+      log.d("HiveService. Function: resetUserData. Successful.");
     }catch(e){
       log.d("HiveService. Function: resetUserData. Error: $e");
       _supabaseService.createErrorLog(e.toString());
@@ -372,7 +373,14 @@ class HiveService{
   Future<List<ClubMeUsedDiscount>> getUsedDiscounts() async{
     try{
       var box = await _clubMeUsedDiscountsBox;
-      return box.values.toList();
+      List<ClubMeUsedDiscount> usedDiscounts = box.values.toList();
+      List<String> discountIds = [];
+      for(var discount in usedDiscounts){
+        discountIds.add(discount.discountId);
+      }
+
+      log.d("HiveService. Function: getUsedDiscounts. Successful: $discountIds");
+      return usedDiscounts;
     }catch(e){
       log.d("HiveService. Function: getUsedDiscounts. Error: $e");
       _supabaseService.createErrorLog(e.toString());
@@ -382,29 +390,9 @@ class HiveService{
   Future<void> insertUsedDiscount(ClubMeUsedDiscount clubMeUsedDiscount) async{
 
     try{
-
-      late ClubMeUsedDiscount updatedDiscount;
-      bool updateInsteadOfInsert = false;
-
-      var discounts = await getUsedDiscounts();
-
-      for(var discount in discounts){
-        if(discount.discountId == clubMeUsedDiscount.discountId){
-          updatedDiscount = discount;
-          updatedDiscount.howManyTimes++;
-          updateInsteadOfInsert = true;
-        }
-      }
-
-      if(updateInsteadOfInsert){
-        var index = discounts.indexWhere((element) => element.discountId == clubMeUsedDiscount.discountId);
-        var box = await _clubMeUsedDiscountsBox;
-        await box.putAt(index, updatedDiscount);
-      }else{
-        var box = await _clubMeUsedDiscountsBox;
-        await box.add(clubMeUsedDiscount);
-      }
-
+      var box = await _clubMeUsedDiscountsBox;
+      await box.add(clubMeUsedDiscount);
+      log.d("HiveService. Function: insertUsedDiscount. Successful.");
     }catch(e){
       log.d("HiveService. Function: insertUsedDiscount. Error: $e");
       _supabaseService.createErrorLog(e.toString());
@@ -417,6 +405,7 @@ class HiveService{
 
       var box = await _clubMeUsedDiscountsBox;
       await box.deleteAt(index);
+      log.d("HiveService. Function: insertUsedDiscount. deleteUsedDiscount.");
     }catch(e){
       log.d("HiveService. Function: deleteUsedDiscount. Error: $e");
       _supabaseService.createErrorLog(e.toString());

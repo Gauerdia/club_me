@@ -2,6 +2,7 @@ import 'package:club_me/models/club_offers.dart';
 import 'package:club_me/models/club_open_status.dart';
 import 'package:club_me/models/front_page_images.dart';
 import 'package:club_me/models/opening_times.dart';
+import 'package:club_me/models/special_opening_times.dart';
 import 'package:timezone/standalone.dart' as tz;
 
 class ClubMeClub{
@@ -15,7 +16,7 @@ class ClubMeClub{
     required this.clubStoryId,
     required this.storyCreatedAt,
 
-    required this.clubBannerId,
+    // required this.clubBannerId,
 
     required this.clubGeoCoordLat,
     required this.clubGeoCoordLng,
@@ -25,11 +26,11 @@ class ClubMeClub{
     required this.clubContactStreet,
     required this.clubContactZip,
     required this.clubContactStreetNumber,
-    required this.clubEventBannerId,
+    // required this.clubEventBannerId,
 
     required this.clubWebsiteLink,
     required this.clubInstagramLink,
-    required this.clubFrontpageBackgroundColorId,
+    // required this.clubFrontpageBackgroundColorId,
 
     required this.priorityScore,
     required this.openingTimes,
@@ -39,7 +40,10 @@ class ClubMeClub{
     required this.smallLogoFileName,
     required this.bigLogoFileName,
     required this.frontpageBannerFileName,
-    required this.mapPinImageName
+    required this.mapPinImageName,
+    required this.specialOpeningTimes,
+
+    required this.closePartner
 
   });
 
@@ -52,8 +56,8 @@ class ClubMeClub{
   double clubGeoCoordLat;
   double clubGeoCoordLng;
 
-  String clubBannerId;
-  String clubEventBannerId;
+  // String clubBannerId;
+  // String clubEventBannerId;
   String clubMusicGenres;
 
   String clubNews;
@@ -62,12 +66,12 @@ class ClubMeClub{
   String clubContactStreet;
   String clubContactCity;
   String clubContactZip;
-  int clubContactStreetNumber;
+  String clubContactStreetNumber;
 
   String clubInstagramLink;
   String clubWebsiteLink;
 
-  int clubFrontpageBackgroundColorId;
+  // int clubFrontpageBackgroundColorId;
   int priorityScore;
 
   OpeningTimes openingTimes;
@@ -76,6 +80,22 @@ class ClubMeClub{
 
   String smallLogoFileName, bigLogoFileName, frontpageBannerFileName, mapPinImageName;
 
+  SpecialOpeningTimes specialOpeningTimes;
+
+  bool closePartner;
+
+
+  bool getClosePartner(){
+    return closePartner;
+  }
+
+  SpecialOpeningTimes getSpecialOpeningTimes(){
+    return specialOpeningTimes;
+  }
+
+  void setSpecialOpeningTimes(SpecialOpeningTimes newSpecialOpeningTimes){
+    specialOpeningTimes = newSpecialOpeningTimes;
+  }
 
   DateTime? getStoryCreatedAt(){
     if(storyCreatedAt != null){
@@ -110,6 +130,8 @@ class ClubMeClub{
     // Get the current time
     final berlin = tz.getLocation('Europe/Berlin');
     final todayTimestamp = tz.TZDateTime.from(DateTime.now(), berlin);
+
+    checkIfSpecialOpeningApplies();
 
     int openingStatus = 0;
     String textToDisplay = "";
@@ -301,6 +323,32 @@ class ClubMeClub{
     return ClubOpenStatus(openingStatus: openingStatus, textToDisplay: textToDisplay);
   }
 
+  void checkIfSpecialOpeningApplies(){
+
+    final berlin = tz.getLocation('Europe/Berlin');
+    final todayTimestamp = tz.TZDateTime.from(DateTime.now(), berlin);
+
+    if(getSpecialOpeningTimes().specialDays!.isNotEmpty){
+
+      for(var specialDay in getSpecialOpeningTimes().specialDays!){
+        if(
+            todayTimestamp.day == specialDay.day &&
+            todayTimestamp.month == specialDay.month &&
+            todayTimestamp.day == specialDay.year
+        ){
+          Days newDay = Days(
+              day: DateTime(specialDay.year!, specialDay.day!, specialDay.month!).weekday,
+              openingHour: specialDay.openingHour,
+              openingHalfAnHour: specialDay.openingHalfAnHour,
+              closingHour: specialDay.closingHour,
+              closingHalfAnHour: specialDay.closingHalfAnHour
+          );
+          addOpeningTime(newDay);
+        }
+      }
+    }
+  }
+
   void setClubOffers(ClubOffers newClubOffers){
     clubOffers = newClubOffers;
   }
@@ -320,12 +368,15 @@ class ClubMeClub{
   OpeningTimes getOpeningTimes(){
     return openingTimes;
   }
+  void addOpeningTime(Days newDay){
+    openingTimes.days?.add(newDay);
+  }
 
-  setContactStreetNumber(int newNumber){
+  void setContactStreetNumber(String newNumber){
     clubContactStreetNumber = newNumber;
   }
 
-  int getContactStreetNumber(){
+  String getContactStreetNumber(){
     return clubContactStreetNumber;
   }
 
@@ -337,17 +388,17 @@ class ClubMeClub{
     return clubWebsiteLink;
   }
 
-  int getBackgroundColorId(){
-    return clubFrontpageBackgroundColorId;
-  }
+  // int getBackgroundColorId(){
+  //   return clubFrontpageBackgroundColorId;
+  // }
 
   String getInstagramLink(){
     return clubInstagramLink;
   }
 
-  String getEventBannerId(){
-    return clubEventBannerId;
-  }
+  // String getEventBannerId(){
+  //   return clubEventBannerId;
+  // }
 
   String getClubId(){
     return clubId;
@@ -384,12 +435,12 @@ class ClubMeClub{
     clubGeoCoordLng = newCoord;
   }
 
-  String getBannerId(){
-    return clubBannerId;
-  }
-  void setBannerId(String newId){
-    clubBannerId = newId;
-  }
+  // String getBannerId(){
+  //   return clubBannerId;
+  // }
+  // void setBannerId(String newId){
+  //   clubBannerId = newId;
+  // }
 
   String getMusicGenres(){
     return clubMusicGenres;

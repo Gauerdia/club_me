@@ -14,6 +14,9 @@ https://javiercbk.github.io/json_to_dart/
 ## Erstellung der Hive-spezifischen Dateien und Verlinkungen
 - flutter packages pub run build_runner build
 
+# Update des splash screens
+dart run flutter_native_splash:create
+
 # iOS Privacy
 
 I added the ios/PrivacyInfo.xcprivacy file because flutter_background_geolocation said that 

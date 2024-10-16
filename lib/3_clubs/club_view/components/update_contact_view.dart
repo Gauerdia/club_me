@@ -326,7 +326,7 @@ class _UpdateContactViewState extends State<UpdateContactView> {
         userDataProvider.setUserClubContact(
             nameController.text,
             streetController.text,
-            int.parse(streetNumberController.text),
+            streetNumberController.text,
             zipController.text,
             cityController.text
         );

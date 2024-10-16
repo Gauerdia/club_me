@@ -1,5 +1,9 @@
 import 'dart:io';
 
+import 'package:club_me/models/hive_models/5_club_me_used_discount.dart';
+import 'package:club_me/provider/user_data_provider.dart';
+import 'package:club_me/services/hive_service.dart';
+import 'package:club_me/services/supabase_service.dart';
 import 'package:club_me/shared/dialogs/title_content_and_button_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -22,7 +26,11 @@ class CouponCard extends StatelessWidget {
 
   ClubMeDiscount clubMeDiscount;
   late FetchedContentProvider fetchedContentProvider;
+  late UserDataProvider userDataProvider;
   late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
+
+  SupabaseService _supabaseService = SupabaseService();
+  HiveService _hiveService = HiveService();
 
   late StateProvider stateProvider;
   late CustomStyleClass customStyleClass;
@@ -77,6 +85,9 @@ class CouponCard extends StatelessWidget {
     );
   }
   Widget _buildStackViewContent(BuildContext context){
+
+
+
     return Column(
       children: [
 
@@ -408,6 +419,9 @@ class CouponCard extends StatelessWidget {
 
   }
   void showRedeemDialog(BuildContext context, StateProvider stateProvider, ClubMeDiscount clubMeDiscount){
+
+    userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
+
     showDialog(context: context,
         builder: (BuildContext context){
           return
@@ -417,6 +431,7 @@ class CouponCard extends StatelessWidget {
                 buttonToDisplay: TextButton(
                     onPressed: () {
                       currentAndLikedElementsProvider.setCurrentDiscount(clubMeDiscount);
+                      saveAsUsedDiscount();
                       context.go('/coupon_active');
                     },
                     child: Text(
@@ -428,6 +443,24 @@ class CouponCard extends StatelessWidget {
     );
   }
 
+  void saveAsUsedDiscount(){
+    _supabaseService.insertDiscountUsage(
+        clubMeDiscount.getDiscountId(),
+        userDataProvider.getUserDataId()
+    ).then((response){
+      if(response == 0){
+
+        ClubMeUsedDiscount clubMeUsedDiscount = ClubMeUsedDiscount(
+            usedAt: DateTime.now(),
+            discountId: clubMeDiscount.getDiscountId()
+        );
+
+        _hiveService.insertUsedDiscount(clubMeUsedDiscount);
+      }else{
+
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -12,7 +12,6 @@ class ClubMeLocalDiscount{
     required this.discountTitle,
     required this.numberOfUsages,
     required this.discountDate,
-    required this.bannerId,
     required this.howOftenRedeemed,
     required this.hasTimeLimit,
     required this.hasUsageLimit,
@@ -50,8 +49,6 @@ class ClubMeLocalDiscount{
 
   @HiveField(9)
   int numberOfUsages;
-  @HiveField(10)
-  String bannerId;
   @HiveField(11)
   int howOftenRedeemed;
 
@@ -180,11 +177,6 @@ class ClubMeLocalDiscount{
     discountDate = newValue;
   }
 
-  String getBannerId(){
-    return bannerId;
-  }
-  void setBannerId(String newValue){
-    bannerId = newValue;
-  }
+
 
 }

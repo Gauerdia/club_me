@@ -1333,7 +1333,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
         discountId: uuidV4.toString(),
         clubId: userDataProvider.getUserClubId(),
         clubName: userDataProvider.getUserClubName(),
-        bannerId: userDataProvider.getUserClubEventBannerId(),
+        // bannerId: userDataProvider.getUserClubEventBannerId(),
 
         discountTitle: titleController.text,
         discountDate: discountDate,

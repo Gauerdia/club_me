@@ -2,17 +2,20 @@ import 'dart:ui';
 
 import 'package:club_me/1_events/club_view/club_edit_event_view.dart';
 import 'package:club_me/1_events/user_view/user_upcoming_events_view.dart';
+import 'package:club_me/3_clubs/club_view/components/add_opening_days_view.dart';
 import 'package:club_me/3_clubs/club_view/components/offers_list_club_view.dart';
 import 'package:club_me/3_clubs/club_view/components/update_frontpage_banner_image_view.dart';
 import 'package:club_me/3_clubs/user_view/offers_list_view.dart';
 import 'package:club_me/club_statistics/club_statistics_view.dart';
 import 'package:club_me/log_in/log_in_view.dart';
 import 'package:club_me/models/hive_models/0_club_me_user_data.dart';
+import 'package:club_me/models/hive_models/5_club_me_used_discount.dart';
 import 'package:club_me/profile/profile_view.dart';
 import 'package:club_me/provider/current_and_liked_elements_provider.dart';
 import 'package:club_me/provider/fetched_content_provider.dart';
 import 'package:club_me/provider/state_provider.dart';
 import 'package:club_me/provider/user_data_provider.dart';
+import 'package:club_me/register/components/forgot_password_view.dart';
 import 'package:club_me/register/register_view.dart';
 import 'package:club_me/settings/club_view/components/faq_club_view.dart';
 import 'package:club_me/settings/club_view/settings_club_view.dart';
@@ -84,6 +87,7 @@ Future<void> main() async {
   Hive.registerAdapter(ClubMeDiscountTemplateAdapter());
   Hive.registerAdapter(ClubMeLocalDiscountAdapter());
   Hive.registerAdapter(TempGeoLocationDataAdapter());
+  Hive.registerAdapter(ClubMeUsedDiscountAdapter());
 
   // Used to make sure that coupons and user timezones match
   tz.initializeTimeZones();
@@ -455,6 +459,11 @@ final GoRouter _router = GoRouter(
     ),
 
     GoRoute(
+      path: '/forgot_password',
+      builder: (context, state) => ForgotPasswordView()
+    ),
+
+    GoRoute(
         path: '/club_faq',
         builder: (context, state) => const FaqClubView()
     ),
@@ -474,6 +483,11 @@ final GoRouter _router = GoRouter(
     GoRoute(
         path: '/club_change_banner_image',
         builder: (context, state) => const UpdateFrontpageBannerImageView()
+    ),
+
+    GoRoute(
+        path: '/club_change_opening_times',
+        builder: (context, state) => const AddOpeningDaysView()
     ),
 
     GoRoute(
@@ -556,44 +570,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-// @pragma('vm:entry-point')
-// void callbackDispatcher() {
-//   Workmanager().executeTask((task, inputData) async {
-//
-//     DartPluginRegistrant.ensureInitialized();
-//
-//     await Geolocator.checkPermission();
-//
-//     // connect to our backeend
-//     await Supabase.initialize(
-//         url: 'https://mssfbflgzkgxyhkkfukh.supabase.co',
-//         anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zc2ZiZmxnemtneHloa2tmdWtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTUyNTM2MzUsImV4cCI6MjAzMDgyOTYzNX0.aG3TR8A3UrpZNW65qDZ1BXyasQEo65NzgS03FcTebs0'
-//     );
-//     final supabase = Supabase.instance.client;
-//
-//     try {
-//       Position location = await Geolocator.getCurrentPosition();
-//
-//       TempGeoLocationData tempGeoLocationData = TempGeoLocationData(
-//           longCoord: location.longitude,
-//           latCoord: location.latitude,
-//           createdAt: DateTime.now()
-//       );
-//
-//       final data = await supabase
-//           .from("club_me_user_location")
-//           .insert({
-//         "lat_coord": tempGeoLocationData.latCoord,
-//         'long_coord': tempGeoLocationData.longCoord,
-//         'user_id': inputData!['id']
-//       });
-//
-//     } catch(err) {
-//       Logger().e(err.toString());
-//       throw Exception(err);
-//     }
-//
-//     return Future.value(true);
-//   });
-// }

@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:club_me/models/hive_models/0_club_me_user_data.dart';
 import 'package:club_me/models/club_password.dart';
 import 'package:club_me/models/parser/club_me_password_parser.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
@@ -51,6 +54,9 @@ class _RegisterViewState extends State<RegisterView> {
   final TextEditingController _eMailController = TextEditingController();
   final TextEditingController _clubPasswordController = TextEditingController();
 
+
+
+
   double distanceBetweenTitleAndTextField = 10;
 
   static const List<String> scopes = <String>[
@@ -58,11 +64,45 @@ class _RegisterViewState extends State<RegisterView> {
     'https://www.googleapis.com/auth/contacts.readonly',
   ];
 
-  GoogleSignIn _googleSignIn = GoogleSignIn(
-    // Optional clientId
-    // clientId: 'your-client_id.apps.googleusercontent.com',
-    scopes: scopes,
-  );
+
+  void processGoogleSignIn() async{
+
+    GoogleSignIn _googleSignIn = GoogleSignIn(
+      // Optional clientId
+      // clientId: 'your-client_id.apps.googleusercontent.com',
+      scopes: scopes,
+    );
+
+    //If current device is Web or Android, do not use any parameters except from scopes.
+    if (kIsWeb || Platform.isAndroid ) {
+      _googleSignIn = GoogleSignIn(
+        scopes: [
+          'email',
+        ],
+      );
+    }
+
+    //If current device IOS or MacOS, We have to declare clientID
+    //Please, look STEP 2 for how to get Client ID for IOS
+    if (Platform.isIOS || Platform.isMacOS) {
+      _googleSignIn = GoogleSignIn(
+        clientId:
+        "YOUR_CLIENT_ID.apps.googleusercontent.com",
+        scopes: [
+          'email',
+        ],
+      );
+    }
+
+    final GoogleSignInAccount? googleAccount = await _googleSignIn.signIn().then((result){
+      print(result);
+    });
+
+    //If you want further information about Google accounts, such as authentication, use this.
+    final GoogleSignInAuthentication googleAuthentication = await googleAccount!.authentication;
+
+  }
+
 
   Future<void> _handleSignIn() async {
     Navigator.pop(context);
@@ -72,6 +112,8 @@ class _RegisterViewState extends State<RegisterView> {
     //   print(error);
     // }
   }
+
+
 
 
   // INIT
@@ -107,18 +149,6 @@ class _RegisterViewState extends State<RegisterView> {
                 ),
               ),
 
-              // ICON
-              // Container(
-              //   width: screenWidth,
-              //   alignment: Alignment.centerLeft,
-              //   child: IconButton(
-              //     icon: const Icon(
-              //       Icons.arrow_back_ios,
-              //       color: Colors.white,
-              //     ),
-              //     onPressed: () => _goBack(),
-              //   ),
-              // )
             ],
           ),
         )
@@ -254,6 +284,21 @@ class _RegisterViewState extends State<RegisterView> {
               ),
               onTap: () => clickEventEMailRegistration(),
             ),
+
+            Container(
+              padding: const EdgeInsets.only(
+                top: 5
+              ),
+              width: screenWidth*0.9,
+              child: InkWell(
+                onTap: () => clickEventForgotPassword(),
+                child: Text(
+                  "Passwort vergessen?",
+                  textAlign: TextAlign.left,
+                  style: customStyleClass.getFontStyle3BoldPrimeColor(),
+                ),
+              ),
+            )
 
           ],
         ),
@@ -647,7 +692,18 @@ class _RegisterViewState extends State<RegisterView> {
   Widget _buildBottomNavigationBar(){
 
     switch(progressIndex){
-      case(0):return Container();
+      case(0):return Container(
+        // color: Colors.red,
+        width: screenWidth,
+        height: 50,
+        alignment: Alignment.bottomCenter,
+        child: Center(
+          child: Image.asset(
+            "assets/images/runes_footer.PNG",
+            width: 100,
+          ),
+        ),
+      );
       case(1):return Container(
         width: screenWidth,
         height: screenHeight*0.08,
@@ -723,7 +779,6 @@ class _RegisterViewState extends State<RegisterView> {
     }
   }
 
-
   // CLICK
   void clickEventAppleRegistration(){
     Widget okButton = TextButton(
@@ -761,7 +816,7 @@ class _RegisterViewState extends State<RegisterView> {
         "OK",
         style: customStyleClass.getFontStyle4(),
       ),
-      onPressed: () => _handleSignIn(),
+      onPressed: () => processGoogleSignIn(),
     );
 
     showDialog(
@@ -864,6 +919,10 @@ class _RegisterViewState extends State<RegisterView> {
         ),
       );
     });
+  }
+  void clickEventForgotPassword(){
+    print("click");
+    context.push("/forgot_password");
   }
 
 

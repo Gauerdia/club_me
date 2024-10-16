@@ -6,10 +6,13 @@ import 'package:club_me/models/club_offers.dart';
 import 'package:club_me/models/event.dart';
 import 'package:club_me/models/front_page_images.dart';
 import 'package:club_me/models/price_list.dart';
+import 'package:club_me/models/special_opening_times.dart';
 import 'package:club_me/provider/state_provider.dart';
 import 'package:club_me/provider/user_data_provider.dart';
 import 'package:club_me/shared/logger.util.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uuid/uuid.dart';
+import 'package:uuid/v4.dart';
 import '../models/club.dart';
 import '../models/discount.dart';
 
@@ -45,7 +48,11 @@ class SupabaseService{
       var data = await supabase
           .from('club_me_events')
           .select();
-      log.d("getAllEvents: Finished successfully.Response: $data");
+      List<String> titles = [];
+      for(var element in data){
+        titles.add(element['event_title']);
+      }
+      log.d("getAllEvents: Finished successfully.Response: $titles");
       return data;
     }
     catch(e){
@@ -85,7 +92,6 @@ class SupabaseService{
         "event_description" : clubMeEvent.getEventDescription(),
         "event_price" : clubMeEvent.getEventPrice(),
 
-        "banner_id" : userDataProvider.getUserClubEventBannerId(),
         'banner_image_file_name': clubMeEvent.getBannerImageFileName(),
         "music_genres" : clubMeEvent.getMusicGenres(),
 
@@ -200,6 +206,25 @@ class SupabaseService{
       return 1;
     }
   }
+
+  Future<int> updateSpecialOpeningTimes(SpecialOpeningTimes specialOpeningTimes, String clubId) async{
+    try{
+      var data = await supabase
+          .from('club_me_clubs')
+          .update({
+        "special_opening_times" : specialOpeningTimes
+      }).match({
+        'club_id' :clubId
+      });
+      log.d("updateSpecialOpeningTimes: Finished successfully. Response: $data");
+      return 0;
+    }catch(e){
+      log.d("Error in SupabaseService. Function: updateSpecialOpeningTimes. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: updateSpecialOpeningTimes. Error: ${e.toString()}");
+      return 1;
+    }
+  }
+
   Future<PostgrestList> checkIfClubPwIsLegit(String pw) async {
     try{
       var data = await supabase
@@ -265,7 +290,6 @@ class SupabaseService{
         'contact_street':clubMeClub.getContactStreet(),
         'contact_city':clubMeClub.getContactCity(),
         'contact_zip_code':clubMeClub.getContactZip(),
-        'banner_id':clubMeClub.getBannerId(),
         'story_path': "",
         'front_page_images': dataJson
       }).select();
@@ -421,7 +445,13 @@ class SupabaseService{
       var data = await supabase
           .from('club_me_discounts')
           .select();
-      log.d("getAllDiscounts: Finished successfully. Response: $data");
+
+      List<String> titles = [];
+      for(var element in data){
+        titles.add(element['discount_title']);
+      }
+
+      log.d("getAllDiscounts: Finished successfully. Response: $titles");
       return data;
     }catch(e){
       log.d("Error in SupabaseService. Function: getAllDiscounts. Error: ${e.toString()}");
@@ -438,7 +468,6 @@ class SupabaseService{
 
         'club_id':clubMeDiscount.getClubId(),
         'club_name':clubMeDiscount.getClubName(),
-        'banner_id':clubMeDiscount.getBannerId(),
 
         'discount_id':clubMeDiscount.getDiscountId(),
         'discount_title':clubMeDiscount.getDiscountTitle(),
@@ -537,6 +566,23 @@ class SupabaseService{
     }catch(e){
       log.d("Error in SupabaseService. Function: updateCompleteDiscount. Error: ${e.toString()}");
       createErrorLog("Error in SupabaseService. Function: updateCompleteDiscount. Error: ${e.toString()}");
+      return 1;
+    }
+  }
+
+  Future<int> insertDiscountUsage(String discountId, String userId) async{
+    try{
+      var data = await supabase
+          .from("club_me_discount_usages")
+          .insert({
+            'discount_id': discountId,
+            'user_id': userId
+      }).select();
+      log.d("insertDiscountUsage: Finished successfully. Response: $data");
+      return 0;
+    }catch(e){
+      log.d("Error in SupabaseService. Function: insertDiscountUsage. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: insertDiscountUsage. Error: ${e.toString()}");
       return 1;
     }
   }
@@ -721,6 +767,20 @@ class SupabaseService{
       return 1;
     }
   }
+  Future<PostgrestList> getUserByEMail(String eMail) async{
+    try{
+      var data = await supabase
+          .from('club_me_users')
+          .select()
+          .match({'e_mail':eMail});
+      log.d("getUserByEMail: Finished successfully. Response: $data");
+      return data;
+    }catch(e){
+      log.d("Error in SupabaseService. Function: getUserByEMail. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: getUserByEMail. Error: ${e.toString()}");
+      return [];
+    }
+  }
 
 
   // EVENT CONTENT: PHOTOS/VIDEOS
@@ -837,6 +897,51 @@ class SupabaseService{
       return 1;
     }
   }
+
+
+  // MISC
+
+  Future<int> saveForgotPassword(String email) async{
+
+    var uuid = const Uuid();
+    var uuidV4 = uuid.v4();
+
+    try{
+      final data = await supabase
+          .from("forgot_password_logs")
+          .insert({
+        "e_mail": email,
+        "one_time_password": uuidV4.substring(0, 8)
+      });
+      log.d("saveForgotPassword: Finished successfully. Response: $data");
+      return 0;
+    }catch(e){
+      log.d("Error in SupabaseService. Function: saveForgotPassword. Error: $e");
+      createErrorLog("Error in SupabaseService. Function: saveForgotPassword. Error: ${e.toString()}");
+      return 1;
+    }
+  }
+  Future<PostgrestList> checkOneTimePassword(String oneTimePassword) async{
+    try{
+      var data = await supabase
+          .from('forgot_password_logs')
+          .select()
+          .eq("one_time_password", oneTimePassword);
+      log.d("checkOneTimePassword: Finished successfully.Response: $data");
+      if(data.isNotEmpty){
+        print("test: ${data.first['e_mail']}");
+        return await getUserByEMail(data.first['e_mail']);
+      }else{
+        return [];
+      }
+    }
+    catch(e){
+      log.d("Error in SupabaseService. Function: checkOneTimePassword. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: checkOneTimePassword. Error: ${e.toString()}");
+      return [];
+    }
+  }
+
 
   // ERROR
 

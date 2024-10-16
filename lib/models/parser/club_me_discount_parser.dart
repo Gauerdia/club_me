@@ -13,7 +13,6 @@ ClubMeDiscount parseClubMeDiscount(var data){
       discountDescription: data['discount_description'],
 
       numberOfUsages: data['number_of_usages'],
-      bannerId: data['banner_id'],
       howOftenRedeemed: data['how_often_redeemed'],
 
       hasAgeLimit: data['has_age_limit'],

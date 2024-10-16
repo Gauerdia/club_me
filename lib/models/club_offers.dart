@@ -31,7 +31,7 @@ class Offers {
   Offers.fromJson(Map<String, dynamic> json) {
     title = json['title'];
     description = json['description'];
-    price = json['price'];
+    price = json['price'].toDouble();
   }
 
   Map<String, dynamic> toJson() {

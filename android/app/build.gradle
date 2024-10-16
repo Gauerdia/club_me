@@ -15,7 +15,7 @@ if (localPropertiesFile.exists()) {
 
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
 if (flutterVersionCode == null) {
-    flutterVersionCode = '1'
+    flutterVersionCode = '69'
 }
 
 def flutterVersionName = localProperties.getProperty('flutter.versionName')
@@ -68,7 +68,6 @@ flutter {
 }
 
 dependencies {
-    implementation platform('com.google.firebase:firebase-bom:33.0.0')
-    implementation 'com.google.firebase:firebase-analytics'
     implementation("androidx.work:work-runtime-ktx:2.8.1")
+    implementation 'com.google.android.gms:play-services-auth:20.4.1'
 }

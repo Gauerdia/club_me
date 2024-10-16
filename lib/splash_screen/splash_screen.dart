@@ -10,10 +10,25 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
 
-  final HiveService _hiveService = HiveService();
+  late double screenHeight, screenWidth;
+
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+
+    screenWidth = MediaQuery.of(context).size.width;
+    screenHeight = MediaQuery.of(context).size.height;
+
+    return Container(
+      width: screenWidth,
+      height: screenWidth,
+      child: Center(
+        child: Image.asset(
+          "assets/images/ClubMe_Logo_weiß.png",
+          width: 50,
+          height: 50,
+        )
+      )
+    );
   }
 }

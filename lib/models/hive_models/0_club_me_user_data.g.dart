@@ -24,7 +24,7 @@ class ClubMeUserDataAdapter extends TypeAdapter<ClubMeUserData> {
       gender: fields[4] as int,
       userId: fields[0] as String,
       profileType: fields[6] as int,
-      lastTimeLoggedIn: fields[7] as DateTime,
+      lastTimeLoggedIn: fields[7] as DateTime?,
     );
   }
 

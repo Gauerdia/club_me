@@ -8,7 +8,6 @@ class ClubMeDiscount{
     required this.discountTitle,
     required this.numberOfUsages,
     required this.discountDate,
-    required this.bannerId,
     required this.howOftenRedeemed,
     required this.hasTimeLimit,
     required this.hasUsageLimit,
@@ -35,7 +34,6 @@ class ClubMeDiscount{
   bool hasUsageLimit;
   bool hasAgeLimit;
 
-  String bannerId;
   int numberOfUsages;
   int howOftenRedeemed;
 
@@ -154,11 +152,5 @@ class ClubMeDiscount{
     discountDate = newValue;
   }
 
-  String getBannerId(){
-    return bannerId;
-  }
-  void setBannerId(String newValue){
-    bannerId = newValue;
-  }
 
 }

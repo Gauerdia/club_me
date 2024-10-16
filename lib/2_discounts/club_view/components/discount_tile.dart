@@ -168,7 +168,7 @@ class DiscountTile extends StatelessWidget {
                       Image(
                         image: FileImage(
                             File(
-                                "${stateProvider.appDocumentsDir.path}/${clubMeDiscount.getBannerId()}"
+                                "${stateProvider.appDocumentsDir.path}/${clubMeDiscount.getBigBannerFileName()}"
                             )
                         ),
                         fit: BoxFit.cover,

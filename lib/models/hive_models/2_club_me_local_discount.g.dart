@@ -23,7 +23,6 @@ class ClubMeLocalDiscountAdapter extends TypeAdapter<ClubMeLocalDiscount> {
       discountTitle: fields[3] as String,
       numberOfUsages: fields[9] as int,
       discountDate: fields[4] as DateTime,
-      bannerId: fields[10] as String,
       howOftenRedeemed: fields[11] as int,
       hasTimeLimit: fields[6] as bool,
       hasUsageLimit: fields[7] as bool,
@@ -42,7 +41,7 @@ class ClubMeLocalDiscountAdapter extends TypeAdapter<ClubMeLocalDiscount> {
   @override
   void write(BinaryWriter writer, ClubMeLocalDiscount obj) {
     writer
-      ..writeByte(19)
+      ..writeByte(18)
       ..writeByte(0)
       ..write(obj.clubId)
       ..writeByte(1)
@@ -63,8 +62,6 @@ class ClubMeLocalDiscountAdapter extends TypeAdapter<ClubMeLocalDiscount> {
       ..write(obj.hasAgeLimit)
       ..writeByte(9)
       ..write(obj.numberOfUsages)
-      ..writeByte(10)
-      ..write(obj.bannerId)
       ..writeByte(11)
       ..write(obj.howOftenRedeemed)
       ..writeByte(12)

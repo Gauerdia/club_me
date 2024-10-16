@@ -19,7 +19,6 @@ ClubMeLocalDiscount discountToLocalDiscountParser(ClubMeDiscount clubMeDiscount)
 
       numberOfUsages: clubMeDiscount.getNumberOfUsages(),
 
-      bannerId: clubMeDiscount.getBannerId(),
       howOftenRedeemed: clubMeDiscount.getHowOftenRedeemed(),
       isRepeatedDays: clubMeDiscount.getIsRepeatedDays(),
 

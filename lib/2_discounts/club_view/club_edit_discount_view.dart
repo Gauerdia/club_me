@@ -1372,7 +1372,6 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
         discountId: currentAndLikedElementsProvider.currentClubMeDiscount.getDiscountId(),
         clubId: currentAndLikedElementsProvider.currentClubMeDiscount.getClubId(),
         clubName: currentAndLikedElementsProvider.currentClubMeDiscount.getClubName(),
-        bannerId: currentAndLikedElementsProvider.currentClubMeDiscount.getBannerId(),
 
         discountTitle: _discountTitleController.text,
         discountDate: concatenatedDate,

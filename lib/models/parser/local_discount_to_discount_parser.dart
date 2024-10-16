@@ -8,7 +8,6 @@ ClubMeDiscount localDiscountToDiscountParser(ClubMeLocalDiscount clubMeLocalDisc
       discountId: clubMeLocalDiscount.getDiscountId(),
       clubId: clubMeLocalDiscount.getClubId(),
       clubName: clubMeLocalDiscount.getClubName(),
-      bannerId: clubMeLocalDiscount.getBannerId(),
 
       discountTitle: clubMeLocalDiscount.getDiscountTitle(),
       discountDate: clubMeLocalDiscount.getDiscountDate(),

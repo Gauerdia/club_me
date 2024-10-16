@@ -53,18 +53,6 @@ class UserDataProvider extends ChangeNotifier{
     return userClub.getInstagramLink();
   }
 
-  String getUserClubEventBannerId(){
-    return userClub.getEventBannerId();
-  }
-
-  String getUserClubBannerId(){
-    return userClub.getBannerId();
-  }
-
-  int getUserClubBackgroundColorId(){
-    return userClub.getBackgroundColorId();
-  }
-
   String getUserClubMusicGenres(){
     return userClub.getMusicGenres();
   }
@@ -83,7 +71,7 @@ class UserDataProvider extends ChangeNotifier{
   void setUserClubContact(
       String contactName,
       String contactStreet,
-      int contactStreetNumber,
+      String contactStreetNumber,
       String contactZip,
       String contactCity
       ){

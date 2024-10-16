@@ -1,5 +1,6 @@
 import 'package:club_me/models/club_offers.dart';
 import 'package:club_me/models/front_page_images.dart';
+import 'package:club_me/models/special_opening_times.dart';
 
 import '../models/club.dart';
 import '../models/hive_models/0_club_me_user_data.dart';
@@ -12,18 +13,18 @@ ClubMeClub mockUpClub = ClubMeClub(
     clubMusicGenres: "Test-Genre",
     clubStoryId: "",
     storyCreatedAt: null,
-    clubBannerId: "question_1.png",
-    clubEventBannerId: "question_1.png",
+    // clubBannerId: "question_1.png",
+    // clubEventBannerId: "question_1.png",
     clubGeoCoordLat: 10,
     clubGeoCoordLng: 10,
     clubContactCity: "Test Stadt",
     clubContactName: "Test Club",
     clubContactStreet: "Teststraße",
-    clubContactStreetNumber: 101,
+    clubContactStreetNumber: "101",
     clubContactZip: "12345",
     clubInstagramLink: "https://www.instagram.com",
     clubWebsiteLink: "https://google.de",
-    clubFrontpageBackgroundColorId: 0,
+    // clubFrontpageBackgroundColorId: 0,
     priorityScore: 0,
     openingTimes: OpeningTimes(),
     frontPageGalleryImages: FrontPageGalleryImages(),
@@ -31,7 +32,9 @@ ClubMeClub mockUpClub = ClubMeClub(
   smallLogoFileName: "",
   bigLogoFileName: "",
   frontpageBannerFileName: "",
-  mapPinImageName: "black_100x100.png"
+  mapPinImageName: "black_100x100.png",
+  specialOpeningTimes: SpecialOpeningTimes(),
+  closePartner: false
 );
 
 ClubMeUserData mockUpUserData = ClubMeUserData(

@@ -146,8 +146,8 @@ class _ClubPastDiscountsViewState extends State<ClubPastDiscountsView>
     // If the provider has fetched elements so that the main function in _buildSupabaseDiscounts
     // is not called, we still need to add the ids to the array to display the banners.
     for(var discount in discountsToDisplay){
-      if(!fetchedContentProvider.getFetchedBannerImageIds().contains(discount.getBannerId())){
-        fetchedContentProvider.addFetchedBannerImageId(discount.getBannerId());
+      if(!fetchedContentProvider.getFetchedBannerImageIds().contains(discount.getBigBannerFileName())){
+        fetchedContentProvider.addFetchedBannerImageId(discount.getBigBannerFileName());
       }
     }
 

@@ -511,63 +511,63 @@ class _ProfileViewState extends State<ProfileView> {
                   ),
 
                   // BIRTH DATE
-                  Container(
-                    width: screenWidth*0.9,
-                    height: screenHeight*0.08,
-                    padding: const EdgeInsets.only(
-                        bottom: 10
-                    ),
-                    child: Stack(
-                      children: [
-                        SizedBox(
-                          width: screenWidth*0.4,
-                          child:OutlinedButton(
-                              onPressed: (){
-                                showDatePicker(
-                                    context: context,
-                                    locale: const Locale("de", "DE"),
-                                    initialDate: birthDateChoice,
-                                    firstDate: DateTime(1950),
-                                    lastDate: DateTime(2024),
-                                    builder: (BuildContext context, Widget? child) {
-                                      return Theme(
-                                        data: ThemeData.dark(),
-                                        child: child!,
-                                      );
-                                    }).then((pickedDate){
-                                  if( pickedDate == null){
-                                    return;
-                                  }
-                                  setState(() {
-                                    birthDateChoice = pickedDate;
-                                  });
-                                });
-                              },
-                              style: OutlinedButton.styleFrom(
-                                  minimumSize: Size(screenHeight*0.05,screenHeight*0.07),
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(5.0)
-                                  )
-                              ),
-                              child: Text(
-                                formatSelectedDate(),
-                                style: customStyleClass.getFontStyle4(),
-                              )
-                          ),
-                        ),
-
-                        SizedBox(
-                          width: screenWidth*0.1,
-                          height: screenHeight*0.07,
-                          child: Icon(
-                            Icons.cake,
-                            color: customStyleClass.primeColor,
-                            size: 30,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  // Container(
+                  //   width: screenWidth*0.9,
+                  //   height: screenHeight*0.08,
+                  //   padding: const EdgeInsets.only(
+                  //       bottom: 10
+                  //   ),
+                  //   child: Stack(
+                  //     children: [
+                  //       SizedBox(
+                  //         width: screenWidth*0.4,
+                  //         child:OutlinedButton(
+                  //             onPressed: (){
+                  //               showDatePicker(
+                  //                   context: context,
+                  //                   locale: const Locale("de", "DE"),
+                  //                   initialDate: birthDateChoice,
+                  //                   firstDate: DateTime(1950),
+                  //                   lastDate: DateTime(2024),
+                  //                   builder: (BuildContext context, Widget? child) {
+                  //                     return Theme(
+                  //                       data: ThemeData.dark(),
+                  //                       child: child!,
+                  //                     );
+                  //                   }).then((pickedDate){
+                  //                 if( pickedDate == null){
+                  //                   return;
+                  //                 }
+                  //                 setState(() {
+                  //                   birthDateChoice = pickedDate;
+                  //                 });
+                  //               });
+                  //             },
+                  //             style: OutlinedButton.styleFrom(
+                  //                 minimumSize: Size(screenHeight*0.05,screenHeight*0.07),
+                  //                 shape: RoundedRectangleBorder(
+                  //                     borderRadius: BorderRadius.circular(5.0)
+                  //                 )
+                  //             ),
+                  //             child: Text(
+                  //               formatSelectedDate(),
+                  //               style: customStyleClass.getFontStyle4(),
+                  //             )
+                  //         ),
+                  //       ),
+                  //
+                  //       SizedBox(
+                  //         width: screenWidth*0.1,
+                  //         height: screenHeight*0.07,
+                  //         child: Icon(
+                  //           Icons.cake,
+                  //           color: customStyleClass.primeColor,
+                  //           size: 30,
+                  //         ),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
 
                   // BUTTON
                   Container(
@@ -640,7 +640,7 @@ class _ProfileViewState extends State<ProfileView> {
     ClubMeUserData newUserData = ClubMeUserData(
         firstName: _firstNameController.text,
         lastName: _lastNameController.text,
-        birthDate: birthDateChoice,
+        birthDate: userDataProvider.getUserData().getBirthDate(),
         eMail: _emailController.text,
         gender: genderChoice,
         userId: userDataProvider.getUserData().getUserId(),

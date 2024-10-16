@@ -92,7 +92,7 @@ class _LogInViewState extends State<LogInView> {
     isLoading = true;
     try{
       var _list = await _supabaseService.getSpecificClub(selectedClubId);
-      if(_list != null){
+      if(_list.isNotEmpty){
 
         ClubMeClub clubMeClub = parseClubMeClub(_list[0]);
         userDataProvider.setUserClub(clubMeClub);
@@ -105,7 +105,7 @@ class _LogInViewState extends State<LogInView> {
               gender: 0,
               userId: clubMeClub.getClubId(),
               profileType: 1,
-              lastTimeLoggedIn: DateTime.now()
+              lastTimeLoggedIn: null
             )
         );
       }
@@ -114,7 +114,7 @@ class _LogInViewState extends State<LogInView> {
       setState(() {
         isLoading = false;
       });
-      log.d("Error in fetchClubAndProceed: $e");
+      log.d("Error in LogInView. Fct: fetchClubAndProceed: $e");
       _supabaseService.createErrorLog(e.toString());
     }
   }

@@ -27,6 +27,7 @@ class FetchedContentProvider extends ChangeNotifier{
   }
   void setUsedDiscounts(List<ClubMeUsedDiscount> newUsedDiscounts){
     usedDiscounts = newUsedDiscounts;
+    print("setUsedDiscounts: $usedDiscounts");
     notifyListeners();
   }
 

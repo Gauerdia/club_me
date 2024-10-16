@@ -210,9 +210,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                     // BG Image
                     Container(
                         height: screenHeight*0.19,
-                        color: currentAndLikedElementsProvider.currentClubMeClub.getBackgroundColorId() == 0 ?
-                        Colors.white :
-                        Colors.black,
+                        color: Colors.black,
                         child: Center(
                             child: SizedBox(
                                 height: screenHeight,
@@ -1098,8 +1096,17 @@ class _ClubDetailViewState extends State<ClubDetailView> {
       case(7):dayToDisplay = "Sonntag";break;
     }
 
-    openingHourToDisplay = days.openingHour! < 10 ? "0${days.openingHour}:00": "${days.openingHour}:00";
-    closingHourToDisplay = days.closingHour! < 10 ?  "0${days.closingHour}:00": "${days.closingHour}:00";
+    if(days.openingHalfAnHour == 1){
+      openingHourToDisplay = days.openingHour! < 10 ? "0${days.openingHour}:30": "${days.openingHour}:30";
+    }else{
+      openingHourToDisplay = days.openingHour! < 10 ? "0${days.openingHour}:00": "${days.openingHour}:00";
+    }
+
+    if(days.closingHalfAnHour == 1){
+      closingHourToDisplay = days.closingHour! < 10 ?  "0${days.closingHour}:30": "${days.closingHour}:30";
+    }else{
+      closingHourToDisplay = days.closingHour! < 10 ?  "0${days.closingHour}:00": "${days.closingHour}:00";
+    }
 
     return Container(
       width: screenWidth*0.9,

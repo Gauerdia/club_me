@@ -46,7 +46,7 @@ class _UserMapViewState extends State<UserMapView>{
 
   List<BitmapDescriptor> customIcons = [];
 
-  BitmapDescriptor? userIcon, clubIcon;
+  BitmapDescriptor? userIcon, clubIcon, trustedClubIcon;
 
   late ClubMeEvent clubMeEventToDisplay;
   late double screenWidth, screenHeight;
@@ -93,6 +93,15 @@ class _UserMapViewState extends State<UserMapView>{
     ).then((icon){
       setState(() {
         clubIcon = icon;
+      });
+    });
+
+    BitmapDescriptor.asset(
+        const ImageConfiguration(size: Size(32,32)),
+        "assets/images/clubme_100x100.png"
+    ).then((icon){
+      setState(() {
+        trustedClubIcon = icon;
       });
     });
 
@@ -162,6 +171,16 @@ class _UserMapViewState extends State<UserMapView>{
           await BitmapDescriptor.asset(
               const ImageConfiguration(size: Size(32,32)),
               "assets/images/beispiel_100x100.png"
+          ).then((icon){
+            setState(() {
+              clubIcon = icon;
+            });
+          });
+        }
+        if(trustedClubIcon == null){
+          await BitmapDescriptor.asset(
+              const ImageConfiguration(size: Size(32,32)),
+              "assets/images/club_me_100x100.png"
           ).then((icon){
             setState(() {
               clubIcon = icon;
@@ -634,7 +653,7 @@ class _UserMapViewState extends State<UserMapView>{
 
     // Set base markers for all clubs
     final marker = Marker(
-      icon: clubIcon!,
+      icon: club.getClosePartner() ? trustedClubIcon! : clubIcon!,
       onTap: () => onTapEventMarker(club),
       markerId: MarkerId(club.getClubId()),
       position: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng(),

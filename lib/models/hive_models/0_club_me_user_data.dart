@@ -34,9 +34,9 @@ class ClubMeUserData{
   @HiveField(6)
   int profileType;
   @HiveField(7)
-  DateTime lastTimeLoggedIn;
+  DateTime? lastTimeLoggedIn;
 
-  DateTime getLastTimeLoggedIn(){
+  DateTime? getLastTimeLoggedIn(){
     return lastTimeLoggedIn;
   }
 
