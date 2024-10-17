@@ -118,7 +118,8 @@ class _UserEventsViewState extends State<UserEventsView> {
       stateProvider.updatedLastLogInForNow = true;
     }
 
-
+    // Test if it is ready by the time we navigate to the map
+    fetchedContentProvider.setCustomIcons();
 
     // Get all locally saved liked events
     getAllLikedEvents(stateProvider);

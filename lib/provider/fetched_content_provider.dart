@@ -1,5 +1,6 @@
 import 'package:club_me/models/hive_models/5_club_me_used_discount.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../models/club.dart';
 import '../models/discount.dart';
@@ -7,6 +8,9 @@ import '../models/event.dart';
 import 'package:timezone/standalone.dart' as tz;
 
 class FetchedContentProvider extends ChangeNotifier{
+
+  late BitmapDescriptor clubIcon;
+  late BitmapDescriptor closeClubIcon;
 
   List<ClubMeClub> fetchedClubs = [];
   List<ClubMeEvent> fetchedEvents = [];
@@ -16,6 +20,25 @@ class FetchedContentProvider extends ChangeNotifier{
 
   List<String> fetchedBannerImageIds = [];
 
+  void setCustomIcons() async{
+
+    await BitmapDescriptor.asset(
+        const ImageConfiguration(size: Size(32,32)),
+        "assets/images/beispiel_100x100.png"
+    ).then((icon) {
+      clubIcon = icon;
+      print("FetchedProvider, clubIcon, finished");
+    });
+
+    await BitmapDescriptor.asset(
+        const ImageConfiguration(size: Size(32,32)),
+        "assets/images/clubme_100x100.png"
+    ).then((icon) {
+      closeClubIcon = icon;
+      print("FetchedProvider, clubIcon, finished");
+    });
+
+  }
 
   // USED DISCOUNTS
   List<ClubMeUsedDiscount> getUsedDiscounts(){

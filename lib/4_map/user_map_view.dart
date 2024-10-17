@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:club_me/4_map/components/club_info_bottom_sheet.dart';
+import 'package:club_me/4_map/components/widget_to_map_icon.dart';
 import 'package:club_me/models/club.dart';
 import 'package:club_me/models/event.dart';
 import 'package:club_me/services/check_and_fetch_service.dart';
@@ -23,7 +24,6 @@ import '../provider/user_data_provider.dart';
 import '../services/supabase_service.dart';
 import '../shared/custom_text_style.dart';
 import 'components/club_list_item.dart';
-
 
 class UserMapView extends StatefulWidget {
   const UserMapView({Key? key}) : super(key: key);
@@ -93,22 +93,28 @@ class _UserMapViewState extends State<UserMapView>{
 
   }
 
+
+
+  Future<BitmapDescriptor> getCustomIcon() async {
+    return SizedBox(
+      height: 100,
+      width: 100,
+      child: Image.asset("assets/images/clubme_100x100.png"),
+    ).toBitmapDescriptor();
+  }
+
+
+
   void initMarkers() async{
 
-    if(Platform.isIOS){
-      _supabaseService.createErrorLog(
-        "iOS specific: initMarkers started"
-      );
-    }
-
-    await BitmapDescriptor.asset(
-        const ImageConfiguration(size: Size(32,32)),
-        "assets/images/beispiel_100x100.png"
-    ).then((icon){
-      setState(() {
-        clubIcon = icon;
-      });
-    });
+    // await BitmapDescriptor.asset(
+    //     const ImageConfiguration(size: Size(32,32)),
+    //     "assets/images/beispiel_100x100.png"
+    // ).then((icon){
+    //   setState(() {
+    //     clubIcon = icon;
+    //   });
+    // });
 
     // await BitmapDescriptor.asset(
     //     const ImageConfiguration(size: Size(32,32)),
@@ -119,21 +125,15 @@ class _UserMapViewState extends State<UserMapView>{
     //   });
     // });
 
-    await BitmapDescriptor.asset(
-        const ImageConfiguration(size: Size(32,32)),
-        "assets/images/1_standort_blau_weiss.png"
-    ).then((icon){
-      setState(() {
-        userIcon = icon;
-      });
-    });
+    // await BitmapDescriptor.asset(
+    //     const ImageConfiguration(size: Size(32,32)),
+    //     "assets/images/1_standort_blau_weiss.png"
+    // ).then((icon){
+    //   setState(() {
+    //     userIcon = icon;
+    //   });
+    // });
 
-
-    if(Platform.isIOS){
-      _supabaseService.createErrorLog(
-          "iOS specific: initMarkers ended"
-      );
-    }
 
     checkAndFetchClubs();
 
@@ -153,15 +153,9 @@ class _UserMapViewState extends State<UserMapView>{
 
   Future<void> checkAndFetchClubs() async{
 
-    if(Platform.isIOS){
-      _supabaseService.createErrorLog(
-          "iOS specific: checkAndFetchClubs started"
-      );
-    }
+    fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
 
-    log.d("UserMapView, checkAndFetchClubs: Start");
-
-    final fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
+    stateProvider = Provider.of<StateProvider>(context, listen: false);
 
     // Do we need to fetch?
     if(fetchedContentProvider.getFetchedClubs().isEmpty){
@@ -169,9 +163,12 @@ class _UserMapViewState extends State<UserMapView>{
       var data = await _supabaseService.getAllClubs();
 
       for(var element in data){
+
         ClubMeClub currentClub = parseClubMeClub(element);
         fetchedContentProvider.addClubToFetchedClubs(currentClub);
+
         setBasicMarker(currentClub);
+
       }
 
       // Check if we need to download the corresponding images
@@ -182,7 +179,7 @@ class _UserMapViewState extends State<UserMapView>{
           false
       );
 
-      filterClubs();
+      // filterClubs();
 
       setUserLocationMarker();
 
@@ -190,30 +187,10 @@ class _UserMapViewState extends State<UserMapView>{
     // Have we already fetched?
     else{
       for(var currentClub in fetchedContentProvider.getFetchedClubs()){
-
-        if(clubIcon == null){
-          await BitmapDescriptor.asset(
-              const ImageConfiguration(size: Size(32,32)),
-              "assets/images/beispiel_100x100.png"
-          ).then((icon){
-            setState(() {
-              clubIcon = icon;
-            });
-          });
-        }
-        if(trustedClubIcon == null){
-          await BitmapDescriptor.asset(
-              const ImageConfiguration(size: Size(32,32)),
-              "assets/images/club_me_100x100.png"
-          ).then((icon){
-            setState(() {
-              clubIcon = icon;
-            });
-          });
-        }
-
         setBasicMarker(currentClub);
       }
+
+      setUserLocationMarker();
 
       // Check if we need to download the corresponding images
       _checkAndFetchService.checkAndFetchClubImages(
@@ -223,27 +200,8 @@ class _UserMapViewState extends State<UserMapView>{
           false
       );
 
-      if(userIcon == null){
-        await BitmapDescriptor.asset(
-            const ImageConfiguration(size: Size(32,32)),
-            "assets/images/1_standort_blau_weiss.png"
-        ).then((icon){
-          setState(() {
-            userIcon = icon;
-          });
-        });
-      }
+      // filterClubs();
 
-      setUserLocationMarker();
-
-      filterClubs();
-
-    }
-
-    if(Platform.isIOS){
-      _supabaseService.createErrorLog(
-          "iOS specific: checkAndFetchClubs ended. Now, set showMap = true"
-      );
     }
 
     setState(() {
@@ -626,54 +584,39 @@ class _UserMapViewState extends State<UserMapView>{
 
   // MARKERS
 
-  void setBasicMarker(ClubMeClub club) async{
+  void setBasicMarker(ClubMeClub currentClub) async{
 
     try{
-      // Set base markers for all clubs
 
-      // if(trustedClubIcon != null && clubIcon != null){
-      if(clubIcon != null){
-        final marker = Marker(
-          icon: clubIcon!,
-          onTap: () => onTapEventMarker(club),
-          markerId: MarkerId(club.getClubId()),
-          position: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng(),
-          ),
-        );
-        _markers[club.getClubId()] = marker;
-      }else{
-        final marker = Marker(
-          onTap: () => onTapEventMarker(club),
-          markerId: MarkerId(club.getClubId()),
-          position: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng(),
-          ),
-        );
-        _markers[club.getClubId()] = marker;
-      }
+      _markers[currentClub.getClubId()] = Marker(
+          markerId: MarkerId(currentClub.getClubId()),
+          onTap: () => onTapEventMarker(currentClub),
+          position: LatLng(currentClub.getGeoCoordLat(), currentClub.getGeoCoordLng()),
+          icon: currentClub.closePartner ? fetchedContentProvider.closeClubIcon : fetchedContentProvider.clubIcon
+          // icon: await getCustomIcon()
+      );
+
     }catch(e){
       print("Error in UserMapView. Fct: setBasicMarker. Error: $e. Platform: ${Platform.isIOS? "iOS" : "Android"}");
+      _supabaseService.createErrorLog("Error in UserMapView. Fct: setBasicMarker. Error: $e. Platform: ${Platform.isIOS? "iOS" : "Android"}");
     }
 
   }
-
   void setUserLocationMarker() async{
 
     try{
 
       userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
 
-      if(userIcon != null){
-        _markers['user_location'] = Marker(
-          icon: userIcon!,
-          markerId: const MarkerId('user_location'),
-          position: LatLng(userDataProvider.getUserLatCoord(), userDataProvider.getUserLongCoord()),
-        );
-      }else{
-        _markers['user_location'] = Marker(
-          markerId: const MarkerId('user_location'),
-          position: LatLng(userDataProvider.getUserLatCoord(), userDataProvider.getUserLongCoord()),
-        );
-      }
+      _markers['user_location'] = Marker(
+          markerId: MarkerId("user_location"),
+          position: LatLng(
+              userDataProvider.getUserClubCoordLat(),
+              userDataProvider.getUserClubCoordLng()
+          ),
+          icon: await getCustomIcon()
+      );
+
 
     }catch(e){
       _supabaseService.createErrorLog(
@@ -829,7 +772,7 @@ class _UserMapViewState extends State<UserMapView>{
 
 
   // MISC
-  void filterClubs(){
+  Future<void> filterClubs() async {
 
     // The current array of clubs we want to display
     clubsToDisplay = [];
@@ -870,8 +813,8 @@ class _UserMapViewState extends State<UserMapView>{
       }
 
 
-      for(var club in clubsToDisplay){
-        setBasicMarker(club);
+      for(var currentClub in clubsToDisplay){
+        setBasicMarker(currentClub);
       }
 
       isAnyFilterActive = true;
@@ -883,14 +826,12 @@ class _UserMapViewState extends State<UserMapView>{
         setBasicMarker(club);
       }
 
-
       isAnyFilterActive = false;
     }
 
     setUserLocationMarker();
 
     clubsToDisplay.sort((a,b) => b.getPriorityScore().compareTo(a.getPriorityScore()));
-
 
     setState(() {});
 
