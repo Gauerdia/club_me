@@ -49,7 +49,10 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
             gender: response.first['gender'],
             userId: response.first['user_id'],
             profileType: 0,
-            lastTimeLoggedIn: response.first['last_time_logged_in']  != null ? DateTime.parse(response.first['last_time_logged_in']): response.first['last_time_logged_in']
+            lastTimeLoggedIn: response.first['last_time_logged_in']  != null ?
+            DateTime.parse(response.first['last_time_logged_in']): response.first['last_time_logged_in'],
+          clubId: "", userProfileAsClub: false,
+
         );
         _hiveService.addUserData(clubMeUserData);
         userDataProvider.setUserData(clubMeUserData);

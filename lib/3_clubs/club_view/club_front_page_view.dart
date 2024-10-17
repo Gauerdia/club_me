@@ -489,9 +489,12 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
 
     // Not necessary. Makes it easier to read the code below
     List<String> frontPageGalleryImageIds = [];
-    for(var image in userDataProvider.getUserClub().getFrontPageGalleryImages().images!){
-      frontPageGalleryImageIds.add(image.id!);
+    if(userDataProvider.getUserClub().getFrontPageGalleryImages().images != null){
+      for(var image in userDataProvider.getUserClub().getFrontPageGalleryImages().images!){
+        frontPageGalleryImageIds.add(image.id!);
+      }
     }
+
 
     return Column(
       children: [

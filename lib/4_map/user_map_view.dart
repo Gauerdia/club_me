@@ -87,16 +87,26 @@ class _UserMapViewState extends State<UserMapView>{
 
     weekDayDropDownValue = Utils.weekDaysForFiltering.first;
 
-    BitmapDescriptor.asset(
-      const ImageConfiguration(size: Size(32,32)),
-      "assets/images/beispiel_100x100.png"
+    initMarkers();
+
+    _determinePosition().then((value) => uploadPositionToSupabase(value));
+
+    startPeriodicGeoLocatorStream();
+
+  }
+
+  void initMarkers() async{
+
+    await BitmapDescriptor.asset(
+        const ImageConfiguration(size: Size(32,32)),
+        "assets/images/beispiel_100x100.png"
     ).then((icon){
       setState(() {
         clubIcon = icon;
       });
     });
 
-    BitmapDescriptor.asset(
+    await BitmapDescriptor.asset(
         const ImageConfiguration(size: Size(32,32)),
         "assets/images/clubme_100x100.png"
     ).then((icon){
@@ -105,7 +115,7 @@ class _UserMapViewState extends State<UserMapView>{
       });
     });
 
-    BitmapDescriptor.asset(
+    await BitmapDescriptor.asset(
         const ImageConfiguration(size: Size(32,32)),
         "assets/images/1_standort_blau_weiss.png"
     ).then((icon){
@@ -114,14 +124,10 @@ class _UserMapViewState extends State<UserMapView>{
       });
     });
 
-
     checkAndFetchClubs();
 
-    _determinePosition().then((value) => uploadPositionToSupabase(value));
-
-    startPeriodicGeoLocatorStream();
-
   }
+
   void initGeneralSettings(){
     stateProvider = Provider.of<StateProvider>(context);
     customStyleClass = CustomStyleClass(context: context);

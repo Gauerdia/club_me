@@ -122,12 +122,13 @@ class _ClubDetailViewState extends State<ClubDetailView> {
         automaticallyImplyLeading: false,
         backgroundColor: customStyleClass.backgroundColorMain,
         title: Container(
-          width: screenWidth*0.67,
+          // width: screenWidth*0.67,
           child: Stack(
             children: [
 
               // Headline
               Container(
+                // color: Colors.red,
                   alignment: Alignment.bottomCenter,
                   height: 50,
                   width: screenWidth,
@@ -161,27 +162,33 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                   )
               ),
 
+              Container(
+                alignment: Alignment.centerLeft,
+                height: 50,
+                width: screenWidth,
+                child: IconButton(
+                    onPressed: (){
+
+                      switch(stateProvider.pageIndex){
+                        case(0):context.go("/user_events");break;
+                        case(1):context.go("/user_clubs");break;
+                        case(2):context.go("/user_map");break;
+                        case(3):context.go("/user_coupons");break;
+                        default:context.go("/user_clubs");break;
+                      }
+
+
+                    },
+                    icon: const Icon(
+                      Icons.arrow_back_ios,
+                      color: Colors.white,
+                    )),
+              )
+
             ],
           ),
         ),
-        leading: GestureDetector(
-          child: const Icon(
-            Icons.arrow_back_ios,
-            color: Colors.white,
-          ),
-          onTap: (){
 
-            switch(stateProvider.pageIndex){
-              case(0):context.go("/user_events");break;
-              case(1):context.go("/user_clubs");break;
-              case(2):context.go("/user_map");break;
-              case(3):context.go("/user_coupons");break;
-              default:context.go("/user_clubs");break;
-            }
-
-
-          },
-        )
     );
   }
   Widget _buildMainView(){

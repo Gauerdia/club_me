@@ -217,6 +217,27 @@ class HiveService{
       _supabaseService.createErrorLog(e.toString());
     }
   }
+
+  Future<void> toggleUserDataProfileType(ClubMeUserData clubMeUserData) async{
+    try{
+      if(clubMeUserData.getProfileType() == 0){
+        clubMeUserData.profileType = 1;
+      }else{
+        clubMeUserData.profileType = 0;
+      }
+
+      var box = await _clubMeUserClubBox;
+
+      await box.deleteAll(box.keys);
+      await box.add(clubMeUserData);
+
+      log.d("HiveService. Function: toggleUserDataProfileId. Successful.");
+    }catch(e){
+      log.d("HiveService. Function: toggleUserDataProfileId. Error: $e");
+      _supabaseService.createErrorLog(e.toString());
+    }
+  }
+
   Future<void> resetUserData() async {
 
 

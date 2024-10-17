@@ -16,6 +16,8 @@ import 'package:club_me/provider/fetched_content_provider.dart';
 import 'package:club_me/provider/state_provider.dart';
 import 'package:club_me/provider/user_data_provider.dart';
 import 'package:club_me/register/components/forgot_password_view.dart';
+import 'package:club_me/register/components/log_in_as_club_view.dart';
+import 'package:club_me/register/components/register_for_user_as_club_view.dart';
 import 'package:club_me/register/register_view.dart';
 import 'package:club_me/settings/club_view/components/faq_club_view.dart';
 import 'package:club_me/settings/club_view/settings_club_view.dart';
@@ -456,6 +458,16 @@ final GoRouter _router = GoRouter(
     GoRoute(
         path: '/register',
         builder: (context, state) => const RegisterView()
+    ),
+
+    GoRoute(
+        path: '/register_log_in_club',
+        builder: (context, state) => const LogInAsClubView()
+    ),
+
+    GoRoute(
+        path: '/register_for_user_as_club',
+        builder: (context, state) => const RegisterForUserAsClubView()
     ),
 
     GoRoute(

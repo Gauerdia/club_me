@@ -89,7 +89,11 @@ class _LogInViewState extends State<LogInView> {
   }
 
   void fetchClubAndProceed() async{
-    isLoading = true;
+
+    setState(() {
+      isLoading = true;
+    });
+
     try{
       var _list = await _supabaseService.getSpecificClub(selectedClubId);
       if(_list.isNotEmpty){
@@ -105,7 +109,9 @@ class _LogInViewState extends State<LogInView> {
               gender: 0,
               userId: clubMeClub.getClubId(),
               profileType: 1,
-              lastTimeLoggedIn: null
+              lastTimeLoggedIn: null,
+                userProfileAsClub: false,
+                clubId: clubMeClub.getClubId()
             )
         );
       }

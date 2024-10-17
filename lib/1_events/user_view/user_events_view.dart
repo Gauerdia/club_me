@@ -110,7 +110,9 @@ class _UserEventsViewState extends State<UserEventsView> {
               gender: userDataProvider.getUserData().getGender(),
               userId: userDataProvider.getUserData().getUserId(),
               profileType: userDataProvider.getUserData().getProfileType(),
-              lastTimeLoggedIn: DateTime.now()
+              lastTimeLoggedIn: DateTime.now(),
+              userProfileAsClub: userDataProvider.getUserData().getUserProfileAsClub(),
+              clubId: ''
           )
       );
       stateProvider.updatedLastLogInForNow = true;

@@ -1,13 +1,12 @@
+import 'package:club_me/provider/user_data_provider.dart';
+import 'package:club_me/shared/dialogs/title_content_and_button_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-
 import '../../provider/fetched_content_provider.dart';
 import '../../provider/state_provider.dart';
 import '../../services/hive_service.dart';
-import '../../shared/custom_bottom_navigation_bar.dart';
-import '../../shared/custom_bottom_navigation_bar_clubs.dart';
 import '../../shared/custom_text_style.dart';
 
 import 'package:open_mail_app/open_mail_app.dart';
@@ -26,6 +25,8 @@ class _SettingsUserViewState extends State<SettingsUserView> {
 
   late StateProvider stateProvider;
   late FetchedContentProvider fetchedContentProvider;
+  late UserDataProvider userDataProvider;
+
   late double screenHeight, screenWidth;
 
   final HiveService _hiveService = HiveService();
@@ -195,11 +196,10 @@ class _SettingsUserViewState extends State<SettingsUserView> {
         style: customStyleClass.getFontStyle4(),
       ),
       onPressed: () async {
-        Navigator.pop(context);
-        // final Uri url = Uri.parse(clubMeEvent.getTicketLink());
-        // if (!await launchUrl(url)) {
-        //   throw Exception('Could not launch $url');
-        // }
+        final Uri url = Uri.parse("https://club-me-web-interface.pages.dev/kontakt");
+        if (!await launchUrl(url)) {
+          throw Exception('Could not launch $url');
+        }
       },
     );
 
@@ -231,11 +231,10 @@ class _SettingsUserViewState extends State<SettingsUserView> {
         style: customStyleClass.getFontStyle4(),
       ),
       onPressed: () async {
-        Navigator.pop(context);
-        // final Uri url = Uri.parse(clubMeEvent.getTicketLink());
-        // if (!await launchUrl(url)) {
-        //   throw Exception('Could not launch $url');
-        // }
+        final Uri url = Uri.parse("https://club-me-web-interface.pages.dev/agb");
+        if (!await launchUrl(url)) {
+          throw Exception('Could not launch $url');
+        }
       },
     );
 
@@ -261,6 +260,27 @@ class _SettingsUserViewState extends State<SettingsUserView> {
     );
   }
   void clickEventPrivacy(){
+    showDialog(context: context, builder: (BuildContext context){
+      return TitleContentAndButtonDialog(
+          titleToDisplay: "Datenschutzerklärung",
+          contentToDisplay: "Dieser link führt Sie weiter auf unsere Homepage. Ist das in Ordnung?",
+        buttonToDisplay: TextButton(
+            onPressed: () async {
+              final Uri url = Uri.parse("https://club-me-web-interface.pages.dev/datenschutz");
+              if (!await launchUrl(url)) {
+              throw Exception('Could not launch $url');
+              }
+            },
+            child: Text(
+              "Ja",
+              style: customStyleClass.getFontStyle3(),
+            )
+        ),
+      );
+    });
+
+
+
 
   }
   void clickEventSponsors(){
@@ -276,15 +296,27 @@ class _SettingsUserViewState extends State<SettingsUserView> {
     _hiveService.resetUserData().then((value) => context.go("/log_in"));
   }
 
-
+  void clickEventSwitchAccount(){
+    fetchedContentProvider.setFetchedEvents([]);
+    fetchedContentProvider.setFetchedDiscounts([]);
+    fetchedContentProvider.setFetchedClubs([]);
+    stateProvider.setClubUiActive(false);
+    stateProvider.setPageIndex(0);
+    _hiveService.toggleUserDataProfileType(userDataProvider.getUserData()).then(
+        (response){
+          context.go("/club_events");
+        }
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     stateProvider = Provider.of<StateProvider>(context);
     fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
+    userDataProvider = Provider.of<UserDataProvider>(context);
 
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
+    screenWidth = MediaQuery.of(context).size.width;
+    screenHeight = MediaQuery.of(context).size.height;
 
     customStyleClass = CustomStyleClass(context: context);
 
@@ -327,22 +359,19 @@ class _SettingsUserViewState extends State<SettingsUserView> {
                   ),
 
 
-                  // back icon
-                  InkWell(
-                    child: Container(
-                        width: screenWidth,
-                        height: screenHeight*0.2,
-                        // color: Colors.red,
-                        alignment: Alignment.centerLeft,
-                        child: const Icon(
-                          Icons.arrow_back_ios,
-                          color: Colors.white,
-                          // size: 20,
-                        )
-                    ),
-                    onTap: () => Navigator.pop(context),
+                  Container(
+                      alignment: Alignment.centerLeft,
+                      width: screenWidth,
+                      height: screenHeight*0.2,
+                      child: IconButton(
+                          onPressed: () => Navigator.pop(context),
+                          icon: const Icon(
+                            Icons.arrow_back_ios,
+                            color: Colors.white,
+                            // size: 20,
+                          )
+                      )
                   ),
-
                 ],
               ),
             )
@@ -577,6 +606,31 @@ class _SettingsUserViewState extends State<SettingsUserView> {
                       onTap: () => clickEventSponsors(),
                     ),
 
+                    // switch
+                    if(userDataProvider.getUserData().userProfileAsClub)
+                    InkWell(
+                      child: SizedBox(
+                        width: screenWidth*0.9,
+                        child: Row(
+                          children: [
+                            IconButton(onPressed: () => clickEventLogOut(), icon: Icon(
+                              Icons.logout,
+                              color: customStyleClass.primeColor,
+                              size: 25,
+                            )),
+                            SizedBox(
+                              width: screenWidth*0.02,
+                            ),
+                            Text(
+                              "Wechsel zu Clubansicht",
+                              style: customStyleClass.getFontStyle1(),
+                            )
+                          ],
+                        ),
+                      ),
+                      onTap: () => clickEventSwitchAccount(),
+                    ),
+
                     // logout
                     InkWell(
                       child: SizedBox(
@@ -605,7 +659,19 @@ class _SettingsUserViewState extends State<SettingsUserView> {
                   ],
                 )
             )
-        )
+        ),
+      bottomNavigationBar: Container(
+        // color: Colors.red,
+        width: screenWidth,
+        height: 70,
+        alignment: Alignment.bottomCenter,
+        child: Center(
+          child: Image.asset(
+            "assets/images/runes_footer.PNG",
+            width: 100,
+          ),
+        ),
+      ),
     );
   }
 }

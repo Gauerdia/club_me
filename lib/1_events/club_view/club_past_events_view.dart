@@ -100,7 +100,7 @@ class _ClubPastEventsViewState extends State<ClubPastEventsView> {
                         onPressed: () => context.go("/club_events"),
                         icon: const Icon(
                           Icons.arrow_back_ios_new_outlined,
-                          color: Colors.grey,
+                          color: Colors.white,
                           // size: 20,
                         ),
                       )

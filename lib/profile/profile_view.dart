@@ -83,51 +83,49 @@ class _ProfileViewState extends State<ProfileView> {
 
   // BUILD
   AppBar _buildAppBar(){
-    return
-      AppBar(
-          backgroundColor: customStyleClass.backgroundColorMain,
-          surfaceTintColor: customStyleClass.backgroundColorMain,
-          title: SizedBox(
+
+    return AppBar(
+      backgroundColor: customStyleClass.backgroundColorMain,
+      surfaceTintColor: customStyleClass.backgroundColorMain,
+      title: Container(
         width: screenWidth,
         child: Stack(
           children: [
+
             // Headline
-            Container(
-                padding: const EdgeInsets.only(
-                    right: 20
-                ),
-                alignment: Alignment.bottomCenter,
-                height: 50,
-                width: screenWidth,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                                headLine,
-                                textAlign: TextAlign.center,
-                                style: customStyleClass.getFontStyleHeadline1Bold()
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  bottom: 15
+              Container(
+                  alignment: Alignment.bottomCenter,
+                  height: 50,
+                  width: screenWidth,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                  headLine,
+                                  textAlign: TextAlign.center,
+                                  style: customStyleClass.getFontStyleHeadline1Bold()
                               ),
-                              child: Text(
-                                "VIP",
-                                style: customStyleClass.getFontStyleVIPGold(),
-                              ),
-                            )
-                          ],
-                        ),
-                      ],
-                    )
-                  ],
-                )
-            ),
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                    bottom: 15
+                                ),
+                                child: Text(
+                                  "VIP",
+                                  style: customStyleClass.getFontStyleVIPGold(),
+                                ),
+                              )
+                            ],
+                          ),
+                        ],
+                      )
+                    ],
+                  )
+              ),
 
             if(!showEditScreen)
               Container(
@@ -160,17 +158,7 @@ class _ProfileViewState extends State<ProfileView> {
           ],
         ),
       ),
-        leading: const Icon(
-            Icons.search,
-            color: Colors.transparent
-          // size: 20,
-        ),
-        actions: [
-
-
-
-        ],
-      );
+    );
 
   }
   Widget _buildBasicView(){
@@ -645,7 +633,10 @@ class _ProfileViewState extends State<ProfileView> {
         gender: genderChoice,
         userId: userDataProvider.getUserData().getUserId(),
         profileType: userDataProvider.getUserData().getProfileType(),
-      lastTimeLoggedIn: DateTime.now()
+        lastTimeLoggedIn: DateTime.now(),
+        userProfileAsClub: userDataProvider.getUserData().getUserProfileAsClub(),
+        clubId: userDataProvider.getUserData().getClubId(),
+
     );
 
     userDataProvider.setUserData(newUserData);

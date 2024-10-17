@@ -45,5 +45,7 @@ ClubMeUserData mockUpUserData = ClubMeUserData(
     gender: 1,
     userId: "000000",
     profileType: 0,
-    lastTimeLoggedIn: DateTime.now()
+    lastTimeLoggedIn: DateTime.now(),
+    userProfileAsClub: false,
+    clubId: ''
 );

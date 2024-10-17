@@ -25,13 +25,15 @@ class ClubMeUserDataAdapter extends TypeAdapter<ClubMeUserData> {
       userId: fields[0] as String,
       profileType: fields[6] as int,
       lastTimeLoggedIn: fields[7] as DateTime?,
+      userProfileAsClub: fields[8] as bool,
+      clubId: fields[9] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, ClubMeUserData obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.userId)
       ..writeByte(1)
@@ -47,7 +49,11 @@ class ClubMeUserDataAdapter extends TypeAdapter<ClubMeUserData> {
       ..writeByte(6)
       ..write(obj.profileType)
       ..writeByte(7)
-      ..write(obj.lastTimeLoggedIn);
+      ..write(obj.lastTimeLoggedIn)
+      ..writeByte(8)
+      ..write(obj.userProfileAsClub)
+      ..writeByte(9)
+      ..write(obj.clubId);
   }
 
   @override

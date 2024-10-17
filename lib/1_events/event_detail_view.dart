@@ -115,7 +115,7 @@ class _EventDetailViewState extends State<EventDetailView>{
                 onPressed: () => clickEventBack(),
                 icon: const Icon(
                   Icons.arrow_back_ios,
-                  color: Colors.grey,
+                  color: Colors.white,
                   // size: 20,
                 ),
               ),
@@ -434,7 +434,7 @@ class _EventDetailViewState extends State<EventDetailView>{
                                 child: Text(
                                   currentAndLikedElementsProvider.currentClubMeEvent.getEventDescription(),
                                   textAlign: TextAlign.center,
-                                  style: customStyleClass.getFontStyle6(),
+                                  style: customStyleClass.getFontStyle4(),
                                 ),
                               ),
 
@@ -456,7 +456,7 @@ class _EventDetailViewState extends State<EventDetailView>{
                                 ),
                                 child: Text(
                                   formattedEventGenres,
-                                  style: customStyleClass.getFontStyle6(),
+                                  style: customStyleClass.getFontStyle4(),
                                 ),
                               ),
 

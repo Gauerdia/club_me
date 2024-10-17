@@ -381,7 +381,7 @@ class SupabaseService{
       String clubId,
       String contactName,
       String contactStreet,
-      int contactStreetNumber,
+      String contactStreetNumber,
       String contactZip,
       String contactCity
       ) async{
@@ -694,7 +694,7 @@ class SupabaseService{
 
 
   // USERS
-  Future<int> insertUserDate(ClubMeUserData userData) async{
+  Future<int> insertUserData(ClubMeUserData userData) async{
 
     try{
       var data = await supabase

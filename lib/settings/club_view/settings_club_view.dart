@@ -1,3 +1,4 @@
+import 'package:club_me/provider/user_data_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:open_mail_app/open_mail_app.dart';
@@ -20,6 +21,7 @@ class _SettingsClubViewState extends State<SettingsClubView> {
   String headLine = "Einstellungen";
 
   late StateProvider stateProvider;
+  late UserDataProvider userDataProvider;
   late FetchedContentProvider fetchedContentProvider;
   late double screenHeight, screenWidth;
 
@@ -295,6 +297,19 @@ class _SettingsClubViewState extends State<SettingsClubView> {
     context.push("/user_sponsors");
   }
 
+
+  void clickEventSwitchToUserView(){
+    if(userDataProvider.getUserData().getUserProfileAsClub()){
+      _hiveService.toggleUserDataProfileType(userDataProvider.getUserData()).then(
+          (response){
+            context.go("/user_events");
+          }
+      );
+    }else{
+      context.go('/register_for_user_as_club');
+    }
+  }
+
   void clickEventLogOut(){
     fetchedContentProvider.setFetchedEvents([]);
     fetchedContentProvider.setFetchedDiscounts([]);
@@ -307,8 +322,11 @@ class _SettingsClubViewState extends State<SettingsClubView> {
 
   @override
   Widget build(BuildContext context) {
+
+
     stateProvider = Provider.of<StateProvider>(context);
     fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
+    userDataProvider = Provider.of<UserDataProvider>(context);
 
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
@@ -583,6 +601,29 @@ class _SettingsClubViewState extends State<SettingsClubView> {
                         ),
                       ),
                       onTap: () => clickEventSponsors(),
+                    ),
+
+                    InkWell(
+                      child: SizedBox(
+                        width: screenWidth*0.9,
+                        child: Row(
+                          children: [
+                            IconButton(onPressed: () => clickEventLogOut(), icon: Icon(
+                              Icons.logout,
+                              color: customStyleClass.primeColor,
+                              size: 25,
+                            )),
+                            SizedBox(
+                              width: screenWidth*0.02,
+                            ),
+                            Text(
+                              "Zur Nutzeransicht wechseln",
+                              style: customStyleClass.getFontStyle1(),
+                            )
+                          ],
+                        ),
+                      ),
+                      onTap: () => clickEventSwitchToUserView(),
                     ),
 
                     InkWell(

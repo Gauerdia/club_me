@@ -120,14 +120,14 @@ class _RegisterViewState extends State<RegisterView> {
   @override
   void initState() {
     super.initState();
-    newSelectedDate = DateTime.now();
+    newSelectedDate = DateTime(2000, 1, 1);
   }
 
 
   // BUILD
   AppBar _buildAppBar(){
     return AppBar(
-        // automaticallyImplyLeading: false,
+        automaticallyImplyLeading: false,
         backgroundColor: customStyleClass.backgroundColorMain,
         surfaceTintColor: customStyleClass.backgroundColorMain,
         title: SizedBox(
@@ -137,15 +137,47 @@ class _RegisterViewState extends State<RegisterView> {
 
               // TEXT
               Container(
+                // color: Colors.red,
+                height: 50,
                 width: screenWidth,
-                padding: EdgeInsets.only(
-                    top: screenHeight*0.01
+                alignment: Alignment.centerRight,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                            headLine,
+                            textAlign: TextAlign.center,
+                            style: customStyleClass.getFontStyleHeadline1Bold()
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              bottom: 15
+                          ),
+                          child: Text(
+                            "VIP",
+                            style: customStyleClass.getFontStyleVIPGold(),
+                          ),
+                        )
+                      ],
+                    )
+                  ],
                 ),
-                child: Center(
-                  child: Text(headLine,
-                      textAlign: TextAlign.center,
-                      style: customStyleClass.getFontStyleHeadline1Bold()
+              ),
+
+              // Right icons
+              if( progressIndex == 3)
+              Container(
+                height: 50,
+                width: screenWidth,
+                alignment: Alignment.centerRight,
+                child: InkWell(
+                  child: const Icon(
+                    Icons.close,
+                    color: Colors.white,
                   ),
+                  onTap: () => clickEventGoFromAdToEvents(),
                 ),
               ),
 
@@ -298,7 +330,43 @@ class _RegisterViewState extends State<RegisterView> {
                   style: customStyleClass.getFontStyle3BoldPrimeColor(),
                 ),
               ),
-            )
+            ),
+
+            SizedBox(
+              height: screenHeight*0.04,
+            ),
+
+            InkWell(
+              child: Center(
+                child: Container(
+                    alignment: Alignment.centerRight,
+                    width: screenWidth*0.9,
+                    decoration: BoxDecoration(
+                      color: customStyleClass.backgroundColorEventTile,
+                      borderRadius: const BorderRadius.all(
+                          Radius.circular(10)
+                      ),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 20
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.warehouse_sharp,
+                          color: Colors.white,
+                        ),
+                        Text(
+                          " Weiter als Club",
+                          style: customStyleClass.getFontStyle3(),
+                        )
+                      ],
+                    )
+                ),
+              ),
+              onTap: () => clickEventProceedAsClub(),
+            ),
 
           ],
         ),
@@ -316,8 +384,16 @@ class _RegisterViewState extends State<RegisterView> {
             height: screenHeight*0.05,
           ),
 
-          Image.asset(
-              "assets/images/premium_advantages.png"
+          Container(
+            padding: EdgeInsets.only(
+              left: screenWidth*0.02
+            ),
+            // color: Colors.red,
+            alignment: Alignment.center,
+            // width: screenWidth*0.8,
+            child: Image.asset(
+                "assets/images/premium_advantages.png"
+            ),
           )
 
         ],
@@ -536,7 +612,7 @@ class _RegisterViewState extends State<RegisterView> {
                     height: screenHeight*0.05,
                   ),
 
-                  // Text: Title
+                  // Text: Date
                   Container(
                     width: screenWidth*0.9,
                     alignment: Alignment.centerLeft,
@@ -558,6 +634,7 @@ class _RegisterViewState extends State<RegisterView> {
                     ),
                   ),
 
+                  // DATE
                   Container(
                     padding:  EdgeInsets.only(
                         top: distanceBetweenTitleAndTextField
@@ -695,7 +772,7 @@ class _RegisterViewState extends State<RegisterView> {
       case(0):return Container(
         // color: Colors.red,
         width: screenWidth,
-        height: 50,
+        height: 70,
         alignment: Alignment.bottomCenter,
         child: Center(
           child: Image.asset(
@@ -740,38 +817,15 @@ class _RegisterViewState extends State<RegisterView> {
         ),
       );
       case(3): return Container(
+        // color: Colors.red,
         width: screenWidth,
-        height: screenHeight*0.08,
-        decoration: BoxDecoration(
-            color: customStyleClass.backgroundColorMain,
-            border: Border(
-                top: BorderSide(
-                    color: Colors.grey[900]!
-                )
-            )
-        ),
-
-        // color: Colors.green,
-        alignment: Alignment.center,
-        padding: const EdgeInsets.only(
-          right: 10,
-          // bottom: 10
-        ),
-        child: GestureDetector(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Text(
-                "Verstanden, weiter",
-                style: customStyleClass.getFontStyle3BoldPrimeColor(),
-              ),
-              Icon(
-                Icons.arrow_forward_outlined,
-                color: customStyleClass.primeColor,
-              )
-            ],
+        height: 70,
+        alignment: Alignment.bottomCenter,
+        child: Center(
+          child: Image.asset(
+            "assets/images/runes_footer.PNG",
+            width: 100,
           ),
-          onTap: () => clickEventReadPremiumAdvantages(),
         ),
       );
       default: return Container();
@@ -924,6 +978,13 @@ class _RegisterViewState extends State<RegisterView> {
     print("click");
     context.push("/forgot_password");
   }
+  void clickEventGoFromAdToEvents(){
+    context.go("/user_events");
+  }
+
+  void clickEventProceedAsClub(){
+    context.push("/register_log_in_club");
+  }
 
 
   // FORMAT
@@ -970,7 +1031,9 @@ class _RegisterViewState extends State<RegisterView> {
           gender: gender,
           userId: uuid.v4(),
           profileType: profileType,
-          lastTimeLoggedIn: DateTime.now()
+          lastTimeLoggedIn: DateTime.now(),
+          userProfileAsClub: false,
+          clubId: ''
       );
 
       try{
@@ -978,7 +1041,7 @@ class _RegisterViewState extends State<RegisterView> {
         await _hiveService.resetUserData();
 
         _hiveService.addUserData(newUserData).then((value) => {
-          _supabaseService.insertUserDate(newUserData).then((value){
+          _supabaseService.insertUserData(newUserData).then((value){
             userDataProvider.setUserData(newUserData);
             setState(() {
               progressIndex = 3;
@@ -1008,7 +1071,9 @@ class _RegisterViewState extends State<RegisterView> {
                 gender: 0,
                 userId: clubMePassword.clubId,
                 profileType: 1,
-              lastTimeLoggedIn: DateTime.now()
+              lastTimeLoggedIn: DateTime.now(),
+                userProfileAsClub: false,
+                clubId: clubMePassword.clubId
             );
             _hiveService.addUserData(newUserData).then((value){
               userDataProvider.setUserData(newUserData);

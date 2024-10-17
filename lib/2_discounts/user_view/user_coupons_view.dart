@@ -165,6 +165,121 @@ class _UserCouponsViewState extends State<UserCouponsView>
       },
     );
   }
+
+  AppBar _buildAppBar(){
+
+    return AppBar(
+      backgroundColor: customStyleClass.backgroundColorMain,
+      surfaceTintColor: customStyleClass.backgroundColorMain,
+      title: Container(
+        width: screenWidth,
+        child: Stack(
+          children: [
+
+            // Headline
+            if(!isSearchActive)
+            Container(
+                alignment: Alignment.bottomCenter,
+                height: 50,
+                width: screenWidth,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                                headline,
+                                textAlign: TextAlign.center,
+                                style: customStyleClass.getFontStyleHeadline1Bold()
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  bottom: 15
+                              ),
+                              child: Text(
+                                "VIP",
+                                style: customStyleClass.getFontStyleVIPGold(),
+                              ),
+                            )
+                          ],
+                        ),
+                      ],
+                    )
+                  ],
+                )
+            ),
+
+            if(isSearchActive)
+              Container(
+                alignment: Alignment.bottomCenter,
+                height: 50,
+                width: screenWidth,
+                child: SizedBox(
+                  width: screenWidth*0.65,
+                  child: TextField(
+                    autofocus: true,
+                    controller: _textEditingController,
+                    onChanged: (text){
+                      _textEditingController.text = text;
+                      searchValue = text;
+                      setState(() {
+                        filterDiscounts();
+                      });
+                    },
+                    decoration: InputDecoration(
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: customStyleClass.primeColor),
+                      ),
+                      hintStyle: TextStyle(
+                          color: customStyleClass.primeColor
+                      ),
+                    ),
+                    style: const TextStyle(
+                        color: Colors.white
+                    ),
+                    cursorColor: customStyleClass.primeColor,
+                  ),
+                ),
+              ),
+
+
+            Container(
+                alignment: Alignment.centerLeft,
+                width: screenWidth,
+                height: 50,
+                child: IconButton(
+                    onPressed: () => toggleIsSearchActive(),
+                    icon: Icon(
+                      Icons.search,
+                      color: searchValue != "" ? customStyleClass.primeColor : Colors.white,
+                      // size: 20,
+                    )
+                )
+            ),
+
+            Container(
+                width: screenWidth,
+                height: 50,
+                alignment: Alignment.centerRight,
+                child: IconButton(
+                    onPressed: () => filterForFavorites(),
+                    icon: Icon(
+                      onlyFavoritesIsActive ? Icons.star : Icons.star_border,
+                      color: onlyFavoritesIsActive ? customStyleClass.primeColor : Colors.white,
+                    )
+                )
+            )
+
+          ],
+        ),
+      ),
+    );
+
+  }
+
   AppBar _buildAppBarWithSearch(){
     return AppBar(
       backgroundColor: customStyleClass.backgroundColorMain,
@@ -645,9 +760,7 @@ class _UserCouponsViewState extends State<UserCouponsView>
         resizeToAvoidBottomInset: false,
 
         bottomNavigationBar: CustomBottomNavigationBar(),
-        appBar: isSearchActive ?
-        _buildAppBarWithSearch():
-        _buildAppBarWithTitle(),
+        appBar: _buildAppBar(),
         body: Container(
           width: screenWidth,
           height: screenHeight,

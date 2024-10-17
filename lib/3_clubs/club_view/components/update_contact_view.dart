@@ -160,9 +160,9 @@ class _UpdateContactViewState extends State<UpdateContactView> {
                   child: TextFormField(
                     controller: streetNumberController,
                     // keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                    ],
+                    // inputFormatters: [
+                    //   FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                    // ],
                     style: customStyleClass.getFontStyle3(),
                     cursorColor: customStyleClass.primeColor,
                     decoration: InputDecoration(
@@ -319,7 +319,7 @@ class _UpdateContactViewState extends State<UpdateContactView> {
         userDataProvider.getUserClubId(),
         nameController.text,
         streetController.text,
-        int.parse(streetNumberController.text),
+        streetNumberController.text,
         zipController.text,
         cityController.text).then((value){
       if(value == 0){

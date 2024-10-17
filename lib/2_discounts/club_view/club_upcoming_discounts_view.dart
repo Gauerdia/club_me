@@ -123,7 +123,7 @@ class _ClubUpcomingDiscountsViewState extends State<ClubUpcomingDiscountsView>
                         onPressed: () => Navigator.pop(context),
                         icon: const Icon(
                           Icons.arrow_back_ios_new_outlined,
-                          color: Colors.grey,
+                          color: Colors.white,
                         ),
                       )
                     ],

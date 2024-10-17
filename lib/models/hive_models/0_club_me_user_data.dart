@@ -12,7 +12,9 @@ class ClubMeUserData{
     required this.gender,
     required this.userId,
     required this.profileType,
-    required this.lastTimeLoggedIn
+    required this.lastTimeLoggedIn,
+    required this.userProfileAsClub,
+    required this.clubId
   });
 
   @HiveField(0)
@@ -35,6 +37,19 @@ class ClubMeUserData{
   int profileType;
   @HiveField(7)
   DateTime? lastTimeLoggedIn;
+  @HiveField(8)
+  bool userProfileAsClub;
+  @HiveField(9)
+  String clubId;
+
+  String getClubId(){
+    return clubId;
+  }
+
+
+  bool getUserProfileAsClub(){
+    return userProfileAsClub;
+  }
 
   DateTime? getLastTimeLoggedIn(){
     return lastTimeLoggedIn;
