@@ -110,14 +110,14 @@ class _UserMapViewState extends State<UserMapView>{
       });
     });
 
-    await BitmapDescriptor.asset(
-        const ImageConfiguration(size: Size(32,32)),
-        "assets/images/clubme_100x100.png"
-    ).then((icon){
-      setState(() {
-        trustedClubIcon = icon;
-      });
-    });
+    // await BitmapDescriptor.asset(
+    //     const ImageConfiguration(size: Size(32,32)),
+    //     "assets/images/clubme_100x100.png"
+    // ).then((icon){
+    //   setState(() {
+    //     trustedClubIcon = icon;
+    //   });
+    // });
 
     await BitmapDescriptor.asset(
         const ImageConfiguration(size: Size(32,32)),
@@ -628,26 +628,32 @@ class _UserMapViewState extends State<UserMapView>{
 
   void setBasicMarker(ClubMeClub club) async{
 
-    // Set base markers for all clubs
+    try{
+      // Set base markers for all clubs
 
-    if(trustedClubIcon != null && clubIcon != null){
-      final marker = Marker(
-        icon: club.getClosePartner() ? trustedClubIcon! : clubIcon!,
-        onTap: () => onTapEventMarker(club),
-        markerId: MarkerId(club.getClubId()),
-        position: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng(),
-        ),
-      );
-      _markers[club.getClubId()] = marker;
-    }else{
-      final marker = Marker(
-        onTap: () => onTapEventMarker(club),
-        markerId: MarkerId(club.getClubId()),
-        position: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng(),
-        ),
-      );
-      _markers[club.getClubId()] = marker;
+      // if(trustedClubIcon != null && clubIcon != null){
+      if(clubIcon != null){
+        final marker = Marker(
+          icon: clubIcon!,
+          onTap: () => onTapEventMarker(club),
+          markerId: MarkerId(club.getClubId()),
+          position: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng(),
+          ),
+        );
+        _markers[club.getClubId()] = marker;
+      }else{
+        final marker = Marker(
+          onTap: () => onTapEventMarker(club),
+          markerId: MarkerId(club.getClubId()),
+          position: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng(),
+          ),
+        );
+        _markers[club.getClubId()] = marker;
+      }
+    }catch(e){
+      print("Error in UserMapView. Fct: setBasicMarker. Error: $e. Platform: ${Platform.isIOS? "iOS" : "Android"}");
     }
+
   }
 
   void setUserLocationMarker() async{
@@ -825,13 +831,16 @@ class _UserMapViewState extends State<UserMapView>{
   // MISC
   void filterClubs(){
 
+    // The current array of clubs we want to display
     clubsToDisplay = [];
 
     // Necessary for filtering
     _markers = {};
 
+    // Any filter active?
     if(weekDayDropDownValue != Utils.weekDaysForFiltering[0]){
 
+      // the provider is the source of all clubs available
       for(ClubMeClub club in fetchedContentProvider.getFetchedClubs()){
 
         int chosenDayIndex = Utils.weekDaysForFiltering.indexWhere(
@@ -840,6 +849,7 @@ class _UserMapViewState extends State<UserMapView>{
 
         bool atleastOneDayFits = false;
 
+        // check if the chosen day is set as an opening day
         for(var days in club.getOpeningTimes().days!){
 
           int weekDayToCompare = days.day!;
@@ -853,6 +863,8 @@ class _UserMapViewState extends State<UserMapView>{
             atleastOneDayFits = true;
           }
         }
+
+
         if(atleastOneDayFits) clubsToDisplay.add(club);
 
       }
@@ -861,7 +873,6 @@ class _UserMapViewState extends State<UserMapView>{
       for(var club in clubsToDisplay){
         setBasicMarker(club);
       }
-      setUserLocationMarker();
 
       isAnyFilterActive = true;
 
@@ -871,12 +882,17 @@ class _UserMapViewState extends State<UserMapView>{
         clubsToDisplay.add(club);
         setBasicMarker(club);
       }
-      setUserLocationMarker();
+
 
       isAnyFilterActive = false;
     }
 
+    setUserLocationMarker();
+
     clubsToDisplay.sort((a,b) => b.getPriorityScore().compareTo(a.getPriorityScore()));
+
+
+    setState(() {});
 
   }
 
