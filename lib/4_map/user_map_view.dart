@@ -66,15 +66,13 @@ class _UserMapViewState extends State<UserMapView>{
   bool noEventAvailable = false;
 
   bool allPinsLoaded = false;
-
-  bool isAnyFilterActive = false;
   bool showFilterMenu = false;
+  bool isAnyFilterActive = false;
+
 
   List<String> alreadySetPins = [];
-  
-  List<Widget> listWidgetsToDisplay = [];
-
   List<ClubMeClub> clubsToDisplay = [];
+  List<Widget> listWidgetsToDisplay = [];
 
   late Map<String, Marker> _markers = {};
 
@@ -96,6 +94,12 @@ class _UserMapViewState extends State<UserMapView>{
   }
 
   void initMarkers() async{
+
+    if(Platform.isIOS){
+      _supabaseService.createErrorLog(
+        "iOS specific: initMarkers started"
+      );
+    }
 
     await BitmapDescriptor.asset(
         const ImageConfiguration(size: Size(32,32)),
@@ -124,6 +128,13 @@ class _UserMapViewState extends State<UserMapView>{
       });
     });
 
+
+    if(Platform.isIOS){
+      _supabaseService.createErrorLog(
+          "iOS specific: initMarkers ended"
+      );
+    }
+
     checkAndFetchClubs();
 
   }
@@ -141,6 +152,12 @@ class _UserMapViewState extends State<UserMapView>{
 
 
   Future<void> checkAndFetchClubs() async{
+
+    if(Platform.isIOS){
+      _supabaseService.createErrorLog(
+          "iOS specific: checkAndFetchClubs started"
+      );
+    }
 
     log.d("UserMapView, checkAndFetchClubs: Start");
 
@@ -220,6 +237,12 @@ class _UserMapViewState extends State<UserMapView>{
 
       filterClubs();
 
+    }
+
+    if(Platform.isIOS){
+      _supabaseService.createErrorLog(
+          "iOS specific: checkAndFetchClubs ended. Now, set showMap = true"
+      );
     }
 
     setState(() {
