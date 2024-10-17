@@ -165,6 +165,7 @@ class _UserMapViewState extends State<UserMapView>{
 
     // Do we need to fetch?
     if(fetchedContentProvider.getFetchedClubs().isEmpty){
+
       var data = await _supabaseService.getAllClubs();
 
       for(var element in data){
@@ -265,45 +266,14 @@ class _UserMapViewState extends State<UserMapView>{
 
             SizedBox(
                 height:screenHeight*0.79,
-                child: showMap ? _buildFlutterMap() :
+                child: showMap ?
+                    _buildFlutterMap() :
                     Center(
                       child: CircularProgressIndicator(
                         color: customStyleClass.primeColor,
                       ),
                     )
             ),
-
-            // FutureBuilder(
-            //     future: checkAndFetchClubs(),
-            //     builder: (BuildContext context, AsyncSnapshot snapshot){
-            //       if( snapshot.connectionState == ConnectionState.waiting){
-            //         return Center(
-            //           child: CircularProgressIndicator(
-            //               color: customStyleClass.primeColor)
-            //         );
-            //       }else{
-            //
-            //         if(snapshot.hasError){
-            //           _supabaseService.createErrorLog(
-            //             "Error in UserMapView. Fct: _buildMainView, FutureBuilder. Error: ${snapshot.error.toString}"
-            //           );
-            //           return Center(
-            //             child: Text(
-            //               "Verzeihung, ein Fehler ist aufgetreten",
-            //               style: customStyleClass.getFontStyle3(),
-            //             ),
-            //           );
-            //         }else{
-            //           return SizedBox(
-            //               height:screenHeight*0.79,
-            //               child: _buildFlutterMap()
-            //           );
-            //         }
-            //       }
-            //     }
-            // ),
-            
-
 
             // transparent layer to click out of bottom sheet
             if(showBottomSheet)
@@ -462,28 +432,6 @@ class _UserMapViewState extends State<UserMapView>{
                               }).toList(),
                             )
 
-
-                            // DropdownButton(
-                            //     value: weekDayDropDownValue,
-                            //     menuMaxHeight: 300,
-                            //     items: Utils.weekDaysForFiltering.map<DropdownMenuItem<String>>(
-                            //             (String value) {
-                            //           return DropdownMenuItem(
-                            //             value: value,
-                            //             child: Text(
-                            //               value,
-                            //               style: customStyleClass.getFontStyle4Grey2(),
-                            //             ),
-                            //           );
-                            //         }
-                            //     ).toList(),
-                            //     onChanged: (String? value){
-                            //       setState(() {
-                            //         weekDayDropDownValue = value!;
-                            //         filterClubs();
-                            //       });
-                            //     }
-                            // ),
                           )
                         ],
                       ),
@@ -681,41 +629,17 @@ class _UserMapViewState extends State<UserMapView>{
   void setBasicMarker(ClubMeClub club) async{
 
     // Set base markers for all clubs
-    final marker = Marker(
-      icon: club.getClosePartner() ? trustedClubIcon! : clubIcon!,
-      onTap: () => onTapEventMarker(club),
-      markerId: MarkerId(club.getClubId()),
-      position: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng(),
-      ),
-    );
-    _markers[club.getClubId()] = marker;
-  }
 
-  void setCustomMarker(ClubMeClub club){
-    try{
-      File file = File(
-          "${stateProvider.appDocumentsDir.path}/${club.getMapPinImageName()}"
-      );
-
-      Uint8List bytes = file.readAsBytesSync();
-
-      var icon = BitmapDescriptor.bytes(bytes, width: 46, height: 46);
-
-      customIcons.add(icon);
-
+    if(trustedClubIcon != null && clubIcon != null){
       final marker = Marker(
-        icon: icon,
+        icon: club.getClosePartner() ? trustedClubIcon! : clubIcon!,
         onTap: () => onTapEventMarker(club),
         markerId: MarkerId(club.getClubId()),
         position: LatLng(club.getGeoCoordLat(), club.getGeoCoordLng(),
         ),
       );
       _markers[club.getClubId()] = marker;
-
-      setState(() {});
-
-    }catch(e){
-      log.d("No custom icon possible because: ${e.toString()}. Fall back to default marker.");
+    }else{
       final marker = Marker(
         onTap: () => onTapEventMarker(club),
         markerId: MarkerId(club.getClubId()),
@@ -724,19 +648,27 @@ class _UserMapViewState extends State<UserMapView>{
       );
       _markers[club.getClubId()] = marker;
     }
-
   }
+
   void setUserLocationMarker() async{
 
     try{
 
       userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
 
-      _markers['user_location'] = Marker(
-        icon: userIcon!,
-        markerId: const MarkerId('user_location'),
-        position: LatLng(userDataProvider.getUserLatCoord(), userDataProvider.getUserLongCoord()),
-      );
+      if(userIcon != null){
+        _markers['user_location'] = Marker(
+          icon: userIcon!,
+          markerId: const MarkerId('user_location'),
+          position: LatLng(userDataProvider.getUserLatCoord(), userDataProvider.getUserLongCoord()),
+        );
+      }else{
+        _markers['user_location'] = Marker(
+          markerId: const MarkerId('user_location'),
+          position: LatLng(userDataProvider.getUserLatCoord(), userDataProvider.getUserLongCoord()),
+        );
+      }
+
     }catch(e){
       _supabaseService.createErrorLog(
           "Error in UserMapView. Fct: setUserLocationMarker. Error: $e"
@@ -882,20 +814,29 @@ class _UserMapViewState extends State<UserMapView>{
     // Set marker for user
     setUserLocationMarker();
 
-    _supabaseService.saveUsersGeoLocation(userDataProvider.getUserDataId(), value.latitude, value.longitude);
+    _supabaseService.saveUsersGeoLocation(
+        userDataProvider.getUserDataId(),
+        value.latitude,
+        value.longitude
+    );
   }
 
 
   // MISC
   void filterClubs(){
 
-    if(weekDayDropDownValue != Utils.weekDaysForFiltering[0]){
+    clubsToDisplay = [];
 
-      clubsToDisplay = [];
+    // Necessary for filtering
+    _markers = {};
+
+    if(weekDayDropDownValue != Utils.weekDaysForFiltering[0]){
 
       for(ClubMeClub club in fetchedContentProvider.getFetchedClubs()){
 
-        int chosenDayIndex = Utils.weekDaysForFiltering.indexWhere((element) => element == weekDayDropDownValue);
+        int chosenDayIndex = Utils.weekDaysForFiltering.indexWhere(
+                (element) => element == weekDayDropDownValue
+        );
 
         bool atleastOneDayFits = false;
 
@@ -916,60 +857,27 @@ class _UserMapViewState extends State<UserMapView>{
 
       }
 
-      _markers = {};
+
       for(var club in clubsToDisplay){
         setBasicMarker(club);
-        // setCustomMarker(club);
       }
       setUserLocationMarker();
 
       isAnyFilterActive = true;
 
-      // setState(() {});
-
     }else{
-
-      _markers = {};
 
       for(var club in fetchedContentProvider.getFetchedClubs()){
         clubsToDisplay.add(club);
         setBasicMarker(club);
-        // setCustomMarker(club);
       }
       setUserLocationMarker();
 
       isAnyFilterActive = false;
-      // setState(() {
-      //
-      // });
     }
 
     clubsToDisplay.sort((a,b) => b.getPriorityScore().compareTo(a.getPriorityScore()));
 
-  }
-  void checkForMapPinImagesUntilAllAreLoaded() async{
-
-    bool allPinsSet = true;
-
-    for(var club in fetchedContentProvider.getFetchedClubs()){
-
-      if(!alreadySetPins.contains(club.getMapPinImageName())){
-
-        bool fileExists = await _checkAndFetchService.checkIfImageExistsLocally(club.getMapPinImageName(), stateProvider);
-        if(fileExists){
-          setState(() {
-            alreadySetPins.add(club.getMapPinImageName());
-            setCustomMarker(club);
-          });
-        }else{
-          allPinsSet = false;
-        }
-      }
-    }
-
-    if(allPinsSet){
-      allPinsLoaded = true;
-    }
   }
 
   @override
@@ -982,6 +890,14 @@ class _UserMapViewState extends State<UserMapView>{
       bottomNavigationBar: CustomBottomNavigationBar(),
       appBar: _buildAppBar(),
       body: _buildMainView(),
+      floatingActionButton: FloatingActionButton(onPressed: () {
+        setState(() {
+          _markers["test"] = const Marker(
+            markerId: MarkerId("test"),
+            position:  LatLng(48.773809, 9.182959),
+          );
+        });
+      }),
     );
   }
 }

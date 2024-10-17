@@ -208,13 +208,20 @@ class _ShowStoryChewieState extends State<ShowStoryChewie>
 
     Duration difference = currentTime.difference(storyCreatedAt);
 
+    int dayDifference = difference.inDays % 1;
+
     int hourDifference = difference.inHours % 24;
 
-    if(hourDifference < 1){
-      return "Vor ${difference.inMinutes % 64} Minuten";
+    if(dayDifference < 1){
+      if(hourDifference < 1){
+        return "Vor ${difference.inMinutes % 64} Minuten";
+      }else{
+        return "Vor $hourDifference Stunden";
+      }
     }else{
-      return "Vor $hourDifference Stunden";
+      return "Gestern";
     }
+
   }
 
   @override
