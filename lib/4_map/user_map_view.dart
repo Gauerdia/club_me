@@ -107,14 +107,14 @@ class _UserMapViewState extends State<UserMapView>{
 
   void initMarkers() async{
 
-    // await BitmapDescriptor.asset(
-    //     const ImageConfiguration(size: Size(32,32)),
-    //     "assets/images/beispiel_100x100.png"
-    // ).then((icon){
-    //   setState(() {
-    //     clubIcon = icon;
-    //   });
-    // });
+    await BitmapDescriptor.asset(
+        const ImageConfiguration(size: Size(32,32)),
+        "assets/images/beispiel_100x100.png"
+    ).then((icon){
+      setState(() {
+        clubIcon = icon;
+      });
+    });
 
     // await BitmapDescriptor.asset(
     //     const ImageConfiguration(size: Size(32,32)),
@@ -125,15 +125,16 @@ class _UserMapViewState extends State<UserMapView>{
     //   });
     // });
 
-    // await BitmapDescriptor.asset(
-    //     const ImageConfiguration(size: Size(32,32)),
-    //     "assets/images/1_standort_blau_weiss.png"
-    // ).then((icon){
-    //   setState(() {
-    //     userIcon = icon;
-    //   });
-    // });
+    await BitmapDescriptor.asset(
+        const ImageConfiguration(size: Size(32,32)),
+        "assets/images/1_standort_blau_weiss.png"
+    ).then((icon){
+      setState(() {
+        userIcon = icon;
+      });
+    });
 
+    sleep(Duration(milliseconds: 500));
 
     checkAndFetchClubs();
 
@@ -166,6 +167,7 @@ class _UserMapViewState extends State<UserMapView>{
 
         ClubMeClub currentClub = parseClubMeClub(element);
         fetchedContentProvider.addClubToFetchedClubs(currentClub);
+        clubsToDisplay.add(currentClub);
 
         setBasicMarker(currentClub);
 
@@ -187,6 +189,7 @@ class _UserMapViewState extends State<UserMapView>{
     // Have we already fetched?
     else{
       for(var currentClub in fetchedContentProvider.getFetchedClubs()){
+        clubsToDisplay.add(currentClub);
         setBasicMarker(currentClub);
       }
 
@@ -199,9 +202,6 @@ class _UserMapViewState extends State<UserMapView>{
           fetchedContentProvider,
           false
       );
-
-      // filterClubs();
-
     }
 
     setState(() {
@@ -592,7 +592,8 @@ class _UserMapViewState extends State<UserMapView>{
           markerId: MarkerId(currentClub.getClubId()),
           onTap: () => onTapEventMarker(currentClub),
           position: LatLng(currentClub.getGeoCoordLat(), currentClub.getGeoCoordLng()),
-          icon: currentClub.closePartner ? fetchedContentProvider.closeClubIcon : fetchedContentProvider.clubIcon
+          icon: clubIcon!
+          // icon: currentClub.closePartner ? fetchedContentProvider.closeClubIcon : fetchedContentProvider.clubIcon
           // icon: await getCustomIcon()
       );
 
@@ -614,7 +615,8 @@ class _UserMapViewState extends State<UserMapView>{
               userDataProvider.getUserClubCoordLat(),
               userDataProvider.getUserClubCoordLng()
           ),
-          icon: await getCustomIcon()
+          icon: userIcon!
+          // icon: await getCustomIcon()
       );
 
 
@@ -847,14 +849,14 @@ class _UserMapViewState extends State<UserMapView>{
       bottomNavigationBar: CustomBottomNavigationBar(),
       appBar: _buildAppBar(),
       body: _buildMainView(),
-      floatingActionButton: FloatingActionButton(onPressed: () {
-        setState(() {
-          _markers["test"] = const Marker(
-            markerId: MarkerId("test"),
-            position:  LatLng(48.773809, 9.182959),
-          );
-        });
-      }),
+      // floatingActionButton: FloatingActionButton(onPressed: () {
+      //   setState(() {
+      //     _markers["test"] = const Marker(
+      //       markerId: MarkerId("test"),
+      //       position:  LatLng(48.773809, 9.182959),
+      //     );
+      //   });
+      // }),
     );
   }
 }
