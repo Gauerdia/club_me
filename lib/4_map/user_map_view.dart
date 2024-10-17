@@ -134,7 +134,7 @@ class _UserMapViewState extends State<UserMapView>{
       });
     });
 
-    sleep(Duration(milliseconds: 500));
+    sleep(const Duration(milliseconds: 500));
 
     checkAndFetchClubs();
 
@@ -154,9 +154,10 @@ class _UserMapViewState extends State<UserMapView>{
 
   Future<void> checkAndFetchClubs() async{
 
+    stateProvider = Provider.of<StateProvider>(context, listen: false);
     fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
 
-    stateProvider = Provider.of<StateProvider>(context, listen: false);
+
 
     // Do we need to fetch?
     if(fetchedContentProvider.getFetchedClubs().isEmpty){
@@ -588,14 +589,23 @@ class _UserMapViewState extends State<UserMapView>{
 
     try{
 
-      _markers[currentClub.getClubId()] = Marker(
-          markerId: MarkerId(currentClub.getClubId()),
-          onTap: () => onTapEventMarker(currentClub),
-          position: LatLng(currentClub.getGeoCoordLat(), currentClub.getGeoCoordLng()),
-          icon: clubIcon!
+      if(clubIcon != null){
+        _markers[currentClub.getClubId()] = Marker(
+            markerId: MarkerId(currentClub.getClubId()),
+            onTap: () => onTapEventMarker(currentClub),
+            position: LatLng(currentClub.getGeoCoordLat(), currentClub.getGeoCoordLng()),
+            icon: clubIcon!
           // icon: currentClub.closePartner ? fetchedContentProvider.closeClubIcon : fetchedContentProvider.clubIcon
           // icon: await getCustomIcon()
-      );
+        );
+      }else{
+        _markers[currentClub.getClubId()] = Marker(
+            markerId: MarkerId(currentClub.getClubId()),
+            onTap: () => onTapEventMarker(currentClub),
+            position: LatLng(currentClub.getGeoCoordLat(), currentClub.getGeoCoordLng()),
+        );
+      }
+
 
     }catch(e){
       print("Error in UserMapView. Fct: setBasicMarker. Error: $e. Platform: ${Platform.isIOS? "iOS" : "Android"}");
@@ -609,16 +619,27 @@ class _UserMapViewState extends State<UserMapView>{
 
       userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
 
-      _markers['user_location'] = Marker(
-          markerId: MarkerId("user_location"),
-          position: LatLng(
-              userDataProvider.getUserClubCoordLat(),
-              userDataProvider.getUserClubCoordLng()
-          ),
-          icon: userIcon!
+      if(userIcon != null){
+        _markers['user_location'] = Marker(
+            markerId: MarkerId("user_location"),
+            position: LatLng(
+                userDataProvider.getUserClubCoordLat(),
+                userDataProvider.getUserClubCoordLng()
+            ),
+            icon: userIcon!
           // icon: await getCustomIcon()
-      );
+        );
+      }else{
+        _markers['user_location'] = Marker(
+            markerId: const MarkerId("user_location"),
+            position: LatLng(
+                userDataProvider.getUserClubCoordLat(),
+                userDataProvider.getUserClubCoordLng()
+            ),
+          // icon: await getCustomIcon()
+        );
 
+      }
 
     }catch(e){
       _supabaseService.createErrorLog(
