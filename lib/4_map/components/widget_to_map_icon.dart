@@ -1,3 +1,4 @@
+/*
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -67,4 +68,4 @@ Future<Uint8List> createImageFromWidget(Widget widget, {Size? logicalSize, requi
   final ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
 
   return byteData!.buffer.asUint8List();
-}
+}*/

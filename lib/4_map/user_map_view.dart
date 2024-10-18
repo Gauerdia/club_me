@@ -16,6 +16,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
+import 'package:widget_to_marker/widget_to_marker.dart';
 import '../models/parser/club_me_club_parser.dart';
 import '../provider/current_and_liked_elements_provider.dart';
 import '../provider/fetched_content_provider.dart';
@@ -24,6 +25,7 @@ import '../provider/user_data_provider.dart';
 import '../services/supabase_service.dart';
 import '../shared/custom_text_style.dart';
 import 'components/club_list_item.dart';
+import 'components/text_on_image.dart';
 
 class UserMapView extends StatefulWidget {
   const UserMapView({Key? key}) : super(key: key);
@@ -589,7 +591,13 @@ class _UserMapViewState extends State<UserMapView>{
 
     try{
 
-      if(clubIcon != null){
+      if(Platform.isIOS){
+        _markers[currentClub.getClubId()] = Marker(
+          markerId: MarkerId(currentClub.getClubId()),
+          onTap: () => onTapEventMarker(currentClub),
+          position: LatLng(currentClub.getGeoCoordLat(), currentClub.getGeoCoordLng()),
+        );
+      }else{
         _markers[currentClub.getClubId()] = Marker(
             markerId: MarkerId(currentClub.getClubId()),
             onTap: () => onTapEventMarker(currentClub),
@@ -598,13 +606,24 @@ class _UserMapViewState extends State<UserMapView>{
           // icon: currentClub.closePartner ? fetchedContentProvider.closeClubIcon : fetchedContentProvider.clubIcon
           // icon: await getCustomIcon()
         );
-      }else{
-        _markers[currentClub.getClubId()] = Marker(
-            markerId: MarkerId(currentClub.getClubId()),
-            onTap: () => onTapEventMarker(currentClub),
-            position: LatLng(currentClub.getGeoCoordLat(), currentClub.getGeoCoordLng()),
-        );
       }
+
+      // if(clubIcon != null){
+      //   _markers[currentClub.getClubId()] = Marker(
+      //       markerId: MarkerId(currentClub.getClubId()),
+      //       onTap: () => onTapEventMarker(currentClub),
+      //       position: LatLng(currentClub.getGeoCoordLat(), currentClub.getGeoCoordLng()),
+      //       icon: clubIcon!
+      //     // icon: currentClub.closePartner ? fetchedContentProvider.closeClubIcon : fetchedContentProvider.clubIcon
+      //     // icon: await getCustomIcon()
+      //   );
+      // }else{
+      //   _markers[currentClub.getClubId()] = Marker(
+      //       markerId: MarkerId(currentClub.getClubId()),
+      //       onTap: () => onTapEventMarker(currentClub),
+      //       position: LatLng(currentClub.getGeoCoordLat(), currentClub.getGeoCoordLng()),
+      //   );
+      // }
 
 
     }catch(e){
@@ -619,27 +638,61 @@ class _UserMapViewState extends State<UserMapView>{
 
       userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
 
-      if(userIcon != null){
-        _markers['user_location'] = Marker(
-            markerId: MarkerId("user_location"),
-            position: LatLng(
-                userDataProvider.getUserClubCoordLat(),
-                userDataProvider.getUserClubCoordLng()
-            ),
-            icon: userIcon!
-          // icon: await getCustomIcon()
-        );
-      }else{
-        _markers['user_location'] = Marker(
-            markerId: const MarkerId("user_location"),
-            position: LatLng(
-                userDataProvider.getUserClubCoordLat(),
-                userDataProvider.getUserClubCoordLng()
-            ),
-          // icon: await getCustomIcon()
-        );
+      // _markers['user_location'] =
 
-      }
+      await const TextOnImage(
+        text: "Hello World",
+      ).toBitmapDescriptor(
+          logicalSize: const Size(150, 150), imageSize: const Size(150, 150)
+      ).then((response) => {
+        _markers['user_location'] = Marker(
+      markerId: const MarkerId("user_location"),
+      position: LatLng(
+      userDataProvider.getUserClubCoordLat(),
+      userDataProvider.getUserClubCoordLng()
+      ),
+      icon: response
+      )
+      });
+
+      setState(() {
+
+      });
+
+
+
+      //     Marker(
+      //     markerId: MarkerId("user_location"),
+      //     position: LatLng(
+      //         userDataProvider.getUserClubCoordLat(),
+      //         userDataProvider.getUserClubCoordLng()
+      //     ),
+      //     icon: userIcon!
+      //   // icon: await getCustomIcon()
+      // );
+
+
+      // if(userIcon != null){
+      //   _markers['user_location'] = Marker(
+      //       markerId: MarkerId("user_location"),
+      //       position: LatLng(
+      //           userDataProvider.getUserClubCoordLat(),
+      //           userDataProvider.getUserClubCoordLng()
+      //       ),
+      //       icon: userIcon!
+      //     // icon: await getCustomIcon()
+      //   );
+      // }else{
+      //   _markers['user_location'] = Marker(
+      //       markerId: const MarkerId("user_location"),
+      //       position: LatLng(
+      //           userDataProvider.getUserClubCoordLat(),
+      //           userDataProvider.getUserClubCoordLng()
+      //       ),
+      //     // icon: await getCustomIcon()
+      //   );
+      //
+      // }
 
     }catch(e){
       _supabaseService.createErrorLog(
