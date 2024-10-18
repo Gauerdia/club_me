@@ -591,22 +591,67 @@ class _UserMapViewState extends State<UserMapView>{
 
     try{
 
-      if(Platform.isIOS){
-        _markers[currentClub.getClubId()] = Marker(
-          markerId: MarkerId(currentClub.getClubId()),
-          onTap: () => onTapEventMarker(currentClub),
-          position: LatLng(currentClub.getGeoCoordLat(), currentClub.getGeoCoordLng()),
-        );
+      if(currentClub.closePartner){
+
+        await TextOnImage(
+            text: "Hello World",
+            index: 1
+        ).toBitmapDescriptor(
+            logicalSize: const Size(150, 150), imageSize: const Size(150, 150)
+        ).then((response) => {
+          _markers[currentClub.getClubId()] = Marker(
+              markerId: MarkerId(currentClub.getClubId()),
+              position: LatLng(
+                  currentClub.getGeoCoordLat(),
+                  currentClub.getGeoCoordLng()
+              ),
+              onTap: () => onTapEventMarker(currentClub),
+              icon: response
+          )
+        });
+
+        setState(() {});
+
       }else{
-        _markers[currentClub.getClubId()] = Marker(
-            markerId: MarkerId(currentClub.getClubId()),
-            onTap: () => onTapEventMarker(currentClub),
-            position: LatLng(currentClub.getGeoCoordLat(), currentClub.getGeoCoordLng()),
-            icon: clubIcon!
-          // icon: currentClub.closePartner ? fetchedContentProvider.closeClubIcon : fetchedContentProvider.clubIcon
-          // icon: await getCustomIcon()
-        );
+
+        await TextOnImage(
+            text: "Hello World",
+            index: 2
+        ).toBitmapDescriptor(
+            logicalSize: const Size(150, 150), imageSize: const Size(150, 150)
+        ).then((response) => {
+          _markers[currentClub.getClubId()] = Marker(
+              markerId: MarkerId(currentClub.getClubId()),
+              position: LatLng(
+                  currentClub.getGeoCoordLat(),
+                  currentClub.getGeoCoordLng()
+              ),
+              onTap: () => onTapEventMarker(currentClub),
+              icon: response
+          )
+        });
+
+        setState(() {});
+
       }
+
+
+      // if(Platform.isIOS){
+      //   _markers[currentClub.getClubId()] = Marker(
+      //     markerId: MarkerId(currentClub.getClubId()),
+      //     onTap: () => onTapEventMarker(currentClub),
+      //     position: LatLng(currentClub.getGeoCoordLat(), currentClub.getGeoCoordLng()),
+      //   );
+      // }else{
+      //   _markers[currentClub.getClubId()] = Marker(
+      //       markerId: MarkerId(currentClub.getClubId()),
+      //       onTap: () => onTapEventMarker(currentClub),
+      //       position: LatLng(currentClub.getGeoCoordLat(), currentClub.getGeoCoordLng()),
+      //       icon: clubIcon!
+      //     // icon: currentClub.closePartner ? fetchedContentProvider.closeClubIcon : fetchedContentProvider.clubIcon
+      //     // icon: await getCustomIcon()
+      //   );
+      // }
 
       // if(clubIcon != null){
       //   _markers[currentClub.getClubId()] = Marker(
@@ -640,10 +685,11 @@ class _UserMapViewState extends State<UserMapView>{
 
       // _markers['user_location'] =
 
-      await const TextOnImage(
+      await TextOnImage(
         text: "Hello World",
+        index: 0
       ).toBitmapDescriptor(
-          logicalSize: const Size(150, 150), imageSize: const Size(150, 150)
+          logicalSize: const Size(50, 50), imageSize: const Size(50, 50)
       ).then((response) => {
         _markers['user_location'] = Marker(
       markerId: const MarkerId("user_location"),
@@ -655,9 +701,7 @@ class _UserMapViewState extends State<UserMapView>{
       )
       });
 
-      setState(() {
-
-      });
+      setState(() {});
 
 
 

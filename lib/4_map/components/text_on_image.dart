@@ -1,27 +1,38 @@
 import 'package:flutter/material.dart';
 
 class TextOnImage extends StatelessWidget {
-  const TextOnImage({
+  TextOnImage({
     super.key,
     required this.text,
+    required this.index
   });
+
+  final int index;
   final String text;
+
+  List<String> imagePaths = [
+    "assets/images/1_standort_blau_weiss.png",
+    "assets/images/clubme_100x100.png",
+    "assets/images/beispiel_100x100.png",
+  ];
+
+
   @override
   Widget build(BuildContext context) {
     return Stack(
       alignment: Alignment.center,
       children: [
-        const Image(
+        Image(
           image: AssetImage(
-            "assets/images/1_standort_blau_weiss.png",
+            imagePaths[index],
           ),
-          height: 150,
-          width: 150,
+          height: 100,
+          width: 100,
         ),
-        Text(
-          text,
-          style: const TextStyle(color: Colors.black),
-        )
+        // Text(
+        //   text,
+        //   style: const TextStyle(color: Colors.black),
+        // )
       ],
     );
   }
