@@ -719,6 +719,8 @@ class _UserEventsViewState extends State<UserEventsView> {
 
     final userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
 
+    log.d("UserEventsView. Fct: setPositionLocallyAndInSupabase. Coordinates: ${value.longitude}, ${value.latitude}");
+
     userDataProvider.setUserCoordinates(value);
     _supabaseService.saveUsersGeoLocation(userDataProvider.getUserDataId(), value.latitude, value.longitude);
   }

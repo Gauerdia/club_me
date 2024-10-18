@@ -215,6 +215,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                   children: [
 
                     // BG Image
+                    fetchedContentProvider.getFetchedBannerImageIds().contains(currentAndLikedElementsProvider.currentClubMeClub.getFrontpageBannerFileName()) ?
                     Container(
                         height: screenHeight*0.19,
                         color: Colors.black,
@@ -232,6 +233,14 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                                 )
                             )
                         )
+                    ) : Container(
+                      height: screenHeight*0.19,
+                      color: Colors.black,
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          color: customStyleClass.primeColor,
+                        ),
+                      ),
                     ),
 
                     // main Content

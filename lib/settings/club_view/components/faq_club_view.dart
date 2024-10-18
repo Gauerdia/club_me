@@ -318,7 +318,7 @@ class _FaqClubViewState extends State<FaqClubView> {
                       element,
 
                     SizedBox(
-                      height: screenHeight*0.05,
+                      height: screenHeight*0.1,
                     ),
 
                   ],
@@ -326,7 +326,7 @@ class _FaqClubViewState extends State<FaqClubView> {
             )
         ),
       bottomNavigationBar: Container(
-        height: 20,
+        height: 50,
         decoration: BoxDecoration(
             color: customStyleClass.backgroundColorMain,
             border: Border.all(

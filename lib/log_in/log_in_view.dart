@@ -77,6 +77,9 @@ class _LogInViewState extends State<LogInView> {
   @override
   void initState() {
     super.initState();
+
+    userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
+
     _determinePosition().then((value) => setPositionLocallyAndInSupabase(value));
     fetchUserDataFromHive();
   }
@@ -88,6 +91,9 @@ class _LogInViewState extends State<LogInView> {
     super.dispose();
   }
 
+
+
+  // DB
   void fetchClubAndProceed() async{
 
     setState(() {
@@ -102,14 +108,14 @@ class _LogInViewState extends State<LogInView> {
         userDataProvider.setUserClub(clubMeClub);
         userDataProvider.setUserData(
             ClubMeUserData(
-              firstName: "...",
-              lastName: "...",
-              birthDate: DateTime.now(),
-              eMail: "test@test.de",
-              gender: 0,
-              userId: clubMeClub.getClubId(),
-              profileType: 1,
-              lastTimeLoggedIn: null,
+                firstName: "...",
+                lastName: "...",
+                birthDate: DateTime.now(),
+                eMail: "test@test.de",
+                gender: 0,
+                userId: clubMeClub.getClubId(),
+                profileType: 1,
+                lastTimeLoggedIn: null,
                 userProfileAsClub: false,
                 clubId: clubMeClub.getClubId()
             )
@@ -124,7 +130,40 @@ class _LogInViewState extends State<LogInView> {
       _supabaseService.createErrorLog(e.toString());
     }
   }
+  Future<void> fetchUserDataFromHive() async{
 
+    isLoading = true;
+
+    try{
+      await _hiveService.getUserData().then((userData) async {
+
+        if(userData.isEmpty){
+          log.d("fetchUserDataFromHive: isEmpty");
+          setState(() {
+            isLoading = false;
+            hasUserData = false;
+          });
+
+        }else{
+          log.d("fetchUserDataFromHive: isNotEmpty");
+          userDataProvider.setUserData(userData[0]);
+          if(!stateProvider.activeLogOut){
+            if(userData[0].getProfileType() == 0){
+              context.go("/user_events");
+            }else{
+              context.go("/club_events");
+            }
+          }else{
+            isLoading = false;
+          }
+        }
+      });
+    }catch(e){
+      log.d("Error in fetchUserDataFromHive: $e");
+    }
+  }
+
+  // LOCATION
   Future<Position> _determinePosition() async {
 
     // Check if location services are enabled
@@ -161,47 +200,13 @@ class _LogInViewState extends State<LogInView> {
     // If permissions are granted, return the current location
     return await Geolocator.getCurrentPosition();
   }
-
   void setPositionLocallyAndInSupabase(Position value){
-
-    final userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
 
     userDataProvider.setUserCoordinates(value);
     _supabaseService.saveUsersGeoLocation(userDataProvider.getUserDataId(), value.latitude, value.longitude);
   }
 
-  Future<void> fetchUserDataFromHive() async{
 
-    isLoading = true;
-
-    try{
-      await _hiveService.getUserData().then((userData) async {
-
-        if(userData.isEmpty){
-          log.d("fetchUserDataFromHive: isEmpty");
-          setState(() {
-            isLoading = false;
-            hasUserData = false;
-          });
-
-        }else{
-          log.d("fetchUserDataFromHive: isNotEmpty");
-          userDataProvider.setUserData(userData[0]);
-          if(!stateProvider.activeLogOut){
-            if(userData[0].getProfileType() == 0){
-              context.go("/user_events");
-            }else{
-              context.go("/club_events");
-            }
-          }else{
-            isLoading = false;
-          }
-        }
-      });
-    }catch(e){
-      log.d("Error in fetchUserDataFromHive: $e");
-    }
-  }
 
   void clickOnLogIn(){
     stateProvider.activeLogOut = false;
@@ -210,105 +215,6 @@ class _LogInViewState extends State<LogInView> {
     }else{
       context.go("/club_events");
     }
-  }
-
-
-  void test2() async{
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-        allowMultiple: false
-    );
-    if (result != null) {
-    setState(() {
-      var file = File(result.files.single.path!);
-      test4(file);
-    });
-  }
-  }
-
-  void test3(File imageFile) async{
-
-    CroppedFile? croppedFile = await ImageCropper().cropImage(
-      sourcePath: imageFile.path,
-      uiSettings: [
-        AndroidUiSettings(
-          toolbarTitle: 'Cropper',
-          toolbarColor: Colors.teal,
-          toolbarWidgetColor: Colors.white,
-          aspectRatioPresets: [
-            // CropAspectRatioPreset.original,
-            // CropAspectRatioPreset.square,
-            // CropAspectRatioPresetCustom(),
-          ],
-        ),
-        IOSUiSettings(
-          title: 'Cropper',
-          aspectRatioPresets: [
-            // CropAspectRatioPreset.original,
-            // CropAspectRatioPreset.square,
-            // CropAspectRatioPresetCustom(), // IMPORTANT: iOS supports only one custom aspect ratio in preset list
-          ],
-        ),
-        WebUiSettings(
-          context: context,
-        ),
-      ],
-    );
-  }
-
-  void test4(File image){
-
-    cropController = CropController(
-      aspectRatio: 5.0 / 2.0,
-      defaultCrop: Rect.fromLTRB(0.05, 0.05, 0.95, 0.95),
-    );
-
-    imageToCrop = Image.file(image);
-
-    setState(() {
-      showCrop = true;
-    });
-  }
-
-  void uploadCroppedImage() async{
-
-    var bitmap = await cropController.croppedBitmap();
-
-    var data = await bitmap.toByteData(format: ImageByteFormat.png);
-    // var bytes = data!.buffer.asUint8List();
-
-    if(data != null){
-      File newFile = await writeToFile(data);
-
-      img.Image? decodedImage = img.decodeImage(newFile.readAsBytesSync());
-
-      List<int> compressedBytes = img.encodeJpg(decodedImage!, quality: 55);
-
-      File compressedFile = File(newFile.path.replaceFirst('.jpg', '_compressed.jpg'));
-
-      compressedFile.writeAsBytesSync(compressedBytes);
-
-      var uuid = const Uuid();
-      var uuidV4 = uuid.v4();
-
-      // _supabaseService.uploadFrontpageBannerImage("$uuidV4.png", compressedFile);
-    }
-  }
-
-  Future<XFile?> testCompressAndGetFile(File file, String targetPath) async {
-    return await FlutterImageCompress.compressAndGetFile(
-      file.absolute.path, targetPath,
-      quality: 88,
-      rotate: 180,
-    );
-  }
-
-  Future<File> writeToFile(ByteData data) async {
-    final buffer = data.buffer;
-    Directory tempDir = await getTemporaryDirectory();
-    String tempPath = tempDir.path;
-    var filePath = tempPath + '/file_01.tmp'; // file_01.tmp is dump file, can be anything
-    return new File(filePath).writeAsBytes(
-        buffer.asUint8List(data.offsetInBytes, data.lengthInBytes));
   }
 
   @override
@@ -344,60 +250,6 @@ class _LogInViewState extends State<LogInView> {
           Center(
             child: CircularProgressIndicator(
               color: customStyleClass.primeColor,
-            ),
-          ):
-          showCrop ?
-          Container(
-            child: Column(
-              children: [
-
-                CropImage(
-                  /// Only needed if you expect to make use of its functionality like setting initial values of
-                  /// [aspectRatio] and [defaultCrop].
-                    controller: cropController,
-                    /// The image to be cropped. Use [Image.file] or [Image.network] or any other [Image].
-                    image: imageToCrop,
-                    /// The crop grid color of the outer lines. Defaults to 70% white.
-                    gridColor: Colors.white,
-                    /// The crop grid color of the inner lines. Defaults to [gridColor].
-                    gridInnerColor: Colors.white,
-                    /// The crop grid color of the corner lines. Defaults to [gridColor].
-                    gridCornerColor: Colors.white,
-                    /// The size of the corner of the crop grid. Defaults to 25.
-                    gridCornerSize: 50,
-                    /// Whether to display the corners. Defaults to true.
-                    showCorners: true,
-                    /// The width of the crop grid thin lines. Defaults to 2.
-                    gridThinWidth: 3,
-                    /// The width of the crop grid thick lines. Defaults to 5.
-                    gridThickWidth: 6,
-                    /// The crop grid scrim (outside area overlay) color. Defaults to 54% black.
-                    scrimColor: Colors.grey.withOpacity(0.5),
-                    /// True: Always show third lines of the crop grid.
-                    /// False: third lines are only displayed while the user manipulates the grid (default).
-                    alwaysShowThirdLines: true,
-                    /// Event called when the user changes the crop rectangle.
-                    /// The passed [Rect] is normalized between 0 and 1.
-                    onCrop: (rect) => print(rect),
-                    /// The minimum pixel size the crop rectangle can be shrunk to. Defaults to 100.
-                    minimumImageSize: 50,
-                    /// The maximum pixel size the crop rectangle can be grown to. Defaults to infinity.
-                    /// You can constrain the crop rectangle to a fixed size by setting
-                    /// both [minimumImageSize] and [maximumImageSize] to the same value (the width) and using
-                    /// the [aspectRatio] of the controller to force the other dimension (width / height).
-                    /// Doing so disables the display of the corners.
-                    maximumImageSize: 2000
-                ),
-
-                InkWell(
-                  child: Text(
-                    "Weiter",
-                    style: customStyleClass.getFontStyle3(),
-                  ),
-                  onTap: () => uploadCroppedImage(),
-                )
-
-              ],
             ),
           ):
           Container(
@@ -627,12 +479,5 @@ class _LogInViewState extends State<LogInView> {
   }
 }
 
-class CropAspectRatioPresetCustom implements CropAspectRatioPresetData {
-  @override
-  (int, int)? get data => (2, 1);
-
-  @override
-  String get name => '2x3 (customized)';
-}
 
 

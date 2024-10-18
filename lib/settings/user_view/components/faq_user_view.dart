@@ -246,7 +246,7 @@ class _FaqUserViewState extends State<FaqUserView> {
             )
         ),
       bottomNavigationBar: Container(
-        height: 20,
+        height: 50,
         decoration: BoxDecoration(
             color: customStyleClass.backgroundColorMain,
           border: Border.all(

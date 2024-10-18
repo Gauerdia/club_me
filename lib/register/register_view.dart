@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:club_me/models/hive_models/0_club_me_user_data.dart';
 import 'package:club_me/models/club_password.dart';
 import 'package:club_me/models/parser/club_me_password_parser.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/cupertino.dart' as cupertino;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -21,6 +21,11 @@ import '../services/hive_service.dart';
 import '../services/supabase_service.dart';
 import '../shared/custom_text_style.dart';
 import '../shared/logger.util.dart';
+
+import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:googleapis/people/v1.dart';
+
 
 class RegisterView extends StatefulWidget {
   const RegisterView({Key? key}) : super(key: key);
@@ -56,86 +61,122 @@ class _RegisterViewState extends State<RegisterView> {
   final TextEditingController _eMailController = TextEditingController();
   final TextEditingController _clubPasswordController = TextEditingController();
 
-
-
-
   double distanceBetweenTitleAndTextField = 10;
 
-  // static const List<String> scopes = <String>[
-  //   'email',
-  //   'https://www.googleapis.com/auth/contacts.readonly',
-  // ];
+  GoogleSignIn _googleSignIn = GoogleSignIn();
 
 
   void processGoogleSignIn() async {
 
-    GoogleSignIn _googleSignIn = GoogleSignIn();
+    try{
 
-    // GoogleSignIn _googleSignIn = GoogleSignIn(
-    //   // Optional clientId
-    //   clientId: '947015013780-mogadk8pa1i2smgqt5nsq9sog1v8pp3u.apps.googleusercontent.com',
-    //   scopes: scopes,
-    // );
+      //If current device is Web or Android, do not use any parameters except from scopes.
+      if (kIsWeb || Platform.isAndroid ) {
+        _googleSignIn = GoogleSignIn(
+          // clientId: '947015013780-9bhmhmc3qup1ret3v6msat0fighlt19o.apps.googleusercontent.com',
+          scopes: [
+            'https://www.googleapis.com/auth/userinfo.profile',
+            'email',
+            PeopleServiceApi.userBirthdayReadScope,
+            PeopleServiceApi.userGenderReadScope,
+          ],
+        );
+      }
 
-    //If current device is Web or Android, do not use any parameters except from scopes.
-    if (kIsWeb || Platform.isAndroid ) {
-      _googleSignIn = GoogleSignIn(
-        // clientId: '947015013780-9bhmhmc3qup1ret3v6msat0fighlt19o.apps.googleusercontent.com',
-        scopes: [
-          'https://www.googleapis.com/auth/userinfo.profile',
-          'email',
-        ],
+      //If current device IOS or MacOS, We have to declare clientID
+      //Please, look STEP 2 for how to get Client ID for IOS
+      if (Platform.isIOS || Platform.isMacOS) {
+        _googleSignIn = GoogleSignIn(
+          // clientId: "947015013780-mogadk8pa1i2smgqt5nsq9sog1v8pp3u.apps.googleusercontent.com",
+          scopes: [
+            'https://www.googleapis.com/auth/userinfo.profile',
+            'email',
+          ],
+        );
+      }
+
+      final GoogleSignInAccount? googleAccount = await _googleSignIn.signIn();
+
+      GoogleSignInAuthentication googleAuth = await googleAccount!.authentication;
+      String? accessToken = googleAuth.accessToken;
+      String? idToken = googleAuth.idToken;
+
+      print("google auth: $googleAccount; $googleAuth;  $accessToken; $idToken");
+
+      if (accessToken == null) {
+        throw 'No Access Token found.';
+      }
+      if (idToken == null) {
+        throw 'No ID Token found.';
+      }
+
+      var supabaseLogIn = await supabase.auth.signInWithIdToken(
+        provider: OAuthProvider.google,
+        idToken: idToken,
+        accessToken: accessToken,
+      ).then((response){
+                print("Supabase login: $response");
+                _fetchGenderAndBirthday(googleAccount.email);
+      }
       );
-    }
+    }catch(e){}
+  }
 
-    //If current device IOS or MacOS, We have to declare clientID
-    //Please, look STEP 2 for how to get Client ID for IOS
-    if (Platform.isIOS || Platform.isMacOS) {
-      _googleSignIn = GoogleSignIn(
-        // clientId: "947015013780-mogadk8pa1i2smgqt5nsq9sog1v8pp3u.apps.googleusercontent.com",
-        scopes: [
-          'https://www.googleapis.com/auth/userinfo.profile',
-          'email',
-        ],
-      );
-    }
+  // 3: fetch gender and birthday
+  _fetchGenderAndBirthday(String email) async {
+    var httpClient = (await _googleSignIn.authenticatedClient())!;
 
-    final GoogleSignInAccount? googleAccount = await _googleSignIn.signIn();
+    var peopleApi = PeopleServiceApi(httpClient);
 
-    GoogleSignInAuthentication googleAuth = await googleAccount!.authentication;
-    String? accessToken = googleAuth.accessToken;
-    String? idToken = googleAuth.idToken;
-
-    print("google auth: $googleAccount; $googleAuth;  $accessToken; $idToken");
-
-    if (accessToken == null) {
-      throw 'No Access Token found.';
-    }
-    if (idToken == null) {
-      throw 'No ID Token found.';
-    }
-
-    var supabaseLogIn = await supabase.auth.signInWithIdToken(
-      provider: OAuthProvider.google,
-      idToken: idToken,
-      accessToken: accessToken,
-    ).then(
-        (response) => print("Supabase login: $response")
+    final Person person = await peopleApi.people.get(
+      'people/me',
+      personFields: 'birthdays,genders,names',
     );
 
+    /// Gender
+    final String gender = person.genders![0].formattedValue!;
+
+    /// Birthdate
+    final date = person.birthdays![0].date!;
+    final DateTime birthdayDateTime = DateTime(
+      date.year ?? 0,
+      date.month ?? 0,
+      date.day ?? 0,
+    );
+
+    final firstName = person.names?.first.givenName;
+    final familyName = person.names?.first.familyName;
+
+    var uuid = const Uuid();
+
+    ClubMeUserData userData = ClubMeUserData(
+        firstName: firstName!,
+        lastName: familyName!,
+        birthDate: birthdayDateTime,
+        eMail: email,
+        gender: gender == "Male" ? 0 : 1,
+        userId: uuid.v4(),
+        profileType: profileType,
+        lastTimeLoggedIn: DateTime.now(),
+        userProfileAsClub: false,
+        clubId: ""
+    );
+
+    try{
+
+      _hiveService.addUserData(userData).then((value) => {
+        _supabaseService.insertUserData(userData).then((value){
+          userDataProvider.setUserData(userData);
+          context.go("/user_events");
+        })
+      });
+
+    }catch(e){
+      log.d("Error in transferToHiveAndDB: $e");
+    }
+
 
   }
-
-
-  Future<void> _handleSignIn() async {
-    Navigator.pop(context);
-    // try {
-    //   await _googleSignIn.signIn();
-    // } catch (error) {
-    //   print(error);
-    // }
-  }
-
 
 
 
@@ -677,7 +718,7 @@ class _RegisterViewState extends State<RegisterView> {
                                 onPressed: (){
                                   showDatePicker(
                                       context: context,
-                                      locale: const Locale("de", "DE"),
+                                      locale: cupertino.Locale("de", "DE"),
                                       initialDate: DateTime(2000),
                                       firstDate: DateTime(1949),
                                       lastDate: DateTime(2010),

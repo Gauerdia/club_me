@@ -1,12 +1,16 @@
 import 'package:club_me/models/opening_times.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:logger/logger.dart';
 
 import '../mock_ups/class_mock_ups.dart';
 import '../models/club.dart';
 import '../models/hive_models/0_club_me_user_data.dart';
 
 class UserDataProvider extends ChangeNotifier{
+
+
+  var log = Logger();
 
   double latCoord = 0.0;
   double longCoord = 0.0;
@@ -24,6 +28,7 @@ class UserDataProvider extends ChangeNotifier{
   void setUserCoordinates(Position position){
     longCoord = position.longitude;
     latCoord = position.latitude;
+    log.d("UserDataProvider. Fct: setUserCoordinates. New User Coordinates: Long($longCoord), Lat($latCoord)");
     notifyListeners();
   }
 

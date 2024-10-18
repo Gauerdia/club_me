@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:chewie/chewie.dart';
+import 'package:club_me/provider/fetched_content_provider.dart';
 import 'package:club_me/shared/custom_bottom_navigation_bar_clubs.dart';
 import 'package:club_me/shared/dialogs/TitleAndContentDialog.dart';
 import 'package:club_me/shared/dialogs/title_content_and_button_dialog.dart';
@@ -45,6 +46,7 @@ class _EventDetailViewState extends State<EventDetailView>{
   double mainInfosContainerHeight = 110;
 
   late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
+  late FetchedContentProvider fetchedContentProvider;
   late StateProvider stateProvider;
   late CustomStyleClass customStyleClass;
   late double screenHeight, screenWidth;
@@ -197,6 +199,7 @@ class _EventDetailViewState extends State<EventDetailView>{
               ),
 
               // Header (image)
+              fetchedContentProvider.getFetchedBannerImageIds().contains(currentAndLikedElementsProvider.currentClubMeEvent.getBannerImageFileName()) ?
               SizedBox(
                   width: screenWidth,
                   height: screenHeight*0.165,
@@ -208,6 +211,15 @@ class _EventDetailViewState extends State<EventDetailView>{
                     ),
                     fit: BoxFit.cover,
                   )
+              )  :
+              SizedBox(
+                width: screenWidth,
+                height: screenHeight*0.165,
+                child: Center(
+                  child: CircularProgressIndicator(
+                    color: customStyleClass.primeColor,
+                  ),
+                ),
               ),
 
               // Main Infos
@@ -917,6 +929,7 @@ class _EventDetailViewState extends State<EventDetailView>{
 
     customStyleClass = CustomStyleClass(context: context);
     stateProvider = Provider.of<StateProvider>(context);
+    fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
 
     currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context);
 
