@@ -10,9 +10,11 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 import 'package:uuid/uuid.dart';
 
+import '../main.dart';
 import '../provider/state_provider.dart';
 import '../provider/user_data_provider.dart';
 import '../services/hive_service.dart';
@@ -59,24 +61,28 @@ class _RegisterViewState extends State<RegisterView> {
 
   double distanceBetweenTitleAndTextField = 10;
 
-  static const List<String> scopes = <String>[
-    'email',
-    'https://www.googleapis.com/auth/contacts.readonly',
-  ];
+  // static const List<String> scopes = <String>[
+  //   'email',
+  //   'https://www.googleapis.com/auth/contacts.readonly',
+  // ];
 
 
-  void processGoogleSignIn() async{
+  void processGoogleSignIn() async {
 
-    GoogleSignIn _googleSignIn = GoogleSignIn(
-      // Optional clientId
-      // clientId: 'your-client_id.apps.googleusercontent.com',
-      scopes: scopes,
-    );
+    GoogleSignIn _googleSignIn = GoogleSignIn();
+
+    // GoogleSignIn _googleSignIn = GoogleSignIn(
+    //   // Optional clientId
+    //   clientId: '947015013780-mogadk8pa1i2smgqt5nsq9sog1v8pp3u.apps.googleusercontent.com',
+    //   scopes: scopes,
+    // );
 
     //If current device is Web or Android, do not use any parameters except from scopes.
     if (kIsWeb || Platform.isAndroid ) {
       _googleSignIn = GoogleSignIn(
+        // clientId: '947015013780-9bhmhmc3qup1ret3v6msat0fighlt19o.apps.googleusercontent.com',
         scopes: [
+          'https://www.googleapis.com/auth/userinfo.profile',
           'email',
         ],
       );
@@ -86,20 +92,37 @@ class _RegisterViewState extends State<RegisterView> {
     //Please, look STEP 2 for how to get Client ID for IOS
     if (Platform.isIOS || Platform.isMacOS) {
       _googleSignIn = GoogleSignIn(
-        clientId:
-        "YOUR_CLIENT_ID.apps.googleusercontent.com",
+        // clientId: "947015013780-mogadk8pa1i2smgqt5nsq9sog1v8pp3u.apps.googleusercontent.com",
         scopes: [
+          'https://www.googleapis.com/auth/userinfo.profile',
           'email',
         ],
       );
     }
 
-    final GoogleSignInAccount? googleAccount = await _googleSignIn.signIn().then((result){
-      print(result);
-    });
+    final GoogleSignInAccount? googleAccount = await _googleSignIn.signIn();
 
-    //If you want further information about Google accounts, such as authentication, use this.
-    final GoogleSignInAuthentication googleAuthentication = await googleAccount!.authentication;
+    GoogleSignInAuthentication googleAuth = await googleAccount!.authentication;
+    String? accessToken = googleAuth.accessToken;
+    String? idToken = googleAuth.idToken;
+
+    print("google auth: $googleAccount; $googleAuth;  $accessToken; $idToken");
+
+    if (accessToken == null) {
+      throw 'No Access Token found.';
+    }
+    if (idToken == null) {
+      throw 'No ID Token found.';
+    }
+
+    var supabaseLogIn = await supabase.auth.signInWithIdToken(
+      provider: OAuthProvider.google,
+      idToken: idToken,
+      accessToken: accessToken,
+    ).then(
+        (response) => print("Supabase login: $response")
+    );
+
 
   }
 
@@ -865,33 +888,34 @@ class _RegisterViewState extends State<RegisterView> {
     );
   }
   void clickEventGoogleRegistration(){
-    Widget okButton = TextButton(
-      child: Text(
-        "OK",
-        style: customStyleClass.getFontStyle4(),
-      ),
-      onPressed: () => processGoogleSignIn(),
-    );
-
-    showDialog(
-        context: context,
-        builder: (BuildContext context){
-          return AlertDialog(
-            backgroundColor: customStyleClass.backgroundColorEventTile,
-            title: Text(
-              "Google-Authentifizierung",
-              style: customStyleClass.getFontStyle1(),
-            ),
-            content: Text(
-              "Diese Funktion ist derzeit noch nicht implementiert. Wir bitten um Verständnis.",
-              style: customStyleClass.getFontStyle4(),
-            ),
-            actions: [
-              okButton
-            ],
-          );
-        }
-    );
+    processGoogleSignIn();
+    // Widget okButton = TextButton(
+    //   child: Text(
+    //     "OK",
+    //     style: customStyleClass.getFontStyle4(),
+    //   ),
+    //   onPressed: () => processGoogleSignIn(),
+    // );
+    //
+    // showDialog(
+    //     context: context,
+    //     builder: (BuildContext context){
+    //       return AlertDialog(
+    //         backgroundColor: customStyleClass.backgroundColorEventTile,
+    //         title: Text(
+    //           "Google-Authentifizierung",
+    //           style: customStyleClass.getFontStyle1(),
+    //         ),
+    //         content: Text(
+    //           "Diese Funktion ist derzeit noch nicht implementiert. Wir bitten um Verständnis.",
+    //           style: customStyleClass.getFontStyle4(),
+    //         ),
+    //         actions: [
+    //           okButton
+    //         ],
+    //       );
+    //     }
+    // );
   }
   void clickEventEMailRegistration(){
     setState(() {
