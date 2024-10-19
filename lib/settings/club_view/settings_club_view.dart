@@ -317,7 +317,7 @@ class _SettingsClubViewState extends State<SettingsClubView> {
     stateProvider.setClubUiActive(false);
     stateProvider.setPageIndex(0);
     stateProvider.activeLogOut = false;
-    _hiveService.resetUserData().then((value) => context.go("/log_in"));
+    _hiveService.resetUserData().then((value) => context.go("/register"));
   }
 
   @override

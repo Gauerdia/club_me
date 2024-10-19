@@ -617,7 +617,7 @@ class _ProfileViewState extends State<ProfileView> {
   void clickedOnLogOut(){
     stateProvider.setPageIndex(0);
     stateProvider.activeLogOut = true;
-    context.go("/log_in");
+    context.go("/register");
   }
   void clickEventSaveEdit() async{
 
