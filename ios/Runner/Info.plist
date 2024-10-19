@@ -146,6 +146,16 @@
             To make the user have an idea where he is located currently, we need his/her location.
 		</string>
 
+        <array>
+         <dict>
+          <key>CFBundleTypeRole</key>
+          <string>Editor</string>
+          <key>CFBundleURLSchemes</key>
+          <array>
+           <string>com.googleusercontent.apps.947015013780-cfmc26giatfe8tsgf0eg3im36h0qsvj0.apps.googleusercontent.com</string>
+          </array>
+         </dict>
+        </array>
 
 	</dict>
 </plist>

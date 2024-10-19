@@ -715,7 +715,7 @@ class _ProfileViewState extends State<ProfileView> {
     if(response == 0){
       _hiveService.resetUserData();
       stateProvider.setPageIndex(0);
-      context.go("/log_in");
+      context.go("/register");
     }else{
       showErrorDialog();
     }

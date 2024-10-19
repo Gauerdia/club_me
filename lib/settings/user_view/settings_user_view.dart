@@ -293,7 +293,7 @@ class _SettingsUserViewState extends State<SettingsUserView> {
     stateProvider.setClubUiActive(false);
     stateProvider.setPageIndex(0);
     stateProvider.activeLogOut = false;
-    _hiveService.resetUserData().then((value) => context.go("/log_in"));
+    _hiveService.resetUserData().then((value) => context.go("/register"));
   }
 
   void clickEventSwitchAccount(){
