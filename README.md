@@ -42,3 +42,14 @@ I removes the following ones because I dont see us using them actively.
 
 		<key>NSBluetoothAlwaysUsageDescription</key>
         <string>Bluetooth Access Required</string>
+
+        <array>
+         <dict>
+          <key>CFBundleTypeRole</key>
+          <string>Editor</string>
+          <key>CFBundleURLSchemes</key>
+          <array>
+           <string>com.googleusercontent.apps.947015013780-cfmc26giatfe8tsgf0eg3im36h0qsvj0.apps.googleusercontent.com</string>
+          </array>
+         </dict>
+        </array>
