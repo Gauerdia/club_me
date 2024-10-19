@@ -904,8 +904,7 @@ class _RegisterViewState extends State<RegisterView> {
         "OK",
         style: customStyleClass.getFontStyle4(),
       ),
-      onPressed: () async {
-      },
+      onPressed: () => Navigator.pop(context),
     );
 
     showDialog(
@@ -929,34 +928,34 @@ class _RegisterViewState extends State<RegisterView> {
     );
   }
   void clickEventGoogleRegistration(){
-    processGoogleSignIn();
-    // Widget okButton = TextButton(
-    //   child: Text(
-    //     "OK",
-    //     style: customStyleClass.getFontStyle4(),
-    //   ),
-    //   onPressed: () => processGoogleSignIn(),
-    // );
-    //
-    // showDialog(
-    //     context: context,
-    //     builder: (BuildContext context){
-    //       return AlertDialog(
-    //         backgroundColor: customStyleClass.backgroundColorEventTile,
-    //         title: Text(
-    //           "Google-Authentifizierung",
-    //           style: customStyleClass.getFontStyle1(),
-    //         ),
-    //         content: Text(
-    //           "Diese Funktion ist derzeit noch nicht implementiert. Wir bitten um Verständnis.",
-    //           style: customStyleClass.getFontStyle4(),
-    //         ),
-    //         actions: [
-    //           okButton
-    //         ],
-    //       );
-    //     }
-    // );
+    // processGoogleSignIn();
+    Widget okButton = TextButton(
+      child: Text(
+        "OK",
+        style: customStyleClass.getFontStyle4(),
+      ),
+      onPressed: () =>Navigator.pop(context),
+    );
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context){
+          return AlertDialog(
+            backgroundColor: customStyleClass.backgroundColorEventTile,
+            title: Text(
+              "Google-Authentifizierung",
+              style: customStyleClass.getFontStyle1(),
+            ),
+            content: Text(
+              "Diese Funktion ist derzeit noch nicht implementiert. Wir bitten um Verständnis.",
+              style: customStyleClass.getFontStyle4(),
+            ),
+            actions: [
+              okButton
+            ],
+          );
+        }
+    );
   }
   void clickEventEMailRegistration(){
     setState(() {
