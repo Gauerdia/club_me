@@ -148,11 +148,9 @@ final GoRouter _router = GoRouter(
     // INIT VIEW
     GoRoute(
       path: '/',
-      builder: (BuildContext context, GoRouterState state) {
-        return LogInView();//ComingSoonView();//LogInView(); //Test();
-      },
+      builder: (BuildContext context, GoRouterState state)
+      => RegisterView() //LogInView();//ComingSoonView();//LogInView(); //Test();
     ),
-
 
     // USER VIEWS
     GoRoute(

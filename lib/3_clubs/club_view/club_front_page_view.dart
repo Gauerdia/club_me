@@ -922,8 +922,9 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
         ),
 
         // Musikgenres
-        for(var element in userDataProvider.userClub.getOpeningTimes().days!)
-          formatOpeningTime(element),
+        if(userDataProvider.userClub.getOpeningTimes().days != null)
+          for(var element in userDataProvider.userClub.getOpeningTimes().days!)
+            formatOpeningTime(element),
 
         // Spacer
         SizedBox(

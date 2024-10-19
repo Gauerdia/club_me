@@ -30,3 +30,15 @@ https://hussainmustafa.com/integrating-google-maps-in-flutter-for-dynamic-locati
 ## Google Sign In without firebase
 
 https://medium.com/codebrew/flutter-google-sign-in-without-firebase-3680713966fb
+
+
+## iOS Permissions
+
+I removes the following ones because I dont see us using them actively.
+
+
+		<key>NSMotionUsageDescription</key>
+		<string>Needed for the location service</string>
+
+		<key>NSBluetoothAlwaysUsageDescription</key>
+        <string>Bluetooth Access Required</string>
