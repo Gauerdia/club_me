@@ -133,12 +133,6 @@ class ClubMeClub{
 
     checkIfSpecialOpeningApplies();
 
-    for(var element in openingTimes.days!){
-      print("Logic: $clubName, ${element.day}");
-    }
-
-
-
     int openingStatus = 0;
     String textToDisplay = "";
     Days? currentDay, nextDay, pastDay;
@@ -199,6 +193,53 @@ class ClubMeClub{
           }
         }
 
+        // Just one event today. Easier logic
+        else{
+
+          // Might be that the currentDay is just the past night
+          if(currentDay.closingHour! < 10 ){
+            openingStatus = 0;
+          }
+
+          // The event starts today
+          else{
+
+            // If the hour is ahead, that's a dead giveaway for openness.
+            if(todayTimestamp.hour > currentDay.openingHour!){
+
+              openingStatus = 2;
+            }
+
+            // Some clubs open at :30, so we need to check for that.
+            else if(todayTimestamp.hour == currentDay.openingHour!){
+
+              // Does this club actually start at :30?
+              if(currentDay.openingHalfAnHour == 1){
+                // Are we beyond :30 already?
+                if(todayTimestamp.minute >= 30){
+                  openingStatus = 2;
+                }else{
+                  openingStatus = 1;
+                  textToDisplay = "${currentDay.openingHour}:30";
+                }
+              }else{
+                openingStatus = 2;
+              }
+            }
+
+            // We are before the opening hour
+            else {
+              openingStatus = 1;
+              if(currentDay.openingHalfAnHour == 1){
+                textToDisplay = "${currentDay.openingHour}:30";
+              }else{
+                textToDisplay = "${currentDay.openingHour}:00";
+              }
+            }
+          }
+        }
+
+
         // Might be that the event started at 0 am and tomorrow happens the same.
         // else if(nextDay != null){
         //
@@ -215,52 +256,7 @@ class ClubMeClub{
         //   }
         // }
 
-        // Just one event today. Easier logic
-        else{
 
-          // If the hour is ahead, that's a dead giveaway for openness.
-          if(todayTimestamp.hour > currentDay.openingHour!){
-
-            // We dont need to check for still ongoing events because at 10 we assume everything is finished.
-            openingStatus = 2;
-
-
-
-            // Events that started at 0 am could already be finished.
-            // if(todayTimestamp.hour > currentDay.closingHour!){
-            //   openingStatus = 0;
-            // }else{
-            //   openingStatus = 2;
-            // }
-          }
-          // Some clubs open at :30, so we need to check for that.
-          else if(todayTimestamp.hour == currentDay.openingHour!){
-
-            // Does this club actually start at :30?
-            if(currentDay.openingHalfAnHour == 1){
-              // Are we beyond :30 already?
-              if(todayTimestamp.minute >= 30){
-                openingStatus = 2;
-              }else{
-                openingStatus = 1;
-                textToDisplay = "${currentDay.openingHour}:30";
-              }
-            }else{
-              openingStatus = 2;
-            }
-          }
-
-          // We are before the opening hour
-          else {
-            openingStatus = 1;
-            if(currentDay.openingHalfAnHour == 1){
-              textToDisplay = "${currentDay.openingHour}:30";
-            }else{
-              textToDisplay = "${currentDay.openingHour}:00";
-            }
-          }
-
-        }
       }
 
       // If that's not the case, it could still open at 0 am, i.e. the next day.
