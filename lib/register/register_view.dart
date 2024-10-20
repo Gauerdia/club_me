@@ -20,6 +20,7 @@ import '../provider/user_data_provider.dart';
 import '../services/hive_service.dart';
 import '../services/supabase_service.dart';
 import '../shared/custom_text_style.dart';
+import '../shared/dialogs/TitleAndContentDialog.dart';
 import '../shared/logger.util.dart';
 
 import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart';
@@ -961,49 +962,22 @@ class _RegisterViewState extends State<RegisterView> {
     showDialog(
         context: context,
         builder: (BuildContext context){
-          return AlertDialog(
-            backgroundColor: customStyleClass.backgroundColorEventTile,
-            title: Text(
-              "Apple-Authentifizierung",
-              style: customStyleClass.getFontStyle1(),
-            ),
-            content: Text(
-              "Diese Funktion ist derzeit noch nicht implementiert. Wir bitten um Verständnis.",
-              style: customStyleClass.getFontStyle4(),
-            ),
-            actions: [
-              okButton
-            ],
+          return TitleAndContentDialog(
+            titleToDisplay: "Apple-Authentifizierung",
+            contentToDisplay: "Diese Funktion ist derzeit noch nicht implementiert. Wir bitten um Entschuldigung.",
           );
         }
     );
   }
   void clickEventGoogleRegistration(){
     // processGoogleSignIn();
-    Widget okButton = TextButton(
-      child: Text(
-        "OK",
-        style: customStyleClass.getFontStyle4(),
-      ),
-      onPressed: () =>Navigator.pop(context),
-    );
 
     showDialog(
         context: context,
         builder: (BuildContext context){
-          return AlertDialog(
-            backgroundColor: customStyleClass.backgroundColorEventTile,
-            title: Text(
-              "Google-Authentifizierung",
-              style: customStyleClass.getFontStyle1(),
-            ),
-            content: Text(
-              "Diese Funktion ist derzeit noch nicht implementiert. Wir bitten um Verständnis.",
-              style: customStyleClass.getFontStyle4(),
-            ),
-            actions: [
-              okButton
-            ],
+          return TitleAndContentDialog(
+            titleToDisplay: "Google-Authentifizierung",
+            contentToDisplay: "Diese Funktion ist derzeit noch nicht implementiert. Wir bitten um Entschuldigung.",
           );
         }
     );
@@ -1024,7 +998,7 @@ class _RegisterViewState extends State<RegisterView> {
 
     if(profileType == 0){
 
-      if(RegExp(r'^.+@[a-zA-Z]+\.{1}[a-zA-Z]+(\.{0,1}[a-zA-Z]+)$')
+      if(RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9-]+\.[a-zA-Z]+")
           .hasMatch(_eMailController.text)){
         transferToHiveAndDB();
       }else{
