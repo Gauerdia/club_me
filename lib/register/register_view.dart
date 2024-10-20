@@ -91,7 +91,7 @@ class _RegisterViewState extends State<RegisterView> {
       //Please, look STEP 2 for how to get Client ID for IOS
       if (Platform.isIOS || Platform.isMacOS) {
         _googleSignIn = GoogleSignIn(
-          clientId: "947015013780-cfmc26giatfe8tsgf0eg3im36h0qsvj0.apps.googleusercontent.com",
+          clientId: "com.googleusercontent.apps.947015013780-cfmc26giatfe8tsgf0eg3im36h0qsvj0",
           scopes: [
             'https://www.googleapis.com/auth/userinfo.profile',
             'email',
