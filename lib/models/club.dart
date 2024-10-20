@@ -131,7 +131,15 @@ class ClubMeClub{
     final berlin = tz.getLocation('Europe/Berlin');
     final todayTimestamp = tz.TZDateTime.from(DateTime.now(), berlin);
 
-    checkIfSpecialOpeningApplies();
+    OpeningTimes tempOpeningTimes = OpeningTimes(days: []);
+
+    if(getOpeningTimes().days != null){
+      for(var element in getOpeningTimes().days!){
+        tempOpeningTimes.days!.add(element);
+      }
+    }
+
+    tempOpeningTimes = checkIfSpecialOpeningApplies(tempOpeningTimes);
 
     int openingStatus = 0;
     String textToDisplay = "";
@@ -141,13 +149,13 @@ class ClubMeClub{
     if(todayTimestamp.hour >= 10) {
 
       // Get today and tomorrow. Tomorrow, because some clubs start at 0 am.
-      var firstResult = getOpeningTimes().days!.where((element) => element.day == todayTimestamp.weekday);
+      var firstResult = tempOpeningTimes.days!.where((element) => element.day == todayTimestamp.weekday);
 
       if(firstResult.isNotEmpty){
         currentDay = firstResult.first;
       }
 
-      var secondResult = getOpeningTimes().days!.where((element) => element.day == todayTimestamp.weekday+1);
+      var secondResult = tempOpeningTimes.days!.where((element) => element.day == todayTimestamp.weekday+1);
 
       if(secondResult.isNotEmpty){
         nextDay = secondResult.first;
@@ -284,12 +292,12 @@ class ClubMeClub{
     else{
 
       // Get today and yesterday. Tomorrow, because the club might still be open.
-      var firstResult = getOpeningTimes().days!.where((element) => element.day == todayTimestamp.weekday);
+      var firstResult = tempOpeningTimes.days!.where((element) => element.day == todayTimestamp.weekday);
       if(firstResult.isNotEmpty){
         currentDay = firstResult.first;
       }
 
-      var thirdResult = getOpeningTimes().days!.where((element) => element.day == todayTimestamp.weekday-1);
+      var thirdResult = tempOpeningTimes.days!.where((element) => element.day == todayTimestamp.weekday-1);
       if(thirdResult.isNotEmpty){
         pastDay = thirdResult.first;
       }
@@ -360,15 +368,12 @@ class ClubMeClub{
     return ClubOpenStatus(openingStatus: openingStatus, textToDisplay: textToDisplay);
   }
 
-  void checkIfSpecialOpeningApplies(){
+  OpeningTimes checkIfSpecialOpeningApplies(OpeningTimes tempOpeningTimes){
 
     final berlin = tz.getLocation('Europe/Berlin');
     final todayTimestamp = tz.TZDateTime.from(DateTime.now(), berlin);
 
     if(getSpecialOpeningTimes().specialDays!.isNotEmpty){
-
-
-
 
       for(var specialDay in getSpecialOpeningTimes().specialDays!){
 
@@ -384,10 +389,13 @@ class ClubMeClub{
               closingHour: specialDay.closingHour,
               closingHalfAnHour: specialDay.closingHalfAnHour
           );
-          addOpeningTime(newDay);
+          tempOpeningTimes.days?.add(newDay);
+          // addOpeningTime(newDay);
         }
       }
     }
+
+    return tempOpeningTimes;
   }
 
   void setClubOffers(ClubOffers newClubOffers){

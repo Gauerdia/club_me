@@ -10,6 +10,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 import 'package:uuid/uuid.dart';
@@ -90,10 +91,12 @@ class _RegisterViewState extends State<RegisterView> {
       //Please, look STEP 2 for how to get Client ID for IOS
       if (Platform.isIOS || Platform.isMacOS) {
         _googleSignIn = GoogleSignIn(
-          // clientId: "947015013780-mogadk8pa1i2smgqt5nsq9sog1v8pp3u.apps.googleusercontent.com",
+          clientId: "947015013780-cfmc26giatfe8tsgf0eg3im36h0qsvj0.apps.googleusercontent.com",
           scopes: [
             'https://www.googleapis.com/auth/userinfo.profile',
             'email',
+            PeopleServiceApi.userBirthdayReadScope,
+            PeopleServiceApi.userGenderReadScope,
           ],
         );
       }
@@ -122,7 +125,22 @@ class _RegisterViewState extends State<RegisterView> {
                 _fetchGenderAndBirthday(googleAccount.email);
       }
       );
-    }catch(e){}
+    }catch(e){
+      _supabaseService.createErrorLog(
+        "RegisterView. Fct: processGoogleSignIn. Plattform: iOS(${Platform.isIOS}), Android(${Platform.isAndroid}, Error: $e"
+      );
+    }
+  }
+
+  void processAppleSignIn() async {
+
+    final credential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName
+        ]
+    );
+
   }
 
   // 3: fetch gender and birthday
@@ -970,17 +988,17 @@ class _RegisterViewState extends State<RegisterView> {
     );
   }
   void clickEventGoogleRegistration(){
-    // processGoogleSignIn();
+    processGoogleSignIn();
 
-    showDialog(
-        context: context,
-        builder: (BuildContext context){
-          return TitleAndContentDialog(
-            titleToDisplay: "Google-Authentifizierung",
-            contentToDisplay: "Diese Funktion ist derzeit noch nicht implementiert. Wir bitten um Entschuldigung.",
-          );
-        }
-    );
+    // showDialog(
+    //     context: context,
+    //     builder: (BuildContext context){
+    //       return TitleAndContentDialog(
+    //         titleToDisplay: "Google-Authentifizierung",
+    //         contentToDisplay: "Diese Funktion ist derzeit noch nicht implementiert. Wir bitten um Entschuldigung.",
+    //       );
+    //     }
+    // );
   }
   void clickEventEMailRegistration(){
     setState(() {

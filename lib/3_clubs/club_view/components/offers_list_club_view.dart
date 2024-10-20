@@ -83,7 +83,7 @@ class _OffersListClubViewState extends State<OffersListClubView> {
     if(stateProvider.clubUIActive){
       context.go("/club_frontpage");
     }else{
-      context.go("/club_detail");
+      context.go("/club_details");
     }
   }
 

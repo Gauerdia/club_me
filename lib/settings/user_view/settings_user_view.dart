@@ -181,7 +181,7 @@ class _SettingsUserViewState extends State<SettingsUserView> {
         builder: (BuildContext context){
           return TitleContentAndButtonDialog(
               titleToDisplay: "Abmelden",
-              contentToDisplay: "Bist du sicher",
+              contentToDisplay: "Bist du sicher, dass du dein Konto abmelden möchtest?",
               buttonToDisplay: TextButton(
                   onPressed: () => processLogOut(),
                   child: Text("Ja", style: customStyleClass.getFontStyle3BoldPrimeColor(),)
