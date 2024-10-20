@@ -87,11 +87,14 @@ class _RegisterViewState extends State<RegisterView> {
         );
       }
 
+      _supabaseService.createErrorLog("iOS Google LogIn: Before GoogleSignIn set. iOS: ${Platform.isIOS}, Android: ${Platform.isAndroid}");
+
       //If current device IOS or MacOS, We have to declare clientID
       //Please, look STEP 2 for how to get Client ID for IOS
       if (Platform.isIOS || Platform.isMacOS) {
         _googleSignIn = GoogleSignIn(
           clientId: "com.googleusercontent.apps.947015013780-cfmc26giatfe8tsgf0eg3im36h0qsvj0",
+          serverClientId: "com.googleusercontent.apps.947015013780-b475mq5v5u6k0mpju7ik3njm2g6dr8pk",
           scopes: [
             'https://www.googleapis.com/auth/userinfo.profile',
             'email',
@@ -101,11 +104,11 @@ class _RegisterViewState extends State<RegisterView> {
         );
       }
 
-      _supabaseService.createErrorLog("iOS Google LogIn: After GoogleSignIn set");
+      _supabaseService.createErrorLog("iOS Google LogIn: After GoogleSignIn set. iOS: ${Platform.isIOS}, Android: ${Platform.isAndroid}");
 
       final GoogleSignInAccount? googleAccount = await _googleSignIn.signIn();
 
-      _supabaseService.createErrorLog("iOS Google LogIn: After _googleSignIn.signIn()");
+      _supabaseService.createErrorLog("iOS Google LogIn: After _googleSignIn.signIn(). iOS: ${Platform.isIOS}, Android: ${Platform.isAndroid}");
 
       GoogleSignInAuthentication googleAuth = await googleAccount!.authentication;
       String? accessToken = googleAuth.accessToken;
@@ -113,7 +116,7 @@ class _RegisterViewState extends State<RegisterView> {
 
       print("google auth: $googleAccount; $googleAuth;  $accessToken; $idToken");
 
-      _supabaseService.createErrorLog("iOS Google LogIn: googleauth: $googleAccount; $googleAuth;  $accessToken; $idToken");
+      _supabaseService.createErrorLog("iOS Google LogIn: googleauth: $googleAccount; $googleAuth;  $accessToken; $idToken. iOS: ${Platform.isIOS}, Android: ${Platform.isAndroid}");
 
       if (accessToken == null) {
         throw 'No Access Token found.';
@@ -127,7 +130,7 @@ class _RegisterViewState extends State<RegisterView> {
         idToken: idToken,
         accessToken: accessToken,
       ).then((response){
-        _supabaseService.createErrorLog("iOS Google LogIn: after supabase: $response");
+        _supabaseService.createErrorLog("iOS Google LogIn: after supabase: $response. iOS: ${Platform.isIOS}, Android: ${Platform.isAndroid}");
         print("Supabase login: $response");
                 _fetchGenderAndBirthday(googleAccount.email);
       }
