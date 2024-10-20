@@ -152,6 +152,14 @@
         <key>CFBundleURLTypes</key>
         <array>
             <dict>
+                <key>CFBundleURLSchemes</key>
+                <array>
+                    <string>my_app_signinwithapple</string>
+                    <string>com.szymendera.club-me</string>
+                    <string>com.szymendera.club-me_signinwithapple</string>
+                </array>
+            </dict>
+            <dict>
                 <key>CFBundleTypeRole</key>
                 <string>Editor</string>
                 <key>CFBundleURLSchemes</key>
@@ -159,6 +167,7 @@
                     <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
                 </array>
             </dict>
+
             <dict>
                 <key>CFBundleTypeRole</key>
                 <string>Editor</string>
