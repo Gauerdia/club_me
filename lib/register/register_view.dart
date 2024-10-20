@@ -337,44 +337,45 @@ class _RegisterViewState extends State<RegisterView> {
             ),
 
             // Apple
-            InkWell(
-              child: Center(
-                child: Container(
-                    alignment: Alignment.centerRight,
-                    width: screenWidth*0.9,
-                    decoration: BoxDecoration(
-                      color: customStyleClass.backgroundColorEventTile,
-                      borderRadius: const BorderRadius.all(
-                          Radius.circular(10)
-                      ),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 20
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.apple,
-                          color: Colors.white,
-                        ),
-                        Text(
-                          "Mit Apple anmelden",
-                          style: customStyleClass.getFontStyle3(),
-                        )
-                      ],
-                    )
-                ),
-              ),
-              onTap: () => clickEventAppleRegistration(),
-            ),
+            // InkWell(
+            //   child: Center(
+            //     child: Container(
+            //         alignment: Alignment.centerRight,
+            //         width: screenWidth*0.9,
+            //         decoration: BoxDecoration(
+            //           color: customStyleClass.backgroundColorEventTile,
+            //           borderRadius: const BorderRadius.all(
+            //               Radius.circular(10)
+            //           ),
+            //         ),
+            //         padding: const EdgeInsets.symmetric(
+            //             vertical: 20
+            //         ),
+            //         child: Row(
+            //           mainAxisAlignment: MainAxisAlignment.center,
+            //           children: [
+            //             const Icon(
+            //               Icons.apple,
+            //               color: Colors.white,
+            //             ),
+            //             Text(
+            //               "Mit Apple anmelden",
+            //               style: customStyleClass.getFontStyle3(),
+            //             )
+            //           ],
+            //         )
+            //     ),
+            //   ),
+            //   onTap: () => clickEventAppleRegistration(),
+            // ),
 
             SizedBox(
               height: screenHeight*0.02,
             ),
 
             // Google
-            InkWell(
+            if(Platform.isAndroid)
+              InkWell(
               child: Center(
                 child: Container(
                     alignment: Alignment.centerRight,
