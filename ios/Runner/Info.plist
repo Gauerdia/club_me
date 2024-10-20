@@ -146,6 +146,8 @@
             To make the user have an idea where he is located currently, we need his/her location.
 		</string>
 
+        <key>GIDClientID</key>
+        <string>947015013780-cfmc26giatfe8tsgf0eg3im36h0qsvj0.apps.googleusercontent.com</string>
         <key>CFBundleURLTypes</key>
         <array>
             <dict>

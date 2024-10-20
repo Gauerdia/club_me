@@ -86,7 +86,7 @@ class _ShowStoryChewieState extends State<ShowStoryChewie>
 
     }catch(e){
       print(e);
-      _supabaseService.createErrorLog("Error in fetchVideo1: ${e.toString()}");
+      _supabaseService.createErrorLog("ShowStoryChewie. Fct: initializePlayer, 1st step: $e");
       try{
         var raw = io.File.fromRawPath(videoFile!);
 
@@ -96,7 +96,7 @@ class _ShowStoryChewieState extends State<ShowStoryChewie>
           _createChewieController();
         });
       }catch(e){
-        _supabaseService.createErrorLog("Error in fetchVideo2: ${e.toString()}");
+        _supabaseService.createErrorLog("ShowStoryChewie. Fct: initializePlayer, 2nd step: $e");
       }
     }
   }

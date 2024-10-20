@@ -127,7 +127,7 @@ class _LogInViewState extends State<LogInView> {
         isLoading = false;
       });
       log.d("Error in LogInView. Fct: fetchClubAndProceed: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("Error in LogInView. Fct: fetchClubAndProceed: $e");
     }
   }
   Future<void> fetchUserDataFromHive() async{

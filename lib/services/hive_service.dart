@@ -164,7 +164,7 @@ class HiveService{
       await box.add(clubMeEventTemplate);
     }catch(e){
       log.d("HiveService. Function: addClubMeEventTemplate. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("HiveService. Function: addClubMeEventTemplate. Error: $e");
     }
   }
   Future<List<ClubMeEventTemplate>> getAllClubMeEventTemplates() async {
@@ -173,7 +173,7 @@ class HiveService{
       return box.values.toList();
     }catch(e){
       log.d("HiveService. Function: getAllClubMeEventTemplates. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("HiveService. Function: getAllClubMeEventTemplates. Error: $e");
       return [];
     }
   }
@@ -189,7 +189,7 @@ class HiveService{
       return 0;
     }catch(e){
       log.d("HiveService. Function: deleteClubMeEventTemplate. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("HiveService. Function: deleteClubMeEventTemplate. Error: $e");
       return 1;
     }
   }
@@ -203,7 +203,7 @@ class HiveService{
       return box.values.toList();
     }catch(e){
       log.d("HiveService. Function: getUserData. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("HiveService. Function: getUserData. Error: $e");
       return [];
     }
   }
@@ -214,7 +214,7 @@ class HiveService{
       log.d("HiveService. Function: addUserData. Successful.");
     }catch(e){
       log.d("HiveService. Function: addUserData. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("HiveService. Function: addUserData. Error: $e");
     }
   }
 
@@ -234,7 +234,7 @@ class HiveService{
       log.d("HiveService. Function: toggleUserDataProfileId. Successful.");
     }catch(e){
       log.d("HiveService. Function: toggleUserDataProfileId. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("HiveService. Function: toggleUserDataProfileId. Error: $e");
     }
   }
 
@@ -247,7 +247,7 @@ class HiveService{
       log.d("HiveService. Function: resetUserData. Successful.");
     }catch(e){
       log.d("HiveService. Function: resetUserData. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("HiveService. Function: resetUserData. Error: $e");
     }
 
   }
@@ -260,7 +260,7 @@ class HiveService{
       return box.values.toList();
     }catch(e){
       log.d("HiveService. Function: getAttendingEvents. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("HiveService. Function: getAttendingEvents. Error: $e");
       return [];
     }
   }
@@ -270,7 +270,7 @@ class HiveService{
       await box.add(eventId);
     }catch(e){
       log.d("HiveService. Function: insertAttendingEvent. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("HiveService. Function: insertAttendingEvent. Error: $e");
     }
   }
   Future<void> deleteAttendingEvent(String eventId) async{
@@ -283,7 +283,7 @@ class HiveService{
 
     }catch(e){
       log.d("HiveService. Function: deleteAttendingEvent. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("HiveService. Function: deleteAttendingEvent. Error: $e");
     }
   }
 
@@ -294,7 +294,7 @@ class HiveService{
       return box.values.toList();
     }catch(e){
       log.d("HiveService. Function: getFavoriteEvents. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("HiveService. Function: getFavoriteEvents. Error: $e");
       return [];
     }
   }
@@ -304,7 +304,7 @@ class HiveService{
       await box.add(eventId);
     }catch(e){
       log.d("HiveService. Function: insertFavoriteEvent. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("HiveService. Function: insertFavoriteEvent. Error: $e");
     }
   }
   Future<void> deleteFavoriteEvent(String eventId) async{
@@ -317,7 +317,7 @@ class HiveService{
       await box.deleteAt(index);
     }catch(e){
       log.d("HiveService. Function: deleteFavoriteEvent. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("HiveService. Function: deleteFavoriteEvent. Error: $e");
     }
 
   }
@@ -330,7 +330,7 @@ class HiveService{
       return box.values.toList();
     }catch(e){
       log.d("HiveService. Function: getFavoriteDiscounts. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("HiveService. Function: getFavoriteDiscounts. Error: $e");
       return [];
     }
   }
@@ -340,7 +340,7 @@ class HiveService{
       await box.add(discountId);
     }catch(e){
       log.d("HiveService. Function: insertFavoriteDiscount. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("HiveService. Function: insertFavoriteDiscount. Error: $e");
     }
   }
   Future<void> deleteFavoriteDiscount(String discountId) async {
@@ -352,7 +352,7 @@ class HiveService{
       await box.deleteAt(index);
     }catch(e){
       log.d("HiveService. Function: deleteFavoriteDiscount. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("HiveService. Function: deleteFavoriteDiscount. Error: $e");
     }
   }
 
@@ -363,7 +363,7 @@ class HiveService{
       return box.values.toList();
     }catch(e){
       log.d("HiveService. Function: getFavoriteClubs. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("HiveService. Function: getFavoriteClubs. Error: $e");
       return [];
     }
   }
@@ -373,7 +373,7 @@ class HiveService{
       await box.add(clubId);
     }catch(e){
       log.d("HiveService. Function: insertFavoriteClub. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("HiveService. Function: insertFavoriteClub. Error: $e");
     }
   }
   Future<void> deleteFavoriteClub(String clubId) async {
@@ -385,7 +385,7 @@ class HiveService{
       await box.deleteAt(index);
     }catch(e){
       log.d("HiveService. Function: deleteFavoriteClub. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("HiveService. Function: deleteFavoriteClub. Error: $e");
     }
   }
 
@@ -404,7 +404,7 @@ class HiveService{
       return usedDiscounts;
     }catch(e){
       log.d("HiveService. Function: getUsedDiscounts. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("HiveService. Function: getUsedDiscounts. Error: $e");
       return [];
     }
   }
@@ -416,7 +416,7 @@ class HiveService{
       log.d("HiveService. Function: insertUsedDiscount. Successful.");
     }catch(e){
       log.d("HiveService. Function: insertUsedDiscount. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("HiveService. Function: insertUsedDiscount. Error: $e");
     }
   }
   Future<void> deleteUsedDiscount(String discountId) async{
@@ -429,7 +429,7 @@ class HiveService{
       log.d("HiveService. Function: insertUsedDiscount. deleteUsedDiscount.");
     }catch(e){
       log.d("HiveService. Function: deleteUsedDiscount. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("HiveService. Function: deleteUsedDiscount. Error: $e");
     }
   }
 

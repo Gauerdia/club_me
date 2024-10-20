@@ -97,7 +97,7 @@ class StateProvider extends ChangeNotifier{
       discountTemplates = newClubMeDiscountTemplates;
     }catch(e){
       log.d("StateProvider. Function: setDiscountTemplates. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("StateProvider. Function: setDiscountTemplates. Error: $e");
     }
   }
   List<ClubMeDiscountTemplate> getDiscountTemplates(){
@@ -105,7 +105,7 @@ class StateProvider extends ChangeNotifier{
       return discountTemplates;
     }catch(e){
       log.d("StateProvider. Function: getDiscountTemplates. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("StateProvider. Function: getDiscountTemplates. Error: $e");
       return [];
     }
   }
@@ -124,7 +124,7 @@ class StateProvider extends ChangeNotifier{
       currentDiscountTemplate = newClubMeDiscountTemplate;
     }catch(e){
       log.d("StateProvider. Function: setCurrentDiscountTemplate. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("StateProvider. Function: setCurrentDiscountTemplate. Error: $e");
     }
   }
   void resetCurrentDiscountTemplate(){
@@ -132,7 +132,7 @@ class StateProvider extends ChangeNotifier{
       currentDiscountTemplate = null;
     }catch(e){
       log.d("StateProvider. Function: resetCurrentDiscountTemplate. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("StateProvider. Function: resetCurrentDiscountTemplate. Error: $e");
     }
   }
   ClubMeDiscountTemplate? getCurrentDiscountTemplate(){
@@ -140,7 +140,7 @@ class StateProvider extends ChangeNotifier{
       return currentDiscountTemplate;
     }catch(e){
       log.d("StateProvider. Function: getCurrentDiscountTemplate. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("StateProvider. Function: getCurrentDiscountTemplate. Error: $e");
       return null;
     }
   }
@@ -160,7 +160,7 @@ class StateProvider extends ChangeNotifier{
       eventTemplates = newClubMeEventTemplates;
     }catch(e){
       log.d("StateProvider. Function: setClubMeEventTemplates. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("StateProvider. Function: setClubMeEventTemplates. Error: $e");
     }
   }
   List<ClubMeEventTemplate> getClubMeEventTemplates(){
@@ -168,7 +168,7 @@ class StateProvider extends ChangeNotifier{
       return eventTemplates;
     }catch(e){
       log.d("StateProvider. Function: getClubMeEventTemplates. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("StateProvider. Function: getClubMeEventTemplates. Error: $e");
       return [];
     }
   }
@@ -178,7 +178,7 @@ class StateProvider extends ChangeNotifier{
       currentEventTemplate = newClubMeEventHive;
     }catch(e){
       log.d("StateProvider. Function: setCurrentEventTemplate. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("StateProvider. Function: setCurrentEventTemplate. Error: $e");
     }
   }
   void resetCurrentEventTemplate(){
@@ -187,7 +187,7 @@ class StateProvider extends ChangeNotifier{
       currentEventTemplate = null;
     }catch(e){
       log.d("StateProvider. Function: resetCurrentEventTemplate. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("StateProvider. Function: resetCurrentEventTemplate. Error: $e");
     }
   }
   ClubMeEventTemplate? getCurrentEventTemplate(){
@@ -195,7 +195,7 @@ class StateProvider extends ChangeNotifier{
       return currentEventTemplate;
     }catch(e){
       log.d("StateProvider. Function: getCurrentEventTemplate. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("StateProvider. Function: getCurrentEventTemplate. Error: $e");
       return null;
     }
   }

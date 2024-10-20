@@ -101,13 +101,19 @@ class _RegisterViewState extends State<RegisterView> {
         );
       }
 
+      _supabaseService.createErrorLog("iOS Google LogIn: After GoogleSignIn set");
+
       final GoogleSignInAccount? googleAccount = await _googleSignIn.signIn();
+
+      _supabaseService.createErrorLog("iOS Google LogIn: After _googleSignIn.signIn()");
 
       GoogleSignInAuthentication googleAuth = await googleAccount!.authentication;
       String? accessToken = googleAuth.accessToken;
       String? idToken = googleAuth.idToken;
 
       print("google auth: $googleAccount; $googleAuth;  $accessToken; $idToken");
+
+      _supabaseService.createErrorLog("iOS Google LogIn: googleauth: $googleAccount; $googleAuth;  $accessToken; $idToken");
 
       if (accessToken == null) {
         throw 'No Access Token found.';
@@ -121,7 +127,8 @@ class _RegisterViewState extends State<RegisterView> {
         idToken: idToken,
         accessToken: accessToken,
       ).then((response){
-                print("Supabase login: $response");
+        _supabaseService.createErrorLog("iOS Google LogIn: after supabase: $response");
+        print("Supabase login: $response");
                 _fetchGenderAndBirthday(googleAccount.email);
       }
       );
@@ -988,17 +995,21 @@ class _RegisterViewState extends State<RegisterView> {
     );
   }
   void clickEventGoogleRegistration(){
-    processGoogleSignIn();
 
-    // showDialog(
-    //     context: context,
-    //     builder: (BuildContext context){
-    //       return TitleAndContentDialog(
-    //         titleToDisplay: "Google-Authentifizierung",
-    //         contentToDisplay: "Diese Funktion ist derzeit noch nicht implementiert. Wir bitten um Entschuldigung.",
-    //       );
-    //     }
-    // );
+    // if(Platform.isAndroid){
+      processGoogleSignIn();
+    // }else{
+    //   showDialog(
+    //       context: context,
+    //       builder: (BuildContext context){
+    //         return TitleAndContentDialog(
+    //           titleToDisplay: "Google-Authentifizierung",
+    //           contentToDisplay: "Diese Funktion ist derzeit noch nicht implementiert. Wir bitten um Entschuldigung.",
+    //         );
+    //       }
+    //   );
+    // }
+
   }
   void clickEventEMailRegistration(){
     setState(() {
