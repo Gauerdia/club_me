@@ -41,8 +41,12 @@ class TitleContentAndTwoButtonsDialog extends StatelessWidget{
         style: customStyleClass.getFontStyle5(),
       ),
       actions: [
-        firstButtonToDisplay,
-        secondButtonToDisplay
+        Row(
+          children: [
+            firstButtonToDisplay,
+            secondButtonToDisplay
+          ],
+        )
       ],
     );
   }

@@ -1,3 +1,4 @@
+import 'package:club_me/provider/fetched_content_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -136,6 +137,12 @@ class _LogInAsClubViewState extends State<LogInAsClubView> {
               clubId: clubMePassword.clubId
           );
           _hiveService.addUserData(newUserData).then((value){
+
+            FetchedContentProvider fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
+
+            fetchedContentProvider.setFetchedEvents([]);
+            fetchedContentProvider.setFetchedDiscounts([]);
+
             userDataProvider.setUserData(newUserData);
             context.go("/club_events");
           });

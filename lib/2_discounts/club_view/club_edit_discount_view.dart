@@ -332,7 +332,7 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
                             border: const OutlineInputBorder(),
                           ),
                           style: customStyleClass.getFontStyle4(),
-                          maxLength: 35,
+                          maxLength: 25,
                         ),
                       ),
 
