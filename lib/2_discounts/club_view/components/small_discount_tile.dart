@@ -162,7 +162,7 @@ class SmallDiscountTile extends StatelessWidget {
                   ),
                 ),
 
-                if(clubMeDiscount.hasUsageLimit)
+                if(clubMeDiscount.hasUsageLimit && clubMeDiscount.getNumberOfUsages() > 1)
                   Container(
                     padding: const EdgeInsets.only(
                         right: 10,

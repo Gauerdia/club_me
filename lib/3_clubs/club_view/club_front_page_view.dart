@@ -6,7 +6,9 @@ import 'package:club_me/models/opening_times.dart';
 import 'package:club_me/models/parser/club_me_club_parser.dart';
 import 'package:club_me/provider/current_and_liked_elements_provider.dart';
 import 'package:club_me/services/check_and_fetch_service.dart';
+import 'package:club_me/shared/dialogs/TitleAndContentDialog.dart';
 import 'package:club_me/shared/dialogs/title_content_and_button_dialog.dart';
+import 'package:club_me/shared/dialogs/title_content_and_two_buttons_dialog.dart';
 import 'package:club_me/shared/map_utils.dart';
 import 'package:club_me/stories/show_story_chewie.dart';
 import 'package:flutter/material.dart';
@@ -1178,251 +1180,259 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
     });
   }
   void clickEventAddEvent(double screenHeight, double screenWidth){
-    showDialog(context: context, builder: (BuildContext context){
-      return AlertDialog(
-        backgroundColor: customStyleClass.backgroundColorMain,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.0),
-            // side: BorderSide(
-            //     color: customStyleClass.primeColor
-            // )
-        ),
-        title: Text(
-            "Neues Event",
-          style: customStyleClass.getFontStyle1Bold(),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
 
-            // Question text
-            Text(
-              "Möchtest du ein neues Event anlegen?",
-              textAlign: TextAlign.left,
-              style: customStyleClass.getFontStyle4(),
-            ),
+    context.go("/club_new_event");
 
-            // Spacer
-            SizedBox(
-              height: screenHeight*0.03,
-            ),
-
-            // "New event" button
-            Container(
-                width: screenWidth*0.9,
-                alignment: Alignment.bottomRight,
-                child: GestureDetector(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                        vertical: screenHeight*0.015,
-                        horizontal: screenWidth*0.03
-                    ),
-                    decoration: BoxDecoration(
-                        // color: Colors.black54,
-                        // border: Border.all(
-                        //   color: customStyleClass.primeColor
-                        // ),
-                        borderRadius: BorderRadius.all(Radius.circular(10))
-                    ),
-                    child: Text(
-                      "Neues Event!",
-                      textAlign: TextAlign.center,
-                      style: customStyleClass.getFontStyle4BoldPrimeColor(),
-                    ),
-                  ),
-                  onTap: () => context.go("/club_new_event"),
-                )
-            ),
-
-          ],
-        ),
-      );
-    });
+    // showDialog(context: context, builder: (BuildContext context){
+    //   return AlertDialog(
+    //     backgroundColor: customStyleClass.backgroundColorMain,
+    //     shape: RoundedRectangleBorder(
+    //         borderRadius: BorderRadius.circular(20.0),
+    //         // side: BorderSide(
+    //         //     color: customStyleClass.primeColor
+    //         // )
+    //     ),
+    //     title: Text(
+    //         "Neues Event",
+    //       style: customStyleClass.getFontStyle1Bold(),
+    //     ),
+    //     content: Column(
+    //       mainAxisSize: MainAxisSize.min,
+    //       children: [
+    //
+    //         // Question text
+    //         Text(
+    //           "Möchtest du ein neues Event anlegen?",
+    //           textAlign: TextAlign.left,
+    //           style: customStyleClass.getFontStyle4(),
+    //         ),
+    //
+    //         // Spacer
+    //         SizedBox(
+    //           height: screenHeight*0.03,
+    //         ),
+    //
+    //         // "New event" button
+    //         Container(
+    //             width: screenWidth*0.9,
+    //             alignment: Alignment.bottomRight,
+    //             child: GestureDetector(
+    //               child: Container(
+    //                 padding: EdgeInsets.symmetric(
+    //                     vertical: screenHeight*0.015,
+    //                     horizontal: screenWidth*0.03
+    //                 ),
+    //                 decoration: BoxDecoration(
+    //                     // color: Colors.black54,
+    //                     // border: Border.all(
+    //                     //   color: customStyleClass.primeColor
+    //                     // ),
+    //                     borderRadius: BorderRadius.all(Radius.circular(10))
+    //                 ),
+    //                 child: Text(
+    //                   "Neues Event!",
+    //                   textAlign: TextAlign.center,
+    //                   style: customStyleClass.getFontStyle4BoldPrimeColor(),
+    //                 ),
+    //               ),
+    //               onTap: () => context.go("/club_new_event"),
+    //             )
+    //         ),
+    //
+    //       ],
+    //     ),
+    //   );
+    // });
   }
   void clickEventOffersList(double screenHeight, double screenWidth){
     context.push("/club_offers");
   }
   void clickEventEditNews(double screenHeight, double screenWidth, ){
-    showDialog(context: context, builder: (BuildContext context){
-      return AlertDialog(
-          backgroundColor: Color(0xff121111),
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20.0),
-              // side: BorderSide(
-              //     color: customStyleClass.primeColor
-              // )
-          ),
-          title: Text(
-              "News",
-            style: customStyleClass.getFontStyle1Bold(),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-
-              // Question text
-              Text(
-                  "Willst du die News anpassen?",
-                style: customStyleClass.getFontStyle4(),
-              ),
-
-              // Spacer
-              SizedBox(
-                height: screenHeight*0.02,
-              ),
-
-              // "News anpassen" button
-              Container(
-                  width: screenWidth*0.9,
-                  // color: Colors.red,
-                  alignment: Alignment.bottomRight,
-                  child: GestureDetector(
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                          vertical: screenHeight*0.015,
-                          horizontal: screenWidth*0.03
-                      ),
-                      decoration: BoxDecoration(
-                          // color: Colors.black54,
-                          // border: Border.all(
-                          //   color: customStyleClass.primeColor
-                          // ),
-                          borderRadius: BorderRadius.all(Radius.circular(10))
-                      ),
-                      child: Text(
-                        "News anpassen!",
-                        textAlign: TextAlign.center,
-                        style: customStyleClass.getFontStyle4BoldPrimeColor(),
-                      ),
-                    ),
-                    onTap: () => context.go('/club_update_news'),
-                  )
-              ),
-            ],
-          )
-      );
-    });
+    context.push('/club_update_news');
+    // showDialog(context: context, builder: (BuildContext context){
+    //   return AlertDialog(
+    //       backgroundColor: Color(0xff121111),
+    //       shape: RoundedRectangleBorder(
+    //           borderRadius: BorderRadius.circular(20.0),
+    //           // side: BorderSide(
+    //           //     color: customStyleClass.primeColor
+    //           // )
+    //       ),
+    //       title: Text(
+    //           "News",
+    //         style: customStyleClass.getFontStyle1Bold(),
+    //       ),
+    //       content: Column(
+    //         mainAxisSize: MainAxisSize.min,
+    //         children: [
+    //
+    //           // Question text
+    //           Text(
+    //               "Willst du die News anpassen?",
+    //             style: customStyleClass.getFontStyle4(),
+    //           ),
+    //
+    //           // Spacer
+    //           SizedBox(
+    //             height: screenHeight*0.02,
+    //           ),
+    //
+    //           // "News anpassen" button
+    //           Container(
+    //               width: screenWidth*0.9,
+    //               // color: Colors.red,
+    //               alignment: Alignment.bottomRight,
+    //               child: GestureDetector(
+    //                 child: Container(
+    //                   padding: EdgeInsets.symmetric(
+    //                       vertical: screenHeight*0.015,
+    //                       horizontal: screenWidth*0.03
+    //                   ),
+    //                   decoration: BoxDecoration(
+    //                       // color: Colors.black54,
+    //                       // border: Border.all(
+    //                       //   color: customStyleClass.primeColor
+    //                       // ),
+    //                       borderRadius: BorderRadius.all(Radius.circular(10))
+    //                   ),
+    //                   child: Text(
+    //                     "News anpassen!",
+    //                     textAlign: TextAlign.center,
+    //                     style: customStyleClass.getFontStyle4BoldPrimeColor(),
+    //                   ),
+    //                 ),
+    //                 onTap: () => context.go('/club_update_news'),
+    //               )
+    //           ),
+    //         ],
+    //       )
+    //   );
+    // });
   }
   void clickEventEditContact(double screenHeight, double screenWidth){
-    showDialog(context: context, builder: (BuildContext context){
-      return AlertDialog(
-          backgroundColor: Color(0xff121111),
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20.0),
-              // side: BorderSide(
-              //     color: customStyleClass.primeColor
-              // )
-          ),
-          title: Text(
-              "Kontakt",
-            style: customStyleClass.getFontStyle1Bold(),
-          ),
-          content:Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-
-              // Question text
-              Text(
-                  "Willst du deine Adresse anpassen?",
-                style: customStyleClass.getFontStyle4(),
-              ),
-
-              // Spacer
-              SizedBox(
-                height: screenHeight*0.02,
-              ),
-
-              Container(
-                  width: screenWidth*0.9,
-                  alignment: Alignment.bottomRight,
-                  child: GestureDetector(
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                          vertical: screenHeight*0.015,
-                          horizontal: screenWidth*0.03
-                      ),
-                      decoration: BoxDecoration(
-                          // color: Colors.black54,
-                          // border: Border.all(
-                          //   color: customStyleClass.primeColor
-                          // ),
-                          borderRadius: BorderRadius.all(Radius.circular(10))
-                      ),
-                      child: Text(
-                        "Adresse anpassen!",
-                        textAlign: TextAlign.center,
-                        style: customStyleClass.getFontStyle4BoldPrimeColor(),
-                      ),
-                    ),
-                    onTap: () => context.go('/club_update_contact'),
-                  )
-              ),
-
-            ],
-          )
-      );
-    });
+    context.push('/club_update_contact');
+    // showDialog(context: context, builder: (BuildContext context){
+    //   return AlertDialog(
+    //       backgroundColor: Color(0xff121111),
+    //       shape: RoundedRectangleBorder(
+    //           borderRadius: BorderRadius.circular(20.0),
+    //           // side: BorderSide(
+    //           //     color: customStyleClass.primeColor
+    //           // )
+    //       ),
+    //       title: Text(
+    //           "Kontakt",
+    //         style: customStyleClass.getFontStyle1Bold(),
+    //       ),
+    //       content:Column(
+    //         mainAxisSize: MainAxisSize.min,
+    //         children: [
+    //
+    //           // Question text
+    //           Text(
+    //               "Willst du deine Adresse anpassen?",
+    //             style: customStyleClass.getFontStyle4(),
+    //           ),
+    //
+    //           // Spacer
+    //           SizedBox(
+    //             height: screenHeight*0.02,
+    //           ),
+    //
+    //           Container(
+    //               width: screenWidth*0.9,
+    //               alignment: Alignment.bottomRight,
+    //               child: GestureDetector(
+    //                 child: Container(
+    //                   padding: EdgeInsets.symmetric(
+    //                       vertical: screenHeight*0.015,
+    //                       horizontal: screenWidth*0.03
+    //                   ),
+    //                   decoration: BoxDecoration(
+    //                       // color: Colors.black54,
+    //                       // border: Border.all(
+    //                       //   color: customStyleClass.primeColor
+    //                       // ),
+    //                       borderRadius: BorderRadius.all(Radius.circular(10))
+    //                   ),
+    //                   child: Text(
+    //                     "Adresse anpassen!",
+    //                     textAlign: TextAlign.center,
+    //                     style: customStyleClass.getFontStyle4BoldPrimeColor(),
+    //                   ),
+    //                 ),
+    //                 onTap: () => context.go('/club_update_contact'),
+    //               )
+    //           ),
+    //
+    //         ],
+    //       )
+    //   );
+    // });
   }
   void clickEventAddPhotoOrVideo(double screenHeight, double screenWidth){
-    showDialog(context: context, builder: (BuildContext context){
-      return AlertDialog(
-          backgroundColor: Color(0xff121111),
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20.0),
-              // side: BorderSide(
-              //     color: customStyleClass.primeColor
-              // )
-          ),
-          title: Text(
-              "Fotos",
-            style: customStyleClass.getFontStyle1Bold(),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
 
-              // Question text
-              Text(
-                  "Willst du deine Fotos anpassen?",
-                style: customStyleClass.getFontStyle4(),
-              ),
+    context.go('/club_update_photos_and_videos');
 
-              // Spacer
-              SizedBox(
-                height: screenHeight*0.02,
-              ),
-
-              // "News anpassen" button
-              Container(
-                  width: screenWidth*0.9,
-                  // color: Colors.red,
-                  alignment: Alignment.bottomRight,
-                  child: GestureDetector(
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                          vertical: screenHeight*0.015,
-                          horizontal: screenWidth*0.03
-                      ),
-                      decoration: BoxDecoration(
-                          // color: Colors.black54,
-                          // border: Border.all(
-                          //   color: customStyleClass.primeColor
-                          // ),
-                          borderRadius: BorderRadius.all(Radius.circular(10))
-                      ),
-                      child: Text(
-                        "Fotos anpassen!",
-                        textAlign: TextAlign.center,
-                        style: customStyleClass.getFontStyle4BoldPrimeColor(),
-                      ),
-                    ),
-                    onTap: () => context.go('/club_update_photos_and_videos'),
-                  )
-              ),
-            ],
-          )
-      );
-    });
+    // showDialog(context: context, builder: (BuildContext context){
+    //   return AlertDialog(
+    //       backgroundColor: Color(0xff121111),
+    //       shape: RoundedRectangleBorder(
+    //           borderRadius: BorderRadius.circular(20.0),
+    //           // side: BorderSide(
+    //           //     color: customStyleClass.primeColor
+    //           // )
+    //       ),
+    //       title: Text(
+    //           "Fotos",
+    //         style: customStyleClass.getFontStyle1Bold(),
+    //       ),
+    //       content: Column(
+    //         mainAxisSize: MainAxisSize.min,
+    //         children: [
+    //
+    //           // Question text
+    //           Text(
+    //               "Willst du deine Fotos anpassen?",
+    //             style: customStyleClass.getFontStyle4(),
+    //           ),
+    //
+    //           // Spacer
+    //           SizedBox(
+    //             height: screenHeight*0.02,
+    //           ),
+    //
+    //           // "News anpassen" button
+    //           Container(
+    //               width: screenWidth*0.9,
+    //               // color: Colors.red,
+    //               alignment: Alignment.bottomRight,
+    //               child: GestureDetector(
+    //                 child: Container(
+    //                   padding: EdgeInsets.symmetric(
+    //                       vertical: screenHeight*0.015,
+    //                       horizontal: screenWidth*0.03
+    //                   ),
+    //                   decoration: BoxDecoration(
+    //                       // color: Colors.black54,
+    //                       // border: Border.all(
+    //                       //   color: customStyleClass.primeColor
+    //                       // ),
+    //                       borderRadius: BorderRadius.all(Radius.circular(10))
+    //                   ),
+    //                   child: Text(
+    //                     "Fotos anpassen!",
+    //                     textAlign: TextAlign.center,
+    //                     style: customStyleClass.getFontStyle4BoldPrimeColor(),
+    //                   ),
+    //                 ),
+    //                 onTap: () => context.go('/club_update_photos_and_videos'),
+    //               )
+    //           ),
+    //         ],
+    //       )
+    //   );
+    // });
   }
   void clickEventDiscoverMoreEvents(double screenHeight, double screenWidth){
     stateProvider.toggleWentFromCLubDetailToEventDetail();
@@ -1458,231 +1468,275 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
       ){
 
     showDialog(context: context, builder: (BuildContext context){
-      return AlertDialog(
-        backgroundColor: customStyleClass.backgroundColorMain,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.0),
-            // side: BorderSide(
-            //     color: customStyleClass.primeColor
-            // )
-        ),
-        title: Text(
-            "Story",
-          textAlign: TextAlign.center,
-          style: customStyleClass.getFontStyle1Bold(),
-        ),
-        content: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
 
-            // Question text
-            Text(
-              "Möchtest du eine Story hochladen?",
-              textAlign: TextAlign.left,
-              style: customStyleClass.getFontStyle4(),
-            ),
+      return userDataProvider.getUserClubStoryId().isNotEmpty ?
+          TitleContentAndTwoButtonsDialog(
+              titleToDisplay: "Live-Story",
+              contentToDisplay: "Möchtest du deine Live-Story bearbeiten?",
+              firstButtonToDisplay: TextButton(
+                onPressed: (){
+                  currentAndLikedElementsProvider.setCurrentClub(userDataProvider.getUserClub());
+                  context.push("/show_story");
+                },
+                child: Text(
+                  "Story ansehen",
+                  style: customStyleClass.getFontStyle3BoldPrimeColor(),
+                ),
+              ),
+              secondButtonToDisplay: TextButton(
+                  onPressed: () =>  context.go("/video_recording"),
+                  child: Text(
+                    "Neue Story",
+                    style: customStyleClass.getFontStyle3BoldPrimeColor(),
+                  )
+              )
+          ):
+          TitleContentAndButtonDialog(
+              titleToDisplay: "Live-Story",
+              contentToDisplay: "Möchtest du deine Live-Story bearbeiten?",
+              buttonToDisplay: TextButton(
+                  onPressed: () =>  context.go("/video_recording"),
+                  child: Text(
+                    "Neue Story",
+                    style: customStyleClass.getFontStyle3BoldPrimeColor(),
+                  )
+              ));
 
-            // Spacer
-            SizedBox(
-              height: screenHeight*0.03,
-            ),
-
-            // "New Story" button
-            Container(
-                width: screenWidth*0.9,
-                alignment: Alignment.bottomRight,
-                child: GestureDetector(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                        vertical: screenHeight*0.015,
-                        horizontal: screenWidth*0.03
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-
-                        Text(
-                          "Neue Story",
-                          textAlign: TextAlign.center,
-                          style: customStyleClass.getFontStyle4BoldPrimeColor(),
-                        ),
-
-                        Icon(
-                          Icons.arrow_forward_outlined,
-                          color: customStyleClass.primeColor,
-                        )
-
-                      ],
-                    ),
-                  ),
-                  onTap: () =>  context.go("/video_recording"),
-                )
-            ),
-
-            // Does a story exist? Then show a button to play it
-            userDataProvider.getUserClubStoryId().isNotEmpty ?
-            // Watch story
-            Container(
-                width: screenWidth*0.9,
-                // color: Colors.red,
-                alignment: Alignment.bottomRight,
-                child: GestureDetector(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                        vertical: screenHeight*0.015,
-                        horizontal: screenWidth*0.03
-                    ),
-
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-
-                        Text(
-                          "Story anschauen",
-                          textAlign: TextAlign.center,
-                          style: customStyleClass.getFontStyle4BoldPrimeColor(),
-                        ),
-
-                        Icon(
-                          Icons.arrow_forward_outlined,
-                          color: customStyleClass.primeColor,
-                        )
-
-                      ],
-                    ),
-                  ),
-                  onTap: (){
-                    currentAndLikedElementsProvider.setCurrentClub(userDataProvider.getUserClub());
-                    context.push("/show_story");
-                  },
-                )
-            ): Container(),
-
-          ],
-        ),
-      );
+      // return AlertDialog(
+      //   backgroundColor: customStyleClass.backgroundColorMain,
+      //   shape: RoundedRectangleBorder(
+      //       borderRadius: BorderRadius.circular(30),
+      //       side: const BorderSide(color: Colors.white)
+      //   ),
+      //   title: Text(
+      //     "titleToDisplay",
+      //     style: customStyleClass.getFontStyle3Bold(),
+      //   ),
+      //   content: Text(
+      //     "contentToDisplay",
+      //     style: customStyleClass.getFontStyle5(),
+      //   ),
+      //   actions: [
+      //     TextButton(onPressed: (){}, child: Text("Test1")),
+      //     TextButton(onPressed: (){}, child: Text("Test1"))
+      //   ],
+      // );
+      //
+      //
+      // return AlertDialog(
+      //   backgroundColor: customStyleClass.backgroundColorMain,
+      //   shape: RoundedRectangleBorder(
+      //       borderRadius: BorderRadius.circular(20.0),
+      //       // side: BorderSide(
+      //       //     color: customStyleClass.primeColor
+      //       // )
+      //   ),
+      //   title: Text(
+      //       "Story",
+      //     textAlign: TextAlign.center,
+      //     style: customStyleClass.getFontStyle1Bold(),
+      //   ),
+      //   content: Column(
+      //     mainAxisAlignment: MainAxisAlignment.start,
+      //     mainAxisSize: MainAxisSize.min,
+      //     children: [
+      //
+      //       // Question text
+      //       Text(
+      //         "Möchtest du eine Story hochladen?",
+      //         textAlign: TextAlign.left,
+      //         style: customStyleClass.getFontStyle4(),
+      //       ),
+      //
+      //       // Spacer
+      //       SizedBox(
+      //         height: screenHeight*0.03,
+      //       ),
+      //
+      //       // "New Story" button
+      //       Container(
+      //           width: screenWidth*0.9,
+      //           alignment: Alignment.bottomRight,
+      //           child: GestureDetector(
+      //             child: Container(
+      //               padding: EdgeInsets.symmetric(
+      //                   vertical: screenHeight*0.015,
+      //                   horizontal: screenWidth*0.03
+      //               ),
+      //               child: Row(
+      //                 mainAxisAlignment: MainAxisAlignment.end,
+      //                 children: [
+      //
+      //                   Text(
+      //                     "Neue Story",
+      //                     textAlign: TextAlign.center,
+      //                     style: customStyleClass.getFontStyle4BoldPrimeColor(),
+      //                   ),
+      //
+      //                   Icon(
+      //                     Icons.arrow_forward_outlined,
+      //                     color: customStyleClass.primeColor,
+      //                   )
+      //
+      //                 ],
+      //               ),
+      //             ),
+      //             onTap: () =>  context.go("/video_recording"),
+      //           )
+      //       ),
+      //
+      //       // Does a story exist? Then show a button to play it
+      //       userDataProvider.getUserClubStoryId().isNotEmpty ?
+      //       // Watch story
+      //       Container(
+      //           width: screenWidth*0.9,
+      //           // color: Colors.red,
+      //           alignment: Alignment.bottomRight,
+      //           child: GestureDetector(
+      //             child: Container(
+      //               padding: EdgeInsets.symmetric(
+      //                   vertical: screenHeight*0.015,
+      //                   horizontal: screenWidth*0.03
+      //               ),
+      //
+      //               child: Row(
+      //                 mainAxisAlignment: MainAxisAlignment.end,
+      //                 children: [
+      //
+      //                   Text(
+      //                     "Story anschauen",
+      //                     textAlign: TextAlign.center,
+      //                     style: customStyleClass.getFontStyle4BoldPrimeColor(),
+      //                   ),
+      //
+      //                   Icon(
+      //                     Icons.arrow_forward_outlined,
+      //                     color: customStyleClass.primeColor,
+      //                   )
+      //
+      //                 ],
+      //               ),
+      //             ),
+      //             onTap: (){
+      //               currentAndLikedElementsProvider.setCurrentClub(userDataProvider.getUserClub());
+      //               context.push("/show_story");
+      //             },
+      //           )
+      //       ): Container(),
+      //
+      //     ],
+      //   ),
+      // );
     });
   }
   void clickEventLounge(){
     showDialog(context: context, builder: (BuildContext context){
-      return AlertDialog(
-        backgroundColor: customStyleClass.backgroundColorMain,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.0),
-          // side: BorderSide(
-          //   color: customStyleClass.primeColor
-          // )
-        ),
-        title: Text(
-            "Lounges",
-          style: customStyleClass.getFontStyle1Bold(),
-        ),
-        content: Text(
-          "Diese Funktion steht zurzeit noch nicht zur Verfügung! Wir bitten um Verständnis!",
-          textAlign: TextAlign.left,
-          style: customStyleClass.getFontStyle4(),
-        ),
+      return TitleAndContentDialog(
+          titleToDisplay: "Lounges",
+          contentToDisplay: "Diese Funktion steht zurzeit noch nicht zur Verfügung! Wir bitten um Entschuldigung!"
       );
     });
   }
   void clickEventChangeBannerImage(){
-    showDialog(context: context, builder: (BuildContext context){
-      return TitleContentAndButtonDialog(
-          titleToDisplay: "Bannerbild",
-          contentToDisplay: "Möchtest du das Bannerbild anpassen?",
-          buttonToDisplay: TextButton(
-              onPressed: () => context.go('/club_change_banner_image'),
-              child: Text(
-                "Banner anpassen",
-                textAlign: TextAlign.center,
-                style: customStyleClass.getFontStyle4BoldPrimeColor(),
-              ))
-      );
 
-        AlertDialog(
-          backgroundColor: Color(0xff121111),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.0),
-            // side: BorderSide(
-            //     color: customStyleClass.primeColor
-            // )
-          ),
-          title: Text(
-            "Bannerbild",
-            style: customStyleClass.getFontStyle1Bold(),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
+    context.go('/club_change_banner_image');
 
-              // Question text
-              Text(
-                "Möchtest du das Bannerbild anpassen?",
-                style: customStyleClass.getFontStyle4(),
-              ),
-
-              // Spacer
-              SizedBox(
-                height: screenHeight*0.02,
-              ),
-
-              // "News anpassen" button
-              Container(
-                  width: screenWidth*0.9,
-                  // color: Colors.red,
-                  alignment: Alignment.bottomRight,
-                  child: GestureDetector(
-                    child: Container(
-                      width: screenWidth*0.9,
-                      padding: EdgeInsets.symmetric(
-                          vertical: screenHeight*0.015,
-                          horizontal: screenWidth*0.03
-                      ),
-                      decoration: const BoxDecoration(
-                        // color: Colors.black54,
-                        // border: Border.all(
-                        //   color: customStyleClass.primeColor
-                        // ),
-                          borderRadius: BorderRadius.all(Radius.circular(10))
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Text(
-                            "Banner anpassen",
-                            textAlign: TextAlign.center,
-                            style: customStyleClass.getFontStyle4BoldPrimeColor(),
-                          ),
-                          Icon(
-                            Icons.arrow_forward_outlined,
-                            color: customStyleClass.primeColor,
-                          )
-                        ],
-                      ),
-                    ),
-                    onTap: () => context.go('/club_change_banner_image'),
-                  )
-              ),
-            ],
-          )
-      );
-    });
+    // showDialog(context: context, builder: (BuildContext context){
+    //   return TitleContentAndButtonDialog(
+    //       titleToDisplay: "Bannerbild",
+    //       contentToDisplay: "Möchtest du das Bannerbild anpassen?",
+    //       buttonToDisplay: TextButton(
+    //           onPressed: () => context.go('/club_change_banner_image'),
+    //           child: Text(
+    //             "Banner anpassen",
+    //             textAlign: TextAlign.center,
+    //             style: customStyleClass.getFontStyle4BoldPrimeColor(),
+    //           ))
+    //   );
+    //
+    //     AlertDialog(
+    //       backgroundColor: Color(0xff121111),
+    //       shape: RoundedRectangleBorder(
+    //         borderRadius: BorderRadius.circular(20.0),
+    //         // side: BorderSide(
+    //         //     color: customStyleClass.primeColor
+    //         // )
+    //       ),
+    //       title: Text(
+    //         "Bannerbild",
+    //         style: customStyleClass.getFontStyle1Bold(),
+    //       ),
+    //       content: Column(
+    //         mainAxisSize: MainAxisSize.min,
+    //         children: [
+    //
+    //           // Question text
+    //           Text(
+    //             "Möchtest du das Bannerbild anpassen?",
+    //             style: customStyleClass.getFontStyle4(),
+    //           ),
+    //
+    //           // Spacer
+    //           SizedBox(
+    //             height: screenHeight*0.02,
+    //           ),
+    //
+    //           // "News anpassen" button
+    //           Container(
+    //               width: screenWidth*0.9,
+    //               // color: Colors.red,
+    //               alignment: Alignment.bottomRight,
+    //               child: GestureDetector(
+    //                 child: Container(
+    //                   width: screenWidth*0.9,
+    //                   padding: EdgeInsets.symmetric(
+    //                       vertical: screenHeight*0.015,
+    //                       horizontal: screenWidth*0.03
+    //                   ),
+    //                   decoration: const BoxDecoration(
+    //                     // color: Colors.black54,
+    //                     // border: Border.all(
+    //                     //   color: customStyleClass.primeColor
+    //                     // ),
+    //                       borderRadius: BorderRadius.all(Radius.circular(10))
+    //                   ),
+    //                   child: Row(
+    //                     mainAxisAlignment: MainAxisAlignment.end,
+    //                     children: [
+    //                       Text(
+    //                         "Banner anpassen",
+    //                         textAlign: TextAlign.center,
+    //                         style: customStyleClass.getFontStyle4BoldPrimeColor(),
+    //                       ),
+    //                       Icon(
+    //                         Icons.arrow_forward_outlined,
+    //                         color: customStyleClass.primeColor,
+    //                       )
+    //                     ],
+    //                   ),
+    //                 ),
+    //                 onTap: () => context.go('/club_change_banner_image'),
+    //               )
+    //           ),
+    //         ],
+    //       )
+    //   );
   }
   void clickOnEditOpeningTimes(){
-    showDialog(context: context, builder: (BuildContext context){
-      return TitleContentAndButtonDialog(
-          titleToDisplay: "Öffnungszeiten",
-          contentToDisplay: "Möchtest du deine Öffnungszeiten anpassen?",
-          buttonToDisplay: TextButton(
-              onPressed: () => context.go('/club_change_opening_times'),
-              child: Text(
-                "Öffnunsgzeiten anpassen",
-                textAlign: TextAlign.center,
-                style: customStyleClass.getFontStyle4BoldPrimeColor(),
-              ))
-      );
-  });
+    context.go('/club_change_opening_times');
+  //   showDialog(context: context, builder: (BuildContext context){
+  //     return TitleContentAndButtonDialog(
+  //         titleToDisplay: "Öffnungszeiten",
+  //         contentToDisplay: "Möchtest du deine Öffnungszeiten anpassen?",
+  //         buttonToDisplay: TextButton(
+  //             onPressed: () => context.go('/club_change_opening_times'),
+  //             child: Text(
+  //               "Öffnunsgzeiten anpassen",
+  //               textAlign: TextAlign.center,
+  //               style: customStyleClass.getFontStyle4BoldPrimeColor(),
+  //             ))
+  //     );
+  // });
   }
 
 
@@ -1713,8 +1767,17 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
       case(7):dayToDisplay = "Sonntag";break;
     }
 
-    openingHourToDisplay = days.openingHour! < 10 ? "0${days.openingHour}:00": "${days.openingHour}:00";
-    closingHourToDisplay = days.closingHour! < 10 ?  "0${days.closingHour}:00": "${days.closingHour}:00";
+    if(days.openingHalfAnHour == 1){
+      openingHourToDisplay = days.openingHour! < 10 ? "0${days.openingHour}:30": "${days.openingHour}:30";
+    }else{
+      openingHourToDisplay = days.openingHour! < 10 ? "0${days.openingHour}:00": "${days.openingHour}:00";
+    }
+
+    if(days.closingHalfAnHour == 1){
+      closingHourToDisplay = days.closingHour! < 10 ?  "0${days.closingHour}:30": "${days.closingHour}:30";
+    }else{
+      closingHourToDisplay = days.closingHour! < 10 ?  "0${days.closingHour}:00": "${days.closingHour}:00";
+    }
 
     return Container(
       width: screenWidth*0.9,

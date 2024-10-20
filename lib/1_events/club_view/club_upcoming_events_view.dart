@@ -370,7 +370,7 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
     showDialog<String>(
         context: context,
         builder: (BuildContext context) => TitleAndContentDialog(
-            titleToDisplay: "Event teilen",
+            titleToDisplay: "Teilen",
             contentToDisplay: "Die Funktion, ein Event zu teilen, ist derzeit noch"
                 "nicht implementiert. Wir bitten um Verständnis.")
     );
@@ -382,7 +382,7 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
   void clickEventDeleteEvent(ClubMeEvent clubMeEvent){
     showDialog(context: context, builder: (BuildContext context){
       return TitleContentAndButtonDialog(
-          titleToDisplay: "Achtung",
+          titleToDisplay: "Event löschen",
           contentToDisplay: "Bist du sicher, dass du dieses Event löschen möchtest?",
           buttonToDisplay: TextButton(
               onPressed: () => _supabaseService.deleteEvent(clubMeEvent.getEventId()).then((value){

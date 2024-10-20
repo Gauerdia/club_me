@@ -1,4 +1,5 @@
 import 'package:club_me/models/club_offers.dart';
+import 'package:club_me/shared/dialogs/TitleAndContentDialog.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -263,37 +264,16 @@ class _OffersListClubViewState extends State<OffersListClubView> {
         }
       });
     }else{
-      showDialogWithTitleAndContent("Offene Felder", "Bitte fülle alle Felder, bevor du die Angebote aktualisierst.");
+      showDialogWithTitleAndContent("Fehlende Werte", "Bitte fülle mindestens die folgenden Felder aus, bevor du weitergehst: \n\n Überschrift\n Preis\n Beschreibung");
     }
   }
 
   void showDialogWithTitleAndContent(String title, String content){
     showDialog(context: context, builder: (BuildContext context){
-      return AlertDialog(
-        backgroundColor: Colors.black,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.0),
-            side: BorderSide(
-                color: customStyleClass.primeColor
-            )
-        ),
-        title: Text(
-          title,
-          style: customStyleClass.getFontStyle1Bold(),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
+      return TitleAndContentDialog(
+          titleToDisplay: title,
+          contentToDisplay: content);
 
-            // Question text
-            Text(
-              content,
-              textAlign: TextAlign.left,
-              style: customStyleClass.getFontStyle4(),
-            ),
-          ],
-        ),
-      );
     });
   }
 

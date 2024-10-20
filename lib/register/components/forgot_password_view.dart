@@ -78,10 +78,38 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
             height: screenHeight,
             width: screenWidth,
             child: Center(
-              child: Text(
-                "Vielen Dank! Die E-Mail mit deinem Zugangspasswort sollte bald bei dir eintreffen!",
-                style: customStyleClass.getFontStyle3BoldPrimeColor(),
-                textAlign: TextAlign.center,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Vielen Dank! Die E-Mail mit deinem Zugangspasswort sollte bald bei dir eintreffen!",
+                    style: customStyleClass.getFontStyle3(),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      InkWell(
+                        child: Row(
+                          children: [
+                            Text(
+                              "Zurück zur Registrierung",
+                              style: customStyleClass.getFontStyle3BoldPrimeColor(),
+                            ),
+                            Icon(
+                              Icons.arrow_forward_outlined,
+                              color: customStyleClass.primeColor,
+                            )
+                          ],
+                        ),
+                        onTap: () => context.go("/register"),
+                      )
+                    ],
+                  )
+                ],
               ),
             ),
           ) :
@@ -148,7 +176,6 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
                           ),
                         ),
                         style: customStyleClass.getFontStyle4(),
-                        autofocus: true,
                         maxLength: 35,
                       ),
                     ),

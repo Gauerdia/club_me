@@ -2,6 +2,7 @@ import 'package:chewie/chewie.dart';
 import 'package:club_me/models/event.dart';
 import 'package:club_me/services/hive_service.dart';
 import 'package:club_me/shared/dialogs/TitleAndContentDialog.dart';
+import 'package:club_me/shared/dialogs/title_content_and_button_dialog.dart';
 import 'package:club_me/utils/utils.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -579,7 +580,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                               width: screenWidth*0.3,
                               child: TextField(
                                 controller: _eventPriceController,
-                                keyboardType: TextInputType.number,
+                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
                                 cursorColor: customStyleClass.primeColor,
                                 decoration: InputDecoration(
                                   hintText: "z.B. 10",
@@ -1309,22 +1310,14 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
     }
   }
   void clickEventClose(){
+
     showDialog(
         context: context,
         builder: (BuildContext context){
-          return TitleContentAndTwoButtonsDialog(
+          return TitleContentAndButtonDialog(
               titleToDisplay: "Abbrechen",
               contentToDisplay: "Bist du sicher, dass du abbrechen möchtest?",
-              firstButtonToDisplay: TextButton(
-                child: Text(
-                  "Zurück",
-                  style: customStyleClass.getFontStyle3BoldPrimeColor(),
-                ),
-                onPressed: (){
-                  Navigator.of(context).pop();
-                },
-              ),
-              secondButtonToDisplay: TextButton(
+              buttonToDisplay: TextButton(
                 child: Text(
                   "Ja",
                   style: customStyleClass.getFontStyle3BoldPrimeColor(),
@@ -1338,6 +1331,33 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                   }
                 },
               ));
+
+            // TitleContentAndTwoButtonsDialog(
+            //   titleToDisplay: "Abbrechen",
+            //   contentToDisplay: "Bist du sicher, dass du abbrechen möchtest?",
+            //   firstButtonToDisplay: TextButton(
+            //     child: Text(
+            //       "Zurück",
+            //       style: customStyleClass.getFontStyle3BoldPrimeColor(),
+            //     ),
+            //     onPressed: (){
+            //       Navigator.of(context).pop();
+            //     },
+            //   ),
+            //   secondButtonToDisplay: TextButton(
+            //     child: Text(
+            //       "Ja",
+            //       style: customStyleClass.getFontStyle3BoldPrimeColor(),
+            //     ),
+            //     onPressed: (){
+            //       stateProvider.resetCurrentEventTemplate();
+            //       switch(stateProvider.pageIndex){
+            //         case(0): context.go('/club_events');
+            //         case(3): context.go('/club_frontpage');
+            //         default: context.go('/club_frontpage');
+            //       }
+            //     },
+            //   ));
         });
   }
   void clickEventChooseContent() async{

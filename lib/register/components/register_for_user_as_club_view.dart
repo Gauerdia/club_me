@@ -132,6 +132,19 @@ class _RegisterForUserAsClubViewState extends State<RegisterForUserAsClubView> {
                 ),
               ),
 
+              Container(
+                height: 50,
+                width: screenWidth,
+                alignment: Alignment.centerLeft,
+                child: InkWell(
+                  child: const Icon(
+                    Icons.arrow_back_ios,
+                    color: Colors.white,
+                  ),
+                  onTap: () => Navigator.pop(context)
+                ),
+              ),
+
             ],
           ),
         )

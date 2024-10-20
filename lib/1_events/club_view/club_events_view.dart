@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:club_me/models/event.dart';
 import 'package:club_me/services/check_and_fetch_service.dart';
 import 'package:club_me/shared/custom_bottom_navigation_bar_clubs.dart';
+import 'package:club_me/shared/dialogs/title_content_and_button_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logger/logger.dart';
@@ -65,7 +66,7 @@ class _ClubEventsViewState extends State<ClubEventsView> {
 
     // Fetch events of our club
     if(fetchedContentProvider.getFetchedEvents().isEmpty){
-      _supabaseService.getEventsOfSpecificClub(userDataProvider.getUserDataId())
+      _supabaseService.getEventsOfSpecificClub(userDataProvider.getUserClubId())
           .then((data) => filterEventsFromQuery(data, stateProvider));
     }
 
@@ -457,6 +458,7 @@ class _ClubEventsViewState extends State<ClubEventsView> {
 
     for(var element in data){
 
+
       // Get data in correct format
       ClubMeEvent currentEvent = parseClubMeEvent(element);
 
@@ -489,6 +491,11 @@ class _ClubEventsViewState extends State<ClubEventsView> {
           a.getEventDate().millisecondsSinceEpoch.compareTo(b.getEventDate().millisecondsSinceEpoch)
       );
     }
+
+    setState(() {
+
+    });
+
   }
 
 
@@ -507,19 +514,11 @@ class _ClubEventsViewState extends State<ClubEventsView> {
   }
   void clickEventDeleteEvent(){
     showDialog(context: context, builder: (BuildContext context){
-      return AlertDialog(
-        backgroundColor: Color(0xff121111),
-        title:  Text(
-          "Achtung!",
-          style: customStyleClass.getFontStyle1Bold(),
-        ),
-        content: Text(
-          "Bist du sicher, dass du dieses Event löschen möchtest?",
-          style: customStyleClass.getFontStyle3(),
-          textAlign: TextAlign.left,
-        ),
-        actions: [
-          TextButton(
+      return
+      TitleContentAndButtonDialog(
+          titleToDisplay: "Event löschen",
+          contentToDisplay: "Bist du sicher, dass du dieses Event löschen möchtest?",
+          buttonToDisplay: TextButton(
               onPressed: () => _supabaseService.deleteEvent(upcomingEvents[0].getEventId()).then((value){
                 if(value == 0){
                   setState(() {
@@ -535,9 +534,39 @@ class _ClubEventsViewState extends State<ClubEventsView> {
                 "Löschen",
                 style: customStyleClass.getFontStyle3BoldPrimeColor(),
               )
-          )
-        ],
-      );
+          ));
+
+        // AlertDialog(
+      //   backgroundColor: Color(0xff121111),
+      //   title:  Text(
+      //     "Achtung!",
+      //     style: customStyleClass.getFontStyle1Bold(),
+      //   ),
+      //   content: Text(
+      //     "Bist du sicher, dass du dieses Event löschen möchtest?",
+      //     style: customStyleClass.getFontStyle3(),
+      //     textAlign: TextAlign.left,
+      //   ),
+      //   actions: [
+      //     TextButton(
+      //         onPressed: () => _supabaseService.deleteEvent(upcomingEvents[0].getEventId()).then((value){
+      //           if(value == 0){
+      //             setState(() {
+      //               fetchedContentProvider.fetchedEvents.removeWhere((element) => element.getEventId() == upcomingEvents[0].getEventId());
+      //               upcomingEvents.removeAt(0);
+      //             });
+      //             Navigator.pop(context);
+      //           }else{
+      //             Navigator.pop(context);
+      //           }
+      //         }),
+      //         child: Text(
+      //           "Löschen",
+      //           style: customStyleClass.getFontStyle3BoldPrimeColor(),
+      //         )
+      //     )
+      //   ],
+      // );
     });
   }
   void clickEventEventFromTemplate(){

@@ -4,6 +4,7 @@ import 'package:club_me/provider/fetched_content_provider.dart';
 import 'package:club_me/services/check_and_fetch_service.dart';
 import 'package:club_me/services/hive_service.dart';
 import 'package:club_me/shared/dialogs/TitleAndContentDialog.dart';
+import 'package:club_me/shared/dialogs/title_content_and_button_dialog.dart';
 import 'package:club_me/shared/dialogs/title_content_and_two_buttons_dialog.dart';
 import 'package:club_me/utils/utils.dart';
 import 'package:flutter/cupertino.dart';
@@ -99,10 +100,6 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
   void initState() {
     super.initState();
     initControllers();
-
-    _pageViewController = PageController();
-    _tabController = TabController(length: Utils.discountBigImageNames.length, vsync: this);
-
   }
   void initControllers(){
     final stateProvider = Provider.of<StateProvider>(context, listen:  false);
@@ -160,7 +157,27 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
           break;
       }
 
+
+      galleryImageChosen = true;
+
+      int imageIndex = Utils.discountBigImageNames.indexWhere(
+              (element) => element == currentDiscount.getBigBannerFileName()
+      );
+
+      _pageViewController = PageController(initialPage: imageIndex);
+
+      _tabController = TabController(
+          length: Utils.discountBigImageNames.length,
+          vsync: this
+      );
+
+      _tabController.index = imageIndex;
+
+      _currentPageIndex = imageIndex;
+
       isTemplate = 1;
+
+      setState(() {});
 
     }else{
 
@@ -177,6 +194,9 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
 
       _fixedExtentScrollController1 = FixedExtentScrollController(initialItem: 0);
       _fixedExtentScrollController2 = FixedExtentScrollController(initialItem: 0);
+
+      _pageViewController = PageController();
+      _tabController = TabController(length: Utils.discountBigImageNames.length, vsync: this);
 
     }
   }
@@ -301,7 +321,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
                             border: const OutlineInputBorder(),
                           ),
                           style: customStyleClass.getFontStyle4(),
-                          maxLength: 35,
+                          maxLength: 25,
                         ),
                       ),
 
@@ -1404,6 +1424,8 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
         ageLimitUpperLimit: discount.getAgeLimitUpperLimit(),
         isRepeatedDays: discount.getIsRepeatedDays(),
         templateId:  uuidV4.toString(),
+      smallBannerFileName: discount.getSmallBannerFileName(),
+      bigBannerFileName: discount.getBigBannerFileName()
     );
 
     _hiveService.addDiscountTemplate(clubMeDiscountTemplate);
@@ -1416,19 +1438,10 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
     showDialog(
         context: context,
         builder: (BuildContext context){
-          return TitleContentAndTwoButtonsDialog(
-              titleToDisplay: "Abbrechen",
-              contentToDisplay: "Bist du sicher, dass du abbrechen möchtest?",
-              firstButtonToDisplay: TextButton(
-                child: Text(
-                  "Zurück",
-                  style: customStyleClass.getFontStyle3(),
-                ),
-                onPressed: (){
-                  Navigator.of(context).pop();
-                },
-              ),
-              secondButtonToDisplay: TextButton(
+          return TitleContentAndButtonDialog(
+              titleToDisplay: "Coupon löschen",
+              contentToDisplay: "Bist du sicher, dass du diesen Coupon löschen möchtest?",
+              buttonToDisplay: TextButton(
                 child: Text(
                   "Ja",
                   style: customStyleClass.getFontStyle3(),
@@ -1442,6 +1455,33 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
                   }
                 },
               ));
+
+            // TitleContentAndTwoButtonsDialog(
+            //   titleToDisplay: "Abbrechen",
+            //   contentToDisplay: "Bist du sicher, dass du abbrechen möchtest?",
+            //   firstButtonToDisplay: TextButton(
+            //     child: Text(
+            //       "Zurück",
+            //       style: customStyleClass.getFontStyle3(),
+            //     ),
+            //     onPressed: (){
+            //       Navigator.of(context).pop();
+            //     },
+            //   ),
+            //   secondButtonToDisplay: TextButton(
+            //     child: Text(
+            //       "Ja",
+            //       style: customStyleClass.getFontStyle3(),
+            //     ),
+            //     onPressed: (){
+            //       stateProvider.resetCurrentDiscountTemplate();
+            //       switch(stateProvider.pageIndex){
+            //         case(2): context.go('/club_discounts');
+            //         case(3): context.go('/club_frontpage');
+            //         default: context.go('/club_frontpage');
+            //       }
+            //     },
+            //   ));
         }
     );
   }
@@ -1568,7 +1608,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
         builder: (BuildContext context){
           return TitleAndContentDialog(
               titleToDisplay: "Fehlende Werte",
-              contentToDisplay: "Bitte fülle die leeren Felder aus, bevor du weitergehst.");
+              contentToDisplay: "Bitte fülle mindestens die folgenden Felder aus, bevor du weitergehst: \n\n Titel");
         });
   }
   void _handlePageViewChanged(int currentPageIndex) {

@@ -56,6 +56,8 @@ class _RegisterViewState extends State<RegisterView> {
 
   bool isLoading = false;
 
+  bool hasNoAccountYet = false;
+
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _eMailController = TextEditingController();
@@ -154,7 +156,7 @@ class _RegisterViewState extends State<RegisterView> {
         lastName: familyName!,
         birthDate: birthdayDateTime,
         eMail: email,
-        gender: gender == "Male" ? 0 : 1,
+        gender: gender == "Male" ? 1 : 2,
         userId: uuid.v4(),
         profileType: profileType,
         lastTimeLoggedIn: DateTime.now(),
@@ -185,6 +187,9 @@ class _RegisterViewState extends State<RegisterView> {
   void initState() {
     super.initState();
     newSelectedDate = DateTime(2000, 1, 1);
+
+    fetchUserDataFromHive();
+
   }
 
 
@@ -229,6 +234,24 @@ class _RegisterViewState extends State<RegisterView> {
                   ],
                 ),
               ),
+
+
+              // Right icons
+              if( progressIndex == 1)
+                Container(
+                  height: 50,
+                  width: screenWidth,
+                  alignment: Alignment.centerLeft,
+                  child: InkWell(
+                    child: const Icon(
+                      Icons.arrow_back_ios,
+                      color: Colors.white,
+                    ),
+                    onTap: () => setState(() {
+                      progressIndex = 0;
+                    }),
+                  ),
+                ),
 
               // Right icons
               if( progressIndex == 3)
@@ -381,6 +404,7 @@ class _RegisterViewState extends State<RegisterView> {
               onTap: () => clickEventEMailRegistration(),
             ),
 
+            // PW vergessen
             Container(
               padding: const EdgeInsets.only(
                 top: 5
@@ -430,6 +454,21 @@ class _RegisterViewState extends State<RegisterView> {
                 ),
               ),
               onTap: () => clickEventProceedAsClub(),
+            ),
+
+            Container(
+              padding: const EdgeInsets.only(
+                  top: 5
+              ),
+              width: screenWidth*0.9,
+              child: InkWell(
+                onTap: () => clickEventEnterAsDeveloper(),
+                child: Text(
+                  "Sie sind Entwickler?",
+                  textAlign: TextAlign.left,
+                  style: customStyleClass.getFontStyle3BoldPrimeColor(),
+                ),
+              ),
             ),
 
           ],
@@ -817,17 +856,29 @@ class _RegisterViewState extends State<RegisterView> {
     );
   }
   Widget _buildViewBasedOnIndex(){
-    switch(progressIndex){
-      case(0):
-        return _buildChooseRegistrationMethod();
-      case(1):
-        return _buildRegisterAsUser();
-      case(2):
-        return _buildRegisterAsClub();
-      case(3):
-        return _buildShowPremiumAdvantages();
-      default:
-        return Container();
+    if(hasNoAccountYet){
+      switch(progressIndex){
+        case(0):
+          return _buildChooseRegistrationMethod();
+        case(1):
+          return _buildRegisterAsUser();
+        case(2):
+          return _buildRegisterAsClub();
+        case(3):
+          return _buildShowPremiumAdvantages();
+        default:
+          return Container();
+      }
+    }else{
+      return SizedBox(
+        width: screenWidth,
+        height: screenHeight,
+        child: Center(
+          child: Image.asset(
+            "assets/images/ClubMe_Logo_weiß.png"
+          ),
+        ),
+      );
     }
   }
   Widget _buildBottomNavigationBar(){
@@ -1050,6 +1101,10 @@ class _RegisterViewState extends State<RegisterView> {
     context.push("/register_log_in_club");
   }
 
+  void clickEventEnterAsDeveloper(){
+    context.go("/enter_as_developer");
+  }
+
 
   // FORMAT
   String formatSelectedDate(){
@@ -1092,7 +1147,7 @@ class _RegisterViewState extends State<RegisterView> {
           lastName: _lastNameController.text,
           birthDate: newSelectedDate,
           eMail: _eMailController.text,
-          gender: gender,
+          gender: gender+1,
           userId: uuid.v4(),
           profileType: profileType,
           lastTimeLoggedIn: DateTime.now(),
@@ -1132,7 +1187,7 @@ class _RegisterViewState extends State<RegisterView> {
                 lastName: "...",
                 birthDate: DateTime.now(),
                 eMail: "...",
-                gender: 0,
+                gender: 1,
                 userId: clubMePassword.clubId,
                 profileType: 1,
               lastTimeLoggedIn: DateTime.now(),
@@ -1154,7 +1209,36 @@ class _RegisterViewState extends State<RegisterView> {
       }
     }
   }
+  Future<void> fetchUserDataFromHive() async{
 
+
+    try{
+      await _hiveService.getUserData().then((userData) async {
+
+        if(userData.isEmpty){
+          log.d("fetchUserDataFromHive: isEmpty");
+          setState(() {
+            hasNoAccountYet = true;
+          });
+
+        }else{
+          log.d("fetchUserDataFromHive: isNotEmpty");
+          userDataProvider.setUserData(userData[0]);
+          if(!stateProvider.activeLogOut){
+            if(userData[0].getProfileType() == 0){
+              context.go("/user_events");
+            }else{
+              context.go("/club_events");
+            }
+          }else{
+            isLoading = false;
+          }
+        }
+      });
+    }catch(e){
+      log.d("Error in fetchUserDataFromHive: $e");
+    }
+  }
 
   // MISC
   void showErrorDialog(){

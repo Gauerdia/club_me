@@ -30,13 +30,15 @@ class ClubMeDiscountTemplateAdapter
       ageLimitUpperLimit: fields[10] as int,
       isRepeatedDays: fields[11] as int,
       templateId: fields[12] as String,
+      bigBannerFileName: fields[13] as String,
+      smallBannerFileName: fields[14] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, ClubMeDiscountTemplate obj) {
     writer
-      ..writeByte(12)
+      ..writeByte(14)
       ..writeByte(0)
       ..write(obj.discountTitle)
       ..writeByte(1)
@@ -60,7 +62,11 @@ class ClubMeDiscountTemplateAdapter
       ..writeByte(11)
       ..write(obj.isRepeatedDays)
       ..writeByte(12)
-      ..write(obj.templateId);
+      ..write(obj.templateId)
+      ..writeByte(13)
+      ..write(obj.bigBannerFileName)
+      ..writeByte(14)
+      ..write(obj.smallBannerFileName);
   }
 
   @override

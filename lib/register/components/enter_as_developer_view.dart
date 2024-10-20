@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
+import 'package:googleapis/connectors/v1.dart';
 
 import '../../models/club_password.dart';
 import '../../models/hive_models/0_club_me_user_data.dart';
@@ -11,15 +11,14 @@ import '../../services/supabase_service.dart';
 import '../../shared/custom_text_style.dart';
 import '../../shared/logger.util.dart';
 
-class LogInAsClubView extends StatefulWidget {
-  const LogInAsClubView({super.key});
+class EnterAsDeveloperView extends StatefulWidget{
+  const EnterAsDeveloperView({super.key});
 
   @override
-  State<LogInAsClubView> createState() => _LogInAsClubViewState();
+  State<EnterAsDeveloperView> createState() => _EnterAsDeveloperViewState();
 }
 
-class _LogInAsClubViewState extends State<LogInAsClubView> {
-
+class _EnterAsDeveloperViewState extends State<EnterAsDeveloperView> {
 
 
   final log = getLogger();
@@ -32,8 +31,8 @@ class _LogInAsClubViewState extends State<LogInAsClubView> {
   late CustomStyleClass customStyleClass;
   final TextEditingController _clubPasswordController = TextEditingController();
 
-  final HiveService _hiveService = HiveService();
   final SupabaseService _supabaseService = SupabaseService();
+
 
   AppBar _buildAppBar(){
     return AppBar(
@@ -123,22 +122,10 @@ class _LogInAsClubViewState extends State<LogInAsClubView> {
 
           ClubMePassword clubMePassword = parseClubMePassword(value[0]);
 
-          ClubMeUserData newUserData = ClubMeUserData(
-              firstName: "...",
-              lastName: "...",
-              birthDate: DateTime.now(),
-              eMail: "...",
-              gender: 0,
-              userId: clubMePassword.clubId,
-              profileType: 1,
-              lastTimeLoggedIn: DateTime.now(),
-              userProfileAsClub: false,
-              clubId: clubMePassword.clubId
-          );
-          _hiveService.addUserData(newUserData).then((value){
-            userDataProvider.setUserData(newUserData);
-            context.go("/club_events");
-          });
+          if(clubMePassword.clubId == "1234"){
+            context.go("/log_in");
+          }
+
         }
         setState(() {
           isLoading = false;
@@ -158,8 +145,6 @@ class _LogInAsClubViewState extends State<LogInAsClubView> {
 
     customStyleClass = CustomStyleClass(context: context);
 
-    userDataProvider = Provider.of<UserDataProvider>(context);
-
     return Scaffold(
       appBar: _buildAppBar(),
       body: Container(
@@ -178,7 +163,7 @@ class _LogInAsClubViewState extends State<LogInAsClubView> {
                           horizontal: screenWidth*0.02
                       ),
                       child: Text(
-                        "Gib bitte dein Club-Passwort ein!",
+                        "Gib bitte dein Passwort ein!",
                         textAlign: TextAlign.center,
                         style: customStyleClass.getFontStyle1Bold(),
                       ),
@@ -208,7 +193,7 @@ class _LogInAsClubViewState extends State<LogInAsClubView> {
 
                     Container(
                       padding: const EdgeInsets.only(
-                        top: 10
+                          top: 10
                       ),
                       width: screenWidth*0.9,
                       alignment: Alignment.centerRight,

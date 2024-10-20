@@ -432,9 +432,8 @@ class EventTile extends StatelessWidget {
         builder: (BuildContext context){
           return
             TitleContentAndButtonDialog(
-                titleToDisplay: "Ticketbuchuchung",
-                contentToDisplay: "Dieser Link führt Sie weiter zu der Seite, wo Sie direkt ein Ticket kaufen können."
-                    "Ist das in Ordnung für Sie?",
+                titleToDisplay: "Ticket-Verkauf",
+                contentToDisplay: "Dieser Link führt zu einer externen Seite für den Ticketverkauf. Möchten Sie fortfahren?",
                 buttonToDisplay: okButton
             );
         }

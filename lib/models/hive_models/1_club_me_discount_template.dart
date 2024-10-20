@@ -17,7 +17,9 @@ class ClubMeDiscountTemplate{
     required this.ageLimitLowerLimit,
     required this.ageLimitUpperLimit,
     required this.isRepeatedDays,
-    required this.templateId
+    required this.templateId,
+    required this.bigBannerFileName,
+    required this.smallBannerFileName
   });
 
   @HiveField(0)
@@ -44,6 +46,18 @@ class ClubMeDiscountTemplate{
   int isRepeatedDays;
   @HiveField(12)
   String templateId;
+  @HiveField(13)
+  String bigBannerFileName;
+  @HiveField(14)
+  String smallBannerFileName;
+
+  String getSmallBannerFileName(){
+    return smallBannerFileName;
+  }
+
+  String getBigBannerFileName(){
+    return bigBannerFileName;
+  }
 
   DateTime getDiscountDate(){
     return discountDate;

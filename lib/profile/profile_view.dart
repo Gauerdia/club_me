@@ -1,4 +1,5 @@
 import 'package:club_me/models/hive_models/0_club_me_user_data.dart';
+import 'package:club_me/shared/dialogs/title_content_and_button_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -205,7 +206,7 @@ class _ProfileViewState extends State<ProfileView> {
                           ),
                         ),
                         Text(
-                          "${userDataProvider.getUserData().getFirstName()}, ${userDataProvider.getUserData().getLastName()}",
+                          "${userDataProvider.getUserData().getFirstName()} ${userDataProvider.getUserData().getLastName()}",
                           style: customStyleClass.getFontStyle3(),
                         ),
                       ],
@@ -648,62 +649,15 @@ class _ProfileViewState extends State<ProfileView> {
   }
   void clickEventDeleteAccount(){
     showDialog(context: context, builder: (BuildContext context){
-      return AlertDialog(
-          backgroundColor: Colors.black,
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20.0),
-              side: BorderSide(
-                  color: customStyleClass.primeColor
-              )
-          ),
-          title: Text(
-            "Account löschen",
-            style: customStyleClass.getFontStyle1Bold(),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-
-              // Question text
-              Text(
-                "Bist du sicher, dass du deinen Account löschen möchtest?",
-                style: customStyleClass.getFontStyle4(),
-              ),
-
-              // Spacer
-              SizedBox(
-                height: screenHeight*0.02,
-              ),
-
-              // "I am sure" button
-              Container(
-                  width: screenWidth*0.9,
-                  // color: Colors.red,
-                  alignment: Alignment.bottomRight,
-                  child: GestureDetector(
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                          vertical: screenHeight*0.015,
-                          horizontal: screenWidth*0.03
-                      ),
-                      decoration: BoxDecoration(
-                          color: Colors.black54,
-                          border: Border.all(
-                              color: customStyleClass.primeColor
-                          ),
-                          borderRadius: const BorderRadius.all(Radius.circular(10))
-                      ),
-                      child: Text(
-                        "Ja, bitte meinen Account löschen!",
-                        textAlign: TextAlign.center,
-                        style: customStyleClass.getFontStyle4BoldPrimeColor(),
-                      ),
-                    ),
-                    onTap: () => clickEventApprovesAccountDeletion(),
-                  )
-              ),
-            ],
-          )
+      return TitleContentAndButtonDialog(
+          titleToDisplay: "Account löschen",
+          contentToDisplay: "Bist du sicher, dass du deinen Account endgültig löschen möchtest?",
+          buttonToDisplay: TextButton(
+              onPressed: () => clickEventApprovesAccountDeletion(),
+              child: Text(
+                "Ja",
+                style: customStyleClass.getFontStyle3BoldPrimeColor(),
+              ))
       );
     });
   }

@@ -1,6 +1,7 @@
 import 'package:club_me/models/discount.dart';
 import 'package:club_me/provider/fetched_content_provider.dart';
 import 'package:club_me/shared/dialogs/TitleAndContentDialog.dart';
+import 'package:club_me/shared/dialogs/title_content_and_button_dialog.dart';
 import 'package:club_me/shared/dialogs/title_content_and_two_buttons_dialog.dart';
 import 'package:club_me/utils/utils.dart';
 import 'package:flutter/cupertino.dart';
@@ -1295,26 +1296,17 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
     showDialog(
         context: context,
         builder: (BuildContext context){
-          return TitleContentAndTwoButtonsDialog(
-              titleToDisplay: "Abbrechen",
-              contentToDisplay: "Bist du sicher, dass du abbrechen möchtest?",
-              firstButtonToDisplay: TextButton(
-                child: Text(
-                  "Zurück",
-                  style: customStyleClass.getFontStyle3(),
-                ),
-                onPressed: (){
-                  Navigator.of(context).pop();
-                },
-              ),
-              secondButtonToDisplay: TextButton(
+          return TitleContentAndButtonDialog(
+              titleToDisplay: "Bearbeitung abbrechen",
+              contentToDisplay: "Bist du sicher, dass du die Bearbeitung abbrechen möchtest?",
+              buttonToDisplay: TextButton(
                 child: Text(
                   "Ja",
                   style: customStyleClass.getFontStyle3(),
                 ),
                 onPressed: () => context.go("/club_coupons"),
-              )
-          );
+              ));
+
         }
     );
   }

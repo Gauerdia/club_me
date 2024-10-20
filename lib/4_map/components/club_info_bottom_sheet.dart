@@ -5,6 +5,7 @@ import 'package:club_me/shared/dialogs/TitleAndContentDialog.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../3_clubs/user_view/components/event_card.dart';
@@ -185,11 +186,13 @@ class _ClubInfoBottomSheetState extends State<ClubInfoBottomSheet> {
                     clubOpenStatus.openingStatus == 3 ?
                     "Geöffnet, schließt um ${clubOpenStatus.textToDisplay} Uhr":
                     "Geschlossen.",
-                    style: TextStyle(
-                        color: clubOpenStatus.openingStatus == 0 ?
-                        Colors.grey : clubOpenStatus.openingStatus == 2 ?
-                        customStyleClass.primeColor : Colors.white,
-                        fontWeight: FontWeight.bold
+                    style: GoogleFonts.inter(
+                      textStyle: TextStyle(
+                          color: clubOpenStatus.openingStatus == 0 ?
+                          Colors.grey : clubOpenStatus.openingStatus == 2 ?
+                          customStyleClass.primeColor : Colors.white,
+                          fontWeight: FontWeight.bold
+                      )
                     ),
                   ),
                 )
@@ -455,9 +458,9 @@ class _ClubInfoBottomSheetState extends State<ClubInfoBottomSheet> {
       genreToReturn = currentAndLikedElementsProvider.currentClubMeClub.getMusicGenres();
     }
 
-    if(genreToReturn.length>8){
-      genreToReturn = "${genreToReturn.substring(0, 7)}...";
-    }
+    // if(genreToReturn.length>8){
+    //   genreToReturn = "${genreToReturn.substring(0, 7)}...";
+    // }
     return genreToReturn;
 
   }

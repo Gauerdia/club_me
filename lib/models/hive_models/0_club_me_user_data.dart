@@ -1,4 +1,6 @@
 import 'package:hive/hive.dart';
+import 'package:age_calculator/age_calculator.dart';
+
 part '0_club_me_user_data.g.dart';
 
 @HiveType(typeId:  0)
@@ -56,9 +58,8 @@ class ClubMeUserData{
   }
 
   int getUserAge() {
-    Duration parse = DateTime.now().difference(getBirthDate()).abs();
-    return parse.inDays;
-    // return "${parse.inDays~/360} Years ${((parse.inDays%360)~/30)} Month ${(parse.inDays%360)%30} Days";
+    var age = AgeCalculator.age(getBirthDate());
+    return age.years;
   }
 
   String getUserId(){

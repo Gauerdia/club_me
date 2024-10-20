@@ -19,18 +19,17 @@ class TitleAndContentDialog extends StatelessWidget {
 
     return AlertDialog(
       backgroundColor: customStyleClass.backgroundColorMain,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(30),
+          side: const BorderSide(color: Colors.white)
+      ),
       title: Text(
         titleToDisplay,
         style: customStyleClass.getFontStyle3Bold(),
       ),
-      content: SizedBox(
-          height: screenHeight*0.12,
-          child: Center(
-            child: Text(
-              contentToDisplay,
-              style: customStyleClass.getFontStyle5(),
-            ),
-          )
+      content: Text(
+        contentToDisplay,
+        style: customStyleClass.getFontStyle5(),
       ),
     );
   }

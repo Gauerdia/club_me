@@ -280,129 +280,6 @@ class _UserCouponsViewState extends State<UserCouponsView>
 
   }
 
-  AppBar _buildAppBarWithSearch(){
-    return AppBar(
-      backgroundColor: customStyleClass.backgroundColorMain,
-      surfaceTintColor: customStyleClass.backgroundColorMain,
-      title: TextField(
-        autofocus: true,
-        controller: _textEditingController,
-        onChanged: (text){
-          _textEditingController.text = text;
-          searchValue = text;
-          setState(() {
-            filterDiscounts();
-          });
-        },
-        decoration: InputDecoration(
-          focusedBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: customStyleClass.primeColor),
-          ),
-          hintStyle: TextStyle(
-              color: customStyleClass.primeColor
-          ),
-        ),
-        style: const TextStyle(
-            color: Colors.white
-        ),
-        cursorColor: customStyleClass.primeColor,
-      ),
-      leading:GestureDetector(
-        child: Icon(
-          Icons.search,
-          color: searchValue != "" ? customStyleClass.primeColor : Colors.white,
-          // size: 20,
-        ),
-        onTap: () => toggleIsSearchActive(),
-      ),
-      actions: [
-        IconButton(
-            onPressed: () => filterForFavorites(),
-            icon: Icon(
-              onlyFavoritesIsActive ? Icons.star : Icons.star_border,
-              color: onlyFavoritesIsActive ? customStyleClass.primeColor : Colors.white,
-            )
-        )
-      ],
-    );
-  }
-  AppBar _buildAppBarWithTitle(){
-    return AppBar(
-      backgroundColor: customStyleClass.backgroundColorMain,
-      surfaceTintColor: customStyleClass.backgroundColorMain,
-      title: Container(
-        width: screenWidth,
-        child: Stack(
-          children: [
-
-            // Headline
-            Container(
-                alignment: Alignment.bottomCenter,
-                height: 50,
-                width: screenWidth,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                                headline,
-                                textAlign: TextAlign.center,
-                                style: customStyleClass.getFontStyleHeadline1Bold()
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  bottom: 15
-                              ),
-                              child: Text(
-                                "VIP",
-                                style: customStyleClass.getFontStyleVIPGold(),
-                              ),
-                            )
-                          ],
-                        ),
-                      ],
-                    )
-                  ],
-                )
-            ),
-
-
-            Container(
-              alignment: Alignment.centerLeft,
-              width: screenWidth,
-              height: 50,
-              child: IconButton(
-                  onPressed: () => toggleIsSearchActive(),
-                  icon: Icon(
-                    Icons.search,
-                    color: searchValue != "" ? customStyleClass.primeColor : Colors.white,
-                    // size: 20,
-                  )
-              )
-            ),
-
-            Container(
-              width: screenWidth,
-              height: 50,
-              alignment: Alignment.centerRight,
-              child: IconButton(
-                  onPressed: () => filterForFavorites(),
-                  icon: Icon(
-                    onlyFavoritesIsActive ? Icons.star : Icons.star_border,
-                    color: onlyFavoritesIsActive ? customStyleClass.primeColor : Colors.white,
-                  )
-              )
-            )
-
-          ],
-        ),
-      ),
-    );
-  }
   Widget _buildNothingToDisplay(){
 
     return isSearchActive ?
@@ -447,32 +324,6 @@ class _UserCouponsViewState extends State<UserCouponsView>
         ),
       ),
     );
-
-
-    //   GestureDetector(
-    //   child: SizedBox(
-    //     width: screenWidth,
-    //     height: screenHeight*0.7,
-    //     child: Center(
-    //       child: Text(
-    //         onlyFavoritesIsActive ?
-    //         "Derzeit sind keine Coupons als Favoriten markiert." :
-    //         "Derzeit sind leider keine Coupons verfügbar.",
-    //         style: customStyleClass.getFontStyle3(),
-    //       ),
-    //     ),
-    //   ),
-    //   onTap: (){
-    //     setState(() {
-    //       isSearchbarActive = false;
-    //     });
-    //   },
-    //   onVerticalDragStart: (DragStartDetails){
-    //     setState(() {
-    //       isSearchbarActive = false;
-    //     });
-    //   },
-    // );
   }
 
 
@@ -486,6 +337,8 @@ class _UserCouponsViewState extends State<UserCouponsView>
       if(checkIfIsUpcomingDiscount(currentDiscount)){
         if(!fetchedContentProvider.getFetchedDiscounts().contains(currentDiscount) &&
            !checkIfAnyRestrictionsApply(currentDiscount)){
+
+          print("logic1. no restrictions apply: " + currentDiscount.discountTitle);
           fetchedContentProvider.addDiscountToFetchedDiscounts(currentDiscount);
         }
       }
@@ -500,11 +353,16 @@ class _UserCouponsViewState extends State<UserCouponsView>
         fetchedContentProvider
     );
 
+    setState(() {
+
+    });
 
   }
   void processDiscountsFromProvider(FetchedContentProvider fetchedContentProvider){
     // Events in the provider ought to have all images fetched, already. So, we just sort.
     // checkDiscountsForRestrictions(fetchedContentProvider.getFetchedDiscounts());
+
+
     setState(() {
       processingComplete = true;
     });
@@ -554,9 +412,9 @@ class _UserCouponsViewState extends State<UserCouponsView>
         context: context,
         builder: (BuildContext context) =>
             TitleAndContentDialog(
-                titleToDisplay: "Event teilen",
-                contentToDisplay: "Die Funktion, ein Event zu teilen, ist derzeit noch "
-                    "nicht implementiert. Wir bitten um Verständnis.")
+                titleToDisplay: "Teilen",
+                contentToDisplay: "Das Teilen von Inhalten aus der App ist derzeit noch nicht möglich. Wir bitten um Entschuldigung."
+            )
     );
   }
   void clickEventLike(String discountId){
@@ -692,12 +550,13 @@ class _UserCouponsViewState extends State<UserCouponsView>
   }
   bool checkIfAnyRestrictionsApply(ClubMeDiscount currentDiscount) {
 
-    print("Test: ${currentDiscount.getDiscountId()}");
+    print("Gender Logic: ${userDataProvider.getUserData().getGender()}");
 
       int userAge = userDataProvider.getUserData().getUserAge();
 
       if(currentDiscount.getTargetGender() != 0 &&
-          currentDiscount.getTargetGender() != userDataProvider.getUserData().getGender()){
+          currentDiscount.getTargetGender() != userDataProvider.getUserData().getGender()
+      ){
         return true;
       }
 
@@ -730,6 +589,7 @@ class _UserCouponsViewState extends State<UserCouponsView>
 
       return false;
   }
+
   bool checkIfIsUpcomingDiscount(ClubMeDiscount currentDiscount){
 
     // We are only interested in the upcoming events. Here, we sort for them

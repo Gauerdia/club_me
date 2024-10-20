@@ -638,8 +638,7 @@ class _UserClubsViewState extends State<UserClubsView>
         builder: (BuildContext context) =>
             TitleAndContentDialog(
                 titleToDisplay: "Event teilen",
-                contentToDisplay: "Die Funktion, ein Event zu teilen, ist derzeit noch "
-                    "nicht implementiert. Wir bitten um Verständnis.")
+                contentToDisplay: "Das Teilen von Inhalten aus der App ist derzeit noch nicht möglich. Wir bitten um Entschuldigung.")
     );
   }
   void triggerSetState(){

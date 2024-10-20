@@ -15,6 +15,7 @@ import 'package:club_me/provider/current_and_liked_elements_provider.dart';
 import 'package:club_me/provider/fetched_content_provider.dart';
 import 'package:club_me/provider/state_provider.dart';
 import 'package:club_me/provider/user_data_provider.dart';
+import 'package:club_me/register/components/enter_as_developer_view.dart';
 import 'package:club_me/register/components/forgot_password_view.dart';
 import 'package:club_me/register/components/log_in_as_club_view.dart';
 import 'package:club_me/register/components/register_for_user_as_club_view.dart';
@@ -149,7 +150,8 @@ final GoRouter _router = GoRouter(
     GoRoute(
       path: '/',
       builder: (BuildContext context, GoRouterState state)
-      => RegisterView() //LogInView();//ComingSoonView();//LogInView(); //Test();
+      => LogInView()
+      //ComingSoonView();//LogInView(); //Test();
     ),
 
     // USER VIEWS
@@ -508,6 +510,12 @@ final GoRouter _router = GoRouter(
             child: const Test()
         )
     ),
+
+    GoRoute(
+        path: '/enter_as_developer',
+        builder: (context, state) => const EnterAsDeveloperView()
+    ),
+
 
 
   ],

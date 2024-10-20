@@ -168,7 +168,7 @@ class CouponCard extends StatelessWidget {
                                 children: [
                                   Text(
                                     titleToDisplay,
-                                    style: customStyleClass.getFontStyle3Bold(),
+                                    style: customStyleClass.getFontStyle2Bold(),
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.only(
@@ -364,7 +364,7 @@ class CouponCard extends StatelessWidget {
         context: context,
         builder: (BuildContext context){
           return TitleContentAndButtonDialog(
-              titleToDisplay: "Coupon-Informationen",
+              titleToDisplay: "Coupon-Beschreibung",
               contentToDisplay: clubMeDiscount.getDiscountDescription(),
               buttonToDisplay: okButton);
         }
@@ -391,11 +391,14 @@ class CouponCard extends StatelessWidget {
 
   }
   void formatDiscountTitle(){
-    if(clubMeDiscount.getDiscountTitle().length > 26){
-      titleToDisplay = "${clubMeDiscount.getDiscountTitle().substring(0,25)}...";
-    }else{
-      titleToDisplay = clubMeDiscount.getDiscountTitle();
-    }
+
+    titleToDisplay = clubMeDiscount.getDiscountTitle();
+
+    // if(clubMeDiscount.getDiscountTitle().length > 26){
+    //   titleToDisplay = "${clubMeDiscount.getDiscountTitle().substring(0,25)}...";
+    // }else{
+    //   titleToDisplay = clubMeDiscount.getDiscountTitle();
+    // }
   }
   void formatDateToDisplay(){
 
@@ -424,10 +427,9 @@ class CouponCard extends StatelessWidget {
 
     showDialog(context: context,
         builder: (BuildContext context){
-          return
-            TitleContentAndButtonDialog(
+          return TitleContentAndButtonDialog(
                 titleToDisplay: "Coupon einlösen",
-                contentToDisplay: "Bist du sicher, dass du den Coupon einlösen möchtest? Du kannst ihn danach womöglich nicht noch einmal einlösen.",
+                contentToDisplay: "Bist du sicher, dass du den Coupon einlösen möchtest? Du kannst ihn danach eventuell nicht noch einmal einlösen.",
                 buttonToDisplay: TextButton(
                     onPressed: () {
                       currentAndLikedElementsProvider.setCurrentDiscount(clubMeDiscount);

@@ -82,7 +82,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
     }else{
       _showDialogWithTitleAndText(
           "Angebote",
-          "Dieser Club hat derzeit noch keine Angebote im Sortiment!"
+          "Dieser Club verfügt derzeit über keine speziellen Angebote in der App."
       );
     }
 
@@ -110,7 +110,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
   void clickEventLounge(){
     _showDialogWithTitleAndText(
         "Lounges",
-        "Diese Funktion steht zurzeit noch nicht zur Verfügung! Wir bitten um Verständnis!"
+        "Die Buchung von Lounges ist derzeit noch nicht möglich, wird aber bald verfügbar sein. Wir bitten um Entschuldigung."
     );
   }
 
@@ -563,7 +563,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
           height: screenHeight*0.02,
         ),
 
-        // Musikgenres
+        // opening times
         for(var element in currentAndLikedElementsProvider.currentClubMeClub.getOpeningTimes().days!)
           formatOpeningTime(element),
 
@@ -1134,24 +1134,55 @@ class _ClubDetailViewState extends State<ClubDetailView> {
             style: customStyleClass.getFontStyle3(),
           ),
           Row(
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Text(
-                openingHourToDisplay,
-                style: customStyleClass.getFontStyle3(),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 10
-                ),
+
+              SizedBox(
+                // width: screenWidth*0.15,
                 child: Text(
-                  "-",
+                  openingHourToDisplay,
                   style: customStyleClass.getFontStyle3(),
                 ),
               ),
-              Text(
-                closingHourToDisplay,
-                style: customStyleClass.getFontStyle3(),
-              )
+
+              Container(
+                // color: Colors.red,
+                width: screenWidth*0.07,
+                child: Center(
+                  child: Text(
+                    "-",
+                    style: customStyleClass.getFontStyle3(),
+                  ),
+                ),
+              ),
+
+              Container(
+                // color: Colors.green,
+                alignment: Alignment.centerRight,
+                width: screenWidth*0.12,
+                child: Text(
+                  closingHourToDisplay,
+                  style: customStyleClass.getFontStyle3(),
+                )
+              ),
+
+              // Text(
+              //   openingHourToDisplay,
+              //   style: customStyleClass.getFontStyle3(),
+              // ),
+              // Padding(
+              //   padding: const EdgeInsets.symmetric(
+              //       horizontal: 10
+              //   ),
+              //   child: Text(
+              //     "-",
+              //     style: customStyleClass.getFontStyle3(),
+              //   ),
+              // ),
+              // Text(
+              //   closingHourToDisplay,
+              //   style: customStyleClass.getFontStyle3(),
+              // )
             ],
           )
         ],

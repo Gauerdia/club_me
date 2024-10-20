@@ -4,6 +4,7 @@ import 'package:club_me/models/club_open_status.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../../models/club.dart';
@@ -191,11 +192,13 @@ class ClubCard extends StatelessWidget {
                                     clubOpenStatus.openingStatus == 3 ?
                                     "Geöffnet, schließt um ${clubOpenStatus.textToDisplay} Uhr":
                                     "Geschlossen.",
-                                    style: TextStyle(
-                                        color: clubOpenStatus.openingStatus == 0 ?
-                                        Colors.grey : clubOpenStatus.openingStatus == 2 ?
-                                        customStyleClass.primeColor : Colors.white,
-                                        fontWeight: FontWeight.bold
+                                    style: GoogleFonts.inter(
+                                      textStyle: TextStyle(
+                                              color: clubOpenStatus.openingStatus == 0 ?
+                                              Colors.grey : clubOpenStatus.openingStatus == 2 ?
+                                              customStyleClass.primeColor : Colors.white,
+                                              fontWeight: FontWeight.bold
+                                          )
                                     ),
                                   ),
                                 )

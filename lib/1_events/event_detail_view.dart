@@ -52,6 +52,9 @@ class _EventDetailViewState extends State<EventDetailView>{
   late double screenHeight, screenWidth;
   late String formattedEventTitle, formattedDjName, formattedEventGenres, formattedEventPrice, formattedWeekday;
 
+
+  List<String> genresToDisplay = [];
+
   late File file;
   bool isImage = false;
   bool isVideo = false;
@@ -409,173 +412,169 @@ class _EventDetailViewState extends State<EventDetailView>{
               ),
 
               // Description
-              SizedBox(
-                  width: screenWidth,
-                  child: Stack(
+              // Text Info
+              Container(
+                height: screenHeight*0.5,
+                color: customStyleClass.backgroundColorMain,
+                padding: const EdgeInsets.only(
+                    top:15,
+                    bottom: 15,
+                    right:15,
+                    left:9
+                ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
 
-                      // Text Info
+                      // Description headline
                       Container(
-                        color: customStyleClass.backgroundColorMain,
-                        padding: const EdgeInsets.only(
-                            top:15,
-                            bottom: 15,
-                            right:15,
-                            left:9
-                        ),
-                        child: SingleChildScrollView(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-
-                              // Description headline
-                              Container(
-                                alignment: Alignment.center,
-                                child: Text(
-                                  "Beschreibung",
-                                  style: customStyleClass.getFontStyle3Bold(),
-                                ),
-                              ),
-
-                              // Description content
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 10
-                                ),
-                                child: Text(
-                                  currentAndLikedElementsProvider.currentClubMeEvent.getEventDescription(),
-                                  textAlign: TextAlign.center,
-                                  style: customStyleClass.getFontStyle4(),
-                                ),
-                              ),
-
-                              // Headline genres
-                              Container(
-                                alignment: Alignment.center,
-                                child: Text(
-                                  "Musikrichtungen",
-                                  style: customStyleClass.getFontStyle3Bold(),
-                                ),
-                              ),
-
-                              // Genres
-                              Container(
-                                alignment: Alignment.center,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 10
-                                ),
-                                child: Text(
-                                  formattedEventGenres,
-                                  style: customStyleClass.getFontStyle4(),
-                                ),
-                              ),
-
-                              const Divider(
-                                color: Color(0xff121111),
-                                indent: 0,
-                                endIndent: 0,
-                              ),
-
-                              Divider(
-                                color: Colors.grey[900],
-                              ),
-
-                              // Headline lounges
-                              Container(
-                                alignment: Alignment.center,
-                                padding: const EdgeInsets.only(
-                                    bottom: 20
-                                ),
-                                child: Text(
-                                  "Lounges",
-                                  style: customStyleClass.getFontStyle3Bold(),
-                                ),
-                              ),
-
-
-
-                              // Lounges scrllview
-                              SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: Row(
-                                  children: [
-                                    Stack(
-                                      children: [
-                                        SizedBox(
-                                          width: screenWidth*0.5,
-                                          height: screenHeight*0.17,
-                                          child: Image.asset("assets/images/lounge_blue.png"),
-                                        ),
-                                        SizedBox(
-                                          width: screenWidth*0.5,
-                                          height: screenHeight*0.15,
-                                          child: Center(
-                                            child: Text(
-                                              "Bald verfügbar in der App!",
-                                              style: customStyleClass.getFontStyle5BoldPrimeColor(),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      width: screenWidth*0.05,
-                                    ),
-                                    Stack(
-                                      children: [
-                                        SizedBox(
-                                          width: screenWidth*0.5,
-                                          height: screenHeight*0.17,
-                                          child: Image.asset("assets/images/lounge_grey2.png"),
-                                        ),
-                                        SizedBox(
-                                          width: screenWidth*0.5,
-                                          height: screenHeight*0.15,
-                                          child: Center(
-                                            child: Text(
-                                              "Bald verfügbar in der App!",
-                                              style: customStyleClass.getFontStyle5Bold(),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      width: screenWidth*0.05,
-                                    ),
-                                    Stack(
-                                      children: [
-                                        SizedBox(
-                                          width: screenWidth*0.5,
-                                          height: screenHeight*0.17,
-                                          child: Image.asset("assets/images/lounge_grey2.png"),
-                                        ),
-                                        SizedBox(
-                                          width: screenWidth*0.5,
-                                          height: screenHeight*0.15,
-                                          child: Center(
-                                            child: Text(
-                                              "Bald verfügbar in der App!",
-                                              style: customStyleClass.getFontStyle5Bold(),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              )
-
-
-                            ],
-                          ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          "Beschreibung",
+                          style: customStyleClass.getFontStyle3Bold(),
                         ),
                       ),
 
+                      // Description content
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 10
+                        ),
+                        child: Text(
+                          currentAndLikedElementsProvider.currentClubMeEvent.getEventDescription(),
+                          textAlign: TextAlign.center,
+                          style: customStyleClass.getFontStyle4(),
+                        ),
+                      ),
+
+                      // Headline genres
+                      Container(
+                        alignment: Alignment.center,
+                        child: Text(
+                          "Musikrichtungen",
+                          style: customStyleClass.getFontStyle3Bold(),
+                        ),
+                      ),
+
+                      // Wrap: Genres
+                      Container(
+                        width: screenWidth*0.9,
+                        alignment: Alignment.center,
+                        child: Wrap(
+                          alignment: WrapAlignment.center,
+                          children: [
+                            for(String genre in genresToDisplay)
+                              Text(
+                                genre,
+                                style: customStyleClass.getFontStyle4(),
+                              )
+                          ],
+                        ),
+                      ),
+
+
+                      const Divider(
+                        color: Color(0xff121111),
+                        indent: 0,
+                        endIndent: 0,
+                      ),
+
+                      Divider(
+                        color: Colors.grey[900],
+                      ),
+
+                      // Headline lounges
+                      Container(
+                        alignment: Alignment.center,
+                        padding: const EdgeInsets.only(
+                            bottom: 20
+                        ),
+                        child: Text(
+                          "Lounges",
+                          style: customStyleClass.getFontStyle3Bold(),
+                        ),
+                      ),
+
+
+
+                      // Lounges scrllview
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            Stack(
+                              children: [
+                                SizedBox(
+                                  width: screenWidth*0.5,
+                                  height: screenHeight*0.17,
+                                  child: Image.asset("assets/images/lounge_blue.png"),
+                                ),
+                                SizedBox(
+                                  width: screenWidth*0.5,
+                                  height: screenHeight*0.15,
+                                  child: Center(
+                                    child: Text(
+                                      "Bald verfügbar in der App!",
+                                      style: customStyleClass.getFontStyle5BoldPrimeColor(),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              width: screenWidth*0.05,
+                            ),
+                            Stack(
+                              children: [
+                                SizedBox(
+                                  width: screenWidth*0.5,
+                                  height: screenHeight*0.17,
+                                  child: Image.asset("assets/images/lounge_grey2.png"),
+                                ),
+                                SizedBox(
+                                  width: screenWidth*0.5,
+                                  height: screenHeight*0.15,
+                                  child: Center(
+                                    child: Text(
+                                      "Bald verfügbar in der App!",
+                                      style: customStyleClass.getFontStyle5Bold(),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              width: screenWidth*0.05,
+                            ),
+                            Stack(
+                              children: [
+                                SizedBox(
+                                  width: screenWidth*0.5,
+                                  height: screenHeight*0.17,
+                                  child: Image.asset("assets/images/lounge_grey2.png"),
+                                ),
+                                SizedBox(
+                                  width: screenWidth*0.5,
+                                  height: screenHeight*0.15,
+                                  child: Center(
+                                    child: Text(
+                                      "Bald verfügbar in der App!",
+                                      style: customStyleClass.getFontStyle5Bold(),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      )
+
+
                     ],
-                  )
+                  ),
+                ),
               ),
 
             ],
@@ -624,26 +623,6 @@ class _EventDetailViewState extends State<EventDetailView>{
             child: Image.file(file),
           ),
 
-          // Icon
-          // GestureDetector(
-          //   child: Container(
-          //     alignment: Alignment.bottomRight,
-          //     child: ClipRRect(
-          //       borderRadius: const BorderRadius.only(
-          //           topRight: Radius.circular(15),
-          //           topLeft: Radius.circular(15)
-          //       ),
-          //       child: Image.asset(
-          //         "assets/images/ClubMe_Logo_weiß.png",
-          //         width: 60,
-          //         height: 60,
-          //         // fit: BoxFit.cover,
-          //       ),
-          //     ),
-          //   ),
-          //   onTap: () => clickEventContent(),
-          // )
-
         ],
       )
 
@@ -654,7 +633,7 @@ class _EventDetailViewState extends State<EventDetailView>{
           // Video container
           SizedBox(
             width: screenWidth,
-            height: screenHeight*0.85,
+            height: screenHeight,
             child: _chewieController != null &&
                 _chewieController!
                     .videoPlayerController.value.isInitialized
@@ -731,8 +710,8 @@ class _EventDetailViewState extends State<EventDetailView>{
         builder: (BuildContext context){
           return  TitleContentAndButtonDialog(
               titleToDisplay: "Ticketbuchuchung",
-              contentToDisplay: "Dieser Link führt Sie weiter zu der Seite, wo Sie direkt ein Ticket kaufen können."
-                  "Ist das in Ordnung für Sie?",
+              contentToDisplay: "Dieser Link führt zu einer externen Seite für den Ticket-Verkauf. "
+                  "Möchten Sie fortfahren?",
               buttonToDisplay: okButton
           );
         }
@@ -745,8 +724,7 @@ class _EventDetailViewState extends State<EventDetailView>{
         builder: (BuildContext context) =>
             TitleAndContentDialog(
                 titleToDisplay: "Event teilen",
-                contentToDisplay: "Die Funktion, ein Event zu teilen, ist derzeit noch "
-                    "nicht implementiert. Wir bitten um Verständnis.")
+                contentToDisplay: "Das Teilen von Inhalten aus der App ist derzeit noch nicht möglich. Wir bitten um Entschuldigung.")
     );
   }
   void clickEventLike(String eventId){
@@ -850,16 +828,24 @@ class _EventDetailViewState extends State<EventDetailView>{
     formattedEventTitle = titleToDisplay;
   }
   void formatEventGenres(){
-    String genresToDisplay = "";
 
     if(currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenres().isNotEmpty){
-      if(
-      currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenres().substring(currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenres().length-1) == ","){
-        genresToDisplay = currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenres().substring(0, currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenres().length-1);
-      }else{
-        genresToDisplay = currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenres();
+
+
+      if(genresToDisplay.isEmpty){
+
+        final splitNames = currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenres().split(',');
+
+        for(int i=0; i<splitNames.length;i++){
+
+          if(i==splitNames.length){
+            genresToDisplay.add(splitNames[i]);
+          }else{
+            genresToDisplay.add("${splitNames[i]},");
+          }
+        }
       }
-      formattedEventGenres = genresToDisplay;
+
     }else{
       formattedEventGenres = "Es wurden keine Musikrichtungen angegeben";
     }

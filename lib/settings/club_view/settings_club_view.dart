@@ -3,11 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:open_mail_app/open_mail_app.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../provider/fetched_content_provider.dart';
 import '../../provider/state_provider.dart';
 import '../../services/hive_service.dart';
 import '../../shared/custom_text_style.dart';
+import '../../shared/dialogs/TitleAndContentDialog.dart';
+import '../../shared/dialogs/title_content_and_button_dialog.dart';
+import '../../shared/dialogs/title_content_and_two_buttons_dialog.dart';
 
 class SettingsClubView extends StatefulWidget {
   const SettingsClubView({super.key});
@@ -81,221 +85,94 @@ class _SettingsClubViewState extends State<SettingsClubView> {
   }
 
   void clickEventRateUs(){
-    Widget okButton = TextButton(
-      child: Text(
-        "OK",
-        style: customStyleClass.getFontStyle4(),
-      ),
-      onPressed: () async {
-        Navigator.pop(context);
-        // final Uri url = Uri.parse(clubMeEvent.getTicketLink());
-        // if (!await launchUrl(url)) {
-        //   throw Exception('Could not launch $url');
-        // }
-      },
-    );
 
     showDialog(
         context: context,
         builder: (BuildContext context){
-          return AlertDialog(
-            backgroundColor: customStyleClass.backgroundColorEventTile,
-            title: Text(
-              "Bewertungen",
-              style: customStyleClass.getFontStyle1(),
-            ),
-            content: Text(
-              "Diese Funktion ist derzeit noch nicht verfügbar. Wir bitten um Geduld.",
-              style: customStyleClass.getFontStyle4(),
-            ),
-            actions: [
-              okButton
-            ],
-          );
+          return TitleAndContentDialog(
+              titleToDisplay: "Bewertungen",
+              contentToDisplay: "Diese Funktion ist derzeit noch nicht möglich. Wir bitten um Entschuldigung.");
         }
     );
   }
   void clickEventShare(){
-    Widget okButton = TextButton(
-      child: Text(
-        "OK",
-        style: customStyleClass.getFontStyle4(),
-      ),
-      onPressed: () async {
-        Navigator.pop(context);
-        // final Uri url = Uri.parse(clubMeEvent.getTicketLink());
-        // if (!await launchUrl(url)) {
-        //   throw Exception('Could not launch $url');
-        // }
-      },
-    );
-
     showDialog(
         context: context,
         builder: (BuildContext context){
-          return AlertDialog(
-            backgroundColor: customStyleClass.backgroundColorEventTile,
-            title: Text(
-              "Teilen",
-              style: customStyleClass.getFontStyle1(),
-            ),
-            content: Text(
-              "Diese Funktion ist derzeit noch nicht verfügbar. Wir bitten um Geduld.",
-              style: customStyleClass.getFontStyle4(),
-            ),
-            actions: [
-              okButton
-            ],
-          );
+          return TitleAndContentDialog(
+              titleToDisplay: "Teilen",
+              contentToDisplay: "Diese Funktion ist derzeit noch nicht möglich. Wir bitten um Entschuldigung.");
         }
     );
   }
   void clickEventNotifications(){
-    Widget okButton = TextButton(
-      child: Text(
-        "OK",
-        style: customStyleClass.getFontStyle4(),
-      ),
-      onPressed: () async {
-        Navigator.pop(context);
-        // final Uri url = Uri.parse(clubMeEvent.getTicketLink());
-        // if (!await launchUrl(url)) {
-        //   throw Exception('Could not launch $url');
-        // }
-      },
-    );
-
     showDialog(
         context: context,
         builder: (BuildContext context){
-          return AlertDialog(
-            backgroundColor: customStyleClass.backgroundColorEventTile,
-            title: Text(
-              "Benachrichtigungen",
-              style: customStyleClass.getFontStyle1(),
-            ),
-            content: Text(
-              "Diese Funktion ist derzeit noch nicht verfügbar. Wir bitten um Geduld.",
-              style: customStyleClass.getFontStyle4(),
-            ),
-            actions: [
-              okButton
-            ],
-          );
+          return TitleAndContentDialog(
+              titleToDisplay: "Benachrichtigungen",
+              contentToDisplay: "Diese Funktion ist derzeit noch nicht möglich. Wir bitten um Entschuldigung.");
         }
     );
   }
   void clickEventImpressum(){
-    Widget okButton = TextButton(
-      child: Text(
-        "OK",
-        style: customStyleClass.getFontStyle4(),
-      ),
-      onPressed: () async {
-        Navigator.pop(context);
-        // final Uri url = Uri.parse(clubMeEvent.getTicketLink());
-        // if (!await launchUrl(url)) {
-        //   throw Exception('Could not launch $url');
-        // }
-      },
-    );
+
 
     showDialog(
         context: context,
         builder: (BuildContext context){
-          return AlertDialog(
-            backgroundColor: customStyleClass.backgroundColorEventTile,
-            title: Text(
-              "Impressum",
-              style: customStyleClass.getFontStyle1(),
-            ),
-            content: Text(
-              "Dieser Link führt Sie weiter zu unserer Website, wo Sie unser Impressum lesen können."
-                  " Ist das in Ordnung für Sie?",
-              style: customStyleClass.getFontStyle4(),
-            ),
-            actions: [
-              okButton
-            ],
-          );
+          return TitleContentAndButtonDialog(
+              titleToDisplay: "Impressum",
+              contentToDisplay: "Dieser Link führt zu unserer Website. Möchten Sie fortfahren?",
+              buttonToDisplay: TextButton(onPressed: () async {
+                final Uri url = Uri.parse("https://club-me-web-interface.pages.dev/impressum");
+                if (!await launchUrl(url)) {
+                  throw Exception('Could not launch $url');
+                }
+              }, child: Text("Ja", style: customStyleClass.getFontStyle3BoldPrimeColor(),)));
+
         }
     );
   }
   void clickEventAGB(){
-    Widget okButton = TextButton(
-      child: Text(
-        "OK",
-        style: customStyleClass.getFontStyle4(),
-      ),
-      onPressed: () async {
-        Navigator.pop(context);
-        // final Uri url = Uri.parse(clubMeEvent.getTicketLink());
-        // if (!await launchUrl(url)) {
-        //   throw Exception('Could not launch $url');
-        // }
-      },
-    );
-
     showDialog(
         context: context,
         builder: (BuildContext context){
-          return AlertDialog(
-            backgroundColor: customStyleClass.backgroundColorEventTile,
-            title: Text(
-              "AGB",
-              style: customStyleClass.getFontStyle1(),
-            ),
-            content: Text(
-              "Dieser Link führt Sie weiter zu unserer Website, wo Sie die AGB lesen können."
-                  "Ist das in Ordnung für Sie?",
-              style: customStyleClass.getFontStyle4(),
-            ),
-            actions: [
-              okButton
-            ],
-          );
+          return TitleContentAndButtonDialog(
+              titleToDisplay: "AGB",
+              contentToDisplay: "Dieser Link führt zu unserer Website. Möchten Sie fortfahren?",
+              buttonToDisplay: TextButton(onPressed: () async {
+                final Uri url = Uri.parse("https://club-me-web-interface.pages.dev/agb");
+                if (!await launchUrl(url)) {
+                  throw Exception('Could not launch $url');
+                }
+              }, child: Text("Ja", style: customStyleClass.getFontStyle3BoldPrimeColor(),)));
+
         }
     );
   }
   void clickEventPrivacy(){
-    Widget okButton = TextButton(
-      child: Text(
-        "OK",
-        style: customStyleClass.getFontStyle4(),
-      ),
-      onPressed: () async {
-        Navigator.pop(context);
-        // final Uri url = Uri.parse(clubMeEvent.getTicketLink());
-        // if (!await launchUrl(url)) {
-        //   throw Exception('Could not launch $url');
-        // }
-      },
-    );
-
     showDialog(
         context: context,
         builder: (BuildContext context){
-          return AlertDialog(
-            backgroundColor: customStyleClass.backgroundColorEventTile,
-            title: Text(
-              "Datenschutz",
-              style: customStyleClass.getFontStyle1(),
-            ),
-            content: Text(
-              "Dieser Link führt Sie weiter zu unserer Website, wo Sie unsere Datenschutzverordnung lesen können."
-                  " Ist das in Ordnung für Sie?",
-              style: customStyleClass.getFontStyle4(),
-            ),
-            actions: [
-              okButton
-            ],
-          );
+          return TitleContentAndButtonDialog(
+              titleToDisplay: "Datenschutz",
+              contentToDisplay: "Dieser Link führt zu unserer Website. Möchten Sie fortfahren?",
+              buttonToDisplay: TextButton(onPressed: () async {
+                final Uri url = Uri.parse("https://club-me-web-interface.pages.dev/datenschutz");
+                if (!await launchUrl(url)) {
+                  throw Exception('Could not launch $url');
+                }
+              }, child: Text("Ja", style: customStyleClass.getFontStyle3BoldPrimeColor(),)));
+
         }
     );
+
   }
   void clickEventSponsors(){
     context.push("/user_sponsors");
   }
+
 
 
   void clickEventSwitchToUserView(){
@@ -306,11 +183,33 @@ class _SettingsClubViewState extends State<SettingsClubView> {
           }
       );
     }else{
-      context.go('/register_for_user_as_club');
+      context.push('/register_for_user_as_club');
     }
   }
 
   void clickEventLogOut(){
+    showDialog(
+      context: context,
+      builder: (_) {
+        return TitleContentAndTwoButtonsDialog(
+            titleToDisplay: "Ausloggen",
+            contentToDisplay: "Bist du sicher, dass du dich ausloggen möchtest?",
+            firstButtonToDisplay: TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  "Zurück",
+                  style: customStyleClass.getFontStyle3BoldPrimeColor(),
+                )),
+            secondButtonToDisplay: TextButton(onPressed: () => processLogOut(), child: Text(
+              "Ja",
+              style: customStyleClass.getFontStyle3BoldPrimeColor(),
+            ))
+        );
+      },
+    );
+  }
+
+  void processLogOut(){
     fetchedContentProvider.setFetchedEvents([]);
     fetchedContentProvider.setFetchedDiscounts([]);
     fetchedContentProvider.setFetchedClubs([]);

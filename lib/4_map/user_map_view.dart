@@ -145,8 +145,6 @@ class _UserMapViewState extends State<UserMapView>{
         setBasicMarker(currentClub);
       }
 
-      setUserLocationMarker();
-
       // Check if we need to download the corresponding images
       _checkAndFetchService.checkAndFetchClubImages(
           fetchedContentProvider.getFetchedClubs(),
@@ -154,6 +152,9 @@ class _UserMapViewState extends State<UserMapView>{
           fetchedContentProvider,
           false
       );
+
+      setUserLocationMarker();
+
     }
 
     setState(() {
@@ -465,7 +466,7 @@ class _UserMapViewState extends State<UserMapView>{
             text: "Hello World",
             index: 1
         ).toBitmapDescriptor(
-            logicalSize: const Size(150, 150), imageSize: const Size(150, 150)
+            logicalSize: const Size(250, 250), imageSize: const Size(250, 250)
         ).then((response) => {
           _markers[currentClub.getClubId()] = Marker(
               markerId: MarkerId(currentClub.getClubId()),
@@ -509,9 +510,10 @@ class _UserMapViewState extends State<UserMapView>{
   }
   void setUserLocationMarker() async{
 
+
     try{
 
-      // userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
+      userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
 
       log.d("UserMapView. Fct: setUserLocationMarker: Cuurrent UserDataProvider values: "
           "Lat(${userDataProvider.getUserLatCoord()}), Long(${userDataProvider.getUserLongCoord()})");
@@ -533,41 +535,6 @@ class _UserMapViewState extends State<UserMapView>{
       });
 
       setState(() {});
-
-
-
-      //     Marker(
-      //     markerId: MarkerId("user_location"),
-      //     position: LatLng(
-      //         userDataProvider.getUserClubCoordLat(),
-      //         userDataProvider.getUserClubCoordLng()
-      //     ),
-      //     icon: userIcon!
-      //   // icon: await getCustomIcon()
-      // );
-
-
-      // if(userIcon != null){
-      //   _markers['user_location'] = Marker(
-      //       markerId: MarkerId("user_location"),
-      //       position: LatLng(
-      //           userDataProvider.getUserClubCoordLat(),
-      //           userDataProvider.getUserClubCoordLng()
-      //       ),
-      //       icon: userIcon!
-      //     // icon: await getCustomIcon()
-      //   );
-      // }else{
-      //   _markers['user_location'] = Marker(
-      //       markerId: const MarkerId("user_location"),
-      //       position: LatLng(
-      //           userDataProvider.getUserClubCoordLat(),
-      //           userDataProvider.getUserClubCoordLng()
-      //       ),
-      //     // icon: await getCustomIcon()
-      //   );
-      //
-      // }
 
     }catch(e){
       _supabaseService.createErrorLog(
@@ -627,31 +594,6 @@ class _UserMapViewState extends State<UserMapView>{
 
 
   // Geo location services
-  _getUserLocation() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return;
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.deniedForever) {
-      return;
-    }
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission != LocationPermission.whileInUse &&
-          permission != LocationPermission.always) {
-        return;
-      }
-    }
-
-    setUserLocationMarker();
-
-    setState(() {});
-  }
   void startPeriodicGeoLocatorStream(){
     Timer.periodic(const Duration(seconds: 10), (timer){
 
@@ -668,42 +610,6 @@ class _UserMapViewState extends State<UserMapView>{
         uploadPositionToSupabase(position);
       });
     });
-  }
-  Future<Position> _determinePosition() async {
-
-    // Check if location services are enabled
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-
-      log.d("Error in _determinePosition: Location services are disabled.");
-
-      // Location services are not enabled return an error message
-      return Future.error('Location services are disabled.');
-
-    }
-
-    // Check location permissions
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-
-        log.d("Error in _determinePosition: Location permissions are denied.");
-
-        return Future.error('Location permissions are denied');
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      log.d("Error in _determinePosition: Location permissions are permanently denied, we cannot request permissions.");
-      return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
-    }
-
-    log.d("_determinePosition: No error. Returning Location.");
-
-    // If permissions are granted, return the current location
-    return await Geolocator.getCurrentPosition();
   }
   void uploadPositionToSupabase(Position value) async{
 
