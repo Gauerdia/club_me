@@ -94,7 +94,8 @@ class _RegisterViewState extends State<RegisterView> {
       if (Platform.isIOS || Platform.isMacOS) {
         _googleSignIn = GoogleSignIn(
           clientId: "com.googleusercontent.apps.947015013780-cfmc26giatfe8tsgf0eg3im36h0qsvj0",
-          serverClientId: "com.googleusercontent.apps.947015013780-b475mq5v5u6k0mpju7ik3njm2g6dr8pk",
+          // serverClientId: "com.googleusercontent.apps.947015013780-b475mq5v5u6k0mpju7ik3njm2g6dr8pk",
+          hostedDomain: "",
           scopes: [
             'https://www.googleapis.com/auth/userinfo.profile',
             'email',
@@ -144,12 +145,21 @@ class _RegisterViewState extends State<RegisterView> {
 
   void processAppleSignIn() async {
 
-    final credential = await SignInWithApple.getAppleIDCredential(
-        scopes: [
-          AppleIDAuthorizationScopes.email,
-          AppleIDAuthorizationScopes.fullName
-        ]
-    );
+    try{
+      final credential = await SignInWithApple.getAppleIDCredential(
+          scopes: [
+            AppleIDAuthorizationScopes.email,
+            AppleIDAuthorizationScopes.fullName
+          ]
+      );
+      _supabaseService.createErrorLog(
+          "RegisterView. Fct: processAppleSignIn. Plattform: iOS(${Platform.isIOS}), Android(${Platform.isAndroid}, response: $credential"
+      );
+    }catch(e){
+      _supabaseService.createErrorLog(
+          "RegisterView. Fct: processAppleSignIn. Plattform: iOS(${Platform.isIOS}), Android(${Platform.isAndroid}, Error: $e"
+      );
+    }
 
   }
 
@@ -979,23 +989,26 @@ class _RegisterViewState extends State<RegisterView> {
 
   // CLICK
   void clickEventAppleRegistration(){
-    Widget okButton = TextButton(
-      child: Text(
-        "OK",
-        style: customStyleClass.getFontStyle4(),
-      ),
-      onPressed: () => Navigator.pop(context),
-    );
 
-    showDialog(
-        context: context,
-        builder: (BuildContext context){
-          return TitleAndContentDialog(
-            titleToDisplay: "Apple-Authentifizierung",
-            contentToDisplay: "Diese Funktion ist derzeit noch nicht implementiert. Wir bitten um Entschuldigung.",
-          );
-        }
-    );
+    processAppleSignIn();
+
+    // Widget okButton = TextButton(
+    //   child: Text(
+    //     "OK",
+    //     style: customStyleClass.getFontStyle4(),
+    //   ),
+    //   onPressed: () => Navigator.pop(context),
+    // );
+    //
+    // showDialog(
+    //     context: context,
+    //     builder: (BuildContext context){
+    //       return TitleAndContentDialog(
+    //         titleToDisplay: "Apple-Authentifizierung",
+    //         contentToDisplay: "Diese Funktion ist derzeit noch nicht implementiert. Wir bitten um Entschuldigung.",
+    //       );
+    //     }
+    // );
   }
   void clickEventGoogleRegistration(){
 

@@ -147,9 +147,18 @@
 		</string>
 
         <key>GIDClientID</key>
-        <string>947015013780-cfmc26giatfe8tsgf0eg3im36h0qsvj0.apps.googleusercontent.com</string>
+        <string>com.googleusercontent.apps947015013780-cfmc26giatfe8tsgf0eg3im36h0qsvj0</string>
+
         <key>CFBundleURLTypes</key>
         <array>
+            <dict>
+                <key>CFBundleTypeRole</key>
+                <string>Editor</string>
+                <key>CFBundleURLSchemes</key>
+                <array>
+                    <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+                </array>
+            </dict>
             <dict>
                 <key>CFBundleTypeRole</key>
                 <string>Editor</string>
