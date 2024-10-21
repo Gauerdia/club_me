@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:club_me/1_events/club_view/club_edit_event_view.dart';
@@ -122,6 +123,8 @@ Future<void> main() async {
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);
+
+  sleep(const Duration(milliseconds: 90));
 
   FlutterNativeSplash.remove();
 

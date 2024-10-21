@@ -66,6 +66,8 @@ class _LogInViewState extends State<LogInView> {
 
   bool test = false;
 
+  bool showClubList = false;
+
   Color primeColorDark = Colors.teal;
   Color primeColor = Colors.tealAccent;
 
@@ -207,6 +209,11 @@ class _LogInViewState extends State<LogInView> {
   }
 
 
+  void clickEventChooseClub(){
+    stateProvider.setClubUiActive(true);
+    fetchClubAndProceed();
+  }
+
 
   void clickOnLogIn(){
     stateProvider.activeLogOut = false;
@@ -234,10 +241,54 @@ class _LogInViewState extends State<LogInView> {
           surfaceTintColor: customStyleClass.backgroundColorMain,
           title: SizedBox(
             width: screenWidth,
-            child: Text(
-              headLine,
-              textAlign: TextAlign.center,
-              style: customStyleClass.getFontStyleHeadline1Bold(),
+            child: Stack(
+              children: [
+
+                // TEXT
+                Container(
+                  // color: Colors.red,
+                  height: 50,
+                  width: screenWidth,
+                  alignment: Alignment.centerRight,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                              headLine,
+                              textAlign: TextAlign.center,
+                              style: customStyleClass.getFontStyleHeadline1Bold()
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+
+                Container(
+                  height: 50,
+                  width: screenWidth,
+                  alignment: Alignment.centerLeft,
+                  child: InkWell(
+                    child: const Icon(
+                      Icons.arrow_back_ios,
+                      color: Colors.white,
+                    ),
+                    onTap: (){
+                      if(showClubList){
+                        setState(() {
+                          showClubList = false;
+                        });
+                      }else{
+                        context.go("/register");
+                      }
+                    },
+                  ),
+                ),
+
+
+              ],
             ),
           )
       ),
@@ -251,6 +302,70 @@ class _LogInViewState extends State<LogInView> {
             child: CircularProgressIndicator(
               color: customStyleClass.primeColor,
             ),
+          ): showClubList ?
+          Container(
+              color: customStyleClass.backgroundColorMain,
+              width: screenWidth,
+              height: screenHeight*0.85,
+              child:FutureBuilder(
+                  future: _supabaseService.getAllClubs(),
+                  builder: (context, snapshot){
+                    if(!snapshot.hasData){
+                      return SizedBox(
+                        width: screenWidth,
+                        height: screenHeight,
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: customStyleClass.primeColor,
+                          ),
+                        ),
+                      );
+                    }else{
+                      return Column(
+                          children: [
+
+                            Text(
+                                "Wähle einen CLub",
+                            style: customStyleClass.getFontStyle4BoldPrimeColor(),
+                            ),
+
+                        SizedBox(
+                          width: screenWidth,
+                          height: screenHeight*0.82,
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                              itemCount: snapshot.data?.length,
+                              itemBuilder: (context, index){
+
+                                var element = snapshot.data![index];
+                                ClubMeClub currentClub = parseClubMeClub(element);
+
+                                return InkWell(
+                                  child: ListTile(
+                                    trailing: Icon(
+                                      Icons.arrow_forward_outlined,
+                                      color: customStyleClass.primeColor,
+                                    ),
+                                    title: Text(
+                                      currentClub.getClubName(),
+                                      style: customStyleClass.getFontStyle3(),
+                                    ),
+                                  ),
+                                  onTap: (){
+                                    selectedClubId = currentClub.getClubId();
+                                    clickEventChooseClub();
+                                  },
+                                );
+
+                              }
+                          ),
+                        ),
+
+                          ],
+                      );
+                    }
+                  }
+              )
           ):
           Container(
             color: customStyleClass.backgroundColorMain,
@@ -315,72 +430,112 @@ class _LogInViewState extends State<LogInView> {
                       height: screenHeight*0.02,
                     ),
 
-                    // Cupertino picker clubs
-                    SizedBox(
-                      width: screenWidth*0.8,
-                      child: Row(
-                        children: [
-                          GestureDetector(
-                            child: Container(
-                                width: screenWidth*0.5,
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                      colors: [
-                                        primeColorDark,
-                                        primeColor,
-                                      ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                      stops: const [0.2, 0.9]
-                                  ),
-                                  boxShadow: const [
-                                    BoxShadow(
-                                      color: Colors.black54,
-                                      spreadRadius: 1,
-                                      blurRadius: 7,
-                                      offset: Offset(3, 3),
-                                    ),
-                                  ],
-                                  borderRadius: const BorderRadius.all(
-                                      Radius.circular(10)
-                                  ),
-                                ),
-                                padding: const EdgeInsets.all(18),
-                                child: Center(
-                                  child: Text(
-                                      "Starte als Club",
-                                      style: customStyleClass.getFontStyle3Bold()
-                                  ),
-                                )
+                    GestureDetector(
+                      child: Container(
+                          width: screenWidth*0.8,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                                colors: [
+                                  primeColorDark,
+                                  primeColor,
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                stops: const [0.2, 0.9]
                             ),
-                            onTap: (){
-                              stateProvider.setClubUiActive(true);
-                              fetchClubAndProceed();
-                            },
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black54,
+                                spreadRadius: 1,
+                                blurRadius: 7,
+                                offset: Offset(3, 3),
+                              ),
+                            ],
+                            borderRadius: const BorderRadius.all(
+                                Radius.circular(10)
+                            ),
                           ),
-                          SizedBox(
-                            width: screenWidth*0.3,
-                            child: CupertinoPicker(
-                                itemExtent: 50,
-                                onSelectedItemChanged: (int index){
-                                  setState(() {
-                                    selectedClubId = clubIds[index];
-                                  });
-                                },
-                                children: List<Widget>.generate(
-                                    clubNames.length, (index){
-                                  return Center(
-                                    child: Text(
-                                      clubNames[index].toString(),
-                                      style: customStyleClass.getFontStyle2(),
-                                    ),
-                                  );
-                                })
+                          padding: const EdgeInsets.all(18),
+                          child: Center(
+                            child: Text(
+                                "Starte als Club",
+                                style: customStyleClass.getFontStyle3Bold()
                             ),
                           )
-                        ],
                       ),
+                      onTap: (){
+                        setState(() {
+                          showClubList = true;
+                        });
+                      },
                     ),
+
+                    // Cupertino picker clubs
+                    // SizedBox(
+                    //   width: screenWidth*0.8,
+                    //   child: Row(
+                    //     children: [
+                    //       GestureDetector(
+                    //         child: Container(
+                    //             width: screenWidth*0.5,
+                    //             decoration: BoxDecoration(
+                    //               gradient: LinearGradient(
+                    //                   colors: [
+                    //                     primeColorDark,
+                    //                     primeColor,
+                    //                   ],
+                    //                   begin: Alignment.topLeft,
+                    //                   end: Alignment.bottomRight,
+                    //                   stops: const [0.2, 0.9]
+                    //               ),
+                    //               boxShadow: const [
+                    //                 BoxShadow(
+                    //                   color: Colors.black54,
+                    //                   spreadRadius: 1,
+                    //                   blurRadius: 7,
+                    //                   offset: Offset(3, 3),
+                    //                 ),
+                    //               ],
+                    //               borderRadius: const BorderRadius.all(
+                    //                   Radius.circular(10)
+                    //               ),
+                    //             ),
+                    //             padding: const EdgeInsets.all(18),
+                    //             child: Center(
+                    //               child: Text(
+                    //                   "Starte als Club",
+                    //                   style: customStyleClass.getFontStyle3Bold()
+                    //               ),
+                    //             )
+                    //         ),
+                    //         onTap: (){
+                    //           stateProvider.setClubUiActive(true);
+                    //           fetchClubAndProceed();
+                    //         },
+                    //       ),
+                    //       SizedBox(
+                    //         width: screenWidth*0.3,
+                    //         child: CupertinoPicker(
+                    //             itemExtent: 50,
+                    //             onSelectedItemChanged: (int index){
+                    //               setState(() {
+                    //                 selectedClubId = clubIds[index];
+                    //               });
+                    //             },
+                    //             children: List<Widget>.generate(
+                    //                 clubNames.length, (index){
+                    //               return Center(
+                    //                 child: Text(
+                    //                   clubNames[index].toString(),
+                    //                   style: customStyleClass.getFontStyle2(),
+                    //                 ),
+                    //               );
+                    //             })
+                    //         ),
+                    //       )
+                    //     ],
+                    //   ),
+                    // ),
 
                     // Spacer
                     SizedBox(

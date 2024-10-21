@@ -206,6 +206,7 @@ class _SettingsUserViewState extends State<SettingsUserView> {
     fetchedContentProvider.setFetchedEvents([]);
     fetchedContentProvider.setFetchedDiscounts([]);
     fetchedContentProvider.setFetchedClubs([]);
+    fetchedContentProvider.setFetchedDiscounts([]);
     stateProvider.setClubUiActive(false);
     stateProvider.setPageIndex(0);
     _hiveService.toggleUserDataProfileType(userDataProvider.getUserData()).then(
@@ -528,7 +529,7 @@ class _SettingsUserViewState extends State<SettingsUserView> {
                               width: screenWidth*0.02,
                             ),
                             Text(
-                              "Wechsel zu Clubansicht",
+                              "Zur Club-Ansicht wechseln",
                               style: customStyleClass.getFontStyle1(),
                             )
                           ],

@@ -1134,7 +1134,7 @@ class _RegisterViewState extends State<RegisterView> {
   }
 
   void clickEventEnterAsDeveloper(){
-    context.go("/enter_as_developer");
+    context.push("/enter_as_developer");
   }
 
 
