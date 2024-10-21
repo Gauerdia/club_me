@@ -41,6 +41,7 @@ class _UpdateContactViewState extends State<UpdateContactView> {
   // BUILD
   AppBar _buildAppBar(){
     return AppBar(
+      automaticallyImplyLeading: false,
       backgroundColor: customStyleClass.backgroundColorMain,
       surfaceTintColor: customStyleClass.backgroundColorMain,
       title: SizedBox(

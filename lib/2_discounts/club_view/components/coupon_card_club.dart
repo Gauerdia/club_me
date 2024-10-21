@@ -86,7 +86,7 @@ class CouponCardClub extends StatelessWidget {
                 }),
                 child:  Text(
                   "Löschen",
-                  style: customStyleClass.getFontStyle3(),
+                  style: customStyleClass.getFontStyle4BoldPrimeColor(),
                 )
             ));
     });

@@ -56,7 +56,7 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
     final fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen: false);
 
     if(fetchedContentProvider.getFetchedDiscounts().isEmpty) {
-      _supabaseService.getDiscountsOfSpecificClub(userDataProvider.getUserData().getUserId())
+      _supabaseService.getDiscountsOfSpecificClub(userDataProvider.getUserData().getClubId())
       .then((data) => filterDiscountsFromQuery(data));
     }
 
@@ -163,13 +163,13 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
         currentDiscount.getDiscountDate().isAtSameMomentAs(stateProvider.getBerlinTime())){
 
       // Make sure that we only consider events of the current user's club
-      if(currentDiscount.getClubId() == userDataProvider.getUserClubId()){
+      if(currentDiscount.getClubId() == userDataProvider.getUserData().getClubId()){
         upcomingDiscounts.add(currentDiscount);
       }
     }else{
 
       // Make sure that we only consider events of the current user's club
-      if(currentDiscount.getClubId() == userDataProvider.getUserClubId()){
+      if(currentDiscount.getClubId() == userDataProvider.getUserData().getClubId()){
         pastDiscounts.add(currentDiscount);
       }
     }

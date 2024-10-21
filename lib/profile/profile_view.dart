@@ -230,8 +230,8 @@ class _ProfileViewState extends State<ProfileView> {
                           ),
                         ),
                         Text(
-                          userDataProvider.getUserData().getGender() == 0 ? "Männlich" :
-                          userDataProvider.getUserData().getGender() == 1 ? "Weiblich" :
+                          userDataProvider.getUserData().getGender() == 1 ? "Männlich" :
+                          userDataProvider.getUserData().getGender() == 2 ? "Weiblich" :
                           "Divers",
                           style: customStyleClass.getFontStyle3(),
                         ),

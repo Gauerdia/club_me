@@ -36,6 +36,7 @@ class UserDataProvider extends ChangeNotifier{
 
   void setUserData(ClubMeUserData clubMeUserData){
     userData = clubMeUserData;
+    notifyListeners();
   }
 
   ClubMeUserData getUserData(){

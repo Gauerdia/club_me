@@ -61,14 +61,22 @@ class SupabaseService{
       return [];
     }
   }
+
   Future<PostgrestList> getEventsOfSpecificClub(String clubId) async{
     try{
-      return await supabase
+      var data =  await supabase
           .from('club_me_events')
           .select()
           .match({
             'club_id': clubId
           });
+
+      List<String> titles = [];
+      for(var element in data){
+        titles.add(element['event_title']);
+      }
+      log.d("getEventsOfSpecificClub: Finished successfully.Response: $titles");
+      return data;
     }catch(e){
       log.d("Error in SupabaseService. Function: getEventsOfSpecificClub. Error: ${e.toString()}");
       createErrorLog("Error in SupabaseService. Function: getEventsOfSpecificClub. Error: ${e.toString()}");

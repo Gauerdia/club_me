@@ -139,7 +139,12 @@ class ClubMeClub{
       }
     }
 
-    tempOpeningTimes = checkIfSpecialOpeningApplies(tempOpeningTimes);
+    Days? specialOpeningDays = checkIfSpecialOpeningApplies(tempOpeningTimes);
+
+    if(specialOpeningDays != null){
+      tempOpeningTimes.days!.add(specialOpeningDays);
+    }
+
 
     int openingStatus = 0;
     String textToDisplay = "";
@@ -205,7 +210,7 @@ class ClubMeClub{
         else{
 
           // Might be that the currentDay is just the past night
-          if(currentDay.closingHour! < 10 ){
+          if(currentDay.openingHour! < 10 && currentDay.closingHour! < 10 ){
             openingStatus = 0;
           }
 
@@ -368,7 +373,7 @@ class ClubMeClub{
     return ClubOpenStatus(openingStatus: openingStatus, textToDisplay: textToDisplay);
   }
 
-  OpeningTimes checkIfSpecialOpeningApplies(OpeningTimes tempOpeningTimes){
+  Days? checkIfSpecialOpeningApplies(OpeningTimes tempOpeningTimes){
 
     final berlin = tz.getLocation('Europe/Berlin');
     final todayTimestamp = tz.TZDateTime.from(DateTime.now(), berlin);
@@ -383,19 +388,20 @@ class ClubMeClub{
             todayTimestamp.year == specialDay.year
         ){
           Days newDay = Days(
-              day: DateTime(specialDay.year!, specialDay.day!, specialDay.month!).weekday,
+              day: DateTime(specialDay.year!, specialDay.month!, specialDay.day!, ).weekday,
               openingHour: specialDay.openingHour,
               openingHalfAnHour: specialDay.openingHalfAnHour,
               closingHour: specialDay.closingHour,
               closingHalfAnHour: specialDay.closingHalfAnHour
           );
-          tempOpeningTimes.days?.add(newDay);
+          return newDay;
+          // tempOpeningTimes.days?.add(newDay);
           // addOpeningTime(newDay);
         }
       }
     }
-
-    return tempOpeningTimes;
+    return null;
+    // return tempOpeningTimes;
   }
 
   void setClubOffers(ClubOffers newClubOffers){

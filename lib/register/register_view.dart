@@ -369,9 +369,9 @@ class _RegisterViewState extends State<RegisterView> {
             //   onTap: () => clickEventAppleRegistration(),
             // ),
 
-            SizedBox(
-              height: screenHeight*0.02,
-            ),
+            // SizedBox(
+            //   height: screenHeight*0.02,
+            // ),
 
             // Google
             if(Platform.isAndroid)
@@ -453,7 +453,7 @@ class _RegisterViewState extends State<RegisterView> {
               child: InkWell(
                 onTap: () => clickEventForgotPassword(),
                 child: Text(
-                  "Passwort vergessen?",
+                  "Erneut anmelden?",
                   textAlign: TextAlign.left,
                   style: customStyleClass.getFontStyle3BoldPrimeColor(),
                 ),
@@ -1044,9 +1044,21 @@ class _RegisterViewState extends State<RegisterView> {
 
     if(profileType == 0){
 
-      if(RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9-]+\.[a-zA-Z]+")
-          .hasMatch(_eMailController.text)){
-        transferToHiveAndDB();
+      if(RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9-]+\.[a-zA-Z]+").hasMatch(_eMailController.text)){
+        await _supabaseService.getUserByEMail(_eMailController.text).then(
+            (response) {
+              if(response.isNotEmpty){
+                showDialog(context: context, builder: (BuildContext context){
+                  return TitleAndContentDialog(
+                      titleToDisplay: "E-Mail-Adresse existiert bereits",
+                      contentToDisplay: "Diese E-Mail-Adresse ist leider bereits vergeben. Wenn du dich erneut anmelden möchtest, nutze bitte den dazu gehörigen Button auf der Registrierungsseite."
+                  );
+              });
+              }else{
+                transferToHiveAndDB();
+              }
+            }
+        );
       }else{
         setState(() {
           isLoading = false;

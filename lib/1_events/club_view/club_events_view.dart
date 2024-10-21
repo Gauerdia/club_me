@@ -60,19 +60,23 @@ class _ClubEventsViewState extends State<ClubEventsView> {
     super.initState();
 
     // Get providers needed for fetching
-    final stateProvider = Provider.of<StateProvider>(context,listen: false);
-    final userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
-    final fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
+    stateProvider = Provider.of<StateProvider>(context,listen: false);
+    userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
+    fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
 
     // Fetch events of our club
     if(fetchedContentProvider.getFetchedEvents().isEmpty){
-      _supabaseService.getEventsOfSpecificClub(userDataProvider.getUserClubId())
+      _supabaseService.getEventsOfSpecificClub(userDataProvider.getUserData().getClubId())
           .then((data) => filterEventsFromQuery(data, stateProvider));
+    }else{
+      for(var currentEvent in fetchedContentProvider.getFetchedEvents()){
+        checkIfUpcomingOrPastEvent(currentEvent);
+      }
     }
 
     // Update last log in
     if(!stateProvider.updatedLastLogInForNow){
-      _supabaseService.updateClubLastLogInApp(userDataProvider.getUserClubId()).then(
+      _supabaseService.updateClubLastLogInApp(userDataProvider.getUserData().getClubId()).then(
           (result) => {
             if(result == 0){
               stateProvider.toggleUpdatedLastLogInForNow()
@@ -96,6 +100,8 @@ class _ClubEventsViewState extends State<ClubEventsView> {
     fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
 
     customStyleClass = CustomStyleClass(context: context);
+
+    stateProvider.setClubUiActive(true);
 
     if(upcomingEvents.isEmpty && pastEvents.isEmpty){
       filterEventsFromProvider();
@@ -165,7 +171,6 @@ class _ClubEventsViewState extends State<ClubEventsView> {
                   children: [
                     Text(
                       "Neues Event erstellen",
-                      // textAlign: TextAlign.center,
                       style: customStyleClass.getFontStyle4BoldPrimeColor(),
                     ),
                     Icon(
@@ -196,7 +201,6 @@ class _ClubEventsViewState extends State<ClubEventsView> {
                   children: [
                     Text(
                       "Event aus Vorlage erstellen",
-                      // textAlign: TextAlign.left,
                       style: customStyleClass.getFontStyle4BoldPrimeColor(),
                     ),
                     Icon(
@@ -228,8 +232,7 @@ class _ClubEventsViewState extends State<ClubEventsView> {
         ),
 
         // Show fetched events
-        upcomingEvents.isNotEmpty
-            ? Stack(
+        upcomingEvents.isNotEmpty ? Stack(
           children: [
 
             // Event Tile
@@ -442,16 +445,18 @@ class _ClubEventsViewState extends State<ClubEventsView> {
         currentEvent.getEventDate().isAtSameMomentAs(stateProvider.getBerlinTime())){
 
       // Make sure that we only consider events of the current user's club
-      if(currentEvent.getClubId() == userDataProvider.getUserClubId()){
+      if(currentEvent.getClubId() == userDataProvider.getUserData().getClubId()){
         upcomingEvents.add(currentEvent);
       }
     }else{
 
       // Make sure that we only consider events of the current user's club
-      if(currentEvent.getClubId() == userDataProvider.getUserClubId()){
+      if(currentEvent.getClubId() == userDataProvider.getUserData().getClubId()){
         pastEvents.add(currentEvent);
       }
     }
+
+    setState(() {});
 
   }
   void filterEventsFromQuery(var data, StateProvider stateProvider){
@@ -492,9 +497,7 @@ class _ClubEventsViewState extends State<ClubEventsView> {
       );
     }
 
-    setState(() {
-
-    });
+    setState(() {});
 
   }
 

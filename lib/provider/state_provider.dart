@@ -261,7 +261,7 @@ class StateProvider extends ChangeNotifier{
 
   void setClubUiActive(bool value){
     _clubUIActive = value;
-    notifyListeners();
+    // notifyListeners();
   }
 
 

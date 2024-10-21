@@ -30,6 +30,7 @@ import 'package:club_me/stories/show_story_chewie.dart';
 import 'package:club_me/stories/video_recorder_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -81,7 +82,9 @@ const rescheduledTaskKey = "be.szymendera.workmanager.rescheduledTask";
 
 Future<void> main() async {
 
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
   // Set up Hive, our on device database
   await Hive.initFlutter((await getApplicationDocumentsDirectory()).path);
@@ -119,6 +122,8 @@ Future<void> main() async {
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);
+
+  FlutterNativeSplash.remove();
 
   runApp(
     MultiProvider(providers: [
@@ -569,7 +574,7 @@ class MyApp extends StatelessWidget {
 
         routerConfig: _router,
 
-        title: 'Club Me Test Version',
+        title: 'ClubMe',
         theme: ThemeData(
           scaffoldBackgroundColor: const Color(0xff121111),
 

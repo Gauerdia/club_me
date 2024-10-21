@@ -1,4 +1,6 @@
 import 'package:club_me/provider/fetched_content_provider.dart';
+import 'package:club_me/provider/state_provider.dart';
+import 'package:club_me/shared/dialogs/TitleAndContentDialog.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -26,6 +28,7 @@ class _LogInAsClubViewState extends State<LogInAsClubView> {
   final log = getLogger();
 
   late UserDataProvider userDataProvider;
+  late StateProvider stateProvider;
 
   bool isLoading = false;
   String headLine = "ClubMe";
@@ -35,6 +38,8 @@ class _LogInAsClubViewState extends State<LogInAsClubView> {
 
   final HiveService _hiveService = HiveService();
   final SupabaseService _supabaseService = SupabaseService();
+
+  late FetchedContentProvider fetchedContentProvider;
 
   AppBar _buildAppBar(){
     return AppBar(
@@ -99,14 +104,10 @@ class _LogInAsClubViewState extends State<LogInAsClubView> {
   // MISC
   void showErrorDialog(){
     showDialog(context: context, builder: (BuildContext context){
-      return AlertDialog(
-          title: const Text("Fehler"),
-          content: Text(
-            "Tut uns leid. Leider war eine Registrierung nicht möglich.",
-            textAlign: TextAlign.left,
-            style: customStyleClass.getFontStyle4(),
-          )
-      );
+      return TitleAndContentDialog(
+          titleToDisplay: "Fehlerhafter Log-In",
+          contentToDisplay: "Leider war ein Log-In mit diesen Zugangsdaten nicht möglich");
+
     });
   }
 
@@ -138,10 +139,10 @@ class _LogInAsClubViewState extends State<LogInAsClubView> {
           );
           _hiveService.addUserData(newUserData).then((value){
 
-            FetchedContentProvider fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
-
             fetchedContentProvider.setFetchedEvents([]);
             fetchedContentProvider.setFetchedDiscounts([]);
+
+            stateProvider.setClubUiActive(true);
 
             userDataProvider.setUserData(newUserData);
             context.go("/club_events");
@@ -165,7 +166,9 @@ class _LogInAsClubViewState extends State<LogInAsClubView> {
 
     customStyleClass = CustomStyleClass(context: context);
 
+    stateProvider = Provider.of<StateProvider>(context);
     userDataProvider = Provider.of<UserDataProvider>(context);
+    fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
 
     return Scaffold(
       appBar: _buildAppBar(),

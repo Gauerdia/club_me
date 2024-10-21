@@ -1,47 +1,25 @@
 name: club_me
 description: "The first draft of the ClubMe app."
-# The following line prevents the package from being accidentally published to
-# pub.dev using `flutter pub publish`. This is preferred for private packages.
+
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-# The following defines the version and build number for your application.
-# A version number is three numbers separated by dots, like 1.2.43
-# followed by an optional build number separated by a +.
-# Both the version and the builder number may be overridden in flutter
-# build by specifying --build-name and --build-number, respectively.
-# In Android, build-name is used as versionName while build-number used as versionCode.
-# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
-# In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
-# Read more about iOS versioning at
-# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-# In Windows, build-name is used as the major, minor, and patch parts
-# of the product and file versions while build-number is used as the build suffix.
-version: 1.0.87
+version: 1.0.88
 
 environment:
   sdk: '>=3.2.6 <4.0.0'
 
-# Dependencies specify other packages that your package needs in order to work.
-# To automatically upgrade your package dependencies to the latest versions
-# consider running `flutter pub upgrade --major-versions`. Alternatively,
-# dependencies can be manually updated by changing the version numbers below to
-# the latest version available on pub.dev. To see which dependencies have newer
-# versions available, run `flutter pub outdated`.
 dependencies:
   flutter:
     sdk: flutter
 
 
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
+
   cupertino_icons: ^1.0.2
 
   google_fonts: ^6.2.1
   provider: ^6.1.2
   neon_widgets: ^2.0.0
   go_router: ^13.2.4
-
-#  flutter_osm_plugin: ^1.0.3
 
   flutter_map: ^6.1.0
   flutter_map_marker_cluster: any
@@ -175,8 +153,12 @@ dev_dependencies:
 
 
 flutter_native_splash:
-  color: "#000000"
-  background_image: "assets/images/ClubMe_Logo_weiß.png"
+  color: "#121111"
+  image: assets/images/cm_logo_600x600_2.png
+  android_12:
+    image: assets/images/cm_logo_600x600_2.png
+  android: true
+  ios: true
 
 flutter_launcher_icons:
   image_path: "assets/images/club_me_icon_round.png"
@@ -198,5 +180,3 @@ flutter:
   assets:
     - assets/images/
     - assets/videos/
-    - json/
-  #   - images/a_dot_ham.jpeg

@@ -637,7 +637,7 @@ class _UserClubsViewState extends State<UserClubsView>
         context: context,
         builder: (BuildContext context) =>
             TitleAndContentDialog(
-                titleToDisplay: "Event teilen",
+                titleToDisplay: "Teilen",
                 contentToDisplay: "Das Teilen von Inhalten aus der App ist derzeit noch nicht möglich. Wir bitten um Entschuldigung.")
     );
   }

@@ -34,6 +34,7 @@ class _UpdateNewsViewState extends State<UpdateNewsView> {
   // BUILD
   AppBar _buildAppBar(){
     return AppBar(
+      automaticallyImplyLeading: false,
       backgroundColor: customStyleClass.backgroundColorMain,
       surfaceTintColor: customStyleClass.backgroundColorMain,
       title: SizedBox(
@@ -57,20 +58,16 @@ class _UpdateNewsViewState extends State<UpdateNewsView> {
 
             Container(
                 width: screenWidth,
+                height: 50,
                 alignment: Alignment.centerLeft,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    IconButton(
-                      icon: const Icon(
-                          Icons.arrow_back_ios_new_outlined,
-                        color: Colors.white,
-                      ),
-                      onPressed: (){
-                        context.go('/club_frontpage');
-                      },
-                    ),
-                  ],
+                child: IconButton(
+                  icon: const Icon(
+                    Icons.arrow_back_ios_new_outlined,
+                    color: Colors.white,
+                  ),
+                  onPressed: (){
+                    context.go('/club_frontpage');
+                  },
                 )
             ),
 
@@ -99,8 +96,17 @@ class _UpdateNewsViewState extends State<UpdateNewsView> {
               controller: controller,
               keyboardType: TextInputType.multiline,
               maxLines: null,
-              decoration: const InputDecoration(
-                  border: OutlineInputBorder()
+              decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: customStyleClass.primeColor
+                    )
+                  ),
+                focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                        color: customStyleClass.primeColor
+                    )
+                ),
               ),
               style: customStyleClass.getFontStyle4(),
               maxLength: 300,
