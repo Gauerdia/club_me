@@ -1,4 +1,5 @@
 import 'package:club_me/provider/fetched_content_provider.dart';
+import 'package:club_me/shared/dialogs/TitleAndContentDialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:go_router/go_router.dart';
@@ -250,9 +251,22 @@ class _RegisterForUserAsClubViewState extends State<RegisterForUserAsClubView> {
       isLoading = true;
     });
 
-      if(RegExp(r'^.+@[a-zA-Z]+\.{1}[a-zA-Z]+(\.{0,1}[a-zA-Z]+)$')
-          .hasMatch(_eMailController.text)){
-        transferToHiveAndDB();
+    if(RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9-]+\.[a-zA-Z]+").hasMatch(_eMailController.text)){
+
+      await _supabaseService.getUserByEMail(_eMailController.text).then(
+              (response) {
+            if(response.isNotEmpty){
+              showDialog(context: context, builder: (BuildContext context){
+                return TitleAndContentDialog(
+                    titleToDisplay: "E-Mail-Adresse existiert bereits",
+                    contentToDisplay: "Diese E-Mail-Adresse ist leider bereits vergeben. Wenn du dich erneut anmelden möchtest, nutze bitte den dazu gehörigen Button auf der Registrierungsseite."
+                );
+              });
+            }else{
+              transferToHiveAndDB();
+            }
+          }
+      );
       }else{
         setState(() {
           isLoading = false;

@@ -75,7 +75,9 @@ class _ProfileViewState extends State<ProfileView> {
     final userDataProvider = Provider.of<UserDataProvider>(context, listen:  false);
 
     birthDateChoice = userDataProvider.getUserData().getBirthDate();
-    genderChoice = userDataProvider.getUserData().getGender();
+
+    // -1 because 0 is reserved for "all" in the creation process of events/discounts.
+    genderChoice = userDataProvider.getUserData().getGender()-1;
     _firstNameController = TextEditingController(text: userDataProvider.getUserData().getFirstName());
     _lastNameController = TextEditingController(text: userDataProvider.getUserData().getLastName());
     _emailController = TextEditingController(text: userDataProvider.getUserData().getEMail());
@@ -631,7 +633,7 @@ class _ProfileViewState extends State<ProfileView> {
         lastName: _lastNameController.text,
         birthDate: userDataProvider.getUserData().getBirthDate(),
         eMail: _emailController.text,
-        gender: genderChoice,
+        gender: genderChoice+1,
         userId: userDataProvider.getUserData().getUserId(),
         profileType: userDataProvider.getUserData().getProfileType(),
         lastTimeLoggedIn: DateTime.now(),

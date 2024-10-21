@@ -80,7 +80,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
     final userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
     final fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
 
-    getClub = _supabaseService.getSpecificClub(userDataProvider.getUserData().getUserId()).then(
+    getClub = _supabaseService.getSpecificClub(userDataProvider.getUserData().getClubId()).then(
             (fetchedClub) => processFetchedSpecificClub(fetchedClub[0]));
 
     if(fetchedContentProvider.getFetchedEvents().isEmpty){

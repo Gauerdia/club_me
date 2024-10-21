@@ -538,7 +538,7 @@ class _UserMapViewState extends State<UserMapView>{
 
     }catch(e){
       _supabaseService.createErrorLog(
-          "Error in UserMapView. Fct: setUserLocationMarker. Error: $e"
+          "Error in UserMapView. Fct: setUserLocationMarker. Error: $e. Version >= 1.0.90"
       );
     }
 
