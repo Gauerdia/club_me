@@ -838,7 +838,7 @@ class _EventDetailViewState extends State<EventDetailView>{
 
         for(int i=0; i<splitNames.length;i++){
 
-          if(i==splitNames.length){
+          if(i==splitNames.length-1){
             genresToDisplay.add(splitNames[i]);
           }else{
             genresToDisplay.add("${splitNames[i]},");

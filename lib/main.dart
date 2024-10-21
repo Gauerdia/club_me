@@ -29,6 +29,7 @@ import 'package:club_me/settings/user_view/settings_user_view.dart';
 import 'package:club_me/shared/test.dart';
 import 'package:club_me/stories/show_story_chewie.dart';
 import 'package:club_me/stories/video_recorder_screen.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -124,7 +125,7 @@ Future<void> main() async {
     DeviceOrientation.portraitUp,
   ]);
 
-  sleep(const Duration(milliseconds: 90));
+  sleep(const Duration(milliseconds: 1500));
 
   FlutterNativeSplash.remove();
 
@@ -568,7 +569,8 @@ class MyApp extends StatelessWidget {
       child: MaterialApp.router(
 
         localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate
+          GlobalMaterialLocalizations.delegate,
+          DefaultCupertinoLocalizations.delegate
         ],
         supportedLocales: const [
           Locale('en'),

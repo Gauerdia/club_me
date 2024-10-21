@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 
 import '../../../models/club.dart';
@@ -27,6 +28,8 @@ class ClubCard extends StatelessWidget {
     required this.triggerSetState,
     required this.clickEventShare,
   }) : super(key: key);
+
+  var log = Logger();
 
   late UserDataProvider userDataProvider;
   ClubMeClub clubMeClub;
@@ -439,10 +442,49 @@ class ClubCard extends StatelessWidget {
         return distance/1000;
       }
     }else{
+      _determinePosition().then((position) {
+            userDataProvider.setUserCoordinates(position);
+          }
+      );
       return 0;
     }
   }
+  Future<Position> _determinePosition() async {
 
+    // Check if location services are enabled
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+
+      log.d("Error in _determinePosition: Location services are disabled.");
+
+      // Location services are not enabled return an error message
+      return Future.error('Location services are disabled.');
+
+    }
+
+    // Check location permissions
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+
+        log.d("Error in _determinePosition: Location permissions are denied.");
+
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      log.d("Error in _determinePosition: Location permissions are permanently denied, we cannot request permissions.");
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
+    log.d("_determinePosition: No error. Returning Location.");
+
+    // If permissions are granted, return the current location
+    return await Geolocator.getCurrentPosition();
+  }
 
   // CLICK EVENTS
   void clickEventInfo(BuildContext context){
