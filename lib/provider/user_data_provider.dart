@@ -15,8 +15,19 @@ class UserDataProvider extends ChangeNotifier{
   double latCoord = 0.0;
   double longCoord = 0.0;
 
+  DateTime earliestNextDBLocationUpdate = DateTime.now();
+
   ClubMeUserData userData = mockUpUserData;
   ClubMeClub userClub = mockUpClub;
+
+  void setEarliestNextDBLocationUpdate(DateTime newDateTime){
+    earliestNextDBLocationUpdate = newDateTime;
+    // notifyListeners();
+  }
+
+  DateTime getEarliestNextDBLocationUpdate(){
+    return earliestNextDBLocationUpdate;
+  }
 
   double getUserLatCoord(){
     return latCoord;

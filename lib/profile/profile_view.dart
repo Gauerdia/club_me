@@ -1,4 +1,5 @@
 import 'package:club_me/models/hive_models/0_club_me_user_data.dart';
+import 'package:club_me/provider/fetched_content_provider.dart';
 import 'package:club_me/shared/dialogs/title_content_and_button_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +30,7 @@ class _ProfileViewState extends State<ProfileView> {
   late CustomStyleClass customStyleClass;
   late double screenHeight, screenWidth;
   late UserDataProvider userDataProvider;
+  late FetchedContentProvider fetchedContentProvider;
 
   late TextEditingController _firstNameController;
   late TextEditingController _lastNameController;
@@ -643,7 +645,11 @@ class _ProfileViewState extends State<ProfileView> {
     );
 
     userDataProvider.setUserData(newUserData);
-    await _supabaseService.updateUserData(newUserData);
+    await _supabaseService.updateUserData(newUserData).then(
+        (result) => _hiveService.updateUserData(newUserData).then(
+            (result) => fetchedContentProvider.setFetchedDiscounts([])
+        )
+    );
     setState(() {
       isLoading = false;
       showEditScreen = false;
@@ -749,7 +755,7 @@ class _ProfileViewState extends State<ProfileView> {
   Widget build(BuildContext context) {
 
     stateProvider = Provider.of<StateProvider>(context);
-
+    fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
     userDataProvider = Provider.of<UserDataProvider>(context);
 
     screenWidth = MediaQuery.of(context).size.width;

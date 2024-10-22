@@ -364,17 +364,17 @@ class CouponCardClub extends StatelessWidget {
                                 SizedBox(
                                   width: screenWidth*0.02,
                                 ),
-                                GestureDetector(
-                                  child: Column(
-                                    children: [
-                                      Icon(
-                                        Icons.share,
-                                        color: customStyleClass.primeColor,
-                                      )
-                                    ],
-                                  ),
-                                  onTap: () => clickedOnShare(),
-                                )
+                                // GestureDetector(
+                                //   child: Column(
+                                //     children: [
+                                //       Icon(
+                                //         Icons.share,
+                                //         color: customStyleClass.primeColor,
+                                //       )
+                                //     ],
+                                //   ),
+                                //   onTap: () => clickedOnShare(),
+                                // )
                               ],
                             )
                           ],

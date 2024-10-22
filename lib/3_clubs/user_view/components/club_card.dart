@@ -270,13 +270,13 @@ class ClubCard extends StatelessWidget {
                                   ),
 
                                   // SHARE
-                                  InkWell(
-                                    child: Icon(
-                                      Icons.share,
-                                      color: customStyleClass.primeColor,
-                                    ),
-                                    onTap: () => clickEventShare(),
-                                  ),
+                                  // InkWell(
+                                  //   child: Icon(
+                                  //     Icons.share,
+                                  //     color: customStyleClass.primeColor,
+                                  //   ),
+                                  //   onTap: () => clickEventShare(),
+                                  // ),
                                 ],
                               ),
                             )

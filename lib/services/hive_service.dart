@@ -49,7 +49,7 @@ class HiveService{
       await box.add(tempGeoLocationData);
     }catch(e){
       log.d("HiveService. Function: addTempGeoLocationData. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("HiveService. Function: addTempGeoLocationData. Error: $e");
     }
   }
 
@@ -61,7 +61,7 @@ class HiveService{
       return box.values.toList();
     }catch(e){
       log.d("HiveService. Function: getAllLocalDiscounts. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("HiveService. Function: getAllLocalDiscounts. Error: $e");
       return [];
     }
   }
@@ -71,7 +71,7 @@ class HiveService{
       await box.deleteAll(box.keys);
     }catch(e){
       log.d("HiveService. Function: resetLocalDiscounts. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("HiveService. Function: resetLocalDiscounts. Error: $e");
     }
   }
   Future<void> deleteLocalDiscount(String discountId) async {
@@ -83,7 +83,7 @@ class HiveService{
       await box.deleteAt(index);
     }catch(e){
       log.d("HiveService. Function: deleteLocalDiscount. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("HiveService. Function: deleteLocalDiscount. Error: $e");
     }
 
   }
@@ -96,7 +96,7 @@ class HiveService{
       await box.add(clubMeLocalDiscount);
     }catch(e){
       log.d("HiveService. Function: addLocalDiscount. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("HiveService. Function: addLocalDiscount. Error: $e");
     }
   }
 
@@ -111,7 +111,7 @@ class HiveService{
       await box.putAt(index, clubMeLocalDiscount);
     }catch(e){
       log.d("HiveService. Function: updateLocalDiscount. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("HiveService. Function: updateLocalDiscount. Error: $e");
     }
   }
 
@@ -123,7 +123,7 @@ class HiveService{
       log.d("addDiscountTemplate: Finished successfully");
     }catch(e){
       log.d("HiveService. Function: addDiscountTemplate. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("HiveService. Function: addDiscountTemplate. Error: $e");
     }
   }
   Future<List<ClubMeDiscountTemplate>> getAllDiscountTemplates() async {
@@ -132,7 +132,7 @@ class HiveService{
       return box.values.toList();
     }catch(e){
       log.d("HiveService. Function: getAllDiscountTemplates. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("HiveService. Function: getAllDiscountTemplates. Error: $e");
       return [];
     }
   }
@@ -150,7 +150,7 @@ class HiveService{
       return 0;
     }catch(e){
       log.d("HiveService. Function: deleteClubMeDiscountTemplate. Error: $e");
-      _supabaseService.createErrorLog(e.toString());
+      _supabaseService.createErrorLog("HiveService. Function: deleteClubMeDiscountTemplate. Error: $e");
       return 1;
     }
   }
@@ -210,6 +210,17 @@ class HiveService{
   Future<void> addUserData(ClubMeUserData clubMeUserData) async {
     try{
       var box = await _clubMeUserClubBox;
+      await box.add(clubMeUserData);
+      log.d("HiveService. Function: addUserData. Successful.");
+    }catch(e){
+      log.d("HiveService. Function: addUserData. Error: $e");
+      _supabaseService.createErrorLog("HiveService. Function: addUserData. Error: $e");
+    }
+  }
+  Future<void> updateUserData(ClubMeUserData clubMeUserData) async{
+    try{
+      var box = await _clubMeUserClubBox;
+      await box.deleteAll(box.keys);
       await box.add(clubMeUserData);
       log.d("HiveService. Function: addUserData. Successful.");
     }catch(e){

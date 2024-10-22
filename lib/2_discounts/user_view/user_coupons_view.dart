@@ -75,7 +75,7 @@ class _UserCouponsViewState extends State<UserCouponsView>
     final fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
 
     _hiveService.getUsedDiscounts().then(
-            (usedDiscounts){fetchedContentProvider.setUsedDiscounts(usedDiscounts);}
+            (usedDiscounts) => fetchedContentProvider.setUsedDiscounts(usedDiscounts)
     );
 
     // Get and process data
@@ -356,6 +356,9 @@ class _UserCouponsViewState extends State<UserCouponsView>
         fetchedContentProvider
     );
 
+    // If the gender changes, we need to take that into consideration
+    filterDiscounts();
+
     setState(() {
 
     });
@@ -365,6 +368,8 @@ class _UserCouponsViewState extends State<UserCouponsView>
     // Events in the provider ought to have all images fetched, already. So, we just sort.
     // checkDiscountsForRestrictions(fetchedContentProvider.getFetchedDiscounts());
 
+    // If the gender changes, we need to take that into consideration
+    filterDiscounts();
 
     setState(() {
       processingComplete = true;
@@ -442,6 +447,8 @@ class _UserCouponsViewState extends State<UserCouponsView>
 
   // FILTER
   void filterDiscounts(){
+
+    fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen: false);
 
     // Check if we need any filtering at all
     if(searchValue != "" || onlyFavoritesIsActive){
@@ -572,9 +579,19 @@ class _UserCouponsViewState extends State<UserCouponsView>
       // usage limit
       if(currentDiscount.hasUsageLimit){
 
-        if(fetchedContentProvider.getUsedDiscounts().where((element) => element.discountId
-                == currentDiscount.getDiscountId()).length >= currentDiscount.getNumberOfUsages()
-        ){
+        int howOftenDoesTheDiscountAppearInUsedDiscounts =
+            fetchedContentProvider.getUsedDiscounts().where(
+                    (element) => element.discountId == currentDiscount.getDiscountId()).length;
+
+        bool wasUsedAtLeastAsOftenAsLimit = false;
+
+        if(howOftenDoesTheDiscountAppearInUsedDiscounts >= currentDiscount.getNumberOfUsages()){
+          wasUsedAtLeastAsOftenAsLimit = true;
+        }
+
+        // print("${currentDiscount.getDiscountTitle()}: $howOftenDoesTheDiscountAppearInUsedDiscounts, ${currentDiscount.getNumberOfUsages()}, $wasUsedAtLeastAsOftenAsLimit");
+
+        if(wasUsedAtLeastAsOftenAsLimit){
           return true;
         }
 

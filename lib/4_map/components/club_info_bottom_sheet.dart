@@ -301,20 +301,20 @@ class _ClubInfoBottomSheetState extends State<ClubInfoBottomSheet> {
                               const SizedBox(width: 15,),
 
                               // share
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 4,
-                                    vertical: 4
-                                ),
-                                child: GestureDetector(
-                                  child: Icon(
-                                    Icons.share,
-                                    color: customStyleClass.primeColor,
-                                    size: screenWidth*iconWidthFactor,
-                                  ),
-                                  onTap: () => clickEventShare(),
-                                ),
-                              ),
+                              // Container(
+                              //   padding: const EdgeInsets.symmetric(
+                              //       horizontal: 4,
+                              //       vertical: 4
+                              //   ),
+                              //   child: GestureDetector(
+                              //     child: Icon(
+                              //       Icons.share,
+                              //       color: customStyleClass.primeColor,
+                              //       size: screenWidth*iconWidthFactor,
+                              //     ),
+                              //     onTap: () => clickEventShare(),
+                              //   ),
+                              // ),
                             ],
                           ),
                         ],

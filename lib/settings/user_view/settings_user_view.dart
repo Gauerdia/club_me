@@ -347,76 +347,76 @@ class _SettingsUserViewState extends State<SettingsUserView> {
                     ),
 
                     // RATE
-                    InkWell(
-                      child: SizedBox(
-                        width: screenWidth*0.9,
-                        child: Row(
-                          children: [
-                            IconButton(onPressed: () => clickEventRateUs(), icon: Icon(
-                              Icons.star,
-                              color: customStyleClass.primeColor,
-                              size: 25,
-                            )),
-                            SizedBox(
-                              width: screenWidth*0.02,
-                            ),
-                            Text(
-                              "Bewerten",
-                              style: customStyleClass.getFontStyle1(),
-                            )
-                          ],
-                        ),
-                      ),
-                      onTap: () => clickEventRateUs(),
-                    ),
+                    // InkWell(
+                    //   child: SizedBox(
+                    //     width: screenWidth*0.9,
+                    //     child: Row(
+                    //       children: [
+                    //         IconButton(onPressed: () => clickEventRateUs(), icon: Icon(
+                    //           Icons.star,
+                    //           color: customStyleClass.primeColor,
+                    //           size: 25,
+                    //         )),
+                    //         SizedBox(
+                    //           width: screenWidth*0.02,
+                    //         ),
+                    //         Text(
+                    //           "Bewerten",
+                    //           style: customStyleClass.getFontStyle1(),
+                    //         )
+                    //       ],
+                    //     ),
+                    //   ),
+                    //   onTap: () => clickEventRateUs(),
+                    // ),
 
                     // SHARE
-                    InkWell(
-                      child: SizedBox(
-                        width: screenWidth*0.9,
-                        child: Row(
-                          children: [
-                            IconButton(onPressed: () => clickEventShare(), icon: Icon(
-                              Icons.share,
-                              color: customStyleClass.primeColor,
-                              size: 25,
-                            )),
-                            SizedBox(
-                              width: screenWidth*0.02,
-                            ),
-                            Text(
-                              "Teilen",
-                              style: customStyleClass.getFontStyle1(),
-                            )
-                          ],
-                        ),
-                      ),
-                      onTap: () => clickEventShare(),
-                    ),
+                    // InkWell(
+                    //   child: SizedBox(
+                    //     width: screenWidth*0.9,
+                    //     child: Row(
+                    //       children: [
+                    //         IconButton(onPressed: () => clickEventShare(), icon: Icon(
+                    //           Icons.share,
+                    //           color: customStyleClass.primeColor,
+                    //           size: 25,
+                    //         )),
+                    //         SizedBox(
+                    //           width: screenWidth*0.02,
+                    //         ),
+                    //         Text(
+                    //           "Teilen",
+                    //           style: customStyleClass.getFontStyle1(),
+                    //         )
+                    //       ],
+                    //     ),
+                    //   ),
+                    //   onTap: () => clickEventShare(),
+                    // ),
 
                     // NOtifications
-                    InkWell(
-                      child: SizedBox(
-                        width: screenWidth*0.9,
-                        child: Row(
-                          children: [
-                            IconButton(onPressed: () => clickEventNotifications(), icon: Icon(
-                              Icons.notification_important_rounded,
-                              color: customStyleClass.primeColor,
-                              size: 25,
-                            )),
-                            SizedBox(
-                              width: screenWidth*0.02,
-                            ),
-                            Text(
-                              "Benachrichtigungen",
-                              style: customStyleClass.getFontStyle1(),
-                            )
-                          ],
-                        ),
-                      ),
-                      onTap: () => clickEventNotifications(),
-                    ),
+                    // InkWell(
+                    //   child: SizedBox(
+                    //     width: screenWidth*0.9,
+                    //     child: Row(
+                    //       children: [
+                    //         IconButton(onPressed: () => clickEventNotifications(), icon: Icon(
+                    //           Icons.notification_important_rounded,
+                    //           color: customStyleClass.primeColor,
+                    //           size: 25,
+                    //         )),
+                    //         SizedBox(
+                    //           width: screenWidth*0.02,
+                    //         ),
+                    //         Text(
+                    //           "Benachrichtigungen",
+                    //           style: customStyleClass.getFontStyle1(),
+                    //         )
+                    //       ],
+                    //     ),
+                    //   ),
+                    //   onTap: () => clickEventNotifications(),
+                    // ),
 
                     //Impressum
                     InkWell(

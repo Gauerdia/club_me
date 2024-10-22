@@ -340,17 +340,17 @@ class EventTile extends StatelessWidget {
                           ),
 
                           // Share
-                          GestureDetector(
-                            child: Column(
-                              children: [
-                                Icon(
-                                  Icons.share,
-                                  color: customStyleClass.primeColor,
-                                ),
-                              ],
-                            ),
-                            onTap: () => clickEventShare(),
-                          )
+                          // GestureDetector(
+                          //   child: Column(
+                          //     children: [
+                          //       Icon(
+                          //         Icons.share,
+                          //         color: customStyleClass.primeColor,
+                          //       ),
+                          //     ],
+                          //   ),
+                          //   onTap: () => clickEventShare(),
+                          // )
                         ],
                       )
                     ],

@@ -620,8 +620,7 @@ class _UserEventsViewState extends State<UserEventsView> {
               ),
 
               if(eventsToDisplay[index].getEventMarketingFileName().isNotEmpty)
-              InkWell(
-                child: Container(
+              Container(
                   height: 140,
                   width: screenWidth*0.95,
                   alignment: Alignment.topRight,
@@ -630,21 +629,22 @@ class _UserEventsViewState extends State<UserEventsView> {
                         topRight: Radius.circular(15),
                         topLeft: Radius.circular(15)
                     ),
-                    child: Image.asset(
-                      "assets/images/ClubMe_Logo_weiß.png",
-                      height: 60,
-                      width: 60,
-                      // fit: BoxFit.cover,
+                    child: InkWell(
+                      child: Image.asset(
+                        "assets/images/ClubMe_Logo_weiß.png",
+                        height: 60,
+                        width: 60,
+                        // fit: BoxFit.cover,
+                      ),
+                        onTap: () {
+                          currentAndLikedElementsProvider.setCurrentEvent(eventsToDisplay[index]);
+                          stateProvider.setAccessedEventDetailFrom(0);
+                          stateProvider.toggleOpenEventDetailContentDirectly();
+                          context.push('/event_details');
+                        }
                     ),
                   ),
                 ),
-                onTap: () {
-                  currentAndLikedElementsProvider.setCurrentEvent(eventsToDisplay[index]);
-                  stateProvider.setAccessedEventDetailFrom(0);
-                  stateProvider.toggleOpenEventDetailContentDirectly();
-                  context.push('/event_details');
-                },
-              )
 
             ],
           );

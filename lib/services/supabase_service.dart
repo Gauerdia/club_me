@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:club_me/main.dart';
 import 'package:club_me/models/hive_models/0_club_me_user_data.dart';
@@ -713,13 +714,15 @@ class SupabaseService{
         'e_mail': userData.getEMail(),
         'gender': userData.getGender(),
         'birth_date': userData.getBirthDate().toString(),
-        'user_id': userData.getUserId()
+        'user_id': userData.getUserId(),
+        'last_time_logged_in': DateTime.now().toString(),
+        'platform': Platform.isAndroid ? "Android" : "iOS"
       }).select();
-      log.d("insertUserDate: Finished successfully. Response: $data");
+      log.d("insertUserData: Finished successfully. Response: $data");
       return 0;
     }catch(e){
-      log.d("Error in SupabaseService. Function: insertUserDate. Error: ${e.toString()}");
-      createErrorLog("Error in SupabaseService. Function: insertUserDate. Error: ${e.toString()}");
+      log.d("Error in SupabaseService. Function: insertUserData. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: insertUserData. Error: ${e.toString()}");
       return 1;
     }
   }

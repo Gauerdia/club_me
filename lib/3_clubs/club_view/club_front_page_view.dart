@@ -243,15 +243,16 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                     children: [
                       Icon(
                         Icons.event_seat_outlined,
-                        color: customStyleClass.primeColor,
+                        color: Colors.transparent,
+                        // color: customStyleClass.primeColor,
                       ),
-                      Text(
-                        "Lounges",
-                        style: customStyleClass.getFontStyle6(),
-                      ),
+                      // Text(
+                      //   "Lounges",
+                      //   style: customStyleClass.getFontStyle6(),
+                      // ),
                     ],
                   ),
-                  onTap: () => clickEventLounge()
+                  // onTap: () => clickEventLounge()
               ),
 
               // Offers

@@ -44,6 +44,8 @@ class _UserMapViewState extends State<UserMapView>{
 
   var log = Logger();
 
+
+
   BitmapDescriptor customIcon = BitmapDescriptor.defaultMarker;
 
   List<BitmapDescriptor> customIcons = [];
@@ -606,8 +608,17 @@ class _UserMapViewState extends State<UserMapView>{
 
       Geolocator.getPositionStream(
           locationSettings: locationSettings).listen((Position position) {
+
         log.d('Location updated: ${position.latitude}, ${position.longitude}');
-        uploadPositionToSupabase(position);
+
+        userDataProvider.setUserCoordinates(position);
+
+        if(DateTime.now().isAfter(userDataProvider.getEarliestNextDBLocationUpdate())){
+          uploadPositionToSupabase(position);
+          userDataProvider.setEarliestNextDBLocationUpdate(
+            DateTime.now().add(const Duration(seconds: 5))
+          );
+        }
       });
     });
   }

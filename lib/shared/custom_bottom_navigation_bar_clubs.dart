@@ -79,35 +79,35 @@ class CustomBottomNavigationBarClubs extends StatelessWidget {
                       },
                     ),
 
-                    GestureDetector(
-                      child: SizedBox(
-                        height: 70,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Icon(
-                              Icons.bar_chart,
-                              color: stateProvider.pageIndex == 1 ? customStyleClass.primeColor : Colors.white,
-                              size: customStyleClass.getIconSize1(),
-                            ),
-                            Text(
-                                "Auswertungen",
-                                style: GoogleFonts.inter(
-                                    textStyle: TextStyle(
-                                      fontSize: customStyleClass.getNavIconTextSize(),
-                                      color: stateProvider.pageIndex == 1 ? customStyleClass.primeColor : Colors.white,
-                                    )
-                                )
-                            )
-                          ],
-                        ),
-                      ),
-                      onTap: (){
-                        stateProvider.setPageIndex(1);
-                        stateProvider.resetWentFromCLubDetailToEventDetail();
-                        context.go('/club_stats');
-                      },
-                    ),
+                    // GestureDetector(
+                    //   child: SizedBox(
+                    //     height: 70,
+                    //     child: Column(
+                    //       mainAxisAlignment: MainAxisAlignment.start,
+                    //       children: [
+                    //         Icon(
+                    //           Icons.bar_chart,
+                    //           color: stateProvider.pageIndex == 1 ? customStyleClass.primeColor : Colors.white,
+                    //           size: customStyleClass.getIconSize1(),
+                    //         ),
+                    //         Text(
+                    //             "Auswertungen",
+                    //             style: GoogleFonts.inter(
+                    //                 textStyle: TextStyle(
+                    //                   fontSize: customStyleClass.getNavIconTextSize(),
+                    //                   color: stateProvider.pageIndex == 1 ? customStyleClass.primeColor : Colors.white,
+                    //                 )
+                    //             )
+                    //         )
+                    //       ],
+                    //     ),
+                    //   ),
+                    //   onTap: (){
+                    //     stateProvider.setPageIndex(1);
+                    //     stateProvider.resetWentFromCLubDetailToEventDetail();
+                    //     context.go('/club_stats');
+                    //   },
+                    // ),
 
                     GestureDetector(
                       child: SizedBox(

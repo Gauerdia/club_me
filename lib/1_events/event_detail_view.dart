@@ -8,6 +8,7 @@ import 'package:club_me/shared/dialogs/title_content_and_button_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:logger/logger.dart';
 import 'package:mime/mime.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -31,6 +32,8 @@ class _EventDetailViewState extends State<EventDetailView>{
 
   final HiveService _hiveService = HiveService();
   final SupabaseService _supabaseService = SupabaseService();
+
+  var log = Logger();
 
   late Future getEventContent;
 
@@ -222,16 +225,8 @@ class _EventDetailViewState extends State<EventDetailView>{
                 width: screenWidth,
                 height: screenHeight*0.165,
                 child: Center(
-                  child: Column(
-                    children: [
-                      CircularProgressIndicator(
-                        color: customStyleClass.primeColor,
-                      ),
-                      Text(
-                        "Lädt...",
-                        style: customStyleClass.getFontStyle3BoldPrimeColor(),
-                      )
-                    ],
+                  child: CircularProgressIndicator(
+                    color: customStyleClass.primeColor,
                   ),
                 ),
               ),
@@ -402,17 +397,17 @@ class _EventDetailViewState extends State<EventDetailView>{
                                 ),
 
                                 // Share
-                                GestureDetector(
-                                  child: Column(
-                                    children: [
-                                      Icon(
-                                        Icons.share,
-                                        color: customStyleClass.primeColor,
-                                      ),
-                                    ],
-                                  ),
-                                  onTap: () => clickEventShare(),
-                                )
+                                // GestureDetector(
+                                //   child: Column(
+                                //     children: [
+                                //       Icon(
+                                //         Icons.share,
+                                //         color: customStyleClass.primeColor,
+                                //       ),
+                                //     ],
+                                //   ),
+                                //   onTap: () => clickEventShare(),
+                                // )
                               ],
                             )
                           ],
@@ -496,91 +491,89 @@ class _EventDetailViewState extends State<EventDetailView>{
                         color: Colors.grey[900],
                       ),
 
-                      // Headline lounges
-                      Container(
-                        alignment: Alignment.center,
-                        padding: const EdgeInsets.only(
-                            bottom: 20
-                        ),
-                        child: Text(
-                          "Lounges",
-                          style: customStyleClass.getFontStyle3Bold(),
-                        ),
-                      ),
-
-
-
-                      // Lounges scrllview
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: [
-                            Stack(
-                              children: [
-                                SizedBox(
-                                  width: screenWidth*0.5,
-                                  height: screenHeight*0.17,
-                                  child: Image.asset("assets/images/lounge_blue.png"),
-                                ),
-                                SizedBox(
-                                  width: screenWidth*0.5,
-                                  height: screenHeight*0.15,
-                                  child: Center(
-                                    child: Text(
-                                      "Bald verfügbar in der App!",
-                                      style: customStyleClass.getFontStyle5BoldPrimeColor(),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              width: screenWidth*0.05,
-                            ),
-                            Stack(
-                              children: [
-                                SizedBox(
-                                  width: screenWidth*0.5,
-                                  height: screenHeight*0.17,
-                                  child: Image.asset("assets/images/lounge_grey2.png"),
-                                ),
-                                SizedBox(
-                                  width: screenWidth*0.5,
-                                  height: screenHeight*0.15,
-                                  child: Center(
-                                    child: Text(
-                                      "Bald verfügbar in der App!",
-                                      style: customStyleClass.getFontStyle5Bold(),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              width: screenWidth*0.05,
-                            ),
-                            Stack(
-                              children: [
-                                SizedBox(
-                                  width: screenWidth*0.5,
-                                  height: screenHeight*0.17,
-                                  child: Image.asset("assets/images/lounge_grey2.png"),
-                                ),
-                                SizedBox(
-                                  width: screenWidth*0.5,
-                                  height: screenHeight*0.15,
-                                  child: Center(
-                                    child: Text(
-                                      "Bald verfügbar in der App!",
-                                      style: customStyleClass.getFontStyle5Bold(),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      )
+                      // // Headline lounges
+                      // Container(
+                      //   alignment: Alignment.center,
+                      //   padding: const EdgeInsets.only(
+                      //       bottom: 20
+                      //   ),
+                      //   child: Text(
+                      //     "Lounges",
+                      //     style: customStyleClass.getFontStyle3Bold(),
+                      //   ),
+                      // ),
+                      //
+                      // // Lounges scrllview
+                      // SingleChildScrollView(
+                      //   scrollDirection: Axis.horizontal,
+                      //   child: Row(
+                      //     children: [
+                      //       Stack(
+                      //         children: [
+                      //           SizedBox(
+                      //             width: screenWidth*0.5,
+                      //             height: screenHeight*0.17,
+                      //             child: Image.asset("assets/images/lounge_blue.png"),
+                      //           ),
+                      //           SizedBox(
+                      //             width: screenWidth*0.5,
+                      //             height: screenHeight*0.15,
+                      //             child: Center(
+                      //               child: Text(
+                      //                 "Bald verfügbar in der App!",
+                      //                 style: customStyleClass.getFontStyle5BoldPrimeColor(),
+                      //               ),
+                      //             ),
+                      //           ),
+                      //         ],
+                      //       ),
+                      //       SizedBox(
+                      //         width: screenWidth*0.05,
+                      //       ),
+                      //       Stack(
+                      //         children: [
+                      //           SizedBox(
+                      //             width: screenWidth*0.5,
+                      //             height: screenHeight*0.17,
+                      //             child: Image.asset("assets/images/lounge_grey2.png"),
+                      //           ),
+                      //           SizedBox(
+                      //             width: screenWidth*0.5,
+                      //             height: screenHeight*0.15,
+                      //             child: Center(
+                      //               child: Text(
+                      //                 "Bald verfügbar in der App!",
+                      //                 style: customStyleClass.getFontStyle5Bold(),
+                      //               ),
+                      //             ),
+                      //           ),
+                      //         ],
+                      //       ),
+                      //       SizedBox(
+                      //         width: screenWidth*0.05,
+                      //       ),
+                      //       Stack(
+                      //         children: [
+                      //           SizedBox(
+                      //             width: screenWidth*0.5,
+                      //             height: screenHeight*0.17,
+                      //             child: Image.asset("assets/images/lounge_grey2.png"),
+                      //           ),
+                      //           SizedBox(
+                      //             width: screenWidth*0.5,
+                      //             height: screenHeight*0.15,
+                      //             child: Center(
+                      //               child: Text(
+                      //                 "Bald verfügbar in der App!",
+                      //                 style: customStyleClass.getFontStyle5Bold(),
+                      //               ),
+                      //             ),
+                      //           ),
+                      //         ],
+                      //       ),
+                      //     ],
+                      //   ),
+                      // )
 
 
                     ],
@@ -697,10 +690,25 @@ class _EventDetailViewState extends State<EventDetailView>{
           // )
         ],
       ) :
+
+      // Neither image nor video
       Center(
-        child: CircularProgressIndicator(
-          color: customStyleClass.primeColor,
-        ),
+        child: Text(
+          "Lädt...",
+          style: customStyleClass.getFontStyle3BoldPrimeColor(),
+        )
+
+        // Column(
+        //   children: [
+        //     CircularProgressIndicator(
+        //       color: customStyleClass.primeColor,
+        //     ),
+        //     Text(
+        //       "Lädt...",
+        //       style: customStyleClass.getFontStyle3BoldPrimeColor(),
+        //     )
+        //   ],
+        // ),
       ),
     );
   }
@@ -898,17 +906,24 @@ class _EventDetailViewState extends State<EventDetailView>{
       // No need to fetch anything if there is nothing to fetch
       if(currentAndLikedElementsProvider.currentClubMeEvent.getEventMarketingFileName().isNotEmpty){
 
-        // If a file exists, we fetch it
-        marketingFile = await _supabaseService.getEventContent(
-            currentAndLikedElementsProvider.currentClubMeEvent.getEventMarketingFileName()
-        );
-
         // Could be inlined but the right side is pretty long so I split it.
         String applicationFilesPath = stateProvider.appDocumentsDir.path;
         String marketingFileName = currentAndLikedElementsProvider.currentClubMeEvent.getEventMarketingFileName();
-
         filePath = '$applicationFilesPath/$marketingFileName';
-        file = await File(filePath).writeAsBytes(marketingFile);
+
+        var checkIfExists = await File(filePath).exists();
+
+        if(checkIfExists){
+          file = File(filePath);
+        }else{
+          // If a file exists, we fetch it
+          marketingFile = await _supabaseService.getEventContent(
+              currentAndLikedElementsProvider.currentClubMeEvent.getEventMarketingFileName()
+          );
+
+          file = await File(filePath).writeAsBytes(marketingFile);
+        }
+
 
         // We can derive the file type from the mime type
         String mimeStr = lookupMimeType(file.path)!;
@@ -927,7 +942,10 @@ class _EventDetailViewState extends State<EventDetailView>{
           });
         }
       }
-    }catch(e){}
+    }catch(e){
+      print("EventDetailPage. Fct: prepareContent. Error: $e");
+      _supabaseService.createErrorLog("EventDetailPage. Fct: prepareContent. Error: $e");
+    }
   }
 
 
