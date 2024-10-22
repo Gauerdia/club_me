@@ -342,8 +342,6 @@ class _UserCouponsViewState extends State<UserCouponsView>
       if(checkIfIsUpcomingDiscount(currentDiscount)){
         if(!fetchedContentProvider.getFetchedDiscounts().contains(currentDiscount) &&
            !checkIfAnyRestrictionsApply(currentDiscount)){
-
-          print("logic1. no restrictions apply: " + currentDiscount.discountTitle);
           fetchedContentProvider.addDiscountToFetchedDiscounts(currentDiscount);
         }
       }
@@ -554,8 +552,6 @@ class _UserCouponsViewState extends State<UserCouponsView>
     return false;
   }
   bool checkIfAnyRestrictionsApply(ClubMeDiscount currentDiscount) {
-
-    print("Gender Logic: ${userDataProvider.getUserData().getGender()}");
 
       int userAge = userDataProvider.getUserData().getUserAge();
 

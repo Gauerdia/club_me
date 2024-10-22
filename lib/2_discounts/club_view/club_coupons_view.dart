@@ -168,6 +168,7 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
   void checkIfUpcomingOrPastDiscount(ClubMeDiscount currentDiscount){
 
     stateProvider = Provider.of<StateProvider>(context, listen: false);
+    userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
 
     // Sort the events into the correct arrays
     if(currentDiscount.getDiscountDate().isAfter(stateProvider.getBerlinTime()) ||
