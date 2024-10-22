@@ -48,12 +48,20 @@ class StateProvider extends ChangeNotifier{
 
   bool updatedLastLogInForNow = false;
 
+  bool openEventDetailContentDirectly = false;
 
   int accessedEventDetailFrom = 0;
 
   final SupabaseService _supabaseService = SupabaseService();
   final log = getLogger();
 
+  void toggleOpenEventDetailContentDirectly(){
+    openEventDetailContentDirectly = true;
+  }
+
+  void resetOpenEventDetailContentDirectly(){
+    openEventDetailContentDirectly = false;
+  }
 
   void toggleUpdatedLastLogInForNow(){
     updatedLastLogInForNow = true;

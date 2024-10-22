@@ -525,13 +525,13 @@ class _UserMapViewState extends State<UserMapView>{
           logicalSize: const Size(50, 50), imageSize: const Size(50, 50)
       ).then((response) => {
         _markers['user_location'] = Marker(
-      markerId: const MarkerId("user_location"),
-      position: LatLng(
-      userDataProvider.getUserLatCoord(),
-      userDataProvider.getUserLongCoord()
-      ),
-      icon: response
-      )
+          markerId: const MarkerId("user_location"),
+          position: LatLng(
+          userDataProvider.getUserLatCoord(),
+          userDataProvider.getUserLongCoord()
+          ),
+          icon: response
+        )
       });
 
       setState(() {});

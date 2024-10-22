@@ -87,7 +87,7 @@ class _RegisterViewState extends State<RegisterView> {
         );
       }
 
-      _supabaseService.createErrorLog("iOS Google LogIn: Before GoogleSignIn set. iOS: ${Platform.isIOS}, Android: ${Platform.isAndroid}");
+      // _supabaseService.createErrorLog("iOS Google LogIn: Before GoogleSignIn set. iOS: ${Platform.isIOS}, Android: ${Platform.isAndroid}");
 
       //If current device IOS or MacOS, We have to declare clientID
       //Please, look STEP 2 for how to get Client ID for IOS
@@ -105,11 +105,11 @@ class _RegisterViewState extends State<RegisterView> {
         );
       }
 
-      _supabaseService.createErrorLog("iOS Google LogIn: After GoogleSignIn set. iOS: ${Platform.isIOS}, Android: ${Platform.isAndroid}");
+      // _supabaseService.createErrorLog("iOS Google LogIn: After GoogleSignIn set. iOS: ${Platform.isIOS}, Android: ${Platform.isAndroid}");
 
       final GoogleSignInAccount? googleAccount = await _googleSignIn.signIn();
 
-      _supabaseService.createErrorLog("iOS Google LogIn: After _googleSignIn.signIn(). iOS: ${Platform.isIOS}, Android: ${Platform.isAndroid}");
+      // _supabaseService.createErrorLog("iOS Google LogIn: After _googleSignIn.signIn(). iOS: ${Platform.isIOS}, Android: ${Platform.isAndroid}");
 
       GoogleSignInAuthentication googleAuth = await googleAccount!.authentication;
       String? accessToken = googleAuth.accessToken;
@@ -117,7 +117,7 @@ class _RegisterViewState extends State<RegisterView> {
 
       print("google auth: $googleAccount; $googleAuth;  $accessToken; $idToken");
 
-      _supabaseService.createErrorLog("iOS Google LogIn: googleauth: $googleAccount; $googleAuth;  $accessToken; $idToken. iOS: ${Platform.isIOS}, Android: ${Platform.isAndroid}");
+      // _supabaseService.createErrorLog("iOS Google LogIn: googleauth: $googleAccount; $googleAuth;  $accessToken; $idToken. iOS: ${Platform.isIOS}, Android: ${Platform.isAndroid}");
 
       if (accessToken == null) {
         throw 'No Access Token found.';
@@ -131,9 +131,9 @@ class _RegisterViewState extends State<RegisterView> {
         idToken: idToken,
         accessToken: accessToken,
       ).then((response){
-        _supabaseService.createErrorLog("iOS Google LogIn: after supabase: $response. iOS: ${Platform.isIOS}, Android: ${Platform.isAndroid}");
-        print("Supabase login: $response");
-                _fetchGenderAndBirthday(googleAccount.email);
+        // _supabaseService.createErrorLog("iOS Google LogIn: after supabase: $response. iOS: ${Platform.isIOS}, Android: ${Platform.isAndroid}");
+        // print("Supabase login: $response");
+        _fetchGenderAndBirthday(googleAccount.email);
       }
       );
     }catch(e){
@@ -206,9 +206,16 @@ class _RegisterViewState extends State<RegisterView> {
     try{
 
       _hiveService.addUserData(userData).then((value) => {
-        _supabaseService.insertUserData(userData).then((value){
-          userDataProvider.setUserData(userData);
-          context.go("/user_events");
+        _supabaseService.getUserByEMail(email).then((value){
+          if(value.isEmpty){
+            _supabaseService.insertUserData(userData).then((value){
+              userDataProvider.setUserData(userData);
+              context.go("/user_events");
+            });
+          }else{
+            userDataProvider.setUserData(userData);
+            context.go("/user_events");
+          }
         })
       });
 

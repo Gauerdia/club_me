@@ -196,6 +196,7 @@ class _SettingsUserViewState extends State<SettingsUserView> {
     fetchedContentProvider.setFetchedEvents([]);
     fetchedContentProvider.setFetchedDiscounts([]);
     fetchedContentProvider.setFetchedClubs([]);
+    fetchedContentProvider.setFetchedDiscounts([]);
     stateProvider.setClubUiActive(false);
     stateProvider.setPageIndex(0);
     stateProvider.activeLogOut = false;

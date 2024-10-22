@@ -68,6 +68,9 @@ class _EventDetailViewState extends State<EventDetailView>{
 
     super.initState();
     stateProvider = Provider.of<StateProvider>(context, listen:  false);
+    if(stateProvider.openEventDetailContentDirectly){
+      isContentShown = true;
+    }
     prepareContent();
 
     // Check if we access the event from the club view
@@ -219,8 +222,16 @@ class _EventDetailViewState extends State<EventDetailView>{
                 width: screenWidth,
                 height: screenHeight*0.165,
                 child: Center(
-                  child: CircularProgressIndicator(
-                    color: customStyleClass.primeColor,
+                  child: Column(
+                    children: [
+                      CircularProgressIndicator(
+                        color: customStyleClass.primeColor,
+                      ),
+                      Text(
+                        "Lädt...",
+                        style: customStyleClass.getFontStyle3BoldPrimeColor(),
+                      )
+                    ],
                   ),
                 ),
               ),
@@ -648,8 +659,18 @@ class _EventDetailViewState extends State<EventDetailView>{
               width: screenWidth,
               height: screenHeight,
               child: Center(
-                child: CircularProgressIndicator(
-                  color: customStyleClass.primeColor,
+                child: Column(
+                  children: [
+
+                    CircularProgressIndicator(
+                      color: customStyleClass.primeColor,
+                    ),
+                    Text(
+                      "Lädt...",
+                      style: customStyleClass.getFontStyle3BoldPrimeColor(),
+                    )
+
+                  ],
                 ),
               ),
             ),
@@ -749,6 +770,7 @@ class _EventDetailViewState extends State<EventDetailView>{
   void clickEventContent(){
     setState(() {
       isContentShown = !isContentShown;
+      stateProvider.resetOpenEventDetailContentDirectly();
       if(isVideo){
         _controller.pause();
       }

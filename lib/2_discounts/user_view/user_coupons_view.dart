@@ -75,13 +75,18 @@ class _UserCouponsViewState extends State<UserCouponsView>
     final fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
 
     _hiveService.getUsedDiscounts().then(
-            (usedDiscounts) => fetchedContentProvider.setUsedDiscounts(usedDiscounts)
+            (usedDiscounts){fetchedContentProvider.setUsedDiscounts(usedDiscounts);}
     );
 
     // Get and process data
     if(fetchedContentProvider.getFetchedDiscounts().isEmpty) {
-      fetchLocalDiscountsFromHive();
-      _supabaseService.getAllDiscounts().then((data) => processDiscountsFromQuery(data));
+      _hiveService.getAllLocalDiscounts().then((data){
+                processDiscountsFromHive(data);
+                _supabaseService.getAllDiscounts().then(
+                        (data) => processDiscountsFromQuery(data)
+                );
+      });
+
     }else{
       processDiscountsFromProvider(fetchedContentProvider);
       _tabController = TabController(length:fetchedContentProvider.getFetchedDiscounts().length, vsync: this);

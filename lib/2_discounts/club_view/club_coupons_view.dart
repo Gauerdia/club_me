@@ -58,6 +58,11 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
     if(fetchedContentProvider.getFetchedDiscounts().isEmpty) {
       _supabaseService.getDiscountsOfSpecificClub(userDataProvider.getUserData().getClubId())
       .then((data) => filterDiscountsFromQuery(data));
+    }else{
+      for(var currentDiscount in fetchedContentProvider.getFetchedDiscounts()){
+        checkIfUpcomingOrPastDiscount(currentDiscount);
+        setState(() {});
+      }
     }
 
   }
@@ -155,8 +160,14 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
           a.getDiscountDate().millisecondsSinceEpoch.compareTo(b.getDiscountDate().millisecondsSinceEpoch)
       );
     }
+
+    setState(() {});
+
   }
+
   void checkIfUpcomingOrPastDiscount(ClubMeDiscount currentDiscount){
+
+    stateProvider = Provider.of<StateProvider>(context, listen: false);
 
     // Sort the events into the correct arrays
     if(currentDiscount.getDiscountDate().isAfter(stateProvider.getBerlinTime()) ||

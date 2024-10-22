@@ -601,19 +601,52 @@ class _UserEventsViewState extends State<UserEventsView> {
           }
 
           // return clickable widget
-          return GestureDetector(
-            child: EventTile(
-              clubMeEvent: eventsToDisplay[index],
-              isLiked: isLiked,
-              clickEventLike: clickEventLike,
-              clickEventShare: clickEventShare,
-              showMaterialButton: true,
-            ),
-            onTap: (){
-              currentAndLikedElementsProvider.setCurrentEvent(eventsToDisplay[index]);
-              stateProvider.setAccessedEventDetailFrom(0);
-              context.push('/event_details');
-            },
+          return Stack(
+            children: [
+
+              GestureDetector(
+                child: EventTile(
+                  clubMeEvent: eventsToDisplay[index],
+                  isLiked: isLiked,
+                  clickEventLike: clickEventLike,
+                  clickEventShare: clickEventShare,
+                  showMaterialButton: true,
+                ),
+                onTap: (){
+                  currentAndLikedElementsProvider.setCurrentEvent(eventsToDisplay[index]);
+                  stateProvider.setAccessedEventDetailFrom(0);
+                  context.push('/event_details');
+                },
+              ),
+
+              if(eventsToDisplay[index].getEventMarketingFileName().isNotEmpty)
+              InkWell(
+                child: Container(
+                  height: 140,
+                  width: screenWidth*0.95,
+                  alignment: Alignment.topRight,
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                        topRight: Radius.circular(15),
+                        topLeft: Radius.circular(15)
+                    ),
+                    child: Image.asset(
+                      "assets/images/ClubMe_Logo_weiß.png",
+                      height: 60,
+                      width: 60,
+                      // fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                onTap: () {
+                  currentAndLikedElementsProvider.setCurrentEvent(eventsToDisplay[index]);
+                  stateProvider.setAccessedEventDetailFrom(0);
+                  stateProvider.toggleOpenEventDetailContentDirectly();
+                  context.push('/event_details');
+                },
+              )
+
+            ],
           );
         })
     ): SizedBox(

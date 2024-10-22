@@ -440,6 +440,8 @@ class _ClubEventsViewState extends State<ClubEventsView> {
   }
   void checkIfUpcomingOrPastEvent(ClubMeEvent currentEvent){
 
+    stateProvider = Provider.of<StateProvider>(context, listen: false);
+
     // Sort the events into the correct arrays
     if(currentEvent.getEventDate().isAfter(stateProvider.getBerlinTime()) ||
         currentEvent.getEventDate().isAtSameMomentAs(stateProvider.getBerlinTime())){

@@ -134,23 +134,26 @@ class EventTile extends StatelessWidget {
                 ),
 
                 // Display logo, when content is available
-                clubMeEvent.getEventMarketingFileName().isNotEmpty && showMaterialButton ? Container(
-                  height: topHeight,
-                  width: screenWidth,
-                  alignment: Alignment.topRight,
-                  child: ClipRRect(
-                    borderRadius: const BorderRadius.only(
-                        topRight: Radius.circular(15),
-                        topLeft: Radius.circular(15)
-                    ),
-                    child: Image.asset(
-                      "assets/images/ClubMe_Logo_weiß.png",
-                      height: 60,
-                      width: 60,
-                      // fit: BoxFit.cover,
-                    ),
-                  ),
-                ): Container(),
+                // clubMeEvent.getEventMarketingFileName().isNotEmpty && showMaterialButton ?
+                //     InkWell(
+                //       child: Container(
+                //         height: topHeight,
+                //         width: screenWidth,
+                //         alignment: Alignment.topRight,
+                //         child: ClipRRect(
+                //           borderRadius: const BorderRadius.only(
+                //               topRight: Radius.circular(15),
+                //               topLeft: Radius.circular(15)
+                //           ),
+                //           child: Image.asset(
+                //             "assets/images/ClubMe_Logo_weiß.png",
+                //             height: 60,
+                //             width: 60,
+                //             // fit: BoxFit.cover,
+                //           ),
+                //         ),
+                //       ),
+                //     ): Container(),
 
               ],
             )
