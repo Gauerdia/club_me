@@ -1,9 +1,11 @@
 import 'package:club_me/provider/fetched_content_provider.dart';
 import 'package:club_me/provider/state_provider.dart';
 import 'package:club_me/shared/dialogs/TitleAndContentDialog.dart';
+import 'package:club_me/shared/dialogs/title_content_and_button_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../models/club_password.dart';
 import '../../models/hive_models/0_club_me_user_data.dart';
@@ -23,7 +25,8 @@ class LogInAsClubView extends StatefulWidget {
 
 class _LogInAsClubViewState extends State<LogInAsClubView> {
 
-
+  bool agbAccepted = false;
+  bool privacyAccepted = false;
 
   final log = getLogger();
 
@@ -40,6 +43,43 @@ class _LogInAsClubViewState extends State<LogInAsClubView> {
   final SupabaseService _supabaseService = SupabaseService();
 
   late FetchedContentProvider fetchedContentProvider;
+
+  void clickEventAGB(){
+    showDialog(
+        context: context,
+        builder: (BuildContext context){
+          return TitleContentAndButtonDialog(
+              titleToDisplay: "AGB",
+              contentToDisplay: "Dieser Link führt zu unserer Website. Möchten Sie fortfahren?",
+              buttonToDisplay: TextButton(onPressed: () async {
+                final Uri url = Uri.parse("https://club-me-web-interface.pages.dev/agb");
+                if (!await launchUrl(url)) {
+                  throw Exception('Could not launch $url');
+                }
+              }, child: Text("Ja", style: customStyleClass.getFontStyle3BoldPrimeColor(),)));
+
+        }
+    );
+  }
+
+  void clickEventPrivacy(){
+    showDialog(
+        context: context,
+        builder: (BuildContext context){
+          return TitleContentAndButtonDialog(
+              titleToDisplay: "Datenschutz",
+              contentToDisplay: "Dieser Link führt zu unserer Website. Möchten Sie fortfahren?",
+              buttonToDisplay: TextButton(onPressed: () async {
+                final Uri url = Uri.parse("https://club-me-web-interface.pages.dev/datenschutz");
+                if (!await launchUrl(url)) {
+                  throw Exception('Could not launch $url');
+                }
+              }, child: Text("Ja", style: customStyleClass.getFontStyle3BoldPrimeColor(),)));
+
+        }
+    );
+  }
+
 
   AppBar _buildAppBar(){
     return AppBar(
@@ -117,44 +157,56 @@ class _LogInAsClubViewState extends State<LogInAsClubView> {
       isLoading = true;
     });
 
-    try{
-      await _supabaseService.checkIfClubPwIsLegit(_clubPasswordController.text).then((value){
-        if(value.isEmpty){
-          showErrorDialog();
-        }else{
-
-          ClubMePassword clubMePassword = parseClubMePassword(value[0]);
-
-          ClubMeUserData newUserData = ClubMeUserData(
-              firstName: "...",
-              lastName: "...",
-              birthDate: DateTime.now(),
-              eMail: "...",
-              gender: 0,
-              userId: clubMePassword.clubId,
-              profileType: 1,
-              lastTimeLoggedIn: DateTime.now(),
-              userProfileAsClub: false,
-              clubId: clubMePassword.clubId
-          );
-          _hiveService.addUserData(newUserData).then((value){
-
-            fetchedContentProvider.setFetchedEvents([]);
-            fetchedContentProvider.setFetchedDiscounts([]);
-
-            stateProvider.setClubUiActive(true);
-
-            userDataProvider.setUserData(newUserData);
-            context.go("/club_events");
-          });
-        }
-        setState(() {
-          isLoading = false;
-        });
+    if(!agbAccepted || !privacyAccepted){
+      showDialog(context: context, builder: (BuildContext context){
+        return TitleAndContentDialog(
+            titleToDisplay: "Konditionen akzeptieren",
+            contentToDisplay: "Bitte bestätigen Sie unsere AGB und Datenschutzerklärung, um fortzufahren."
+        );
       });
+      setState(() {
+        isLoading = false;
+      });
+    }else{
+      try{
+        await _supabaseService.checkIfClubPwIsLegit(_clubPasswordController.text).then((value){
+          if(value.isEmpty){
+            showErrorDialog();
+          }else{
 
-    }catch(e){
-      log.d("Error in transferToHiveAndDB: $e");
+            ClubMePassword clubMePassword = parseClubMePassword(value[0]);
+
+            ClubMeUserData newUserData = ClubMeUserData(
+                firstName: "...",
+                lastName: "...",
+                birthDate: DateTime.now(),
+                eMail: "...",
+                gender: 0,
+                userId: clubMePassword.clubId,
+                profileType: 1,
+                lastTimeLoggedIn: DateTime.now(),
+                userProfileAsClub: false,
+                clubId: clubMePassword.clubId
+            );
+            _hiveService.addUserData(newUserData).then((value){
+
+              fetchedContentProvider.setFetchedEvents([]);
+              fetchedContentProvider.setFetchedDiscounts([]);
+
+              stateProvider.setClubUiActive(true);
+
+              userDataProvider.setUserData(newUserData);
+              context.go("/club_events");
+            });
+          }
+          setState(() {
+            isLoading = false;
+          });
+        });
+
+      }catch(e){
+        log.d("Error in transferToHiveAndDB: $e");
+      }
     }
   }
 
@@ -214,6 +266,162 @@ class _LogInAsClubViewState extends State<LogInAsClubView> {
                         autofocus: true,
                         // maxLength: 35,
                       ),
+                    ),
+
+                    // SPACER
+                    SizedBox(
+                      height: screenHeight*0.05,
+                    ),
+
+                    Container(
+                      width: screenWidth*0.9,
+                      alignment: Alignment.centerLeft,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "AGB",
+                            style: customStyleClass.getFontStyle3(),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // SPACER
+                    SizedBox(
+                      height: screenHeight*0.02,
+                    ),
+
+                    // AGB ROW
+                    SizedBox(
+                      width: screenWidth*0.9,
+                      child: Row(
+                        children: [
+                          Checkbox(
+                              activeColor: customStyleClass.primeColor,
+                              value: agbAccepted,
+                              onChanged: (bool? newValue){
+                                setState(() {
+                                  agbAccepted = newValue!;
+                                });
+                              }
+                          ),
+                          SizedBox(
+                            width: screenWidth*0.75,
+                            child: Text(
+                              "Ich habe die Allgemeinen Geschäftsbedingungen gelesen und akzeptiert.",
+                              style: customStyleClass.getFontStyle3(),
+                              textAlign: TextAlign.left,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+
+                    // SPACER
+                    SizedBox(
+                      height: screenHeight*0.02,
+                    ),
+
+                    // AGB LINK
+                    Container(
+                      width: screenWidth*0.9,
+                      child: InkWell(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Text(
+                              "Link zu den AGB",
+                              style: customStyleClass.getFontStyle5BoldPrimeColor(),
+                            ),
+                            Icon(
+                              Icons.arrow_forward_outlined,
+                              color: customStyleClass.primeColor,
+                            )
+                          ],
+                        ),
+                        onTap: () => clickEventAGB(),
+                      ),
+                    ),
+
+                    // SPACER
+                    SizedBox(
+                      height: screenHeight*0.05,
+                    ),
+
+                    Container(
+                      width: screenWidth*0.9,
+                      alignment: Alignment.centerLeft,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Datenschutz",
+                            style: customStyleClass.getFontStyle3(),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // SPACER
+                    SizedBox(
+                      height: screenHeight*0.02,
+                    ),
+
+                    // DATENSCHUTZ
+                    SizedBox(
+                      width: screenWidth*0.9,
+                      child: Row(
+                        children: [
+                          Checkbox(
+                              activeColor: customStyleClass.primeColor,
+                              value: privacyAccepted,
+                              onChanged: (bool? newValue){
+                                setState(() {
+                                  privacyAccepted = newValue!;
+                                });
+                              }
+                          ),
+                          SizedBox(
+                            width: screenWidth*0.75,
+                            child: Text(
+                              "Ich habe die Datenschutzerklärung gelesen und akzeptiert.",
+                              style: customStyleClass.getFontStyle3(),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+
+                    // SPACER
+                    SizedBox(
+                      height: screenHeight*0.02,
+                    ),
+
+                    // LINK DATENSCHUTZ
+                    SizedBox(
+                      width: screenWidth*0.9,
+                      child: InkWell(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Text(
+                              "Link zu der Datenschutzerklärung",
+                              style: customStyleClass.getFontStyle5BoldPrimeColor(),
+                            ),
+                            Icon(
+                              Icons.arrow_forward_outlined,
+                              color: customStyleClass.primeColor,
+                            )
+                          ],
+                        ),
+                        onTap: () => clickEventPrivacy(),
+                      ),
+                    ),
+
+                    // SPACER
+                    SizedBox(
+                      height: screenHeight*0.02,
                     ),
 
                     Container(

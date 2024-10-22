@@ -16,6 +16,7 @@ import 'package:club_me/provider/current_and_liked_elements_provider.dart';
 import 'package:club_me/provider/fetched_content_provider.dart';
 import 'package:club_me/provider/state_provider.dart';
 import 'package:club_me/provider/user_data_provider.dart';
+import 'package:club_me/register/components/accept_agb_and_privacy_view.dart';
 import 'package:club_me/register/components/enter_as_developer_view.dart';
 import 'package:club_me/register/components/forgot_password_view.dart';
 import 'package:club_me/register/components/log_in_as_club_view.dart';
@@ -525,6 +526,14 @@ final GoRouter _router = GoRouter(
         builder: (context, state) => const EnterAsDeveloperView()
     ),
 
+    GoRoute(
+        path: '/agb_and_privacy',
+        pageBuilder: (context, state) => buildPageWithoutTransition(
+            context: context,
+            state: state,
+            child: const AcceptAgbAndPrivacyView()
+        )
+    ),
 
 
   ],

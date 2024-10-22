@@ -13,6 +13,7 @@ import 'package:provider/provider.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:toggle_switch/toggle_switch.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 
 import '../main.dart';
@@ -22,6 +23,7 @@ import '../services/hive_service.dart';
 import '../services/supabase_service.dart';
 import '../shared/custom_text_style.dart';
 import '../shared/dialogs/TitleAndContentDialog.dart';
+import '../shared/dialogs/title_content_and_button_dialog.dart';
 import '../shared/logger.util.dart';
 
 import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart';
@@ -54,6 +56,9 @@ class _RegisterViewState extends State<RegisterView> {
   int profileType = 0;
   int gender = 0;
 
+  bool agbAccepted = false;
+  bool privacyAccepted = false;
+
   late DateTime newSelectedDate;
 
   bool isLoading = false;
@@ -69,153 +74,129 @@ class _RegisterViewState extends State<RegisterView> {
 
   GoogleSignIn _googleSignIn = GoogleSignIn();
 
+  // 0: none yet, 1: via mail user, 2: via pw club, 3: google
+  int registrationType = 0;
 
-  void processGoogleSignIn() async {
+  late ClubMeUserData userDataToRegister;
+  String emailToVerify = "";
 
-    try{
 
-      //If current device is Web or Android, do not use any parameters except from scopes.
-      if (kIsWeb || Platform.isAndroid ) {
-        _googleSignIn = GoogleSignIn(
-          // clientId: '947015013780-9bhmhmc3qup1ret3v6msat0fighlt19o.apps.googleusercontent.com',
-          scopes: [
-            'https://www.googleapis.com/auth/userinfo.profile',
-            'email',
-            PeopleServiceApi.userBirthdayReadScope,
-            PeopleServiceApi.userGenderReadScope,
-          ],
+
+  void clickEventAGB(){
+    showDialog(
+        context: context,
+        builder: (BuildContext context){
+          return TitleContentAndButtonDialog(
+              titleToDisplay: "AGB",
+              contentToDisplay: "Dieser Link führt zu unserer Website. Möchten Sie fortfahren?",
+              buttonToDisplay: TextButton(onPressed: () async {
+                final Uri url = Uri.parse("https://club-me-web-interface.pages.dev/agb");
+                if (!await launchUrl(url)) {
+                  throw Exception('Could not launch $url');
+                }
+              }, child: Text("Ja", style: customStyleClass.getFontStyle3BoldPrimeColor(),)));
+
+        }
+    );
+  }
+
+  void clickEventPrivacy(){
+    showDialog(
+        context: context,
+        builder: (BuildContext context){
+          return TitleContentAndButtonDialog(
+              titleToDisplay: "Datenschutz",
+              contentToDisplay: "Dieser Link führt zu unserer Website. Möchten Sie fortfahren?",
+              buttonToDisplay: TextButton(onPressed: () async {
+                final Uri url = Uri.parse("https://club-me-web-interface.pages.dev/datenschutz");
+                if (!await launchUrl(url)) {
+                  throw Exception('Could not launch $url');
+                }
+              }, child: Text("Ja", style: customStyleClass.getFontStyle3BoldPrimeColor(),)));
+
+        }
+    );
+  }
+
+
+  void checkIfRegistrationIsLegit() async {
+
+    setState(() {
+      isLoading = true;
+    });
+
+    if(!agbAccepted || !privacyAccepted){
+      showDialog(context: context, builder: (BuildContext context){
+        return TitleAndContentDialog(
+            titleToDisplay: "Konditionen akzeptieren",
+            contentToDisplay: "Bitte bestätigen Sie die AGB und die Datenschutzerklärung, um fortzufahren."
+        );
+      });
+    }else{
+      if(RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9-]+\.[a-zA-Z]+").hasMatch(_eMailController.text)){
+        await _supabaseService.getUserByEMail(_eMailController.text).then(
+                (response) {
+              if(response.isNotEmpty){
+                showDialog(context: context, builder: (BuildContext context){
+                  return TitleAndContentDialog(
+                      titleToDisplay: "E-Mail-Adresse existiert bereits",
+                      contentToDisplay: "Diese E-Mail-Adresse ist leider bereits vergeben. Wenn du dich erneut anmelden möchtest, nutze bitte den dazu gehörigen Button auf der Registrierungsseite."
+                  );
+                });
+              }else{
+                setState(() {
+                  isLoading = false;
+                });
+                processUserRegistration();
+              }
+            }
         );
       }
-
-      // _supabaseService.createErrorLog("iOS Google LogIn: Before GoogleSignIn set. iOS: ${Platform.isIOS}, Android: ${Platform.isAndroid}");
-
-      //If current device IOS or MacOS, We have to declare clientID
-      //Please, look STEP 2 for how to get Client ID for IOS
-      if (Platform.isIOS || Platform.isMacOS) {
-        _googleSignIn = GoogleSignIn(
-          clientId: "com.googleusercontent.apps.947015013780-cfmc26giatfe8tsgf0eg3im36h0qsvj0",
-          // serverClientId: "com.googleusercontent.apps.947015013780-b475mq5v5u6k0mpju7ik3njm2g6dr8pk",
-          hostedDomain: "",
-          scopes: [
-            'https://www.googleapis.com/auth/userinfo.profile',
-            'email',
-            PeopleServiceApi.userBirthdayReadScope,
-            PeopleServiceApi.userGenderReadScope,
-          ],
-        );
+      else{
+        setState(() {
+          isLoading = false;
+        });
+        showDialog(context: context, builder: (BuildContext context){
+          return TitleAndContentDialog(
+              titleToDisplay: "Ungültige E-Mail-Adresse",
+              contentToDisplay: "Bitte gib eine gültige E-Mail-Adresse an."
+          );
+        });
       }
-
-      // _supabaseService.createErrorLog("iOS Google LogIn: After GoogleSignIn set. iOS: ${Platform.isIOS}, Android: ${Platform.isAndroid}");
-
-      final GoogleSignInAccount? googleAccount = await _googleSignIn.signIn();
-
-      // _supabaseService.createErrorLog("iOS Google LogIn: After _googleSignIn.signIn(). iOS: ${Platform.isIOS}, Android: ${Platform.isAndroid}");
-
-      GoogleSignInAuthentication googleAuth = await googleAccount!.authentication;
-      String? accessToken = googleAuth.accessToken;
-      String? idToken = googleAuth.idToken;
-
-      print("google auth: $googleAccount; $googleAuth;  $accessToken; $idToken");
-
-      // _supabaseService.createErrorLog("iOS Google LogIn: googleauth: $googleAccount; $googleAuth;  $accessToken; $idToken. iOS: ${Platform.isIOS}, Android: ${Platform.isAndroid}");
-
-      if (accessToken == null) {
-        throw 'No Access Token found.';
-      }
-      if (idToken == null) {
-        throw 'No ID Token found.';
-      }
-
-      var supabaseLogIn = await supabase.auth.signInWithIdToken(
-        provider: OAuthProvider.google,
-        idToken: idToken,
-        accessToken: accessToken,
-      ).then((response){
-        // _supabaseService.createErrorLog("iOS Google LogIn: after supabase: $response. iOS: ${Platform.isIOS}, Android: ${Platform.isAndroid}");
-        // print("Supabase login: $response");
-        _fetchGenderAndBirthday(googleAccount.email);
-      }
-      );
-    }catch(e){
-      _supabaseService.createErrorLog(
-        "RegisterView. Fct: processGoogleSignIn. Plattform: iOS(${Platform.isIOS}), Android(${Platform.isAndroid}, Error: $e"
-      );
     }
   }
 
-  void processAppleSignIn() async {
 
-    try{
-      final credential = await SignInWithApple.getAppleIDCredential(
-          scopes: [
-            AppleIDAuthorizationScopes.email,
-            AppleIDAuthorizationScopes.fullName
-          ]
-      );
-      _supabaseService.createErrorLog(
-          "RegisterView. Fct: processAppleSignIn. Plattform: iOS(${Platform.isIOS}), Android(${Platform.isAndroid}, response: $credential"
-      );
-    }catch(e){
-      _supabaseService.createErrorLog(
-          "RegisterView. Fct: processAppleSignIn. Plattform: iOS(${Platform.isIOS}), Android(${Platform.isAndroid}, Error: $e"
-      );
-    }
-
-  }
-
-  // 3: fetch gender and birthday
-  _fetchGenderAndBirthday(String email) async {
-    var httpClient = (await _googleSignIn.authenticatedClient())!;
-
-    var peopleApi = PeopleServiceApi(httpClient);
-
-    final Person person = await peopleApi.people.get(
-      'people/me',
-      personFields: 'birthdays,genders,names',
-    );
-
-    /// Gender
-    final String gender = person.genders![0].formattedValue!;
-
-    /// Birthdate
-    final date = person.birthdays![0].date!;
-    final DateTime birthdayDateTime = DateTime(
-      date.year ?? 0,
-      date.month ?? 0,
-      date.day ?? 0,
-    );
-
-    final firstName = person.names?.first.givenName;
-    final familyName = person.names?.first.familyName;
+  void processUserRegistration() async{
 
     var uuid = const Uuid();
 
-    ClubMeUserData userData = ClubMeUserData(
-        firstName: firstName!,
-        lastName: familyName!,
-        birthDate: birthdayDateTime,
-        eMail: email,
-        gender: gender == "Male" ? 1 : 2,
+    ClubMeUserData newUserData = ClubMeUserData(
+        firstName: _firstNameController.text,
+        lastName: _lastNameController.text,
+        birthDate: newSelectedDate,
+        eMail: _eMailController.text,
+        gender: gender+1,
         userId: uuid.v4(),
         profileType: profileType,
         lastTimeLoggedIn: DateTime.now(),
         userProfileAsClub: false,
-        clubId: ""
+        clubId: ''
     );
 
     try{
 
-      _hiveService.addUserData(userData).then((value) => {
-        _supabaseService.getUserByEMail(email).then((value){
-          if(value.isEmpty){
-            _supabaseService.insertUserData(userData).then((value){
-              userDataProvider.setUserData(userData);
-              context.go("/user_events");
-            });
-          }else{
-            userDataProvider.setUserData(userData);
-            context.go("/user_events");
-          }
+      // Make sure that the local user data is clean
+      await _hiveService.resetUserData();
+
+      // save user data to all relevant instances
+      _hiveService.addUserData(newUserData).then((value) => {
+        _supabaseService.insertUserData(newUserData).then((value){
+          userDataProvider.setUserData(newUserData);
+          setState(() {
+            // show advertisement
+            progressIndex = 3;
+          });
         })
       });
 
@@ -223,10 +204,7 @@ class _RegisterViewState extends State<RegisterView> {
       log.d("Error in transferToHiveAndDB: $e");
     }
 
-
   }
-
-
 
   // INIT
   @override
@@ -295,6 +273,8 @@ class _RegisterViewState extends State<RegisterView> {
                     ),
                     onTap: () => setState(() {
                       progressIndex = 0;
+                      agbAccepted = false;
+                      privacyAccepted = false;
                     }),
                   ),
                 ),
@@ -319,6 +299,37 @@ class _RegisterViewState extends State<RegisterView> {
         )
     );
   }
+
+
+  // The main logic
+  Widget _buildViewBasedOnIndex(){
+    if(hasNoAccountYet){
+      switch(progressIndex){
+        case(0):
+          return _buildChooseRegistrationMethod();
+        case(1):
+          return _buildRegisterAsUser();
+        case(3):
+          return _buildShowPremiumAdvantages();
+        case(4):
+          return _buildGoogleAcceptAGBAndPrivacy();
+        default:
+          return Container();
+      }
+    }else{
+      return SizedBox(
+        width: screenWidth,
+        height: screenHeight,
+        child: Center(
+          child: Image.asset(
+              "assets/images/ClubMe_Logo_weiß.png"
+          ),
+        ),
+      );
+    }
+  }
+
+  // main window
   Widget _buildChooseRegistrationMethod(){
     return Container(
       height: screenHeight,
@@ -342,43 +353,6 @@ class _RegisterViewState extends State<RegisterView> {
                 style: customStyleClass.getFontStyle1Bold(),
               ),
             ),
-
-            // Apple
-            // InkWell(
-            //   child: Center(
-            //     child: Container(
-            //         alignment: Alignment.centerRight,
-            //         width: screenWidth*0.9,
-            //         decoration: BoxDecoration(
-            //           color: customStyleClass.backgroundColorEventTile,
-            //           borderRadius: const BorderRadius.all(
-            //               Radius.circular(10)
-            //           ),
-            //         ),
-            //         padding: const EdgeInsets.symmetric(
-            //             vertical: 20
-            //         ),
-            //         child: Row(
-            //           mainAxisAlignment: MainAxisAlignment.center,
-            //           children: [
-            //             const Icon(
-            //               Icons.apple,
-            //               color: Colors.white,
-            //             ),
-            //             Text(
-            //               "Mit Apple anmelden",
-            //               style: customStyleClass.getFontStyle3(),
-            //             )
-            //           ],
-            //         )
-            //     ),
-            //   ),
-            //   onTap: () => clickEventAppleRegistration(),
-            // ),
-
-            // SizedBox(
-            //   height: screenHeight*0.02,
-            // ),
 
             // Google
             if(Platform.isAndroid)
@@ -523,33 +497,8 @@ class _RegisterViewState extends State<RegisterView> {
       ),
     );
   }
-  Widget _buildShowPremiumAdvantages(){
-    return Container(
-      height: screenHeight,
-      color: customStyleClass.backgroundColorMain,
-      child: Column(
-        children: [
 
-          SizedBox(
-            height: screenHeight*0.05,
-          ),
-
-          Container(
-            padding: EdgeInsets.only(
-              left: screenWidth*0.02
-            ),
-            // color: Colors.red,
-            alignment: Alignment.center,
-            // width: screenWidth*0.8,
-            child: Image.asset(
-                "assets/images/premium_advantages.png"
-            ),
-          )
-
-        ],
-      ),
-    );
-  }
+  // The first registration type
   Widget _buildRegisterAsUser(){
     return Container(
       // height: screenHeight,
@@ -799,7 +748,7 @@ class _RegisterViewState extends State<RegisterView> {
                           width: screenWidth*0.9,
                           alignment: Alignment.centerLeft,
                           child: SizedBox(
-                            width: screenWidth*0.32,
+                            width: screenWidth*0.35,
                             child:OutlinedButton(
                                 onPressed: (){
                                   showDatePicker(
@@ -842,6 +791,152 @@ class _RegisterViewState extends State<RegisterView> {
                     ),
                   ),
 
+                  Container(
+                    width: screenWidth*0.9,
+                    alignment: Alignment.centerLeft,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "AGB",
+                          style: customStyleClass.getFontStyle3(),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // SPACER
+                  SizedBox(
+                    height: screenHeight*0.02,
+                  ),
+
+                  // AGB ROW
+                  SizedBox(
+                    width: screenWidth*0.9,
+                    child: Row(
+                      children: [
+                        Checkbox(
+                            activeColor: customStyleClass.primeColor,
+                            value: agbAccepted,
+                            onChanged: (bool? newValue){
+                              setState(() {
+                                agbAccepted = newValue!;
+                              });
+                            }
+                        ),
+                        SizedBox(
+                          width: screenWidth*0.75,
+                          child: Text(
+                            "Ich habe die Allgemeinen Geschäftsbedingungen gelesen und akzeptiert.",
+                            style: customStyleClass.getFontStyle3(),
+                            textAlign: TextAlign.left,
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+
+                  // SPACER
+                  SizedBox(
+                    height: screenHeight*0.02,
+                  ),
+
+                  // AGB LINK
+                  Container(
+                    width: screenWidth*0.9,
+                    child: InkWell(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            "Link zu den AGB",
+                            style: customStyleClass.getFontStyle5BoldPrimeColor(),
+                          ),
+                          Icon(
+                            Icons.arrow_forward_outlined,
+                            color: customStyleClass.primeColor,
+                          )
+                        ],
+                      ),
+                      onTap: () => clickEventAGB(),
+                    ),
+                  ),
+
+                  // SPACER
+                  SizedBox(
+                    height: screenHeight*0.05,
+                  ),
+
+                  Container(
+                    width: screenWidth*0.9,
+                    alignment: Alignment.centerLeft,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Datenschutz",
+                          style: customStyleClass.getFontStyle3(),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // SPACER
+                  SizedBox(
+                    height: screenHeight*0.02,
+                  ),
+
+                  // DATENSCHUTZ
+                  SizedBox(
+                    width: screenWidth*0.9,
+                    child: Row(
+                      children: [
+                        Checkbox(
+                            activeColor: customStyleClass.primeColor,
+                            value: privacyAccepted,
+                            onChanged: (bool? newValue){
+                              setState(() {
+                                privacyAccepted = newValue!;
+                              });
+                            }
+                        ),
+                        SizedBox(
+                          width: screenWidth*0.75,
+                          child: Text(
+                            "Ich habe die Datenschutzerklärung gelesen und akzeptiert.",
+                            style: customStyleClass.getFontStyle3(),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+
+                  // SPACER
+                  SizedBox(
+                    height: screenHeight*0.02,
+                  ),
+
+                  // LINK DATENSCHUTZ
+                  SizedBox(
+                    width: screenWidth*0.9,
+                    child: InkWell(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            "Link zu der Datenschutzerklärung",
+                            style: customStyleClass.getFontStyle5BoldPrimeColor(),
+                          ),
+                          Icon(
+                            Icons.arrow_forward_outlined,
+                            color: customStyleClass.primeColor,
+                          )
+                        ],
+                      ),
+                      onTap: () => clickEventPrivacy(),
+                    ),
+                  ),
+
                   // Spacer
                   SizedBox(
                     height: screenHeight*0.1,
@@ -852,82 +947,310 @@ class _RegisterViewState extends State<RegisterView> {
         )
     );
   }
-  Widget _buildRegisterAsClub(){
+
+  // After successful registration
+  Widget _buildShowPremiumAdvantages(){
     return Container(
-        height: screenHeight,
-        color: customStyleClass.backgroundColorMain,
-        child: SingleChildScrollView(
-            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-            child: Column(
-                children: [
+      height: screenHeight,
+      color: customStyleClass.backgroundColorMain,
+      child: Column(
+        children: [
 
-                  // Question headline
-                  Container(
-                    width: screenWidth,
-                    padding: EdgeInsets.symmetric(
-                        vertical: screenHeight*0.04,
-                        horizontal: screenWidth*0.02
-                    ),
-                    child: Text(
-                      "Gib bitte dein Club-Passwort ein!",
-                      textAlign: TextAlign.center,
-                      style: customStyleClass.getFontStyle1Bold(),
-                    ),
-                  ),
+          SizedBox(
+            height: screenHeight*0.05,
+          ),
 
-                  // Textfield email
-                  SizedBox(
-                    height: screenHeight*0.15,
-                    width: screenWidth*0.8,
-                    child: TextField(
-                      controller: _clubPasswordController,
-                      cursorColor: customStyleClass.primeColor,
-                      decoration: InputDecoration(
-                        focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                                color: customStyleClass.primeColor
-                            )
-                        ),
-                        hintText: "z.B. passwort1234",
-                        border: const OutlineInputBorder(),
-                      ),
-                      style: customStyleClass.getFontStyle4(),
-                      autofocus: true,
-                      maxLength: 35,
-                    ),
-                  ),
+          Container(
+            padding: EdgeInsets.only(
+                left: screenWidth*0.02
+            ),
+            // color: Colors.red,
+            alignment: Alignment.center,
+            // width: screenWidth*0.8,
+            child: Image.asset(
+                "assets/images/premium_advantages.png"
+            ),
+          )
 
-                ]
-            )
-        )
+        ],
+      ),
     );
   }
-  Widget _buildViewBasedOnIndex(){
-    if(hasNoAccountYet){
-      switch(progressIndex){
-        case(0):
-          return _buildChooseRegistrationMethod();
-        case(1):
-          return _buildRegisterAsUser();
-        case(2):
-          return _buildRegisterAsClub();
-        case(3):
-          return _buildShowPremiumAdvantages();
-        default:
-          return Container();
+
+
+
+  // GOOGLE AUTH FOR ANDROID
+  void processGoogleSignIn() async {
+
+    try{
+
+      //If current device is Web or Android, do not use any parameters except from scopes.
+      if (kIsWeb || Platform.isAndroid ) {
+        _googleSignIn = GoogleSignIn(
+          // clientId: '947015013780-9bhmhmc3qup1ret3v6msat0fighlt19o.apps.googleusercontent.com',
+          scopes: [
+            'https://www.googleapis.com/auth/userinfo.profile',
+            'email',
+            PeopleServiceApi.userBirthdayReadScope,
+            PeopleServiceApi.userGenderReadScope,
+          ],
+        );
       }
-    }else{
-      return SizedBox(
-        width: screenWidth,
-        height: screenHeight,
-        child: Center(
-          child: Image.asset(
-            "assets/images/ClubMe_Logo_weiß.png"
-          ),
-        ),
+
+      // _supabaseService.createErrorLog("iOS Google LogIn: Before GoogleSignIn set. iOS: ${Platform.isIOS}, Android: ${Platform.isAndroid}");
+
+      //If current device IOS or MacOS, We have to declare clientID
+      //Please, look STEP 2 for how to get Client ID for IOS
+      if (Platform.isIOS || Platform.isMacOS) {
+        _googleSignIn = GoogleSignIn(
+          clientId: "com.googleusercontent.apps.947015013780-cfmc26giatfe8tsgf0eg3im36h0qsvj0",
+          // serverClientId: "com.googleusercontent.apps.947015013780-b475mq5v5u6k0mpju7ik3njm2g6dr8pk",
+          hostedDomain: "",
+          scopes: [
+            'https://www.googleapis.com/auth/userinfo.profile',
+            'email',
+            PeopleServiceApi.userBirthdayReadScope,
+            PeopleServiceApi.userGenderReadScope,
+          ],
+        );
+      }
+
+      final GoogleSignInAccount? googleAccount = await _googleSignIn.signIn();
+
+      GoogleSignInAuthentication googleAuth = await googleAccount!.authentication;
+      String? accessToken = googleAuth.accessToken;
+      String? idToken = googleAuth.idToken;
+
+      if (accessToken == null) {
+        throw 'No Access Token found.';
+      }
+      if (idToken == null) {
+        throw 'No ID Token found.';
+      }
+
+      var supabaseLogIn = await supabase.auth.signInWithIdToken(
+        provider: OAuthProvider.google,
+        idToken: idToken,
+        accessToken: accessToken,
+      ).then((response){
+        _fetchGenderAndBirthday(googleAccount.email);
+      }
+      );
+    }catch(e){
+      _supabaseService.createErrorLog(
+          "RegisterView. Fct: processGoogleSignIn. Plattform: iOS(${Platform.isIOS}), Android(${Platform.isAndroid}, Error: $e"
       );
     }
   }
+  _fetchGenderAndBirthday(String email) async {
+    var httpClient = (await _googleSignIn.authenticatedClient())!;
+
+    var peopleApi = PeopleServiceApi(httpClient);
+
+    final Person person = await peopleApi.people.get(
+      'people/me',
+      personFields: 'birthdays,genders,names',
+    );
+
+    /// Gender
+    final String gender = person.genders![0].formattedValue!;
+
+    /// Birthdate
+    final date = person.birthdays![0].date!;
+    final DateTime birthdayDateTime = DateTime(
+      date.year ?? 0,
+      date.month ?? 0,
+      date.day ?? 0,
+    );
+
+    final firstName = person.names?.first.givenName;
+    final familyName = person.names?.first.familyName;
+
+    var uuid = const Uuid();
+
+    userDataToRegister = ClubMeUserData(
+        firstName: firstName!,
+        lastName: familyName!,
+        birthDate: birthdayDateTime,
+        eMail: email,
+        gender: gender == "Male" ? 1 : 2,
+        userId: uuid.v4(),
+        profileType: profileType,
+        lastTimeLoggedIn: DateTime.now(),
+        userProfileAsClub: false,
+        clubId: ""
+    );
+
+    emailToVerify = email;
+
+    setState(() {
+      registrationType = 3;
+      progressIndex = 4;
+    });
+
+  }
+  Widget _buildGoogleAcceptAGBAndPrivacy(){
+    return Container(
+      height: screenHeight,
+      color: customStyleClass.backgroundColorMain,
+      child: Column(
+        children: [
+
+          SizedBox(
+            height: screenHeight*0.1,
+          ),
+
+          SizedBox(
+            width: screenWidth*0.95,
+            child: Row(
+              children: [
+                Checkbox(
+                    activeColor: customStyleClass.primeColor,
+                    value: agbAccepted,
+                    onChanged: (bool? newValue){
+                      setState(() {
+                        agbAccepted = newValue!;
+                      });
+                    }
+                ),
+                SizedBox(
+                  width: screenWidth*0.75,
+                  child: Text(
+                    "Ich habe die Allgemeinen Geschäftsbedingungen gelesen und akzeptiert.",
+                    style: customStyleClass.getFontStyle3(),
+                    textAlign: TextAlign.left,
+                  ),
+                )
+              ],
+            ),
+          ),
+          Container(
+            width: screenWidth*0.9,
+            child: InkWell(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    "Link zu den AGB",
+                    style: customStyleClass.getFontStyle5BoldPrimeColor(),
+                  ),
+                  Icon(
+                    Icons.arrow_forward_outlined,
+                    color: customStyleClass.primeColor,
+                  )
+                ],
+              ),
+              onTap: () => clickEventAGB(),
+            ),
+          ),
+
+          SizedBox(
+            height: screenHeight*0.05,
+          ),
+
+          Row(
+            children: [
+              Checkbox(
+                  activeColor: customStyleClass.primeColor,
+                  value: privacyAccepted,
+                  onChanged: (bool? newValue){
+                    setState(() {
+                      privacyAccepted = newValue!;
+                    });
+                  }
+              ),
+              SizedBox(
+                width: screenWidth*0.75,
+                child: Text(
+                  "Ich habe die Datenschutzerklärung gelesen und akzeptiert.",
+                  style: customStyleClass.getFontStyle3(),
+                ),
+              )
+            ],
+          ),
+          SizedBox(
+            width: screenWidth*0.9,
+            child: InkWell(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    "Link zu der Datenschutzerklärung",
+                    style: customStyleClass.getFontStyle5BoldPrimeColor(),
+                  ),
+                  Icon(
+                    Icons.arrow_forward_outlined,
+                    color: customStyleClass.primeColor,
+                  )
+                ],
+              ),
+              onTap: () => clickEventPrivacy(),
+            ),
+          ),
+
+          SizedBox(
+            height: screenHeight*0.1,
+          ),
+
+          Container(
+            width: screenWidth*0.9,
+            alignment: Alignment.centerRight,
+            child: InkWell(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    "Weiter",
+                    style: customStyleClass.getFontStyle3BoldPrimeColor(),
+                  ),
+                  Icon(
+                    Icons.arrow_forward_outlined,
+                    color: customStyleClass.primeColor,
+                  )
+                ],
+              ),
+              onTap: () => googleCheckIfAGBAndPrivacyChecked(),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+  void googleCheckIfAGBAndPrivacyChecked(){
+    if(!agbAccepted || !privacyAccepted){
+      showDialog(context: context, builder: (BuildContext context){
+        return TitleAndContentDialog(
+            titleToDisplay: "Konditionen akzeptieren",
+            contentToDisplay: "Bitte bestätigen Sie unsere AGB und Datenschutzerklärung, um fortzufahren."
+        );
+      });
+    }else{
+      googleAuthAGBAndPrivacySuccessful();
+    }
+  }
+  void googleAuthAGBAndPrivacySuccessful(){
+    try{
+      _hiveService.addUserData(userDataToRegister).then((value) => {
+        _supabaseService.getUserByEMail(emailToVerify).then((value){
+          if(value.isEmpty){
+            _supabaseService.insertUserData(userDataToRegister).then((value){
+              userDataProvider.setUserData(userDataToRegister);
+              context.go("/user_events");
+            });
+          }else{
+            userDataProvider.setUserData(userDataToRegister);
+            context.go("/user_events");
+          }
+        })
+      });
+    }catch(e){
+      log.d("Error in googleAuthAGBAndPrivacySuccessful: $e");
+    }
+  }
+
+
+
+
   Widget _buildBottomNavigationBar(){
 
     switch(progressIndex){
@@ -954,8 +1277,6 @@ class _RegisterViewState extends State<RegisterView> {
                 )
             )
         ),
-
-        // color: Colors.green,
         alignment: Alignment.center,
         padding: const EdgeInsets.only(
           right: 10,
@@ -975,7 +1296,7 @@ class _RegisterViewState extends State<RegisterView> {
               )
             ],
           ),
-          onTap: () => clickEventRegister(),
+          onTap: () => checkIfRegistrationIsLegit()
         ),
       );
       case(3): return Container(
@@ -995,45 +1316,73 @@ class _RegisterViewState extends State<RegisterView> {
     }
   }
 
-  // CLICK
-  void clickEventAppleRegistration(){
 
-    processAppleSignIn();
 
-    // Widget okButton = TextButton(
-    //   child: Text(
-    //     "OK",
-    //     style: customStyleClass.getFontStyle4(),
-    //   ),
-    //   onPressed: () => Navigator.pop(context),
-    // );
-    //
-    // showDialog(
-    //     context: context,
-    //     builder: (BuildContext context){
-    //       return TitleAndContentDialog(
-    //         titleToDisplay: "Apple-Authentifizierung",
-    //         contentToDisplay: "Diese Funktion ist derzeit noch nicht implementiert. Wir bitten um Entschuldigung.",
-    //       );
-    //     }
-    // );
+  void processContinue(){
+
+    switch(registrationType){
+      case(1):
+        _hiveService.addUserData(userDataToRegister).then((value) => {
+          _supabaseService.getUserByEMail(emailToVerify).then((value){
+            if(value.isEmpty){
+              _supabaseService.insertUserData(userDataToRegister).then((value){
+                userDataProvider.setUserData(userDataToRegister);
+                context.go("/user_events");
+              });
+            }else{
+              userDataProvider.setUserData(userDataToRegister);
+              context.go("/user_events");
+            }
+          })
+        });
+        break;
+      case(2):
+        _hiveService.addUserData(userDataToRegister).then((value) => {
+          _supabaseService.getUserByEMail(emailToVerify).then((value){
+            if(value.isEmpty){
+              _supabaseService.insertUserData(userDataToRegister).then((value){
+                userDataProvider.setUserData(userDataToRegister);
+                context.go("/club_events");
+              });
+            }else{
+              userDataProvider.setUserData(userDataToRegister);
+              context.go("/club_events");
+            }
+          })
+        });
+        break;
+      case(3):
+        try{
+          _hiveService.addUserData(userDataToRegister).then((value) => {
+            _supabaseService.getUserByEMail(emailToVerify).then((value){
+              if(value.isEmpty){
+                _supabaseService.insertUserData(userDataToRegister).then((value){
+                  userDataProvider.setUserData(userDataToRegister);
+                  context.go("/user_events");
+                });
+              }else{
+                userDataProvider.setUserData(userDataToRegister);
+                context.go("/user_events");
+              }
+            })
+          });
+          break;
+
+        }catch(e){
+          log.d("Error in transferToHiveAndDB: $e");
+        }
+        break;
+
+    }
+
+
+
   }
+
+  // CLICK
+
   void clickEventGoogleRegistration(){
-
-    // if(Platform.isAndroid){
       processGoogleSignIn();
-    // }else{
-    //   showDialog(
-    //       context: context,
-    //       builder: (BuildContext context){
-    //         return TitleAndContentDialog(
-    //           titleToDisplay: "Google-Authentifizierung",
-    //           contentToDisplay: "Diese Funktion ist derzeit noch nicht implementiert. Wir bitten um Entschuldigung.",
-    //         );
-    //       }
-    //   );
-    // }
-
   }
   void clickEventEMailRegistration(){
     setState(() {
@@ -1062,7 +1411,13 @@ class _RegisterViewState extends State<RegisterView> {
                   );
               });
               }else{
-                transferToHiveAndDB();
+
+                setState(() {
+                  registrationType = 0;
+                  progressIndex = 3;
+                });
+
+                // transferToHiveAndDB();
               }
             }
         );
@@ -1082,7 +1437,13 @@ class _RegisterViewState extends State<RegisterView> {
         });
       }
     }else{
-      transferToHiveAndDB();
+
+      setState(() {
+        registrationType = 1;
+        progressIndex = 3;
+      });
+
+      // transferToHiveAndDB();
     }
   }
   void clickEventShowInfo(int index){
@@ -1129,17 +1490,14 @@ class _RegisterViewState extends State<RegisterView> {
     });
   }
   void clickEventForgotPassword(){
-    print("click");
     context.push("/forgot_password");
   }
   void clickEventGoFromAdToEvents(){
     context.go("/user_events");
   }
-
   void clickEventProceedAsClub(){
     context.push("/register_log_in_club");
   }
-
   void clickEventEnterAsDeveloper(){
     context.push("/enter_as_developer");
   }

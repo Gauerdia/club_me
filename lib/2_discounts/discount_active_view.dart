@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:club_me/provider/fetched_content_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:glowy_borders/glowy_borders.dart';
@@ -197,6 +198,8 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
   // MISC
   void startTimer() async{
 
+    FetchedContentProvider fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
+
     const oneSec = Duration(seconds: 1);
     _timer = Timer.periodic(
       oneSec,
@@ -206,8 +209,8 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
             _start = 0;
             timer.cancel();
             markDiscountAsRedeemed();
+            fetchedContentProvider.setFetchedDiscounts([]);
             context.go('/user_coupons');
-            // Todo: lock the code
           });
         } else {
           setState(() {

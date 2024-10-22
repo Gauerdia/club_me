@@ -170,7 +170,6 @@ class _SettingsUserViewState extends State<SettingsUserView> {
 
         }
     );
-
   }
   void clickEventSponsors(){
     context.push("/user_sponsors");
