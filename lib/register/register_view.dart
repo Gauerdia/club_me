@@ -44,6 +44,8 @@ class _RegisterViewState extends State<RegisterView> {
 
   final log = getLogger();
 
+  bool showVIP = false;
+
   late UserDataProvider userDataProvider;
   late StateProvider stateProvider;
   late double screenHeight, screenWidth;
@@ -213,6 +215,7 @@ class _RegisterViewState extends State<RegisterView> {
                             textAlign: TextAlign.center,
                             style: customStyleClass.getFontStyleHeadline1Bold()
                         ),
+                        if(showVIP)
                         Padding(
                           padding: const EdgeInsets.only(
                               bottom: 15

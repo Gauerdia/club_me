@@ -23,6 +23,8 @@ class _EnterAsDeveloperViewState extends State<EnterAsDeveloperView> {
 
   final log = getLogger();
 
+  bool showVIP = false;
+
   late UserDataProvider userDataProvider;
 
   bool isLoading = false;
@@ -60,6 +62,7 @@ class _EnterAsDeveloperViewState extends State<EnterAsDeveloperView> {
                             textAlign: TextAlign.center,
                             style: customStyleClass.getFontStyleHeadline1Bold()
                         ),
+                        if(showVIP)
                         Padding(
                           padding: const EdgeInsets.only(
                               bottom: 15

@@ -1,6 +1,7 @@
 import 'package:club_me/provider/user_data_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:googleapis/admob/v1.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/hive_models/0_club_me_user_data.dart';
@@ -18,6 +19,8 @@ class ForgotPasswordView extends StatefulWidget {
 class _ForgotPasswordViewState extends State<ForgotPasswordView> {
 
   late double screenHeight, screenWidth;
+
+  bool showVIP = false;
 
   final TextEditingController _forgotPasswordEMailController = TextEditingController();
   final TextEditingController _oneTimePasswordCOntroller = TextEditingController();
@@ -73,6 +76,64 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
     screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: customStyleClass.backgroundColorMain,
+        surfaceTintColor: customStyleClass.backgroundColorMain,
+          title: SizedBox(
+            width: screenWidth,
+            child: Stack(
+              children: [
+
+                // TEXT
+                Container(
+                  // color: Colors.red,
+                  height: 50,
+                  width: screenWidth,
+                  alignment: Alignment.centerRight,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                              "ClubMe",
+                              textAlign: TextAlign.center,
+                              style: customStyleClass.getFontStyleHeadline1Bold()
+                          ),
+                          if(showVIP)
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  bottom: 15
+                              ),
+                              child: Text(
+                                "VIP",
+                                style: customStyleClass.getFontStyleVIPGold(),
+                              ),
+                            )
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+
+                Container(
+                  height: 50,
+                  width: screenWidth,
+                  alignment: Alignment.centerLeft,
+                  child: InkWell(
+                    child: const Icon(
+                      Icons.arrow_back_ios,
+                      color: Colors.white,
+                    ),
+                    onTap: () => Navigator.pop(context),
+                  ),
+                ),
+
+              ],
+            ),
+          )
+      ),
         body: showSuccessfullySent ?
           Container(
             height: screenHeight,
@@ -123,9 +184,9 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
                   children: [
 
 
-                    const SizedBox(
-                      height: 100,
-                    ),
+                    // const SizedBox(
+                    //   height: 100,
+                    // ),
 
                     // Question headline
                     Container(

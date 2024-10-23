@@ -39,6 +39,7 @@ class _RegisterForUserAsClubViewState extends State<RegisterForUserAsClubView> {
   final SupabaseService _supabaseService = SupabaseService();
 
   bool isLoading = false;
+  bool showVIP = false;
 
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
@@ -118,6 +119,7 @@ class _RegisterForUserAsClubViewState extends State<RegisterForUserAsClubView> {
                             textAlign: TextAlign.center,
                             style: customStyleClass.getFontStyleHeadline1Bold()
                         ),
+                        if(showVIP)
                         Padding(
                           padding: const EdgeInsets.only(
                               bottom: 15

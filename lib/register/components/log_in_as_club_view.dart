@@ -33,6 +33,7 @@ class _LogInAsClubViewState extends State<LogInAsClubView> {
   late UserDataProvider userDataProvider;
   late StateProvider stateProvider;
 
+  bool showVIP = false;
   bool isLoading = false;
   String headLine = "ClubMe";
   late double screenHeight, screenWidth;
@@ -107,6 +108,7 @@ class _LogInAsClubViewState extends State<LogInAsClubView> {
                             textAlign: TextAlign.center,
                             style: customStyleClass.getFontStyleHeadline1Bold()
                         ),
+                        if(showVIP)
                         Padding(
                           padding: const EdgeInsets.only(
                               bottom: 15
