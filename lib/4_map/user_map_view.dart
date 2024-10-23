@@ -42,6 +42,8 @@ class _UserMapViewState extends State<UserMapView>{
 
   late String weekDayDropDownValue;
 
+  bool showVIP = false;
+
   var log = Logger();
 
 
@@ -397,6 +399,7 @@ class _UserMapViewState extends State<UserMapView>{
                                 textAlign: TextAlign.center,
                                 style: customStyleClass.getFontStyleHeadline1Bold()
                             ),
+                            if(showVIP)
                             Padding(
                               padding: const EdgeInsets.only(
                                   bottom: 15

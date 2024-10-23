@@ -44,7 +44,7 @@ class _EventDetailViewState extends State<EventDetailView>{
   bool isContentShown = false;
   String priceFormatted = "";
 
-  bool showVIP = true;
+  bool showVIP = false;
 
   double mainInfosContainerHeight = 110;
 

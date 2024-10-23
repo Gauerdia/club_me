@@ -50,6 +50,8 @@ class _UserCouponsViewState extends State<UserCouponsView>
 
   final TextEditingController _textEditingController = TextEditingController();
 
+  bool showVIP = false;
+
   bool dbFetchComplete = false;
   bool isSearchActive = false;
   bool onlyFavoritesIsActive = false;
@@ -200,6 +202,7 @@ class _UserCouponsViewState extends State<UserCouponsView>
                                 textAlign: TextAlign.center,
                                 style: customStyleClass.getFontStyleHeadline1Bold()
                             ),
+                            if(showVIP)
                             Padding(
                               padding: const EdgeInsets.only(
                                   bottom: 15

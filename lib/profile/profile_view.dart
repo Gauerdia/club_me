@@ -40,6 +40,7 @@ class _ProfileViewState extends State<ProfileView> {
 
   bool showEditScreen = false;
   bool isLoading = false;
+  bool showVIP = false;
 
   final HiveService _hiveService = HiveService();
   final SupabaseService _supabaseService = SupabaseService();
@@ -115,6 +116,7 @@ class _ProfileViewState extends State<ProfileView> {
                                   textAlign: TextAlign.center,
                                   style: customStyleClass.getFontStyleHeadline1Bold()
                               ),
+                              if(showVIP)
                               Padding(
                                 padding: const EdgeInsets.only(
                                     bottom: 15

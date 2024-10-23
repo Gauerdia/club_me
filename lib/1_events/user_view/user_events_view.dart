@@ -276,15 +276,15 @@ class _UserEventsViewState extends State<UserEventsView> {
                                   textAlign: TextAlign.center,
                                   style: customStyleClass.getFontStyleHeadline1Bold()
                               ),
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                    bottom: 15
-                                ),
-                                child: Text(
-                                  "VIP",
-                                  style: customStyleClass.getFontStyleVIPGold(),
-                                ),
-                              )
+                              // Padding(
+                              //   padding: const EdgeInsets.only(
+                              //       bottom: 15
+                              //   ),
+                              //   child: Text(
+                              //     "VIP",
+                              //     style: customStyleClass.getFontStyleVIPGold(),
+                              //   ),
+                              // )
                             ],
                           ),
                         ],

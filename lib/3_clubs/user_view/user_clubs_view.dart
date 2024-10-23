@@ -34,6 +34,7 @@ class _UserClubsViewState extends State<UserClubsView>
   late String dropdownValue;
   late String weekDayDropDownValue;
 
+  bool showVIP = false;
 
   late StateProvider stateProvider;
   late FetchedContentProvider fetchedContentProvider;
@@ -295,15 +296,16 @@ class _UserClubsViewState extends State<UserClubsView>
                                 textAlign: TextAlign.center,
                                 style: customStyleClass.getFontStyleHeadline1Bold()
                             ),
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  bottom: 15
-                              ),
-                              child: Text(
-                                "VIP",
-                                style: customStyleClass.getFontStyleVIPGold(),
-                              ),
-                            )
+                            if(showVIP)
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                    bottom: 15
+                                ),
+                                child: Text(
+                                  "VIP",
+                                  style: customStyleClass.getFontStyleVIPGold(),
+                                ),
+                              )
                           ],
                         ),
                       ],

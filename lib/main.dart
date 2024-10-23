@@ -31,6 +31,7 @@ import 'package:club_me/shared/test.dart';
 import 'package:club_me/stories/show_story_chewie.dart';
 import 'package:club_me/stories/video_recorder_screen.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -49,7 +50,6 @@ import 'package:timezone/data/latest.dart' as tz;
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-// import 'package:workmanager/workmanager.dart';
 
 import '1_events/club_view/club_choose_event_template_view.dart';
 import '1_events/club_view/club_events_view.dart';
@@ -125,6 +125,12 @@ Future<void> main() async {
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);
+
+  LicenseRegistry.addLicense(() async* {
+    final license = await rootBundle.loadString('google_fonts/inter/OFL.txt');
+    yield LicenseEntryWithLineBreaks(['google_fonts'], license);
+  });
+  GoogleFonts.config.allowRuntimeFetching = false;
 
   sleep(const Duration(milliseconds: 1500));
 

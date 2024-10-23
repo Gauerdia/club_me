@@ -27,26 +27,33 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
 
   int _start = 10;
 
+  bool showVIP = false;
+
   late Timer _timer;
   late StateProvider stateProvider;
   late AnimationController _controller;
   late CustomStyleClass customStyleClass;
   late double screenHeight, screenWidth;
   late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
+  late FetchedContentProvider fetchedContentProvider;
 
   final _noScreenshot = NoScreenshot.instance;
 
   @override
   void initState() {
-    // TODO: Block the coupon directly so that the user cant avoid the block by closing the app
+
     super.initState();
+
     _noScreenshot.screenshotOff();
+
     _controller = AnimationController(
       vsync: this,
       lowerBound: 0.3,
       duration: const Duration(seconds: 5),
     )..repeat();
+
     startTimer();
+
   }
   @override
   void dispose() {
@@ -83,6 +90,7 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
                               textAlign: TextAlign.center,
                               style: customStyleClass.getFontStyleHeadline1Bold()
                           ),
+                          if(showVIP)
                           Padding(
                             padding: const EdgeInsets.only(
                                 bottom: 15
@@ -198,9 +206,8 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
   // MISC
   void startTimer() async{
 
-    FetchedContentProvider fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
-
     const oneSec = Duration(seconds: 1);
+
     _timer = Timer.periodic(
       oneSec,
           (Timer timer) async {
@@ -208,7 +215,6 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
           setState(() {
             _start = 0;
             timer.cancel();
-            markDiscountAsRedeemed();
             fetchedContentProvider.setFetchedDiscounts([]);
             context.go('/user_coupons');
           });
@@ -220,9 +226,7 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
       },
     );
   }
-  void markDiscountAsRedeemed(){
-    /// TODO: IMPLEMENT FOR LAUNCH
-  }
+
   String formatClock(){
 
     String hour = stateProvider.getBerlinTime().hour.toString();
@@ -251,6 +255,7 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
     customStyleClass = CustomStyleClass(context: context);
     stateProvider = Provider.of<StateProvider>(context);
     currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context);
+    fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
 
     return Scaffold(
         extendBody: true,

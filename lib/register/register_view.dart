@@ -81,42 +81,18 @@ class _RegisterViewState extends State<RegisterView> {
   String emailToVerify = "";
 
 
+  // INIT
+  @override
+  void initState() {
+    super.initState();
+    newSelectedDate = DateTime(2000, 1, 1);
 
-  void clickEventAGB(){
-    showDialog(
-        context: context,
-        builder: (BuildContext context){
-          return TitleContentAndButtonDialog(
-              titleToDisplay: "AGB",
-              contentToDisplay: "Dieser Link führt zu unserer Website. Möchten Sie fortfahren?",
-              buttonToDisplay: TextButton(onPressed: () async {
-                final Uri url = Uri.parse("https://club-me-web-interface.pages.dev/agb");
-                if (!await launchUrl(url)) {
-                  throw Exception('Could not launch $url');
-                }
-              }, child: Text("Ja", style: customStyleClass.getFontStyle3BoldPrimeColor(),)));
+    fetchUserDataFromHive();
 
-        }
-    );
   }
 
-  void clickEventPrivacy(){
-    showDialog(
-        context: context,
-        builder: (BuildContext context){
-          return TitleContentAndButtonDialog(
-              titleToDisplay: "Datenschutz",
-              contentToDisplay: "Dieser Link führt zu unserer Website. Möchten Sie fortfahren?",
-              buttonToDisplay: TextButton(onPressed: () async {
-                final Uri url = Uri.parse("https://club-me-web-interface.pages.dev/datenschutz");
-                if (!await launchUrl(url)) {
-                  throw Exception('Could not launch $url');
-                }
-              }, child: Text("Ja", style: customStyleClass.getFontStyle3BoldPrimeColor(),)));
 
-        }
-    );
-  }
+
 
 
   void checkIfRegistrationIsLegit() async {
@@ -194,8 +170,11 @@ class _RegisterViewState extends State<RegisterView> {
         _supabaseService.insertUserData(newUserData).then((value){
           userDataProvider.setUserData(newUserData);
           setState(() {
+
+            context.go("/user_events");
+
             // show advertisement
-            progressIndex = 3;
+            // progressIndex = 3;
           });
         })
       });
@@ -203,16 +182,6 @@ class _RegisterViewState extends State<RegisterView> {
     }catch(e){
       log.d("Error in transferToHiveAndDB: $e");
     }
-
-  }
-
-  // INIT
-  @override
-  void initState() {
-    super.initState();
-    newSelectedDate = DateTime(2000, 1, 1);
-
-    fetchUserDataFromHive();
 
   }
 
@@ -964,9 +933,7 @@ class _RegisterViewState extends State<RegisterView> {
             padding: EdgeInsets.only(
                 left: screenWidth*0.02
             ),
-            // color: Colors.red,
             alignment: Alignment.center,
-            // width: screenWidth*0.8,
             child: Image.asset(
                 "assets/images/premium_advantages.png"
             ),
@@ -1380,6 +1347,42 @@ class _RegisterViewState extends State<RegisterView> {
   }
 
   // CLICK
+
+  void clickEventAGB(){
+    showDialog(
+        context: context,
+        builder: (BuildContext context){
+          return TitleContentAndButtonDialog(
+              titleToDisplay: "AGB",
+              contentToDisplay: "Dieser Link führt zu unserer Website. Möchten Sie fortfahren?",
+              buttonToDisplay: TextButton(onPressed: () async {
+                final Uri url = Uri.parse("https://club-me-web-interface.pages.dev/agb");
+                if (!await launchUrl(url)) {
+                  throw Exception('Could not launch $url');
+                }
+              }, child: Text("Ja", style: customStyleClass.getFontStyle3BoldPrimeColor(),)));
+
+        }
+    );
+  }
+  void clickEventPrivacy(){
+    showDialog(
+        context: context,
+        builder: (BuildContext context){
+          return TitleContentAndButtonDialog(
+              titleToDisplay: "Datenschutz",
+              contentToDisplay: "Dieser Link führt zu unserer Website. Möchten Sie fortfahren?",
+              buttonToDisplay: TextButton(onPressed: () async {
+                final Uri url = Uri.parse("https://club-me-web-interface.pages.dev/datenschutz");
+                if (!await launchUrl(url)) {
+                  throw Exception('Could not launch $url');
+                }
+              }, child: Text("Ja", style: customStyleClass.getFontStyle3BoldPrimeColor(),)));
+
+        }
+    );
+  }
+
 
   void clickEventGoogleRegistration(){
       processGoogleSignIn();

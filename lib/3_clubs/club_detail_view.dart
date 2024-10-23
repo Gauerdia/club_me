@@ -34,6 +34,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
   var log = Logger();
 
   bool noEventsAvailable = false;
+  bool showVIP = false;
 
   late StateProvider stateProvider;
   late FetchedContentProvider fetchedContentProvider;
@@ -145,6 +146,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                                 textAlign: TextAlign.center,
                                 style: customStyleClass.getFontStyleHeadline1Bold(),
                               ),
+                              if(showVIP)
                               Padding(
                                 padding: const EdgeInsets.only(
                                     bottom: 15
