@@ -397,6 +397,43 @@ class _RegisterViewState extends State<RegisterView> {
               onTap: () => clickEventEMailRegistration(),
             ),
 
+            SizedBox(
+              height: screenHeight*0.02,
+            ),
+
+            // EMAIL
+            InkWell(
+              child: Center(
+                child: Container(
+                    alignment: Alignment.centerRight,
+                    width: screenWidth*0.9,
+                    decoration: BoxDecoration(
+                      color: customStyleClass.backgroundColorEventTile,
+                      borderRadius: const BorderRadius.all(
+                          Radius.circular(10)
+                      ),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 20
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // const Icon(
+                        //   Icons.login,
+                        //   color: Colors.white,
+                        // ),
+                        Text(
+                          " Weiter ohne Registrierung",
+                          style: customStyleClass.getFontStyle3(),
+                        )
+                      ],
+                    )
+                ),
+              ),
+              onTap: () => clickEventProceedWithoutRegistration(),
+            ),
+
             // PW vergessen
             Container(
               padding: const EdgeInsets.only(
@@ -463,6 +500,7 @@ class _RegisterViewState extends State<RegisterView> {
                 ),
               ),
             ),
+
 
           ],
         ),
@@ -1386,6 +1424,11 @@ class _RegisterViewState extends State<RegisterView> {
     );
   }
 
+
+  void clickEventProceedWithoutRegistration(){
+    stateProvider.activateUsingWithoutRegistration();
+    context.go("/user_events");
+  }
 
   void clickEventGoogleRegistration(){
       processGoogleSignIn();

@@ -44,6 +44,8 @@ class StateProvider extends ChangeNotifier{
   bool reviewingANewEvent = false;
   bool isCurrentlyOnlyUpdatingAnEvent = false;
 
+  bool usingWithoutRegistration = false;
+
   bool activeLogOut = false;
 
   bool updatedLastLogInForNow = false;
@@ -54,6 +56,16 @@ class StateProvider extends ChangeNotifier{
 
   final SupabaseService _supabaseService = SupabaseService();
   final log = getLogger();
+
+
+
+  void activateUsingWithoutRegistration(){
+    usingWithoutRegistration = true;
+  }
+  void resetUsingWithoutRegistration(){
+    usingWithoutRegistration = false;
+  }
+
 
   void toggleOpenEventDetailContentDirectly(){
     openEventDetailContentDirectly = true;

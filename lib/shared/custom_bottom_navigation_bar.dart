@@ -1,3 +1,4 @@
+import 'package:club_me/shared/dialogs/title_content_and_button_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -13,6 +14,25 @@ class CustomBottomNavigationBar extends StatelessWidget {
 
   var colorTransitionDuration = const Duration(milliseconds: 900);
   late CustomStyleClass customStyleClass;
+
+
+  void showRegistrationNeededDialog(BuildContext context){
+    showDialog(context: context, builder: (BuildContext context){
+      return TitleContentAndButtonDialog(
+          titleToDisplay: "Registrierung erforderlich",
+          contentToDisplay: "Für diese Funktionalität ist eine Registrierungen erforderlich.",
+        buttonToDisplay: TextButton(
+            onPressed: (){
+              context.go("/register");
+            },
+            child: Text(
+              "Jetzt registrieren",
+              style: customStyleClass.getFontStyle3BoldPrimeColor(),
+            )
+        ),
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -162,8 +182,13 @@ class CustomBottomNavigationBar extends StatelessWidget {
                         )
                       ),
                       onTap: (){
-                        stateProvider.setPageIndex(3);
-                        context.go('/user_coupons');
+
+                        if(stateProvider.usingWithoutRegistration){
+                          showRegistrationNeededDialog(context);
+                        }else{
+                          stateProvider.setPageIndex(3);
+                          context.go('/user_coupons');
+                        }
                       },
                     ),
 
@@ -191,8 +216,13 @@ class CustomBottomNavigationBar extends StatelessWidget {
                         ),
                       ),
                       onTap: (){
-                        stateProvider.setPageIndex(4);
-                        context.go('/user_profile');
+
+                        if(stateProvider.usingWithoutRegistration){
+                          showRegistrationNeededDialog(context);
+                        }else{
+                          stateProvider.setPageIndex(4);
+                          context.go('/user_profile');
+                        }
                       },
                     ),
                   ],
@@ -203,4 +233,6 @@ class CustomBottomNavigationBar extends StatelessWidget {
         )
     );
   }
+
+
 }
