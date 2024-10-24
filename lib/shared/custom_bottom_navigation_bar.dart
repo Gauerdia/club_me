@@ -20,7 +20,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
     showDialog(context: context, builder: (BuildContext context){
       return TitleContentAndButtonDialog(
           titleToDisplay: "Registrierung erforderlich",
-          contentToDisplay: "Für diese Funktionalität ist eine Registrierungen erforderlich.",
+          contentToDisplay: "Für diese Funktionalität ist eine Registrierung erforderlich.",
         buttonToDisplay: TextButton(
             onPressed: (){
               context.go("/register");
