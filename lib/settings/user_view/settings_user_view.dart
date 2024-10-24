@@ -209,6 +209,7 @@ class _SettingsUserViewState extends State<SettingsUserView> {
     fetchedContentProvider.setFetchedDiscounts([]);
     stateProvider.setClubUiActive(false);
     stateProvider.setPageIndex(0);
+    stateProvider.resetUsingWithoutRegistration();
     _hiveService.toggleUserDataProfileType(userDataProvider.getUserData()).then(
         (response){
           context.go("/club_events");

@@ -11,6 +11,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
 
   CustomBottomNavigationBar({Key? key}) : super(key: key);
 
+  late StateProvider stateProvider;
 
   var colorTransitionDuration = const Duration(milliseconds: 900);
   late CustomStyleClass customStyleClass;
@@ -23,6 +24,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
           contentToDisplay: "Für diese Funktionalität ist eine Registrierung erforderlich.",
         buttonToDisplay: TextButton(
             onPressed: (){
+              stateProvider.resetUsingWithoutRegistration();
               context.go("/register");
             },
             child: Text(
@@ -37,7 +39,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    final stateProvider = Provider.of<StateProvider>(context);
+    stateProvider = Provider.of<StateProvider>(context);
 
     customStyleClass = CustomStyleClass(context: context);
 
