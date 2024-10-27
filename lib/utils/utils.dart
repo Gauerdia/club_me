@@ -57,12 +57,12 @@ class Utils{
   static List<String> genreListForFiltering = [
     "Alle", "Latin", "Rock", "Hip-Hop", "Electronic", "Pop", "Reggaeton", "Afrobeats",
     "R&B", "House", "Techno", "Rap", "90er", "80er", "2000er",
-    "Heavy Metal", "Psychedelic", "Balkan"
+    "Heavy Metal", "Psychedelic", "Balkan", "Amapiano", "Mixed Music"
   ];
   static List<String> genreListForCreating = [
     "Latin", "Rock", "Hip-Hop", "Electronic", "Pop", "Reggaeton", "Afrobeats",
     "R&B", "House", "Techno", "Rap", "90er", "80er", "2000er",
-    "Heavy Metal", "Psychedelic", "Balkan"
+    "Heavy Metal", "Psychedelic", "Balkan", "Amapiano", "Mixed Music"
   ];
 
 

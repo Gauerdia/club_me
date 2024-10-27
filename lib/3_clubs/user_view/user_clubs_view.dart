@@ -612,9 +612,17 @@ class _UserClubsViewState extends State<UserClubsView>
 
       ClubMeClub currentClub = parseClubMeClub(element);
 
-      if(!fetchedContentProvider.getFetchedClubs().contains(currentClub)){
+      // Don't save the clubs that are only for development purposes
+      if(stateProvider.getUsingTheAppAsADeveloper()){
+
+        if(!fetchedContentProvider.getFetchedClubs().contains(currentClub)){
+          fetchedContentProvider.addClubToFetchedClubs(currentClub);
+        }
+
+      }else if(!fetchedContentProvider.getFetchedClubs().contains(currentClub) && currentClub.getShowClubInApp()){
         fetchedContentProvider.addClubToFetchedClubs(currentClub);
       }
+
     }
 
     // Check if we need to download the corresponding images

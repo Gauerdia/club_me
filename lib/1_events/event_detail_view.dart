@@ -48,11 +48,12 @@ class _EventDetailViewState extends State<EventDetailView>{
 
   double mainInfosContainerHeight = 110;
 
-  late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
-  late FetchedContentProvider fetchedContentProvider;
   late StateProvider stateProvider;
-  late CustomStyleClass customStyleClass;
+  late FetchedContentProvider fetchedContentProvider;
+  late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
+
   late double screenHeight, screenWidth;
+  late CustomStyleClass customStyleClass;
   late String formattedEventTitle, formattedDjName, formattedEventGenres, formattedEventPrice, formattedWeekday;
 
 

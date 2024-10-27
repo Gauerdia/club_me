@@ -36,16 +36,18 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
   bool isAnyFilterActive = false;
   bool isFilterMenuActive = false;
 
-  late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
-  late String dropdownValue;
   late StateProvider stateProvider;
   late UserDataProvider userDataProvider;
   late FetchedContentProvider fetchedContentProvider;
-  late CustomStyleClass customStyleClass;
+  late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
+
+  late String dropdownValue;
   late double screenHeight, screenWidth;
+  late CustomStyleClass customStyleClass;
+
 
   List<ClubMeEvent> eventsToDisplay = [];
-  List<ClubMeEvent> upcomingDbEvents = [];
+  List<ClubMeEvent> fetchedEventsThatAreUpcoming = [];
 
   RangeValues _currentRangeValues = const RangeValues(0, 30);
 
@@ -59,6 +61,16 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
     dropdownValue = Utils.genreListForFiltering[0];
   }
 
+  void initGeneralSettings(){
+    screenWidth = MediaQuery.of(context).size.width;
+    screenHeight = MediaQuery.of(context).size.height;
+    stateProvider = Provider.of<StateProvider>(context);
+    customStyleClass = CustomStyleClass(context: context);
+    userDataProvider = Provider.of<UserDataProvider>(context);
+    fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
+    currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context);
+  }
+
 
   // BUILD
   AppBar _buildAppBar(){
@@ -70,7 +82,8 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
           width: screenWidth,
           child: Stack(
             children: [
-              // Headline
+
+              // Text: Headline
               Container(
                   alignment: Alignment.bottomCenter,
                   height: 50,
@@ -86,7 +99,7 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
                   )
               ),
 
-              // back icon
+              // Icon: Back
               Container(
                   width: screenWidth,
                   alignment: Alignment.centerLeft,
@@ -104,6 +117,7 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
                     ],
                   )
               ),
+
             ],
           ),
         )
@@ -116,7 +130,7 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
         child: Stack(
           children: [
 
-            // main view
+            // Main view
             SingleChildScrollView(
                 physics: const ScrollPhysics(),
                 child: Column(
@@ -131,7 +145,8 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
             ),
 
             // Filter
-            isFilterMenuActive?Container(
+            if(isFilterMenuActive)
+            Container(
               height: screenHeight*0.14,
               width: screenWidth,
               color: const Color(0xff2b353d),
@@ -172,14 +187,17 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
                     child: Column(
                       children: [
 
+                        // Spacer
                         SizedBox(
                           height: screenHeight*0.01,
                         ),
 
+                        // Text: Genre
                         const Text(
                             "Genre"
                         ),
 
+                        // Dropdown
                         DropdownButton(
                             value: dropdownValue,
                             items: Utils.genreListForFiltering.map<DropdownMenuItem<String>>(
@@ -201,7 +219,7 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
                   )
                 ],
               ),
-            ):Container()
+            )
           ],
         )
     );
@@ -209,12 +227,12 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
   Widget _buildListView(StateProvider stateProvider, double screenHeight){
 
 
-    if(upcomingDbEvents.isEmpty){
+    if(fetchedEventsThatAreUpcoming.isEmpty){
       for(var currentEvent in fetchedContentProvider.getFetchedEvents()){
         if( currentEvent.getClubId() == userDataProvider.getUserClubId() &&
             (currentEvent.getEventDate().isAfter(stateProvider.getBerlinTime())
                 || currentEvent.getEventDate().isAtSameMomentAs(stateProvider.getBerlinTime()))){
-          upcomingDbEvents.add(currentEvent);
+          fetchedEventsThatAreUpcoming.add(currentEvent);
         }
       }
     }
@@ -242,6 +260,7 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
 
             children: [
 
+              // EventTile
               GestureDetector(
                 child: EventTile(
                   clubMeEvent: currentEvent,
@@ -258,7 +277,7 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
               ),
 
 
-              // Edit button
+              // Button: Edit, Clear
               Container(
                 padding: EdgeInsets.only(
                     right: screenWidth*0.07,
@@ -316,7 +335,7 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
       eventsToDisplay = [];
 
       // Iterate through all available events
-      for(var event in upcomingDbEvents){
+      for(var event in fetchedEventsThatAreUpcoming){
 
         // when one criterium doesnt match, set to false
         bool fitsCriteria = true;
@@ -351,12 +370,12 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
       }
     }else{
       isAnyFilterActive = false;
-      eventsToDisplay = upcomingDbEvents;
+      eventsToDisplay = fetchedEventsThatAreUpcoming;
     }
 
   }
   void sortUpcomingEvents(){
-    upcomingDbEvents.sort((a,b) =>
+    fetchedEventsThatAreUpcoming.sort((a,b) =>
         a.getEventDate().millisecondsSinceEpoch.compareTo(b.getEventDate().millisecondsSinceEpoch)
     );
   }
@@ -442,16 +461,13 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
 
   @override
   Widget build(BuildContext context) {
-    screenWidth = MediaQuery.of(context).size.width;
-    screenHeight = MediaQuery.of(context).size.height;
-    stateProvider = Provider.of<StateProvider>(context);
-    customStyleClass = CustomStyleClass(context: context);
-    userDataProvider = Provider.of<UserDataProvider>(context);
-    fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
-    currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context);
+
+    initGeneralSettings();
 
     return Scaffold(
+
       extendBody: true,
+
       appBar: _buildAppBar(),
       body: _buildMainView(),
       bottomNavigationBar: CustomBottomNavigationBarClubs(),

@@ -53,8 +53,6 @@ class _ClubEventsViewState extends State<ClubEventsView> {
 
 
   //  INIT
-
-
   @override
   void initState(){
     super.initState();
@@ -120,8 +118,6 @@ class _ClubEventsViewState extends State<ClubEventsView> {
 
 
   // BUILD
-
-
   AppBar _buildAppBar(){
     return AppBar(
         automaticallyImplyLeading: false,
@@ -400,8 +396,6 @@ class _ClubEventsViewState extends State<ClubEventsView> {
 
 
   // FILTER FUNCTIONS
-
-
   void filterEventsFromProvider(){
   // Used, when the fetching of the db entries has happened already and we now
   // want to use the temporarily saved data to display events.
@@ -506,8 +500,6 @@ class _ClubEventsViewState extends State<ClubEventsView> {
 
 
   // CLICK
-
-
   void clickEventNewEvent(){
     context.push("/club_new_event");
   }
@@ -519,8 +511,7 @@ class _ClubEventsViewState extends State<ClubEventsView> {
   }
   void clickEventDeleteEvent(){
     showDialog(context: context, builder: (BuildContext context){
-      return
-      TitleContentAndButtonDialog(
+      return TitleContentAndButtonDialog(
           titleToDisplay: "Event löschen",
           contentToDisplay: "Bist du sicher, dass du dieses Event löschen möchtest?",
           buttonToDisplay: TextButton(
@@ -540,38 +531,6 @@ class _ClubEventsViewState extends State<ClubEventsView> {
                 style: customStyleClass.getFontStyle3BoldPrimeColor(),
               )
           ));
-
-        // AlertDialog(
-      //   backgroundColor: Color(0xff121111),
-      //   title:  Text(
-      //     "Achtung!",
-      //     style: customStyleClass.getFontStyle1Bold(),
-      //   ),
-      //   content: Text(
-      //     "Bist du sicher, dass du dieses Event löschen möchtest?",
-      //     style: customStyleClass.getFontStyle3(),
-      //     textAlign: TextAlign.left,
-      //   ),
-      //   actions: [
-      //     TextButton(
-      //         onPressed: () => _supabaseService.deleteEvent(upcomingEvents[0].getEventId()).then((value){
-      //           if(value == 0){
-      //             setState(() {
-      //               fetchedContentProvider.fetchedEvents.removeWhere((element) => element.getEventId() == upcomingEvents[0].getEventId());
-      //               upcomingEvents.removeAt(0);
-      //             });
-      //             Navigator.pop(context);
-      //           }else{
-      //             Navigator.pop(context);
-      //           }
-      //         }),
-      //         child: Text(
-      //           "Löschen",
-      //           style: customStyleClass.getFontStyle3BoldPrimeColor(),
-      //         )
-      //     )
-      //   ],
-      // );
     });
   }
   void clickEventEventFromTemplate(){
@@ -593,8 +552,6 @@ class _ClubEventsViewState extends State<ClubEventsView> {
 
 
   // FETCH CONTENT FROM DB
-
-
   void getAllEventTemplates(StateProvider stateProvider) async{
     try{
       var eventTemplates = await _hiveService.getAllClubMeEventTemplates();

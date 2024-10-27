@@ -36,6 +36,16 @@ class _UserUpcomingEventsViewState extends State<UserUpcomingEventsView> {
 
   List<ClubMeEvent> eventsToDisplay = [];
 
+  void initGeneralSettings(){
+    screenWidth = MediaQuery.of(context).size.width;
+    screenHeight = MediaQuery.of(context).size.height;
+    stateProvider = Provider.of<StateProvider>(context);
+    customStyleClass = CustomStyleClass(context: context);
+    userDataProvider = Provider.of<UserDataProvider>(context);
+    fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
+    currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context);
+  }
+
   AppBar _buildAppBar(){
     return AppBar(
         surfaceTintColor: Colors.black,
@@ -45,7 +55,8 @@ class _UserUpcomingEventsViewState extends State<UserUpcomingEventsView> {
               width: screenWidth,
               child: Stack(
                 children: [
-                  // Headline
+
+                  // Text: Headline
                   Container(
                       alignment: Alignment.bottomCenter,
                       height: 50,
@@ -61,7 +72,7 @@ class _UserUpcomingEventsViewState extends State<UserUpcomingEventsView> {
                       )
                   ),
 
-                  // back icon
+                  // Icon: Back
                   Container(
                       width: screenWidth,
                       alignment: Alignment.centerLeft,
@@ -91,7 +102,7 @@ class _UserUpcomingEventsViewState extends State<UserUpcomingEventsView> {
         child: Stack(
           children: [
 
-            // main view
+            // _buildListView
             SingleChildScrollView(
                 physics: const ScrollPhysics(),
                 child: Column(
@@ -167,7 +178,6 @@ class _UserUpcomingEventsViewState extends State<UserUpcomingEventsView> {
   }
 
   void filterEvents(){
-
     eventsToDisplay = fetchedContentProvider.getFetchedEvents()
         .where((event){
       return (event.getClubId() == currentAndLikedElementsProvider.currentClubMeClub.getClubId() && checkIfIsEventIsAfterToday(event));
@@ -186,18 +196,14 @@ class _UserUpcomingEventsViewState extends State<UserUpcomingEventsView> {
 
   @override
   Widget build(BuildContext context) {
-    screenWidth = MediaQuery.of(context).size.width;
-    screenHeight = MediaQuery.of(context).size.height;
-    stateProvider = Provider.of<StateProvider>(context);
-    customStyleClass = CustomStyleClass(context: context);
-    userDataProvider = Provider.of<UserDataProvider>(context);
-    fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
-    currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context);
 
+    initGeneralSettings();
     filterEvents();
 
     return Scaffold(
+
       extendBody: true,
+
       appBar: _buildAppBar(),
       body: _buildMainView(),
       bottomNavigationBar: CustomBottomNavigationBar(),

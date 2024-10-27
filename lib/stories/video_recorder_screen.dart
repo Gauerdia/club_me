@@ -1,12 +1,10 @@
 import 'dart:async';
-
 import 'package:adv_camera/adv_camera.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../shared/custom_text_style.dart';
 import 'video_player_screen.dart';
-// import 'package:adv_camera_example/camera.dart';
 
 class VideoRecorderScreen extends StatefulWidget {
 
@@ -146,10 +144,6 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
               alignment: AlignmentDirectional.center,
               child: GestureDetector(
                 child: Container(
-                  padding: EdgeInsets.symmetric(
-                      // horizontal: screenWidth*0.055,
-                      // vertical: screenHeight*0.02
-                  ),
                   child: Container(
                     width: 70,
                     height: 70,

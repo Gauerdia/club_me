@@ -135,6 +135,10 @@ class UserDataProvider extends ChangeNotifier{
     notifyListeners();
   }
 
+  void setUserClubStoryCreatedAt(DateTime newTime){
+    userClub.storyCreatedAt = newTime;
+    notifyListeners();
+  }
   String getUserClubStoryId(){
     return userClub.getStoryId();
   }

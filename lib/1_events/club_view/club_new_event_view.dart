@@ -23,8 +23,6 @@ import '../../services/supabase_service.dart';
 import '../../shared/custom_text_style.dart';
 import 'dart:io';
 
-import '../../shared/dialogs/title_content_and_two_buttons_dialog.dart';
-
 class ClubNewEventView extends StatefulWidget {
   const ClubNewEventView({Key? key}) : super(key: key);
 
@@ -69,6 +67,9 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
   int isRepeated = 0;
   List<String> repetitionAnswers = [
     "Wöchentlich", "Zweiwöchentlich"
+  ];
+  List<String> minuteValuesToChoose = [
+    "0", "15", "30", "59"
   ];
 
   int isTemplate = 0;
@@ -193,7 +194,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
         child: Stack(
           children: [
 
-            // Icon
+            // Icon: Back
             Container(
               alignment: Alignment.centerRight,
               height: 50,
@@ -206,7 +207,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
               ),
             ),
 
-            // Headline
+            // Text: Headline
             SizedBox(
               width: screenWidth,
               height: 50,
@@ -269,6 +270,8 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
         ),
       ),
     ):
+
+    // No image, no video
     Container(
       width: screenWidth,
       height: 80,
@@ -285,7 +288,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
           right: 10,
           bottom: 10
       ),
-      child: isUploading ? CircularProgressIndicator(color: customStyleClass.primeColor,)
+      child: isUploading ? CircularProgressIndicator(color: customStyleClass.primeColor)
       : GestureDetector(
         child: Container(
           height: 80,
@@ -341,7 +344,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                         height: screenHeight*0.05,
                       ),
 
-                      // headline
+                      // Text: Please insert
                       SizedBox(
                         width: screenWidth*0.9,
                         child: Text(
@@ -461,8 +464,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                                     ),
                                   ),
 
-
-                                  // OutlinedButton with Text
+                                  // OutlinedButton
                                   Container(
                                     padding:  EdgeInsets.only(
                                         top: distanceBetweenTitleAndTextField
@@ -482,9 +484,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                                                   child: child!,
                                                 );
                                               }).then((pickedDate){
-                                            if( pickedDate == null){
-                                              return;
-                                            }
+                                            if( pickedDate == null){return;}
                                             setState(() {
                                               newSelectedDate = pickedDate;
                                             });
@@ -502,6 +502,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                                         )
                                     ),
                                   )
+
                                 ],
                               ),
                             ),
@@ -512,6 +513,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                               child: Column(
                                 children: [
 
+                                  // Text: Time
                                   SizedBox(
                                     width: screenWidth*0.4,
                                     child: Text(
@@ -521,17 +523,16 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                                     ),
                                   ),
 
+                                  // OutlinedButton
                                   Container(
                                     padding:  EdgeInsets.only(
                                         top: distanceBetweenTitleAndTextField
                                     ),
                                     width: screenWidth*0.4,
                                     child: OutlinedButton(
-                                        onPressed: () => {
-                                          setState(() {
-                                            pickHourAndMinuteIsActive = true;
-                                          })
-                                        },
+                                        onPressed: () => setState(() {
+                                          pickHourAndMinuteIsActive = true;
+                                        }),
                                         style: OutlinedButton.styleFrom(
                                             minimumSize: Size(screenHeight*0.05,screenHeight*0.07),
                                             shape: RoundedRectangleBorder(
@@ -544,11 +545,10 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                                         )
                                     ),
                                   )
+
                                 ],
                               ),
                             ),
-
-
                           ],
                         ),
                       ),
@@ -726,9 +726,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                                     size: 32,
                                     color: customStyleClass.primeColor,
                                   ),
-                                  onTap: () {setState(() {
-                                    file = null;
-                                  });},
+                                  onTap: () => setState(() {file = null;}),
                                 ),
                               )
                             ],
@@ -802,13 +800,9 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
 
                       // ToggleSwitch: isRepeated
                       Container(
-                        // color: Colors.red,
                         width: screenWidth*0.9,
                         height: screenHeight*0.09,
                         alignment: Alignment.centerLeft,
-                        padding:  const EdgeInsets.only(
-                            // top: distanceBetweenTitleAndTextField
-                        ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -834,6 +828,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                                 )
                             ),
 
+                            // CupertinoPicker
                             if(isRepeated != 0)
                               Container(
                                 padding: const EdgeInsets.only(
@@ -859,7 +854,6 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                                     })
                                 ),
                               ),
-
                           ],
                         ),
                       ),
@@ -945,7 +939,6 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
               Center(
                 child: Container(
                   width: screenWidth*0.9,
-                  // height: screenHeight*0.3,
                   padding: const EdgeInsets.symmetric(
                       vertical: 20,
                       horizontal: 20
@@ -960,14 +953,14 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                     mainAxisSize: MainAxisSize.min,
                     children: [
 
-                      // Question text
+                      // Text: Starting time
                       Text(
                         "Startuhrzeit",
                         textAlign: TextAlign.left,
                         style: customStyleClass.getFontStyle1(),
                       ),
 
-                      // Question text
+                      // Text: Please insert
                       Text(
                         "Bitte trage mit Hoch- und Herunterwischen die Uhrzeit ein, zu der das Event beginnt.",
                         textAlign: TextAlign.left,
@@ -982,7 +975,6 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                       // Cupertino Picker
                       SizedBox(
                         height: screenHeight*0.1,
-                        // color: Colors.red,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -1020,7 +1012,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                                   itemExtent: 50,
                                   onSelectedItemChanged: (int index){
                                     setState(() {
-                                      selectedMinute = index*15;
+                                      selectedMinute = int.parse(minuteValuesToChoose[index]);
                                     });
                                   },
                                   children: List<Widget>.generate(4, (index){
@@ -1028,7 +1020,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                                       child: Text(
                                         index == 0
                                             ? "00"
-                                            :(index*15).toString(),
+                                            :(minuteValuesToChoose[index]).toString(),
                                         style: customStyleClass.getFontStyle3(),
                                       ),
                                     );
@@ -1039,7 +1031,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                         ),
                       ),
 
-                      // "Finished" button
+                      // Button: "Finished"
                       Container(
                           width: screenWidth*0.9,
                           alignment: Alignment.bottomRight,
@@ -1062,11 +1054,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                                 style: customStyleClass.getFontStyle4BoldPrimeColor(),
                               ),
                             ),
-                            onTap: () => {
-                              setState(() {
-                                pickHourAndMinuteIsActive = false;
-                              })
-                            },
+                            onTap: () => setState(() {pickHourAndMinuteIsActive = false;}),
                           )
                       ),
 
@@ -1080,7 +1068,6 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
               Center(
                 child: Container(
                   width: screenWidth*0.9,
-                  // height: screenHeight*0.3,
                   padding: const EdgeInsets.symmetric(
                       vertical: 20,
                       horizontal: 20
@@ -1095,14 +1082,14 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                     mainAxisSize: MainAxisSize.min,
                     children: [
 
-                      // Question text
+                      // Text: Genres
                       Text(
                         "Musikrichtungen",
                         textAlign: TextAlign.left,
                         style: customStyleClass.getFontStyle1(),
                       ),
 
-                      // Question text
+                      // Text: Please insert
                       Text(
                         "Füge Musikrichtungen hinzu oder lösche sie per einfachem Klick!",
                         textAlign: TextAlign.left,
@@ -1118,13 +1105,13 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                       Column(
                         children: [
 
-                          // headline
+                          // Text: Proposed genres
                           Text(
                             "Vorgeschlagene Musikrichtungen",
                             style: customStyleClass.getFontStyle4Bold(),
                           ),
 
-                          // offered genres
+                          // Wrap: Proposed genres
                           Padding(
                             padding: const EdgeInsets.symmetric(
                                 vertical: 10
@@ -1148,13 +1135,13 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                             ),
                           ),
 
-                          // Headline
+                          // Text: Chosen genres
                           Text(
                             "Ausgewählte Musikrichtungen",
                             style: customStyleClass.getFontStyle4Bold(),
                           ),
 
-                          // chosen music genres
+                          // Wrap: Chosen genres
                           Padding(
                             padding: const EdgeInsets.symmetric(
                                 vertical: 10
@@ -1189,10 +1176,11 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                                 style: customStyleClass.getFontStyle5(),
                               ),
                             ),
+
                         ],
                       ),
 
-                      // "Finished" button
+                      // Button: "Finished"
                       Container(
                           width: screenWidth*0.9,
                           alignment: Alignment.bottomRight,
@@ -1215,11 +1203,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                                 style: customStyleClass.getFontStyle4BoldPrimeColor(),
                               ),
                             ),
-                            onTap: () => {
-                              setState(() {
-                                pickGenreIsActive = false;
-                              })
-                            },
+                            onTap: () => setState(() {pickGenreIsActive = false;}),
                           )
                       ),
 
@@ -1269,10 +1253,6 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
   }
 
   // Clicks
-
-  void clickEventProcessNewEvent(){
-
-  }
   void removeGenresFromList(String genreToRemove){
     setState(() {
       musicGenresChosen.removeWhere((element) => element == genreToRemove);
@@ -1299,7 +1279,6 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
     });
   }
   void clickEventCreateEvent(){
-
     if(_eventTitleController.text != "" ){
       setState(() {
         isUploading = true;
@@ -1330,34 +1309,8 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                     default: context.go('/club_frontpage');
                   }
                 },
-              ));
-
-            // TitleContentAndTwoButtonsDialog(
-            //   titleToDisplay: "Abbrechen",
-            //   contentToDisplay: "Bist du sicher, dass du abbrechen möchtest?",
-            //   firstButtonToDisplay: TextButton(
-            //     child: Text(
-            //       "Zurück",
-            //       style: customStyleClass.getFontStyle3BoldPrimeColor(),
-            //     ),
-            //     onPressed: (){
-            //       Navigator.of(context).pop();
-            //     },
-            //   ),
-            //   secondButtonToDisplay: TextButton(
-            //     child: Text(
-            //       "Ja",
-            //       style: customStyleClass.getFontStyle3BoldPrimeColor(),
-            //     ),
-            //     onPressed: (){
-            //       stateProvider.resetCurrentEventTemplate();
-            //       switch(stateProvider.pageIndex){
-            //         case(0): context.go('/club_events');
-            //         case(3): context.go('/club_frontpage');
-            //         default: context.go('/club_frontpage');
-            //       }
-            //     },
-            //   ));
+              )
+          );
         });
   }
   void clickEventChooseContent() async{
@@ -1453,7 +1406,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
       if(musicGenresString == ""){
         musicGenresString = "$item,";
       }else{
-        musicGenresString = "$musicGenresString$item,";
+        musicGenresString = "$musicGenresString $item,";
       }
     }
     // Cut the last comma

@@ -3,6 +3,7 @@ import 'package:club_me/models/club_open_status.dart';
 import 'package:club_me/models/front_page_images.dart';
 import 'package:club_me/models/opening_times.dart';
 import 'package:club_me/models/special_opening_times.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:timezone/standalone.dart' as tz;
 
 class ClubMeClub{
@@ -16,8 +17,6 @@ class ClubMeClub{
     required this.clubStoryId,
     required this.storyCreatedAt,
 
-    // required this.clubBannerId,
-
     required this.clubGeoCoordLat,
     required this.clubGeoCoordLng,
 
@@ -26,11 +25,9 @@ class ClubMeClub{
     required this.clubContactStreet,
     required this.clubContactZip,
     required this.clubContactStreetNumber,
-    // required this.clubEventBannerId,
 
     required this.clubWebsiteLink,
     required this.clubInstagramLink,
-    // required this.clubFrontpageBackgroundColorId,
 
     required this.priorityScore,
     required this.openingTimes,
@@ -43,7 +40,8 @@ class ClubMeClub{
     required this.mapPinImageName,
     required this.specialOpeningTimes,
 
-    required this.closePartner
+    required this.closePartner,
+    required this.showClubInApp
 
   });
 
@@ -56,8 +54,6 @@ class ClubMeClub{
   double clubGeoCoordLat;
   double clubGeoCoordLng;
 
-  // String clubBannerId;
-  // String clubEventBannerId;
   String clubMusicGenres;
 
   String clubNews;
@@ -71,7 +67,6 @@ class ClubMeClub{
   String clubInstagramLink;
   String clubWebsiteLink;
 
-  // int clubFrontpageBackgroundColorId;
   int priorityScore;
 
   OpeningTimes openingTimes;
@@ -83,7 +78,11 @@ class ClubMeClub{
   SpecialOpeningTimes specialOpeningTimes;
 
   bool closePartner;
+  bool showClubInApp;
 
+  bool getShowClubInApp(){
+    return showClubInApp;
+  }
 
   bool getClosePartner(){
     return closePartner;
@@ -124,8 +123,220 @@ class ClubMeClub{
   }
 
 
-  // returns a status, (0: closed, 1: going to open, 2: open, 3: open, but closes soon) and the time to display.
   ClubOpenStatus getClubOpenStatus(){
+
+    // The possible cases:
+    //
+    // event from yesterday, no today:      [0, 6]        and [1,0]
+    // event from yesterday, 1 today:       [0,6,23]      and [1,0,1]
+    // event from yesterday, 2 today:       [0,6,8,14,22] and [1,0,1,0,1]
+    // no event from yesterday, none today: [0]           and [0]
+    // no event from yesterday, 1 today:    [0,22]        and [0,1]
+    // no event from yesterday, 2 today:    [0,8,12,22]   and [0,1,0,1]
+
+    // Get the current time
+    final berlin = tz.getLocation('Europe/Berlin');
+    final todayTimestamp = tz.TZDateTime.from(DateTime.now(), berlin);
+
+    // starting and closing hours along the day
+    List<int> timeIntervals = [];
+    // the meaning of each entry in timeIntervals
+    List<int> intervalMeaning = [];
+
+    OpeningTimes tempOpeningTimes = OpeningTimes(days: []);
+
+    // get all the club's open days
+    if(getOpeningTimes().days != null){
+      for(var element in getOpeningTimes().days!){
+        tempOpeningTimes.days!.add(element);
+      }
+    }
+
+    // Check if any special day is to be considered
+    Days? specialOpeningDays = checkIfSpecialOpeningApplies(tempOpeningTimes);
+    if(specialOpeningDays != null){
+      tempOpeningTimes.days!.add(specialOpeningDays);
+    }
+
+    Iterable<Days> yesterdaysOpeningTimes = tempOpeningTimes.days!
+        .where((element) => element.day == (todayTimestamp.weekday-1));
+
+    Iterable<Days> todaysOpeningTimes = tempOpeningTimes.days!
+      .where((element) => element.day == todayTimestamp.weekday);
+
+    // Convert to list to enable sorting
+    List<Days> yesterDaysOpeningTimesAsList = yesterdaysOpeningTimes.toList();
+    List<Days> todaysOpeningTimesAsList = todaysOpeningTimes.toList();
+
+    // Make sure that the opening times are in the correct order
+    if(todaysOpeningTimesAsList.length > 1){
+      todaysOpeningTimesAsList.sort(
+              (a,b) => a.openingHour!.compareTo(b.openingHour!)
+      );
+    }
+
+
+    // If there is no event overlapping from yesterday, we start the day with empty space.
+    if(yesterDaysOpeningTimesAsList.isEmpty){
+      timeIntervals.add(0);
+      intervalMeaning.add(0);
+    }
+    // Check, if any opening times crosses midnight
+    else{
+      for(Days days in yesterdaysOpeningTimes){
+        if(days.openingHour! > days.closingHour!){
+          timeIntervals.add(0);
+          intervalMeaning.add(1);
+          timeIntervals.add(days.closingHour!);
+          intervalMeaning.add(0);
+        }
+      }
+
+      // If none of yesterdays event overlap midnight, we start the day with empty space.
+      if(timeIntervals.isEmpty){
+        timeIntervals.add(0);
+       intervalMeaning.add(0);
+      }
+    }
+
+    // Each opening time comprises of a start and finish with an active status meanwhile and
+    // an empty space afterwards.
+    for(var openingTime in todaysOpeningTimesAsList){
+      timeIntervals.add(openingTime.openingHour!);
+      intervalMeaning.add(1);
+
+      // Only add closing time if the event doesnt surpass midnight.
+      if(openingTime.closingHour! > openingTime.openingHour!){
+        timeIntervals.add(openingTime.closingHour!);
+        intervalMeaning.add(0);
+      }
+    }
+
+    // Go through the array until we find the correct timeslot
+    bool timeSlotFound = false;
+    int timeSlotIndex = 0;
+    while(!timeSlotFound){
+
+      // Check if we haven't reached the end yet
+      if(timeIntervals.length > timeSlotIndex+1){
+
+        // Keep going until we find our time slot
+        if(todayTimestamp.hour >= timeIntervals[timeSlotIndex+1]){
+          timeSlotIndex++;
+        }else{
+          timeSlotFound = true;
+        }
+
+      }else{
+        timeSlotFound = true;
+      }
+    }
+
+    // Now we differ between empty slot and an active slot
+    if(intervalMeaning[timeSlotIndex] == 0){
+
+      // Edge case: There is no entry
+      if(intervalMeaning.length == 1){
+        return ClubOpenStatus(
+            openingStatus: 0, textToDisplay: ""
+        );
+      }
+
+      // empty slot is the last entry
+      if(timeIntervals.length == (timeSlotIndex+1)){
+        return ClubOpenStatus(
+            openingStatus: 0, textToDisplay: ""
+        );
+      }
+
+      // if there are elements and our interval is not the last one,
+      // we are waiting for the next event. So, we return status 1 and the
+      // upcoming time.
+
+      int halfHourIndex  = tempOpeningTimes.days!.firstWhere(
+              (element) => element.openingHour! == timeIntervals[timeSlotIndex+1]
+      ).openingHalfAnHour!;
+
+      return ClubOpenStatus(
+          openingStatus: 1,
+          textToDisplay: halfHourIndex == 1 ?
+              "${timeIntervals[timeSlotIndex+1]}:30":
+              halfHourIndex == 2 ?
+              "${timeIntervals[timeSlotIndex+1]}:59":
+              "${timeIntervals[timeSlotIndex+1]}:00"
+      );
+
+    }
+    // Could be if/else but like this, it is easier to understand the code.
+    if(intervalMeaning[timeSlotIndex] == 1){
+
+      // First case: there is only one event that started yesterday
+      if(timeSlotIndex == 0 && timeIntervals.length == 2){
+
+        // Check if there are less than 2 hours remaining
+        if( (timeIntervals[timeSlotIndex+1] - todayTimestamp.hour) <= 2){
+
+          int halfHourIndex  = tempOpeningTimes.days!.firstWhere(
+                  (element) => element.closingHour! == timeIntervals[timeSlotIndex+1]
+          ).closingHalfAnHour!;
+
+          return ClubOpenStatus(
+              openingStatus: 3,
+              textToDisplay: halfHourIndex == 1 ?
+              "${timeIntervals[timeSlotIndex+1]}:30":
+              halfHourIndex == 2 ?
+              "${timeIntervals[timeSlotIndex+1]}:59":
+              "${timeIntervals[timeSlotIndex+1]}:00"
+          );
+
+        }else{
+          return ClubOpenStatus(
+              openingStatus: 2,
+              textToDisplay: ""
+          );
+        }
+      }
+
+      // We are in an active event and it's the last one today
+      if(timeSlotIndex+1 == timeIntervals.length){
+        return ClubOpenStatus(
+            openingStatus: 2,
+            textToDisplay: ""
+        );
+      }
+
+      // We are in an active event but it's not the last one.
+      if( (timeIntervals[timeSlotIndex+1] - todayTimestamp.hour) <= 2){
+
+        int halfHourIndex  = tempOpeningTimes.days!.firstWhere(
+                (element) => element.closingHour! == timeIntervals[timeSlotIndex+1]
+        ).closingHalfAnHour!;
+
+        return ClubOpenStatus(
+            openingStatus: 3,
+            textToDisplay: halfHourIndex == 1 ?
+            "${timeIntervals[timeSlotIndex+1]}:30":
+            halfHourIndex == 2 ?
+            "${timeIntervals[timeSlotIndex+1]}:59":
+            "${timeIntervals[timeSlotIndex+1]}:00"
+        );
+
+      }else{
+        return ClubOpenStatus(
+            openingStatus: 2,
+            textToDisplay: ""
+        );
+      }
+    }
+
+    return ClubOpenStatus(
+        openingStatus: 0, textToDisplay: ""
+    );
+
+  }
+
+  // returns a status, (0: closed, 1: going to open, 2: open, 3: open, but closes soon) and the time to display.
+  ClubOpenStatus oldGetClubOpenStatus(){
 
     // Get the current time
     final berlin = tz.getLocation('Europe/Berlin');
@@ -349,8 +560,96 @@ class ClubMeClub{
             }
           }
         }
+
         // It started the day before
         else{
+
+          // If yesterday there was an event that started before 10 and today
+          // there is another one
+          if(currentDay != null){
+
+            // Sometimes, a club starts at 0 am and the next event starts at 11:30 pm.
+            // For this logic, I assume that 10:00 means that the first event has
+            // definitely already ended.
+            if(firstResult.length > 1){
+
+              Days currentDay2 = firstResult.toList()[1];
+
+              // Open yet?
+              if(todayTimestamp.hour > currentDay2.openingHour!){
+                openingStatus = 2;
+              }
+              // Not open but this hour it'll happen? When?
+              else if(todayTimestamp.hour == currentDay2.openingHour!){
+                if(currentDay2.openingHalfAnHour == 1){
+                  if(todayTimestamp.minute >= 30){
+                    openingStatus = 2;
+                  }else{
+                    openingStatus = 1;
+                    textToDisplay = "${currentDay2.openingHour}:30";
+                  }
+                }else{
+                  openingStatus = 2;
+                }
+              }
+              // Not open nor same hour. When will it open?
+              else{
+                openingStatus = 1;
+
+                if(currentDay2.openingHalfAnHour == 1){
+                  textToDisplay = "${currentDay2.openingHour}:30";
+                }else{
+                  textToDisplay = "${currentDay2.openingHour}:00";
+                }
+              }
+            }
+
+            // Today's event might still be on
+            if(currentDay.openingHour! < 10){
+
+              // We are past the closing hour
+              if(todayTimestamp.hour > currentDay.closingHour!){
+                openingStatus = 0;
+              }
+              // It is exactly the hour of closing
+              else if(todayTimestamp.hour == currentDay.closingHour!){
+
+                // Is the club open for half an hour extra?
+                if(currentDay.closingHalfAnHour == 1){
+                  if(todayTimestamp.minute >= 30){
+                    openingStatus = 0;
+                  }else{
+                    openingStatus  = 3;
+                    textToDisplay = "0${currentDay.closingHour}:30";
+                  }
+                }
+                else{
+                  openingStatus = 0;
+                }
+              }
+              // We are before the closing hour
+              else{
+                // Let's see if it is still worth it to go there
+                if(currentDay.closingHour! - todayTimestamp.hour < 2){
+                  openingStatus = 3;
+                  if(currentDay.closingHalfAnHour == 1){
+                    textToDisplay = "0${currentDay.closingHour}:30";
+                  }else{
+                    textToDisplay = "0${currentDay.closingHour}:00";
+                  }
+                }else{
+                  openingStatus = 2;
+                }
+              }
+
+
+            }else{
+
+            }
+
+
+
+          }
 
         }
       }

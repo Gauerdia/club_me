@@ -20,6 +20,23 @@ class SmallEventTile extends StatelessWidget {
 
   late String formattedWeekday, formattedEventTitle, formattedDjName;
 
+  late double screenWidth, screenHeight;
+
+  void initGeneralSettings(BuildContext context){
+    stateProvider = Provider.of<StateProvider>(context);
+    fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
+
+    customStyleClass = CustomStyleClass(context: context);
+
+    screenWidth = MediaQuery.of(context).size.width;
+    screenHeight = MediaQuery.of(context).size.height;
+
+    formatWeekday();
+    formatEventTitle();
+    formatDjName();
+    formatWeekday();
+  }
+
   void formatWeekday(){
 
     String weekDayToDisplay = "";
@@ -71,19 +88,7 @@ class SmallEventTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    stateProvider = Provider.of<StateProvider>(context);
-
-    fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
-
-    customStyleClass = CustomStyleClass(context: context);
-
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
-
-    formatWeekday();
-    formatEventTitle();
-    formatDjName();
-    formatWeekday();
+    initGeneralSettings(context);
 
 
     return Container(
@@ -147,6 +152,8 @@ class SmallEventTile extends StatelessWidget {
                 ),
                 child: Stack(
                   children: [
+
+                    // Title, DJ Name
                     Column(
                       children: [
 

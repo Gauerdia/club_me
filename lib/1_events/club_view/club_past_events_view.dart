@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:club_me/shared/dialogs/TitleAndContentDialog.dart';
+import 'package:club_me/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logger/logger.dart';
@@ -30,12 +31,14 @@ class _ClubPastEventsViewState extends State<ClubPastEventsView> {
   var logger = Logger();
 
   late String dropdownValue;
-  late FetchedContentProvider fetchedContentProvider;
-  late StateProvider stateProvider;
-  late UserDataProvider userDataProvider;
-  late CustomStyleClass customStyleClass;
+
   late double screenHeight, screenWidth;
 
+  late CustomStyleClass customStyleClass;
+
+  late StateProvider stateProvider;
+  late UserDataProvider userDataProvider;
+  late FetchedContentProvider fetchedContentProvider;
   late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
 
   late Directory appDocumentsDir;
@@ -46,10 +49,8 @@ class _ClubPastEventsViewState extends State<ClubPastEventsView> {
   bool isFilterMenuActive = false;
 
   List<ClubMeEvent> eventsToDisplay = [];
-  List<String> genresDropdownList = [
-    "Alle", "Techno", "90s", "Latin"
-  ];
-  List<ClubMeEvent> upcomingDbEvents = [];
+
+  List<ClubMeEvent> fetchedEventsThatHaveAlreadyTakenPlace = [];
 
   RangeValues _currentRangeValues = const RangeValues(0, 30);
 
@@ -59,7 +60,18 @@ class _ClubPastEventsViewState extends State<ClubPastEventsView> {
   @override
   void initState(){
     super.initState();
-    dropdownValue = genresDropdownList.first;
+    dropdownValue = Utils.genreListForFiltering.first;
+  }
+
+  void initGeneralSettings(){
+    stateProvider = Provider.of<StateProvider>(context);
+    fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
+    userDataProvider = Provider.of<UserDataProvider>(context);
+    currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context);
+    screenWidth = MediaQuery.of(context).size.width;
+    screenHeight = MediaQuery.of(context).size.height;
+
+    customStyleClass = CustomStyleClass(context: context);
   }
 
   // BUILD
@@ -73,7 +85,8 @@ class _ClubPastEventsViewState extends State<ClubPastEventsView> {
           width: screenWidth,
           child: Stack(
             children: [
-              // Headline
+
+              // Text: Headline
               Container(
                   alignment: Alignment.bottomCenter,
                   height: 50,
@@ -89,7 +102,7 @@ class _ClubPastEventsViewState extends State<ClubPastEventsView> {
                   )
               ),
 
-              // back icon
+              // Icon: Back
               Container(
                   width: screenWidth,
                   alignment: Alignment.centerLeft,
@@ -120,7 +133,7 @@ class _ClubPastEventsViewState extends State<ClubPastEventsView> {
         child: Stack(
           children: [
 
-            // main view
+            // ListView
             SingleChildScrollView(
                 physics: const ScrollPhysics(),
                 child: Column(
@@ -186,7 +199,7 @@ class _ClubPastEventsViewState extends State<ClubPastEventsView> {
 
                         DropdownButton(
                             value: dropdownValue,
-                            items: genresDropdownList.map<DropdownMenuItem<String>>(
+                            items: Utils.genreListForFiltering.map<DropdownMenuItem<String>>(
                                     (String value) {
                                   return DropdownMenuItem(value: value,child: Text(value));
                                 }
@@ -206,22 +219,19 @@ class _ClubPastEventsViewState extends State<ClubPastEventsView> {
                 ],
               ),
             ):Container()
+
           ],
         )
     );
   }
   Widget _buildListView(StateProvider stateProvider, double screenHeight){
 
-    // get today in correct format to check which events are upcoming
-    var todayRaw = DateTime.now();
-    var today = DateFormat('yyyy-MM-dd').format(todayRaw);
-    var todayFormatted = DateTime.parse(today);
-
-    if(upcomingDbEvents.isEmpty){
+    // Check all fetched events for the ones that have already taken place
+    if(fetchedEventsThatHaveAlreadyTakenPlace.isEmpty){
       for(var currentEvent in fetchedContentProvider.getFetchedEvents()){
         if( currentEvent.getClubId() == userDataProvider.getUserClubId() &&
-            (currentEvent.getEventDate().isBefore(todayFormatted))){
-          upcomingDbEvents.add(currentEvent);
+            (currentEvent.getEventDate().isBefore(stateProvider.getBerlinTime()))){
+          fetchedEventsThatHaveAlreadyTakenPlace.add(currentEvent);
         }
       }
     }
@@ -267,7 +277,7 @@ class _ClubPastEventsViewState extends State<ClubPastEventsView> {
     if(
     _currentRangeValues.end != 30 ||
         _currentRangeValues.start != 0 ||
-        dropdownValue != genresDropdownList[0] ||
+        dropdownValue != Utils.genreListForFiltering[0] ||
         searchValue != ""
     ){
 
@@ -278,7 +288,7 @@ class _ClubPastEventsViewState extends State<ClubPastEventsView> {
       eventsToDisplay = [];
 
       // Iterate through all available events
-      for(var event in upcomingDbEvents){
+      for(var event in fetchedEventsThatHaveAlreadyTakenPlace){
 
         // If one criterium doesnt match, set to false
         bool fitsCriteria = true;
@@ -299,8 +309,8 @@ class _ClubPastEventsViewState extends State<ClubPastEventsView> {
             && (event.getEventPrice() < _currentRangeValues.start || event.getEventPrice() > _currentRangeValues.end)
         ) fitsCriteria = false;
 
-        // music genre doenst match? filter
-        if(dropdownValue != genresDropdownList[0] ){
+        // music genre doesn't match? filter
+        if(dropdownValue != Utils.genreListForFiltering[0] ){
           if(!event.getMusicGenres().toLowerCase().contains(dropdownValue.toLowerCase())){
             fitsCriteria = false;
           }
@@ -313,7 +323,7 @@ class _ClubPastEventsViewState extends State<ClubPastEventsView> {
       }
     }else{
       isAnyFilterActive = false;
-      eventsToDisplay = upcomingDbEvents;
+      eventsToDisplay = fetchedEventsThatHaveAlreadyTakenPlace;
     }
   }
 
@@ -342,14 +352,8 @@ class _ClubPastEventsViewState extends State<ClubPastEventsView> {
 
   @override
   Widget build(BuildContext context) {
-    stateProvider = Provider.of<StateProvider>(context);
-    fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
-    userDataProvider = Provider.of<UserDataProvider>(context);
-    currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context);
-    screenWidth = MediaQuery.of(context).size.width;
-    screenHeight = MediaQuery.of(context).size.height;
 
-    customStyleClass = CustomStyleClass(context: context);
+    initGeneralSettings();
 
     return Scaffold(
 

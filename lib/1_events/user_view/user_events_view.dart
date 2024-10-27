@@ -18,6 +18,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 // import 'package:workmanager/workmanager.dart';
 import '../../models/event.dart';
+import '../../models/opening_times.dart';
 import '../../models/parser/club_me_event_parser.dart';
 import '../../provider/current_and_liked_elements_provider.dart';
 import '../../provider/fetched_content_provider.dart';
@@ -86,15 +87,11 @@ class _UserEventsViewState extends State<UserEventsView> {
     final fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
 
     // Get and set geo location
-    _determinePosition().then(
-            (value) => setPositionLocallyAndInSupabase(value)
-    );
+    _determinePosition().then((value) => setPositionLocallyAndInSupabase(value));
 
     // Get or check all events
     if(fetchedContentProvider.getFetchedEvents().isEmpty) {
-      _supabaseService.getAllEvents().then(
-              (data) => processEventsFromQuery(data)
-      );
+      _supabaseService.getAllEvents().then((data) => processEventsFromQuery(data));
     }else{
       processEventsFromProvider(fetchedContentProvider);
     }
@@ -129,13 +126,10 @@ class _UserEventsViewState extends State<UserEventsView> {
           (result){
             if(result == 0){
               stateProvider.toggleUpdatedLastLogInForNow();
-            }else{
-              /// TODO: elaborated error handling
             }
           }
       );
     }
-
   }
 
 
@@ -276,15 +270,6 @@ class _UserEventsViewState extends State<UserEventsView> {
                                   textAlign: TextAlign.center,
                                   style: customStyleClass.getFontStyleHeadline1Bold()
                               ),
-                              // Padding(
-                              //   padding: const EdgeInsets.only(
-                              //       bottom: 15
-                              //   ),
-                              //   child: Text(
-                              //     "VIP",
-                              //     style: customStyleClass.getFontStyleVIPGold(),
-                              //   ),
-                              // )
                             ],
                           ),
                         ],
@@ -358,7 +343,7 @@ class _UserEventsViewState extends State<UserEventsView> {
         child: Stack(
           children: [
 
-            // Build Supabase events
+            // MainListView
             SingleChildScrollView(
                 keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                 physics: const ScrollPhysics(),
@@ -397,7 +382,7 @@ class _UserEventsViewState extends State<UserEventsView> {
                 child: Row(
                   children: [
 
-                    // Preis
+                    // Price
                     SizedBox(
                       width: screenWidth*0.33,
                       child: Column(
@@ -408,12 +393,13 @@ class _UserEventsViewState extends State<UserEventsView> {
                             height: screenHeight*0.01,
                           ),
 
-                          // Price
+                          // Text: Price
                           Text(
                             "Preis",
                             style: customStyleClass.getFontStyle3(),
                           ),
 
+                          // RangeSlider: Price
                           RangeSlider(
                             max: maxValueRangeSlider,
                             divisions: 10,
@@ -446,9 +432,8 @@ class _UserEventsViewState extends State<UserEventsView> {
                             height: screenHeight*0.01,
                           ),
 
-                          // Genre
+                          // Text: Genre
                           SizedBox(
-                            // width: screenWidth*0.28,
                             child: Text(
                               "Wochentag",
                               textAlign: TextAlign.left,
@@ -508,7 +493,7 @@ class _UserEventsViewState extends State<UserEventsView> {
                             height: screenHeight*0.01,
                           ),
 
-                          // Genre
+                          // Text: Genre
                           Text(
                             "Musikrichtung",
                             style: customStyleClass.getFontStyle3(),
@@ -551,30 +536,6 @@ class _UserEventsViewState extends State<UserEventsView> {
                               }).toList(),
                             )
                           ),
-
-                          //   DropdownButton(
-                          //       value: dropdownValue,
-                          //       menuMaxHeight: 300,
-                          //       items: Utils.genreListForFiltering.map<DropdownMenuItem<String>>(
-                          //               (String value) {
-                          //             return DropdownMenuItem(
-                          //               value: value,
-                          //               child: Text(
-                          //                 value,
-                          //                 style: customStyleClass.getFontStyle4Grey2(),
-                          //               ),
-                          //             );
-                          //           }
-                          //       ).toList(),
-                          //       onChanged: (String? value){
-                          //         setState(() {
-                          //           dropdownValue = value!;
-                          //           filterEvents(fetchedContentProvider);
-                          //         });
-                          //       }
-                          //   ),
-                          // )
-
 
                         ],
                       ),
@@ -774,15 +735,11 @@ class _UserEventsViewState extends State<UserEventsView> {
     eventsToDisplay = fetchedContentProvider.getFetchedEvents();
     filterEvents(fetchedContentProvider);
 
-    setState(() {
-      processingComplete = true;
-    });
+    setState(() {processingComplete = true;});
 
     log.d("processEventsFromProvider: Successful");
   }
   void processEventsFromQuery(var data){
-
-
 
     for(var element in data){
 
@@ -805,12 +762,9 @@ class _UserEventsViewState extends State<UserEventsView> {
 
     filterEvents(fetchedContentProvider);
 
-    setState(() {
-      processingComplete = true;
-    });
+    setState(() {processingComplete = true;});
 
     log.d("processEventsFromQuery: Successful");
-
   }
 
 
@@ -986,12 +940,34 @@ class _UserEventsViewState extends State<UserEventsView> {
   }
   bool checkIfUpcomingEvent(ClubMeEvent currentEvent){
 
-    // We are only interested in the upcoming events. Here, we sort for them
-    if(currentEvent.getEventDate().isAfter(stateProvider.getBerlinTime()) ||
-        currentEvent.getEventDate().isAtSameMomentAs(stateProvider.getBerlinTime())){
-      return true;
+    Days? clubOpeningTimesForThisDay;
+
+    var eventWeekDay = currentEvent.eventDate.weekday;
+    try{
+      clubOpeningTimesForThisDay = currentEvent.getOpeningTimes().days?.firstWhere(
+              (element) => element.day == eventWeekDay);
+    }catch(e){
+      return false;
     }
-    return false;
+
+    if(clubOpeningTimesForThisDay != null){
+
+      DateTime closingHourToCompare = DateTime(
+        currentEvent.getEventDate().year,
+        currentEvent.getEventDate().month,
+        currentEvent.getEventDate().day+1,
+        clubOpeningTimesForThisDay.closingHour!,
+        clubOpeningTimesForThisDay.closingHalfAnHour == 0 ? 0 :  30
+      );
+
+      if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
+          closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
+        return true;
+      }
+      return false;
+    }else{
+      return false;
+    }
   }
   bool checkIfIsLiked(ClubMeEvent currentEvent) {
     var isLiked = false;
@@ -1018,7 +994,9 @@ class _UserEventsViewState extends State<UserEventsView> {
 
 
     return Scaffold(
+
         extendBodyBehindAppBar: false,
+
         bottomNavigationBar: CustomBottomNavigationBar(),
         appBar: _buildAppbar(),
         body: _buildMainView()

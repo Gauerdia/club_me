@@ -1117,13 +1117,19 @@ class _ClubDetailViewState extends State<ClubDetailView> {
 
     if(days.openingHalfAnHour == 1){
       openingHourToDisplay = days.openingHour! < 10 ? "0${days.openingHour}:30": "${days.openingHour}:30";
-    }else{
+    }else if(days.openingHalfAnHour == 2){
+      openingHourToDisplay = days.openingHour! < 10 ? "0${days.openingHour}:59": "${days.openingHour}:59";
+    }
+    else{
       openingHourToDisplay = days.openingHour! < 10 ? "0${days.openingHour}:00": "${days.openingHour}:00";
     }
 
     if(days.closingHalfAnHour == 1){
       closingHourToDisplay = days.closingHour! < 10 ?  "0${days.closingHour}:30": "${days.closingHour}:30";
-    }else{
+    }else if(days.closingHalfAnHour == 2){
+      closingHourToDisplay = days.closingHour! < 10 ?  "0${days.closingHour}:59": "${days.closingHour}:59";
+    }
+    else{
       closingHourToDisplay = days.closingHour! < 10 ?  "0${days.closingHour}:00": "${days.closingHour}:00";
     }
 

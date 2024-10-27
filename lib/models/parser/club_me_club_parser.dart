@@ -34,7 +34,8 @@ ClubMeClub parseClubMeClub(var data){
       frontpageBannerFileName: data['frontpage_banner_file_name'],
     mapPinImageName: data['map_pin_image_name'],
     specialOpeningTimes: SpecialOpeningTimes.fromJson(data['special_opening_times']),
-    closePartner: data['close_partner']
+    closePartner: data['close_partner'],
+    showClubInApp: data['show_club_in_app']
 
   );
 

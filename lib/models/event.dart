@@ -52,15 +52,10 @@ class ClubMeEvent{
   // date automatically by the cron job.
   int isRepeatedDays;
 
-  // Originally, we wanted to display the opening hours of the club directly on
-  // the event. Due to this no longer being a requirement, we don't need this
-  // information anymore. Nonetheless, I keep it here because it doesn't harm and
-  // maybe we'll find a new application.
   OpeningTimes openingTimes;
 
   String ticketLink;
 
-  // howManyAreIn
 
   int getIsRepeatedDays(){
     return isRepeatedDays;

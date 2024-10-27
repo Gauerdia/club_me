@@ -1,11 +1,10 @@
+import 'package:club_me/models/hive_models/3_club_me_event_template.dart';
 import 'package:club_me/shared/dialogs/title_content_and_button_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-
 import '../../provider/state_provider.dart';
 import '../../services/hive_service.dart';
-import '../../services/supabase_service.dart';
 import '../../shared/custom_bottom_navigation_bar_clubs.dart';
 import '../../shared/custom_text_style.dart';
 
@@ -66,6 +65,53 @@ class _ClubChooseEventTemplateViewState extends State<ClubChooseEventTemplateVie
     );
   }
 
+  Widget _buildTemplateTile(ClubMeEventTemplate eventTemplate){
+    return GestureDetector(
+      child: Container(
+        padding: const EdgeInsets.only(
+            top: 10
+        ),
+        child: Card(
+          color: customStyleClass.backgroundColorEventTile,
+          child: Column(
+            children: [
+
+              SizedBox(
+                width: screenWidth*0.9,
+                child: ListTile(
+                  shape: RoundedRectangleBorder(
+                    side: const BorderSide(color: Colors.grey, width: 1),
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  title: Text(
+                    eventTemplate.getEventTitle(),
+                    style: customStyleClass.getFontStyle3(),
+                  ),
+                  trailing: Wrap(
+                    children: [
+
+                      InkWell(
+                        child: Icon(
+                          Icons.delete,
+                          color: customStyleClass.primeColor,
+                        ),
+                        onTap: ()=> clickEventDeleteEventTemplate(eventTemplate.getTemplateId()),
+                      )
+                    ],
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+      onTap: (){
+        stateProvider.setCurrentEventTemplate(eventTemplate);
+        context.go("/club_new_event");
+      },
+    );
+  }
+
   Widget _buildMainView(){
     return Container(
         width: screenWidth,
@@ -75,50 +121,7 @@ class _ClubChooseEventTemplateViewState extends State<ClubChooseEventTemplateVie
             child: Column(
               children: [
                 for(var eventTemplate in stateProvider.getClubMeEventTemplates())
-                  GestureDetector(
-                    child: Container(
-                      padding: const EdgeInsets.only(
-                          top: 10
-                      ),
-                      child: Card(
-                        color: customStyleClass.backgroundColorEventTile,
-                        child: Column(
-                          children: [
-
-                            SizedBox(
-                              width: screenWidth*0.9,
-                              child: ListTile(
-                                shape: RoundedRectangleBorder(
-                                  side: const BorderSide(color: Colors.grey, width: 1),
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                                title: Text(
-                                  eventTemplate.getEventTitle(),
-                                  style: customStyleClass.getFontStyle3(),
-                                ),
-                                trailing: Wrap(
-                                  children: [
-
-                                    InkWell(
-                                      child: Icon(
-                                        Icons.delete,
-                                        color: customStyleClass.primeColor,
-                                      ),
-                                      onTap: ()=> clickEventDeleteEventTemplate(eventTemplate.getTemplateId()),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
-                    onTap: (){
-                      stateProvider.setCurrentEventTemplate(eventTemplate);
-                      context.go("/club_new_event");
-                    },
-                  )
+                  _buildTemplateTile(eventTemplate)
               ],
             )
         )
@@ -129,24 +132,23 @@ class _ClubChooseEventTemplateViewState extends State<ClubChooseEventTemplateVie
     Navigator.of(context).pop();
   }
 
+  void showErrorBottomSheet(){
+    showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return Container(
+            color: customStyleClass.backgroundColorMain,
+            child: Center(
+              child: Text(
+                "Leider ist beim Löschen der Vorlage ein Fehler aufgetreten.",
+                style: customStyleClass.getFontStyle3(),
+              ),
+            ),
+          );
+        });
+  }
+
   void clickEventDeleteEventTemplate(String templateId){
-
-    Widget okButton = TextButton(
-        onPressed: () {
-          setState(() {
-            _hiveService.deleteClubMeEventTemplate(templateId).then((response) => {
-              if(response == 0){
-                afterSuccessfulDeletion(templateId)
-              }else{
-
-              }
-            });
-          });
-        },
-        child: Text(
-          "Ja",
-          style: customStyleClass.getFontStyle3BoldPrimeColor(),
-    ));
 
     showDialog<String>(
         context: context,
@@ -154,14 +156,28 @@ class _ClubChooseEventTemplateViewState extends State<ClubChooseEventTemplateVie
             TitleContentAndButtonDialog(
                 titleToDisplay: "Vorlage löschen",
                 contentToDisplay: "Bist du sicher, dass du diese Vorlage löschen möchtest?",
-                buttonToDisplay: okButton));
+                buttonToDisplay: TextButton(
+                    onPressed: () {
+                      setState(() {
+                        _hiveService.deleteClubMeEventTemplate(templateId)
+                            .then((response) => {
+                          if(response == 0){afterSuccessfulDeletion(templateId)}
+                          else{showErrorBottomSheet()}
+                        });
+                      });
+                    },
+                    child: Text(
+                      "Ja",
+                      style: customStyleClass.getFontStyle3BoldPrimeColor(),
+                    )
+                )
+            )
+    );
   }
 
   void afterSuccessfulDeletion(String templateId){
-
       stateProvider.removeEventTemplate(templateId);
       Navigator.pop(context);
-
   }
 
   @override

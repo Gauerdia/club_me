@@ -1502,132 +1502,6 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                     style: customStyleClass.getFontStyle3BoldPrimeColor(),
                   )
               ));
-
-      // return AlertDialog(
-      //   backgroundColor: customStyleClass.backgroundColorMain,
-      //   shape: RoundedRectangleBorder(
-      //       borderRadius: BorderRadius.circular(30),
-      //       side: const BorderSide(color: Colors.white)
-      //   ),
-      //   title: Text(
-      //     "titleToDisplay",
-      //     style: customStyleClass.getFontStyle3Bold(),
-      //   ),
-      //   content: Text(
-      //     "contentToDisplay",
-      //     style: customStyleClass.getFontStyle5(),
-      //   ),
-      //   actions: [
-      //     TextButton(onPressed: (){}, child: Text("Test1")),
-      //     TextButton(onPressed: (){}, child: Text("Test1"))
-      //   ],
-      // );
-      //
-      //
-      // return AlertDialog(
-      //   backgroundColor: customStyleClass.backgroundColorMain,
-      //   shape: RoundedRectangleBorder(
-      //       borderRadius: BorderRadius.circular(20.0),
-      //       // side: BorderSide(
-      //       //     color: customStyleClass.primeColor
-      //       // )
-      //   ),
-      //   title: Text(
-      //       "Story",
-      //     textAlign: TextAlign.center,
-      //     style: customStyleClass.getFontStyle1Bold(),
-      //   ),
-      //   content: Column(
-      //     mainAxisAlignment: MainAxisAlignment.start,
-      //     mainAxisSize: MainAxisSize.min,
-      //     children: [
-      //
-      //       // Question text
-      //       Text(
-      //         "Möchtest du eine Story hochladen?",
-      //         textAlign: TextAlign.left,
-      //         style: customStyleClass.getFontStyle4(),
-      //       ),
-      //
-      //       // Spacer
-      //       SizedBox(
-      //         height: screenHeight*0.03,
-      //       ),
-      //
-      //       // "New Story" button
-      //       Container(
-      //           width: screenWidth*0.9,
-      //           alignment: Alignment.bottomRight,
-      //           child: GestureDetector(
-      //             child: Container(
-      //               padding: EdgeInsets.symmetric(
-      //                   vertical: screenHeight*0.015,
-      //                   horizontal: screenWidth*0.03
-      //               ),
-      //               child: Row(
-      //                 mainAxisAlignment: MainAxisAlignment.end,
-      //                 children: [
-      //
-      //                   Text(
-      //                     "Neue Story",
-      //                     textAlign: TextAlign.center,
-      //                     style: customStyleClass.getFontStyle4BoldPrimeColor(),
-      //                   ),
-      //
-      //                   Icon(
-      //                     Icons.arrow_forward_outlined,
-      //                     color: customStyleClass.primeColor,
-      //                   )
-      //
-      //                 ],
-      //               ),
-      //             ),
-      //             onTap: () =>  context.go("/video_recording"),
-      //           )
-      //       ),
-      //
-      //       // Does a story exist? Then show a button to play it
-      //       userDataProvider.getUserClubStoryId().isNotEmpty ?
-      //       // Watch story
-      //       Container(
-      //           width: screenWidth*0.9,
-      //           // color: Colors.red,
-      //           alignment: Alignment.bottomRight,
-      //           child: GestureDetector(
-      //             child: Container(
-      //               padding: EdgeInsets.symmetric(
-      //                   vertical: screenHeight*0.015,
-      //                   horizontal: screenWidth*0.03
-      //               ),
-      //
-      //               child: Row(
-      //                 mainAxisAlignment: MainAxisAlignment.end,
-      //                 children: [
-      //
-      //                   Text(
-      //                     "Story anschauen",
-      //                     textAlign: TextAlign.center,
-      //                     style: customStyleClass.getFontStyle4BoldPrimeColor(),
-      //                   ),
-      //
-      //                   Icon(
-      //                     Icons.arrow_forward_outlined,
-      //                     color: customStyleClass.primeColor,
-      //                   )
-      //
-      //                 ],
-      //               ),
-      //             ),
-      //             onTap: (){
-      //               currentAndLikedElementsProvider.setCurrentClub(userDataProvider.getUserClub());
-      //               context.push("/show_story");
-      //             },
-      //           )
-      //       ): Container(),
-      //
-      //     ],
-      //   ),
-      // );
     });
   }
   void clickEventLounge(){
@@ -1770,13 +1644,19 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
 
     if(days.openingHalfAnHour == 1){
       openingHourToDisplay = days.openingHour! < 10 ? "0${days.openingHour}:30": "${days.openingHour}:30";
-    }else{
+    }else if(days.openingHalfAnHour == 2){
+      openingHourToDisplay = days.openingHour! < 10 ? "0${days.openingHour}:59": "${days.openingHour}:59";
+    }
+    else{
       openingHourToDisplay = days.openingHour! < 10 ? "0${days.openingHour}:00": "${days.openingHour}:00";
     }
 
     if(days.closingHalfAnHour == 1){
       closingHourToDisplay = days.closingHour! < 10 ?  "0${days.closingHour}:30": "${days.closingHour}:30";
-    }else{
+    }else if(days.closingHalfAnHour == 2){
+      closingHourToDisplay = days.closingHour! < 10 ?  "0${days.closingHour}:59": "${days.closingHour}:59";
+    }
+    else{
       closingHourToDisplay = days.closingHour! < 10 ?  "0${days.closingHour}:00": "${days.closingHour}:00";
     }
 

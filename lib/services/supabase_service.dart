@@ -11,6 +11,7 @@ import 'package:club_me/models/special_opening_times.dart';
 import 'package:club_me/provider/state_provider.dart';
 import 'package:club_me/provider/user_data_provider.dart';
 import 'package:club_me/shared/logger.util.dart';
+import 'package:googleapis/connectors/v1.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 import 'package:uuid/v4.dart';
@@ -335,13 +336,15 @@ class SupabaseService{
       return 1;
     }
   }
-  void addVideoPathToClub(String uuid, UserDataProvider userDataProvider) async{
+  void addVideoPathToClub(String uuid, UserDataProvider userDataProvider, StateProvider stateProvider) async{
+
+
     try{
       var data = await supabase
           .from('club_me_clubs')
           .update({
         'story_id' : uuid,
-        'story_created_at' : DateTime.now().toString()
+        'story_created_at' : stateProvider.getBerlinTime().toString()
       }).match({
         'club_id': userDataProvider.getUserClubId()
       });
@@ -875,14 +878,19 @@ class SupabaseService{
       return 1;
     }
   }
-  Future<int> insertClubVideo(var video, String uuid, UserDataProvider userDataProvider) async {
+  Future<int> insertClubStory(
+      var video,
+      String uuid,
+      UserDataProvider userDataProvider,
+      StateProvider stateProvider
+      ) async {
     try{
       var data = await supabase.storage.from('club_me_stories').upload(
         'club_stories/$uuid.mp4',
         video,
         fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
       );
-      addVideoPathToClub(uuid, userDataProvider);
+      addVideoPathToClub(uuid, userDataProvider, stateProvider);
       log.d("insertVideo: Finished successfully. Response: $data");
       return 0;
     }catch(e){
@@ -891,6 +899,23 @@ class SupabaseService{
       return 1;
     }
   }
+
+  Future<int> deleteOldClubStory(
+      String storyId
+      ) async{
+    try{
+      var data = await supabase.storage.from('club_me_stories').remove(
+        ['club_stories/$storyId.mp4']
+      );
+      log.d("deleteOldClubStory: Finished successfully. Response: $data");
+      return 0;
+    }catch(e){
+      log.d("Error in SupabaseService. Function: deleteOldClubStory. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: deleteOldClubStory. Error: ${e.toString()}");
+      return 1;
+    }
+  }
+
   Future<int> insertEventContent(
       var content, String fileName, String eventId, StateProvider stateProvider
       ) async {

@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:chewie/chewie.dart';
 import 'package:club_me/models/event.dart';
 import 'package:club_me/provider/state_provider.dart';
@@ -10,7 +9,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:go_router/go_router.dart';
 import 'package:mime/mime.dart';
 import 'package:provider/provider.dart';
 import 'package:toggle_switch/toggle_switch.dart';
@@ -48,6 +46,10 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
 
   int selectedFirstHour = 0;
   int selectedSecondMinute = 0;
+
+  List<String> minuteValuesToChoose = [
+    "0", "15", "30", "59"
+  ];
 
   bool isUploading = false;
   bool isDateSelected = false;
@@ -91,6 +93,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
   String fileExtension = "";
   bool isImage = false;
   bool isVideo = false;
+
   // 0: no content, 1: image, 2: video
   int contentType = 0;
   ChewieController? _chewieController;
@@ -199,8 +202,12 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
     );
   }
   Widget _buildNavigationBar(){
-    return (isVideo || isImage) ?
-    Container(
+
+
+    return
+
+      // Displaying either an image or a video?
+      (isVideo || isImage) ? Container(
       width: screenWidth,
       height: 80,
       alignment: Alignment.center,
@@ -237,9 +244,12 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
         ),
       ),
     ):
+
+    // No image nor video?
     Container(
       width: screenWidth,
       height: 80,
+      alignment: Alignment.centerRight,
       decoration: BoxDecoration(
           color: customStyleClass.backgroundColorMain,
           border: Border(
@@ -248,14 +258,16 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
               )
           )
       ),
-
-      alignment: Alignment.centerRight,
       padding: const EdgeInsets.only(
           right: 10,
-          // bottom: 10
       ),
-      child: isUploading ? const CircularProgressIndicator()
-          : GestureDetector(
+      child:
+      // Currently uploading?
+      isUploading ?
+      const CircularProgressIndicator() :
+
+      // Waiting for request to upload
+      GestureDetector(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
@@ -286,7 +298,6 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
         )
     );
   }
-
   Widget _buildCheckOverview(){
 
     return SizedBox(
@@ -305,7 +316,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                         height: screenHeight*0.05,
                       ),
 
-                      // headline
+                      // Text: headline
                       SizedBox(
                         width: screenWidth*0.9,
                         child: Text(
@@ -358,7 +369,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                         ),
                       ),
 
-                      // Title: DJ
+                      // Text: DJ
                       Container(
                         width: screenWidth*0.9,
                         alignment: Alignment.centerLeft,
@@ -445,9 +456,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                                                   child: child!,
                                                 );
                                               }).then((pickedDate){
-                                            if( pickedDate == null){
-                                              return;
-                                            }
+                                            if( pickedDate == null){return;}
                                             setState(() {
                                               newSelectedDate = pickedDate;
                                             });
@@ -469,12 +478,13 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                               ),
                             ),
 
-                            // Hour and minute
+                            // Text, OutlinedButton: Hour and minute
                             SizedBox(
                               height: screenHeight*0.12,
                               child: Column(
                                 children: [
 
+                                  // Text: Time
                                   SizedBox(
                                     width: screenWidth*0.4,
                                     child: Text(
@@ -484,21 +494,14 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                                     ),
                                   ),
 
-                                  // SizedBox(
-                                  //   height: screenHeight*0.01,
-                                  // ),
-
+                                  // OutlinedButton: SelectedHourAndTime
                                   Container(
                                     width: screenWidth*0.4,
                                     padding:  EdgeInsets.only(
                                         top: Utils.creationScreensDistanceBetweenTitleAndTextField
                                     ),
                                     child: OutlinedButton(
-                                        onPressed: () => {
-                                          setState(() {
-                                            pickHourAndMinuteIsActive = true;
-                                          })
-                                        },
+                                        onPressed: () => setState(() {pickHourAndMinuteIsActive = true;}),
                                         style: OutlinedButton.styleFrom(
                                             minimumSize: Size(screenHeight*0.05,screenHeight*0.07),
                                             shape: RoundedRectangleBorder(
@@ -514,12 +517,11 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                                 ],
                               ),
                             ),
-
                           ],
                         ),
                       ),
 
-                      // Price text field
+                      // Text, TextField: Price
                       Column(
                         children: [
 
@@ -542,7 +544,6 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                             ),
                             child: SizedBox(
                               width: screenWidth*0.3,
-                              // height: screenHeight*0.085,
                               child: TextField(
                                 controller: _eventPriceController,
                                 keyboardType: TextInputType.number,
@@ -684,9 +685,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                                 style: customStyleClass.getFontStyle3(),
                               ),
                               IconButton(
-                                  onPressed: () {setState(() {
-                                    file = null;
-                                  });},
+                                  onPressed: () => setState(() {file = null;}),
                                   icon: Icon(
                                     Icons.delete,
                                     size: 32,
@@ -770,6 +769,8 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
+
+                            // ToggleSwitch: IsRepeated
                             SizedBox(
                                 width: screenWidth*0.3,
                                 child: ToggleSwitch(
@@ -792,6 +793,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                                 )
                             ),
 
+                            // Cupertinopicker: When isRepeated is toggled
                             if(isRepeated != 0)
                               SizedBox(
                                 width: screenWidth*0.4,
@@ -813,7 +815,6 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                                     })
                                 ),
                               ),
-
                           ],
                         ),
                       ),
@@ -896,7 +897,6 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
               Center(
                 child: Container(
                   width: screenWidth*0.9,
-                  // height: screenHeight*0.3,
                   padding: const EdgeInsets.symmetric(
                       vertical: 20,
                       horizontal: 20
@@ -911,14 +911,14 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
 
-                      // Question text
+                      // Text: Starting hour
                       Text(
                         "Startuhrzeit",
                         textAlign: TextAlign.left,
                         style: customStyleClass.getFontStyle1(),
                       ),
 
-                      // Question text
+                      // Text: Please insert
                       Text(
                         "Bitte trage mit Hoch- und Herunterwischen die Uhrzeit ein, zu der das Event beginnt.",
                         textAlign: TextAlign.left,
@@ -930,14 +930,14 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                         height: screenHeight*0.03,
                       ),
 
-                      // Cupertino picker
+                      // CupertinoPicker
                       SizedBox(
                         height: screenHeight*0.1,
-                        // color: Colors.red,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
 
+                            // CupertinoPicker: Hour
                             SizedBox(
                               width: screenWidth*0.2,
                               child: CupertinoPicker(
@@ -960,10 +960,14 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                                   })
                               ),
                             ),
+
+                            // Text: ':'
                             Text(
                               ":",
                               style: customStyleClass.getFontStyle3(),
                             ),
+
+                            // CupertinoPicker: Minute
                             SizedBox(
                               width: screenWidth*0.2,
                               child: CupertinoPicker(
@@ -971,7 +975,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                                   itemExtent: 50,
                                   onSelectedItemChanged: (int index){
                                     setState(() {
-                                      selectedMinute = index*15;
+                                      selectedMinute = int.parse(minuteValuesToChoose[index]);
                                     });
                                   },
                                   children: List<Widget>.generate(4, (index){
@@ -979,7 +983,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                                       child: Text(
                                         index == 0
                                             ? "00"
-                                            :(index*15).toString(),
+                                            :(minuteValuesToChoose[index]).toString(),
                                         style: customStyleClass.getFontStyle3(),
                                       ),
                                     );
@@ -990,7 +994,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                         ),
                       ),
 
-                      // "Finished" button
+                      // Button: "Finished"
                       Container(
                           width: screenWidth*0.9,
                           alignment: Alignment.bottomRight,
@@ -1013,11 +1017,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                                 style: customStyleClass.getFontStyle4BoldPrimeColor(),
                               ),
                             ),
-                            onTap: () => {
-                              setState(() {
-                                pickHourAndMinuteIsActive = false;
-                              })
-                            },
+                            onTap: () => setState(() {pickHourAndMinuteIsActive = false;}),
                           )
                       ),
 
@@ -1031,7 +1031,6 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
               Center(
                 child: Container(
                   width: screenWidth*0.9,
-                  // height: screenHeight*0.3,
                   padding: const EdgeInsets.symmetric(
                       vertical: 20,
                       horizontal: 20
@@ -1046,14 +1045,14 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
 
-                      // Question text
+                      // Text: Genres
                       Text(
                         "Musikrichtungen",
                         textAlign: TextAlign.left,
                         style: customStyleClass.getFontStyle1(),
                       ),
 
-                      // Question text
+                      // Text: Please insert
                       Text(
                         "Füge Musikrichtungen hinzu oder lösche sie per einfachem Klick!",
                         textAlign: TextAlign.left,
@@ -1065,16 +1064,17 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                         height: screenHeight*0.03,
                       ),
 
+                      // Column: Proposed and chosen genres
                       Column(
                         children: [
 
-                          // headline
+                          // Text: Proposed genres
                           Text(
                             "Vorgeschlagene Musikrichtungen",
                             style: customStyleClass.getFontStyle4Bold(),
                           ),
 
-                          // offered genres
+                          // Wrap: Proposed genres
                           Padding(
                             padding: const EdgeInsets.symmetric(
                                 vertical: 10
@@ -1098,13 +1098,13 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                             ),
                           ),
 
-                          // Headline
+                          // Text: chosen genres
                           Text(
                             "Ausgewählte Musikrichtungen",
                             style: customStyleClass.getFontStyle4Bold(),
                           ),
 
-                          // chosen music genres
+                          // Wrap: Chosen genres
                           Padding(
                             padding: const EdgeInsets.symmetric(
                                 vertical: 10
@@ -1128,6 +1128,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                             ),
                           ),
 
+                          // Text: no genres chosen
                           if(musicGenresChosen.isEmpty)
                             Padding(
                               padding: const EdgeInsets.only(
@@ -1139,62 +1140,10 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                               ),
                             ),
 
-                          // // headline
-                          // Text(
-                          //   "Eigene Musikrichtungen",
-                          //   style: customStyleClass.getFontStyle4Bold(),
-                          // ),
-                          //
-                          // const SizedBox(
-                          //   height: 10,
-                          // ),
-                          //
-                          // // textfield own genres
-                          // Row(
-                          //   children: [
-                          //     SizedBox(
-                          //       // height: screenHeight*0.08,
-                          //       width: screenWidth*0.5,
-                          //       // color: Colors.green,
-                          //       child: TextField(
-                          //         controller: _eventMusicGenresController,
-                          //         keyboardType: TextInputType.number,
-                          //         cursorColor: customStyleClass.primeColor,
-                          //         decoration: InputDecoration(
-                          //           border: const OutlineInputBorder(),
-                          //           focusedBorder: OutlineInputBorder(
-                          //               borderSide: BorderSide(
-                          //                   color: customStyleClass.primeColor
-                          //               )
-                          //           ),
-                          //         ),
-                          //         style: customStyleClass.getFontStyle4(),
-                          //         maxLength: 15,
-                          //       ),
-                          //     ),
-                          //     Container(
-                          //         height: screenHeight*0.08,
-                          //         // color: Colors.red,
-                          //         alignment: Alignment.topCenter,
-                          //         child: SizedBox(
-                          //           // height: screenHeight*0.4,
-                          //           // color: Colors.green,
-                          //             child: IconButton(
-                          //                 onPressed: () => addOwnGenreToChosenGenres(),
-                          //                 icon: Icon(
-                          //                   Icons.add,
-                          //                   size: 35,
-                          //                   color: customStyleClass.primeColor,
-                          //                 )
-                          //             )
-                          //         )
-                          //     ),
-                          //   ],
-                          // ),
                         ],
                       ),
 
-                      // "Finished" button
+                      // Button: "Finished"
                       Container(
                           width: screenWidth*0.9,
                           alignment: Alignment.bottomRight,
@@ -1229,7 +1178,6 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                   ),
                 ),
               )
-
           ],
         )
     );
@@ -1238,7 +1186,6 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
     return TitleAndContentDialog(
         titleToDisplay: "Fehler aufgetreten", contentToDisplay: "Verzeihung, es ist ein Fehler aufgetreten.");
   }
-
   Widget _buildImagePreview(){
     return SizedBox(
       width: screenWidth,
@@ -1277,7 +1224,6 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
 
 
   // CLICK EVENTS
-
   void clickEventClose(){
     showDialog(
         context: context,
@@ -1290,9 +1236,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                   "Zurück",
                   style: customStyleClass.getFontStyle3BoldPrimeColor(),
                 ),
-                onPressed: (){
-                  Navigator.of(context).pop();
-                },
+                onPressed: () => Navigator.of(context).pop(),
               ),
               secondButtonToDisplay: TextButton(
                 child: Text(
@@ -1303,14 +1247,16 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
               ));
         });
   }
-
   void clickEventChooseContent() async{
 
+    // Launch filePicker and wait for the user to pick a file
     FilePickerResult? result = await FilePicker.platform.pickFiles(
         withData: true,
         allowMultiple: false,
         type: FileType.media,
     );
+
+    // Once a file is picked, proceed
     if (result != null) {
 
       file = File(result.files.single.path!);
@@ -1321,6 +1267,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
 
       pickedFileNameToDisplay = result.files.single.name;
 
+      // We need to set different values depending if it's an image or video
       if(fileType.contains('image')){
         isImage = true;
       }
@@ -1340,9 +1287,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
     });
   }
   void resetAndGoBackToEvents(){
-    // TODO: context.go doesnt work !? Need to investigate
     stateProvider.resetCurrentEventTemplate();
-    // context.go('/club_events');
     Navigator.pop(context);
     Navigator.pop(context);
   }
@@ -1390,6 +1335,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
 
     // Start to format the genres
     String musicGenresString = "";
+
     // Add the genres to a string
     for(String item in musicGenresChosen){
       if(musicGenresString == ""){
@@ -1398,6 +1344,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
         musicGenresString = "$musicGenresString$item,";
       }
     }
+
     // Cut the last comma
     if (musicGenresString.isNotEmpty) {
       musicGenresString = musicGenresString.substring(0, musicGenresString.length - 1);
@@ -1412,6 +1359,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
         selectedMinute
     );
 
+    // Adjust the ticket link if it lacks crucial parts
     String ticketLinkToSave = "";
     if(_eventTicketLinkController.text.contains("http")){
       ticketLinkToSave = _eventTicketLinkController.text;
@@ -1421,6 +1369,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
       }
     }
 
+    // Set days to repeat
     int daysToRepeat = 0;
     if(isRepeated != 0){
       switch(isRepeatedIndex){
@@ -1430,7 +1379,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
       }
     }
 
-
+    // Create new event instance
     ClubMeEvent updatedEvent = ClubMeEvent(
 
       eventDate: concatenatedDate,
@@ -1456,6 +1405,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
 
     );
 
+    // Toggle switch to avoid double clicks
     setState(() {
       isUploading = true;
     });
@@ -1468,8 +1418,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
           contentFileName,
           currentAndLikedElementsProvider.currentClubMeEvent.getEventId(),
           stateProvider
-      )
-          .then((value) => {
+      ).then((value) => {
 
         // Has the upload been successful?
         _supabaseService.updateCompleteEvent(updatedEvent).then((value){
@@ -1480,9 +1429,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
             );
             Navigator.pop(context);
           }else{
-            setState(() {
-              isUploading = false;
-            });
+            setState(() {isUploading = false;});
             showDialog(context: context, builder: (BuildContext context){
               return _buildErrorDialog();
             });
@@ -1522,9 +1469,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
     );
   }
   void showDialogToAddGenres(){
-    setState(() {
-      pickGenreIsActive = true;
-    });
+    setState(() {pickGenreIsActive = true;});
   }
   String formatSelectedHourAndMinute(){
     String hourToDisplay = "", minuteToDisplay = "";

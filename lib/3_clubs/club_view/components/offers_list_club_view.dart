@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 import '../../../provider/state_provider.dart';
 import '../../../provider/user_data_provider.dart';
 import '../../../services/supabase_service.dart';
-import '../../../shared/custom_bottom_navigation_bar_clubs.dart';
 import '../../../shared/custom_text_style.dart';
 
 class OffersListClubView extends StatefulWidget {
@@ -31,6 +30,13 @@ class _OffersListClubViewState extends State<OffersListClubView> {
   List<TextEditingController> priceControllers = [];
 
   final SupabaseService _supabaseService = SupabaseService();
+
+  @override
+  void initState() {
+    super.initState();
+    setupOffers();
+  }
+
 
   // BUILD
   Widget _buildAppBarShowTitle(){
@@ -78,24 +84,10 @@ class _OffersListClubViewState extends State<OffersListClubView> {
       ),
     );
   }
-
-  void backButtonPressed(){
-    if(stateProvider.clubUIActive){
-      context.go("/club_frontpage");
-    }else{
-      context.go("/club_details");
-    }
-  }
-
-  void deleteOffer(int index){
-    setState(() {
-      titleControllers.removeAt(index);
-      descriptionControllers.removeAt(index);
-      priceControllers.removeAt(index);
-    });
-  }
-
   Widget _buildView(){
+
+    print("buildView: ${titleControllers.length}");
+
     return ListView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
@@ -104,120 +96,120 @@ class _OffersListClubViewState extends State<OffersListClubView> {
 
           return Center(
             child: Container(
-              // color: Colors.red,
-              padding: const EdgeInsets.only(
-                top: 20
-              ),
-              width: screenWidth*0.9,
-              child: Column(
-                children: [
+                padding: const EdgeInsets.only(
+                    top: 20
+                ),
+                width: screenWidth*0.9,
+                child: Column(
+                  children: [
 
-                  // Offer number + delete icon
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
+                    // Offer number + delete icon
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
                           "Angebot ${index+1}",
-                        style: customStyleClass.getFontStyle2Bold(),
-                      ),
-                      IconButton(
-                          onPressed: () => deleteOffer(index),
-                          icon: Icon(
-                            Icons.delete,
-                            color: customStyleClass.primeColor,
-                          )
-                      )
-                    ],
-                  ),
-
-                  // Spacer
-                  SizedBox(
-                    height: screenHeight*0.02,
-                  ),
-
-                  // textfields, title and price
-                  Row(
-                    children: [
-                      SizedBox(
-                        width: screenWidth*0.6,
-                        child: TextField(
-                          controller: titleControllers[index],
-                          decoration: InputDecoration(
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: customStyleClass.primeColor
-                              )
-                            ),
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.grey[100]!
-                              ),
-                            ),
-                            hintText: "Überschrift"
-                          ),
-                          maxLength: 35,
-                          style: customStyleClass.getFontStyle3(),
+                          style: customStyleClass.getFontStyle2Bold(),
                         ),
-                      ),
-                      SizedBox(
-                        width: screenWidth*0.1,
-                      ),
-                      SizedBox(
-                        width: screenWidth*0.2,
-                        child: TextField(
-                          controller: priceControllers[index],
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            focusColor: customStyleClass.primeColor,
-                              border: OutlineInputBorder(
+                        IconButton(
+                            onPressed: () => deleteOffer(index),
+                            icon: Icon(
+                              Icons.delete,
+                              color: customStyleClass.primeColor,
+                            )
+                        )
+                      ],
+                    ),
+
+                    // Spacer
+                    SizedBox(
+                      height: screenHeight*0.02,
+                    ),
+
+                    // textfields, title and price
+                    Row(
+                      children: [
+                        SizedBox(
+                          width: screenWidth*0.6,
+                          child: TextField(
+                            controller: titleControllers[index],
+                            decoration: InputDecoration(
+                                focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: customStyleClass.primeColor
+                                    )
+                                ),
+                                border: OutlineInputBorder(
                                   borderSide: BorderSide(
                                       color: Colors.grey[100]!
                                   ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: customStyleClass.primeColor
-                                  )
-                              ),
-                            hintText: "Preis"
+                                ),
+                                hintText: "Überschrift"
+                            ),
+                            maxLength: 35,
+                            style: customStyleClass.getFontStyle3(),
                           ),
-                          maxLength: 5,
-                          style: customStyleClass.getFontStyle3(),
                         ),
-                      )
-                    ],
-                  ),
-                  SizedBox(
-                    height: screenHeight*0.02,
-                  ),
-                  Row(
-                    children: [
-                      SizedBox(
-                        width: screenWidth*0.9,
-                        child: TextField(
-                          controller: descriptionControllers[index],
-                          decoration: InputDecoration(
-                              focusColor: customStyleClass.primeColor,
-                              border: OutlineInputBorder(
+                        SizedBox(
+                          width: screenWidth*0.1,
+                        ),
+                        SizedBox(
+                          width: screenWidth*0.2,
+                          child: TextField(
+                            controller: priceControllers[index],
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                                focusColor: customStyleClass.primeColor,
+                                border: OutlineInputBorder(
                                   borderSide: BorderSide(
                                       color: Colors.grey[100]!
-                                  )
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: customStyleClass.primeColor
-                                  )
-                              ),
-                          hintText: "Beschreibung"
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: customStyleClass.primeColor
+                                    )
+                                ),
+                                hintText: "Preis"
+                            ),
+                            maxLength: 5,
+                            style: customStyleClass.getFontStyle3(),
                           ),
-                          style: customStyleClass.getFontStyle3(),
-                          maxLength: 50,
+                        )
+                      ],
+                    ),
+                    SizedBox(
+                      height: screenHeight*0.02,
+                    ),
+                    // Textfield
+                    Row(
+                      children: [
+                        SizedBox(
+                          width: screenWidth*0.9,
+                          child: TextField(
+                            controller: descriptionControllers[index],
+                            decoration: InputDecoration(
+                                focusColor: customStyleClass.primeColor,
+                                border: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Colors.grey[100]!
+                                    )
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: customStyleClass.primeColor
+                                    )
+                                ),
+                                hintText: "Beschreibung"
+                            ),
+                            style: customStyleClass.getFontStyle3(),
+                            maxLength: 50,
+                          ),
                         ),
-                      ),
-                    ],
-                  )
-                ],
-              )
+                      ],
+                    )
+                  ],
+                )
             ),
           );
         }
@@ -225,6 +217,36 @@ class _OffersListClubViewState extends State<OffersListClubView> {
     );
   }
 
+  void backButtonPressed(){
+    if(stateProvider.clubUIActive){
+      context.go("/club_frontpage");
+    }else{
+      context.go("/club_details");
+    }
+  }
+  void deleteOffer(int index){
+
+    print("index: $index");
+
+    print("titlecontrollers: $titleControllers");
+    print("titlecontrollers length: ${titleControllers.length}");
+
+    setState(() {
+      if(titleControllers.length == 1){
+        titleControllers = [];
+        descriptionControllers = [];
+        priceControllers = [];
+      }else{
+        titleControllers.removeAt(index);
+        descriptionControllers.removeAt(index);
+        priceControllers.removeAt(index);
+      }
+    });
+
+
+
+    print("titlecontrollers length: ${titleControllers.length}");
+  }
   void addNewOffer(){
     setState(() {
       TextEditingController titleController =
@@ -241,7 +263,6 @@ class _OffersListClubViewState extends State<OffersListClubView> {
       priceControllers.add(priceController);
     });
   }
-
   void updateOffers(){
 
     ClubOffers newClubOffers = ClubOffers();
@@ -267,7 +288,6 @@ class _OffersListClubViewState extends State<OffersListClubView> {
       showDialogWithTitleAndContent("Fehlende Werte", "Bitte fülle mindestens die folgenden Felder aus, bevor du weitergehst: \n\n Überschrift\n Preis\n Beschreibung");
     }
   }
-
   void showDialogWithTitleAndContent(String title, String content){
     showDialog(context: context, builder: (BuildContext context){
       return TitleAndContentDialog(
@@ -276,7 +296,6 @@ class _OffersListClubViewState extends State<OffersListClubView> {
 
     });
   }
-
   bool checkIfEveryOfferIsFilled(){
     for(int i=0;i<titleControllers.length;i++){
       if(titleControllers[i].text == "" ||
@@ -287,10 +306,12 @@ class _OffersListClubViewState extends State<OffersListClubView> {
     }
     return true;
   }
-
   void setupOffers(){
+
+    userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
+
     if(titleControllers.isEmpty){
-      for(var element in userDataProvider.userClub.clubOffers.offers!){
+      for(var element in userDataProvider.userClub.clubOffers.offers){
         TextEditingController titleController =
         TextEditingController(text: element.title);
 
@@ -316,7 +337,6 @@ class _OffersListClubViewState extends State<OffersListClubView> {
     userDataProvider = Provider.of<UserDataProvider>(context);
     stateProvider = Provider.of<StateProvider>(context);
 
-    setupOffers();
 
     return Scaffold(
 

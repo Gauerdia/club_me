@@ -54,10 +54,24 @@ class StateProvider extends ChangeNotifier{
 
   int accessedEventDetailFrom = 0;
 
+
+  bool usingTheAppAsADeveloper = false;
+
+
+
+
+
   final SupabaseService _supabaseService = SupabaseService();
   final log = getLogger();
 
 
+  bool getUsingTheAppAsADeveloper(){
+    return usingTheAppAsADeveloper;
+  }
+  void setUsingTheAppAsADeveloper(bool newValue){
+    usingTheAppAsADeveloper = newValue;
+    notifyListeners();
+  }
 
   void activateUsingWithoutRegistration(){
     usingWithoutRegistration = true;

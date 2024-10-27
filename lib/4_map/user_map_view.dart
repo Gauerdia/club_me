@@ -124,11 +124,33 @@ class _UserMapViewState extends State<UserMapView>{
       for(var element in data){
 
         ClubMeClub currentClub = parseClubMeClub(element);
-        fetchedContentProvider.addClubToFetchedClubs(currentClub);
-        clubsToDisplay.add(currentClub);
 
-        setBasicMarker(currentClub);
 
+        // Don't save the clubs that are only for development purposes
+        if(stateProvider.getUsingTheAppAsADeveloper()){
+
+          if(!fetchedContentProvider.getFetchedClubs().contains(currentClub)){
+            fetchedContentProvider.addClubToFetchedClubs(currentClub);
+            clubsToDisplay.add(currentClub);
+            setBasicMarker(currentClub);
+          }
+
+        }else if(!fetchedContentProvider.getFetchedClubs().contains(currentClub) && currentClub.getShowClubInApp()){
+          fetchedContentProvider.addClubToFetchedClubs(currentClub);
+          clubsToDisplay.add(currentClub);
+          setBasicMarker(currentClub);
+        }
+
+
+
+        // if(!fetchedContentProvider.getFetchedClubs().contains(currentClub) && currentClub.getShowClubInApp()){
+        //   fetchedContentProvider.addClubToFetchedClubs(currentClub);
+        // }
+
+        // if(currentClub.getShowClubInApp()){
+        //   clubsToDisplay.add(currentClub);
+        //   setBasicMarker(currentClub);
+        // }
       }
 
       // Check if we need to download the corresponding images
@@ -145,8 +167,11 @@ class _UserMapViewState extends State<UserMapView>{
     // Have we already fetched?
     else{
       for(var currentClub in fetchedContentProvider.getFetchedClubs()){
-        clubsToDisplay.add(currentClub);
-        setBasicMarker(currentClub);
+
+        if(currentClub.getShowClubInApp()){
+          clubsToDisplay.add(currentClub);
+          setBasicMarker(currentClub);
+        }
       }
 
       // Check if we need to download the corresponding images
@@ -681,7 +706,11 @@ class _UserMapViewState extends State<UserMapView>{
         }
 
 
-        if(atleastOneDayFits) clubsToDisplay.add(club);
+        if(atleastOneDayFits){
+          if(club.getShowClubInApp()){
+            clubsToDisplay.add(club);
+          }
+        }
 
       }
 
@@ -695,8 +724,10 @@ class _UserMapViewState extends State<UserMapView>{
     }else{
 
       for(var club in fetchedContentProvider.getFetchedClubs()){
-        clubsToDisplay.add(club);
-        setBasicMarker(club);
+        if(club.getShowClubInApp()){
+          clubsToDisplay.add(club);
+          setBasicMarker(club);
+        }
       }
 
       isAnyFilterActive = false;

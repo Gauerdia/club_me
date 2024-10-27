@@ -179,12 +179,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                                     ),
                                   ],
                                 ),
-                                child:
-                                // Text(
-                                //   _controller.value.isPlaying? "Pausieren" : "Abspielen",
-                                //   style: customStyleClass.size4Bold(),
-                                // ),
-                                Icon(
+                                child: Icon(
                                   _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
                                   size: 32,
                                 )
@@ -225,10 +220,6 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                                   color: Colors.white,
                                   size: 32,
                                 )
-                              // Text(
-                              //   "Speichern",
-                              //   style: customStyleClass.size4Bold(),
-                              // ),
                             ),
                             onTap: () => pressedSave(),
                           )
@@ -248,144 +239,6 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
           ),
         ],
       ),
-
-      // bottomNavigationBar: Container(
-      //   height: screenHeight*0.13,
-      //   width: screenWidth,
-      //   child: Row(
-      //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      //     children: [
-      //       Align(
-      //           alignment: AlignmentDirectional.center,
-      //           child: GestureDetector(
-      //             child: Container(
-      //               padding: EdgeInsets.symmetric(
-      //                   horizontal: screenWidth*0.04,
-      //                   vertical: screenHeight*0.013
-      //               ),
-      //               decoration: BoxDecoration(
-      //                 borderRadius: const BorderRadius.all(
-      //                     Radius.circular(10)
-      //                 ),
-      //                 gradient: LinearGradient(
-      //                     colors: [
-      //                       customStyleClass.primeColorDark,
-      //                       customStyleClass.primeColor,
-      //                     ],
-      //                     begin: Alignment.topLeft,
-      //                     end: Alignment.bottomRight,
-      //                     stops: [0.2, 0.9]
-      //                 ),
-      //                 boxShadow: const [
-      //                   BoxShadow(
-      //                     color: Colors.black54,
-      //                     spreadRadius: 1,
-      //                     blurRadius: 7,
-      //                     offset: Offset(3, 3),
-      //                   ),
-      //                 ],
-      //               ),
-      //               child:
-      //               const Icon(
-      //                 Icons.close,
-      //                 color: Colors.redAccent,
-      //                 size: 32,
-      //               )
-      //             ),
-      //             onTap: () => pressedBack(),
-      //           )
-      //       ),
-      //       Align(
-      //           alignment: AlignmentDirectional.center,
-      //           child: GestureDetector(
-      //             child: Container(
-      //               padding: EdgeInsets.symmetric(
-      //                   horizontal: screenWidth*0.04,
-      //                   vertical: screenHeight*0.013
-      //               ),
-      //               decoration: BoxDecoration(
-      //                 borderRadius: const BorderRadius.all(
-      //                     Radius.circular(10)
-      //                 ),
-      //                 gradient: LinearGradient(
-      //                     colors: [
-      //                       customStyleClass.primeColorDark,
-      //                       customStyleClass.primeColor,
-      //                     ],
-      //                     begin: Alignment.topLeft,
-      //                     end: Alignment.bottomRight,
-      //                     stops: [0.2, 0.9]
-      //                 ),
-      //                 boxShadow: const [
-      //                   BoxShadow(
-      //                     color: Colors.black54,
-      //                     spreadRadius: 1,
-      //                     blurRadius: 7,
-      //                     offset: Offset(3, 3),
-      //                   ),
-      //                 ],
-      //               ),
-      //               child:
-      //               // Text(
-      //               //   _controller.value.isPlaying? "Pausieren" : "Abspielen",
-      //               //   style: customStyleClass.size4Bold(),
-      //               // ),
-      //               Icon(
-      //                 _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
-      //                 size: 32,
-      //               )
-      //             ),
-      //             onTap: () => pressedPlay(),
-      //           )
-      //       ),
-      //       Align(
-      //           alignment: AlignmentDirectional.center,
-      //           child: GestureDetector(
-      //             child: Container(
-      //               padding: EdgeInsets.symmetric(
-      //                   horizontal: screenWidth*0.04,
-      //                   vertical: screenHeight*0.013
-      //               ),
-      //               decoration: BoxDecoration(
-      //                 borderRadius: const BorderRadius.all(
-      //                     Radius.circular(10)
-      //                 ),
-      //                 gradient: LinearGradient(
-      //                     colors: [
-      //                       customStyleClass.primeColorDark,
-      //                       customStyleClass.primeColor,
-      //                     ],
-      //                     begin: Alignment.topLeft,
-      //                     end: Alignment.bottomRight,
-      //                     stops: [0.2, 0.9]
-      //                 ),
-      //                 boxShadow: const [
-      //                   BoxShadow(
-      //                     color: Colors.black54,
-      //                     spreadRadius: 1,
-      //                     blurRadius: 7,
-      //                     offset: Offset(3, 3),
-      //                   ),
-      //                 ],
-      //               ),
-      //               child:
-      //               const Icon(
-      //                 Icons.check,
-      //                 color: Colors.white,
-      //                 size: 32,
-      //               )
-      //               // Text(
-      //               //   "Speichern",
-      //               //   style: customStyleClass.size4Bold(),
-      //               // ),
-      //             ),
-      //             onTap: () => pressedSave(),
-      //           )
-      //       )
-      //     ],
-      //   ),
-      // ),
-
     );
   }
 
@@ -398,20 +251,68 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
       showLoading = true;
     });
 
-    await _supabaseService.insertClubVideo(video, uuidV4, userDataProvider)
-        .then((value){
-      if(value == 0){
-        userDataProvider.setUserClubStoryId(uuidV4);
-        context.go('/club_frontpage');
-      }else{
-        showBottomSheet(
-            context: context,
-            builder: (BuildContext context){
-              return const Text("Sorry, something went wrong!");
+    // Check if we are overwriting a story
+    if(userDataProvider.getUserClubStoryId().isNotEmpty){
+
+      // If yes, delete the old one before putting a new one
+      await _supabaseService.deleteOldClubStory(userDataProvider.getUserClubStoryId())
+          .then((response) async {
+            if(response == 0){
+              await _supabaseService.insertClubStory(
+                  video,
+                  uuidV4,
+                  userDataProvider,
+                  stateProvider
+              ).then((value){
+                if(value == 0){
+
+                  // Save new values locally
+                  userDataProvider.setUserClubStoryId(uuidV4);
+                  userDataProvider.setUserClubStoryCreatedAt(stateProvider.getBerlinTime());
+
+                  // Proceed to front page
+                  context.go('/club_frontpage');
+                }else{
+                  showBottomSheet(
+                      context: context,
+                      builder: (BuildContext context){
+                        return const Text("Verzeihung, es ist ein Fehler aufgetreten. Fehlercode: 1");
+                      }
+                  );
+                }
+                return 0;
+              });
+            }else{
+              showBottomSheet(
+                  context: context,
+                  builder: (BuildContext context){
+                    return const Text("Verzeihung, es ist ein Fehler aufgetreten. Fehlercode: 2");
+                  }
+              );
             }
-        );
-      }
-      return 0;
-    });
+      });
+
+    // No story yet? Just create the new one
+    }else{
+      await _supabaseService.insertClubStory(
+          video,
+          uuidV4,
+          userDataProvider,
+          stateProvider
+      ).then((value){
+        if(value == 0){
+          userDataProvider.setUserClubStoryId(uuidV4);
+          context.go('/club_frontpage');
+        }else{
+          showBottomSheet(
+              context: context,
+              builder: (BuildContext context){
+                return const Text("Sorry, something went wrong!");
+              }
+          );
+        }
+        return 0;
+      });
+    }
   }
 }
