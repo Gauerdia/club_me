@@ -13,6 +13,7 @@ import 'package:mime/mime.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
 import '../provider/current_and_liked_elements_provider.dart';
 import '../provider/state_provider.dart';
 import '../services/hive_service.dart';
@@ -60,6 +61,7 @@ class _EventDetailViewState extends State<EventDetailView>{
   List<String> genresToDisplay = [];
 
   late File file;
+  late Uint8List? videoThumbnail;
   bool isImage = false;
   bool isVideo = false;
   String fileExtension = "";
@@ -585,26 +587,8 @@ class _EventDetailViewState extends State<EventDetailView>{
             ],
           ),
 
-          // Switch Icon
           if(currentAndLikedElementsProvider.currentClubMeEvent.getEventMarketingFileName().isNotEmpty)
-            GestureDetector(
-              child: Container(
-                padding: EdgeInsets.only(
-                  top: screenHeight*0.13,
-                ),
-                width: screenWidth,
-                alignment: Alignment.topRight,
-                child: ClipRRect(
-                  child: Image.asset(
-                    "assets/images/ClubMe_Logo_weiß.png",
-                    width: 60,
-                    height: 60,
-                    // fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-              onTap: () => clickEventContent(),
-            )
+            _buildContentIcon()
         ],
       ),
     );
@@ -714,6 +698,77 @@ class _EventDetailViewState extends State<EventDetailView>{
     );
   }
 
+  Widget _buildContentIcon(){
+
+        if(isImage){
+
+          return GestureDetector(
+            child: Container(
+              padding: EdgeInsets.only(
+                top: screenHeight*0.13,
+              ),
+              width: screenWidth,
+              alignment: Alignment.topRight,
+              child: ClipRRect(
+                child: Image.file(
+                  file,
+                  width: 60,
+                  height: 60,
+                  // fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            onTap: () => clickEventContent(),
+          );
+
+        }
+        if(isVideo){
+          return GestureDetector(
+            child: Container(
+              padding: EdgeInsets.only(
+                top: screenHeight*0.13,
+              ),
+              width: screenWidth,
+              alignment: Alignment.topRight,
+              child: ClipRRect(
+                child: Image.memory(
+                  videoThumbnail!,
+                  width: 60,
+                  height: 60,
+                  // fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            onTap: () => clickEventContent(),
+          );
+        }
+
+      return GestureDetector(
+        child: Container(
+          padding: EdgeInsets.only(
+            top: screenHeight*0.14,
+            right: 15
+          ),
+          width: screenWidth,
+          height: screenHeight,
+          // color: Colors.red,
+          alignment: Alignment.topRight,
+          child: CircularProgressIndicator(
+            color: customStyleClass.primeColor,
+          )
+
+          // ClipRRect(
+          //   child: Image.asset(
+          //     "assets/images/ClubMe_Logo_weiß.png",
+          //     width: 60,
+          //     height: 60,
+          //     // fit: BoxFit.cover,
+          //   ),
+          // ),
+        ),
+        onTap: () => clickEventContent(),
+      );
+  }
 
 
 
@@ -935,9 +990,22 @@ class _EventDetailViewState extends State<EventDetailView>{
             isImage = true;
           });
         }else if(fileType.contains('video')){
+
+          // INIT VIDEO CONTROLLER
           _controller = VideoPlayerController.file(file);
           await _controller.initialize();
           _createChewieController();
+
+          // CREATE THUMBNAIL
+          await VideoThumbnail.thumbnailData(
+            video: file.path,
+            imageFormat: ImageFormat.JPEG,
+            maxWidth: 128,
+            quality: 25,
+          ).then((response){
+            videoThumbnail = response;
+          });
+
           setState(() {
             isVideo = true;
           });

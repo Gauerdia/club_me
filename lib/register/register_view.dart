@@ -4,6 +4,7 @@ import 'package:club_me/models/hive_models/0_club_me_user_data.dart';
 import 'package:club_me/models/club_password.dart';
 import 'package:club_me/models/parser/club_me_password_parser.dart';
 import 'package:flutter/cupertino.dart' as cupertino;
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -72,6 +73,11 @@ class _RegisterViewState extends State<RegisterView> {
   final TextEditingController _eMailController = TextEditingController();
   final TextEditingController _clubPasswordController = TextEditingController();
 
+  late FixedExtentScrollController _dayController;
+  late FixedExtentScrollController _monthController;
+  late FixedExtentScrollController _yearController;
+  int selectedDay = 1, selectedMonth = 1, selectedYear = 2000;
+
   double distanceBetweenTitleAndTextField = 10;
 
   GoogleSignIn _googleSignIn = GoogleSignIn();
@@ -88,6 +94,10 @@ class _RegisterViewState extends State<RegisterView> {
   void initState() {
     super.initState();
     newSelectedDate = DateTime(2000, 1, 1);
+
+    _dayController = FixedExtentScrollController(initialItem: 0);
+    _monthController = FixedExtentScrollController(initialItem: 0);
+    _yearController = FixedExtentScrollController(initialItem: 24);
 
     fetchUserDataFromHive();
 
@@ -149,10 +159,16 @@ class _RegisterViewState extends State<RegisterView> {
 
     var uuid = const Uuid();
 
+    DateTime birthDateTime = DateTime(
+      selectedYear,
+      selectedMonth,
+      selectedDay
+    );
+
     ClubMeUserData newUserData = ClubMeUserData(
         firstName: _firstNameController.text,
         lastName: _lastNameController.text,
-        birthDate: newSelectedDate,
+        birthDate: birthDateTime,//newSelectedDate,
         eMail: _eMailController.text,
         gender: gender+1,
         userId: uuid.v4(),
@@ -743,63 +759,161 @@ class _RegisterViewState extends State<RegisterView> {
                     ),
                   ),
 
-                  // DATE
                   Container(
                     padding:  EdgeInsets.only(
                         top: distanceBetweenTitleAndTextField
                     ),
-                    height: screenHeight*0.12,
                     width: screenWidth*0.9,
-                    child: Column(
-                      children: [
+                    height: screenHeight*0.12,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children:[
 
-                        // BUTTON
-                        Container(
-                          width: screenWidth*0.9,
-                          alignment: Alignment.centerLeft,
-                          child: SizedBox(
-                            width: screenWidth*0.35,
-                            child:OutlinedButton(
-                                onPressed: (){
-                                  showDatePicker(
-                                      context: context,
-                                      locale: cupertino.Locale("de", "DE"),
-                                      initialDate: DateTime(2000),
-                                      firstDate: DateTime(1949),
-                                      lastDate: DateTime(2010),
-                                      builder: (BuildContext context, Widget? child) {
-                                        return Theme(
-                                          data: ThemeData.dark(),
-                                          child: child!,
-                                        );
-                                      }).then((pickedDate){
-                                    if( pickedDate == null){
-                                      return;
-                                    }
+                        Row(
+                          children: [
+                            // day
+                            SizedBox(
+                              width: screenWidth*0.2,
+                              child: CupertinoPicker(
+                                  scrollController: _dayController,
+                                  itemExtent: 50,
+                                  onSelectedItemChanged: (int index){
                                     setState(() {
-                                      newSelectedDate = pickedDate;
+                                      selectedDay = index+1;
                                     });
-                                  });
-                                },
-                                style: OutlinedButton.styleFrom(
-                                    minimumSize: Size(
-                                        screenHeight*0.05,
-                                        screenHeight*0.07
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(5.0)
-                                    )
-                                ),
-                                child: Text(
-                                  formatSelectedDate(),
-                                  style: customStyleClass.getFontStyle4(),
-                                )
+                                  },
+                                  children: List<Widget>.generate(31, (index){
+                                    return Center(
+                                      child: Text(
+                                        index < 9 ?
+                                        "0${(index+1).toString()}" :
+                                        (index+1).toString(),
+                                        style: customStyleClass.getFontStyle3(),
+                                      ),
+                                    );
+                                  })
+                              ),
                             ),
-                          ),
+
+                            Text(
+                              ".",
+                              style: customStyleClass.getFontStyle3(),
+                            ),
+
+                            // month
+                            SizedBox(
+                              width: screenWidth*0.2,
+                              child: CupertinoPicker(
+                                  scrollController: _monthController,
+                                  itemExtent: 50,
+                                  onSelectedItemChanged: (int index){
+                                    setState(() {
+                                      selectedMonth = index+1;
+                                    });
+                                  },
+                                  children: List<Widget>.generate(12, (index){
+                                    return Center(
+                                      child: Text(
+                                        index < 9 ?
+                                        "0${(index+1).toString()}" :
+                                        (index+1).toString(),
+                                        style: customStyleClass.getFontStyle3(),
+                                      ),
+                                    );
+                                  })
+                              ),
+                            ),
+
+                            Text(
+                              ".",
+                              style: customStyleClass.getFontStyle3(),
+                            ),
+
+                            // year
+                            SizedBox(
+                              width: screenWidth*0.2,
+                              child: CupertinoPicker(
+                                  scrollController: _yearController,
+                                  itemExtent: 50,
+                                  onSelectedItemChanged: (int index){
+                                    setState(() {
+                                      selectedYear = (2024-index);
+                                    });
+                                  },
+                                  children: List<Widget>.generate(100, (index){
+                                    return Center(
+                                      child: Text(
+                                        (2024-index).toString(),
+                                        style: customStyleClass.getFontStyle3(),
+                                      ),
+                                    );
+                                  })
+                              ),
+                            ),
+                          ],
                         )
-                      ],
-                    ),
+
+                      ]
+                    )
                   ),
+
+                  // DATE
+                  // Container(
+                  //   padding:  EdgeInsets.only(
+                  //       top: distanceBetweenTitleAndTextField
+                  //   ),
+                  //   height: screenHeight*0.12,
+                  //   width: screenWidth*0.9,
+                  //   child: Column(
+                  //     children: [
+                  //
+                  //       // BUTTON
+                  //       Container(
+                  //         width: screenWidth*0.9,
+                  //         alignment: Alignment.centerLeft,
+                  //         child: SizedBox(
+                  //           width: screenWidth*0.35,
+                  //           child:OutlinedButton(
+                  //               onPressed: (){
+                  //                 showDatePicker(
+                  //                     context: context,
+                  //                     locale: cupertino.Locale("de", "DE"),
+                  //                     initialDate: DateTime(2000),
+                  //                     firstDate: DateTime(1949),
+                  //                     lastDate: DateTime(2010),
+                  //                     builder: (BuildContext context, Widget? child) {
+                  //                       return Theme(
+                  //                         data: ThemeData.dark(),
+                  //                         child: child!,
+                  //                       );
+                  //                     }).then((pickedDate){
+                  //                   if( pickedDate == null){
+                  //                     return;
+                  //                   }
+                  //                   setState(() {
+                  //                     newSelectedDate = pickedDate;
+                  //                   });
+                  //                 });
+                  //               },
+                  //               style: OutlinedButton.styleFrom(
+                  //                   minimumSize: Size(
+                  //                       screenHeight*0.05,
+                  //                       screenHeight*0.07
+                  //                   ),
+                  //                   shape: RoundedRectangleBorder(
+                  //                       borderRadius: BorderRadius.circular(5.0)
+                  //                   )
+                  //               ),
+                  //               child: Text(
+                  //                 formatSelectedDate(),
+                  //                 style: customStyleClass.getFontStyle4(),
+                  //               )
+                  //           ),
+                  //         ),
+                  //       )
+                  //     ],
+                  //   ),
+                  // ),
 
                   Container(
                     width: screenWidth*0.9,
@@ -1588,10 +1702,16 @@ class _RegisterViewState extends State<RegisterView> {
     if(profileType == 0){
       var uuid = const Uuid();
 
+      DateTime birthDateTime = DateTime(
+        selectedYear,
+        selectedMonth,
+        selectedDay
+      );
+
       ClubMeUserData newUserData = ClubMeUserData(
           firstName: _firstNameController.text,
           lastName: _lastNameController.text,
-          birthDate: newSelectedDate,
+          birthDate: birthDateTime, // newSelectedDate,
           eMail: _eMailController.text,
           gender: gender+1,
           userId: uuid.v4(),
