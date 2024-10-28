@@ -129,9 +129,11 @@ class ClubMeClub{
     //
     // event from yesterday, no today:      [0, 6]        and [1,0]
     // event from yesterday, 1 today:       [0,6,23]      and [1,0,1]
+    // event from yesterday, 1 today:       [0,6,8,14]    and [1,0,1,0]
     // event from yesterday, 2 today:       [0,6,8,14,22] and [1,0,1,0,1]
     // no event from yesterday, none today: [0]           and [0]
     // no event from yesterday, 1 today:    [0,22]        and [0,1]
+    // no event from yesterday, 1 today:    [0,8,14]      and [0,1,0]
     // no event from yesterday, 2 today:    [0,8,12,22]   and [0,1,0,1]
 
     // Get the current time
@@ -205,7 +207,7 @@ class ClubMeClub{
       timeIntervals.add(openingTime.openingHour!);
       intervalMeaning.add(1);
 
-      // Only add closing time if the event doesnt surpass midnight.
+      // Only add closing time if the event doesn't surpass midnight.
       if(openingTime.closingHour! > openingTime.openingHour!){
         timeIntervals.add(openingTime.closingHour!);
         intervalMeaning.add(0);
@@ -265,8 +267,8 @@ class ClubMeClub{
               "${timeIntervals[timeSlotIndex+1]}:59":
               "${timeIntervals[timeSlotIndex+1]}:00"
       );
-
     }
+
     // Could be if/else but like this, it is easier to understand the code.
     if(intervalMeaning[timeSlotIndex] == 1){
 
@@ -299,13 +301,50 @@ class ClubMeClub{
 
       // We are in an active event and it's the last one today
       if(timeSlotIndex+1 == timeIntervals.length){
-        return ClubOpenStatus(
-            openingStatus: 2,
-            textToDisplay: ""
-        );
+
+        // If the hour is the same, we have to check for the minutes
+        if(timeIntervals[timeSlotIndex] == todayTimestamp.hour){
+          int halfHourIndex  = tempOpeningTimes.days!.firstWhere(
+                  (element) => element.openingHour! == timeIntervals[timeSlotIndex+1]
+          ).openingHalfAnHour!;
+
+          // It might be that the hour
+          switch(halfHourIndex){
+            case(0):return ClubOpenStatus(
+                openingStatus: 2,
+                textToDisplay: ""
+            );
+            case(1):
+              if(todayTimestamp.minute >= 30){
+                return ClubOpenStatus(
+                    openingStatus: 2,
+                    textToDisplay: ""
+                );
+              }else{
+                return ClubOpenStatus(
+                    openingStatus: 1,
+                    textToDisplay: "${timeIntervals[timeSlotIndex+1]}:30"
+                );
+              }
+            case(2):
+              return ClubOpenStatus(
+                  openingStatus: 1,
+                  textToDisplay: "${timeIntervals[timeSlotIndex+1]}:59"
+              );
+          }
+        }
+        // Hour not the same? Has to be open
+        else{
+          return ClubOpenStatus(
+              openingStatus: 2,
+              textToDisplay: ""
+          );
+        }
+
+
       }
 
-      // We are in an active event but it's not the last one.
+      // We are in an active event but the day does not end with this event.
       if( (timeIntervals[timeSlotIndex+1] - todayTimestamp.hour) <= 2){
 
         int halfHourIndex  = tempOpeningTimes.days!.firstWhere(
