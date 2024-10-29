@@ -1436,6 +1436,25 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
       }
     }
 
+    DateTime? eventMarketingCreatedAtToSubmit;
+    String contentFileNameToSubmit;
+
+    // There is a file? Create the entries accordingly
+    if(file != null){
+      eventMarketingCreatedAtToSubmit = DateTime.now();
+      contentFileNameToSubmit = contentFileName;
+    }
+    // No file? Might be, that there is already something online
+    else{
+      if(!marketingContentAlreadyExists){
+        eventMarketingCreatedAtToSubmit = null;
+        contentFileNameToSubmit = "";
+      }else{
+        eventMarketingCreatedAtToSubmit = currentAndLikedElementsProvider.currentClubMeEvent.getEventMarketingCreatedAt();
+        contentFileNameToSubmit = currentAndLikedElementsProvider.currentClubMeEvent.getEventMarketingFileName();
+      }
+    }
+
     // Create new event instance
     ClubMeEvent updatedEvent = ClubMeEvent(
 
@@ -1448,12 +1467,8 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
       eventDescription: _eventDescriptionController.text,
       eventPrice: double.parse(_eventPriceController.text.replaceAll(",", ".")),
 
-      eventMarketingCreatedAt: file != null ? DateTime.now() :
-      currentAndLikedElementsProvider.currentClubMeEvent.getEventMarketingCreatedAt(),
-
-      eventMarketingFileName: file != null ? contentFileName :
-      currentAndLikedElementsProvider.currentClubMeEvent.getEventMarketingFileName().isNotEmpty ?
-      currentAndLikedElementsProvider.currentClubMeEvent.getEventMarketingFileName() : "",
+      eventMarketingCreatedAt: eventMarketingCreatedAtToSubmit,
+      eventMarketingFileName: contentFileNameToSubmit,
 
       isRepeatedDays: isRepeated != 0 ? daysToRepeat : 0,
 
