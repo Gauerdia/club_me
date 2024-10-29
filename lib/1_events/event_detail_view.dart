@@ -523,7 +523,7 @@ class _EventDetailViewState extends State<EventDetailView>{
             ]
           ),
 
-          // if(currentAndLikedElementsProvider.currentClubMeEvent.getEventMarketingFileName().isNotEmpty)
+          if(currentAndLikedElementsProvider.currentClubMeEvent.getEventMarketingFileName().isNotEmpty)
             _buildContentIcon()
         ],
       ),

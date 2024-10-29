@@ -3,7 +3,7 @@ description: "The first draft of the ClubMe app."
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.0.103
+version: 1.0.104
 
 environment:
   sdk: '>=3.2.6 <4.0.0'
