@@ -1,4 +1,7 @@
 import '../discount.dart';
+import '../hive_models/2_club_me_discount.dart';
+import '../hive_models/6_opening_times.dart';
+import '../opening_times.dart';
 
 ClubMeDiscount parseClubMeDiscount(var data){
 
@@ -28,6 +31,7 @@ ClubMeDiscount parseClubMeDiscount(var data){
       isRepeatedDays: data['is_repeated_days'],
 
       bigBannerFileName: data['big_banner_file_name'],
-    smallBannerFileName: data['small_banner_file_name']
+      smallBannerFileName: data['small_banner_file_name'],
+      openingTimes: OpeningTimes.fromJson(data['opening_times']),
   );
 }

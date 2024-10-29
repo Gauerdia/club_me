@@ -10,6 +10,8 @@ import 'package:club_me/services/supabase_service.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 
+import '../models/hive_models/2_club_me_discount.dart';
+
 class CheckAndFetchService{
 
   final SupabaseService _supabaseService = SupabaseService();

@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
+import '../../models/hive_models/2_club_me_discount.dart';
 import '../../provider/state_provider.dart';
 import '../../services/supabase_service.dart';
 import '../../shared/custom_bottom_navigation_bar_clubs.dart';

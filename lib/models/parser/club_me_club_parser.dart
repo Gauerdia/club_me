@@ -3,6 +3,7 @@ import 'package:club_me/models/front_page_images.dart';
 import 'package:club_me/models/special_opening_times.dart';
 
 import '../club.dart';
+import '../hive_models/6_opening_times.dart';
 import '../opening_times.dart';
 
 ClubMeClub parseClubMeClub(var data){

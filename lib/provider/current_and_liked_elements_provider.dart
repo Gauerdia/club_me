@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import '../models/club.dart';
 import '../models/discount.dart';
 import '../models/event.dart';
+import '../models/hive_models/2_club_me_discount.dart';
 
 class CurrentAndLikedElementsProvider extends ChangeNotifier{
 

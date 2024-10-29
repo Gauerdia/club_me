@@ -237,357 +237,293 @@ class _EventDetailViewState extends State<EventDetailView>{
               // Main Infos
               Container(
                   width: screenWidth,
-                  height: screenHeight*0.14,
+                  // height: screenHeight*0.14,
                   color: customStyleClass.backgroundColorEventTile,
-                  child: Stack(
+                  child: Column(
                     children: [
 
-                      Column(
+                      Container(
+                        width: screenWidth*0.95,
+                        padding: const EdgeInsets.only(
+                            top: 8,
+                            bottom: 4
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+
+                            Flexible(
+                                child: Text(
+                                  formattedEventTitle,
+                                  textAlign: TextAlign.left,
+                                  style: customStyleClass.getFontStyle3Bold(),
+                                )
+                            ),
+
+
+                            SizedBox(
+                                width: screenWidth*0.18,
+                                child: Text(
+                                    currentAndLikedElementsProvider.currentClubMeEvent.getEventPrice() != 0 ?
+                                    priceFormatted : " ",
+                                    textAlign: TextAlign.center,
+                                    style: customStyleClass.getFontStyle3Bold()
+                                )
+                            )
+
+                          ],
+                        ),
+                      ),
+
+                      SizedBox(
+                        width: screenWidth*0.95,
+                        child: Text(
+                            currentAndLikedElementsProvider.currentClubMeEvent.getClubName(),
+                            style:customStyleClass.getFontStyle5()
+                        ),
+                      ),
+
+
+                      SizedBox(
+                        width: screenWidth*0.95,
+                        child:Text(
+                            formattedDjName,
+                            textAlign: TextAlign.left,
+                            style: customStyleClass.getFontStyle6Bold()
+                        ),
+                      ),
+
+                      if(formattedDjName.isNotEmpty)
+                        const SizedBox(
+                          height: 20,
+                        ),
+
+                    // WEEKDAY, ICONS
+                    Container(
+                      padding: const EdgeInsets.only(
+                        bottom: 4
+                      ),
+                      width: screenWidth*0.95,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
 
-                          // Title + Price
+                          Text(
+                            formattedWeekday,
+                           style: customStyleClass.getFontStyle5BoldPrimeColor(),
+                          ),
+
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.end,
                             children: [
 
-                              // Title
-                              SizedBox(
-                                width: screenWidth*0.7,
-                                child: Padding(
-                                  padding: EdgeInsets.only(
-                                      left: screenWidth*0.02
+                              // Info
+                              if(currentAndLikedElementsProvider.currentClubMeEvent.getTicketLink().isNotEmpty)
+                                InkWell(
+                                  child: Icon(
+                                    CupertinoIcons.ticket,
+                                    color: customStyleClass.primeColor,
                                   ),
-                                  child: Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      formattedEventTitle,
-                                      style: customStyleClass.getFontStyle3Bold(),
-                                    ),
-                                  ),
+                                  onTap: () => clickEventTicket(),
                                 ),
+
+                              SizedBox(
+                              width: screenWidth*0.02,
                               ),
 
-                              // Price
-                              currentAndLikedElementsProvider.currentClubMeEvent.getEventPrice() != 0 ?SizedBox(
-                                width: screenWidth*0.2,
-                                child: Padding(
-                                  padding: EdgeInsets.only(
-                                      top: screenHeight*0.01
-                                  ),
-                                  child: Align(
-                                    child: Text(
-                                        priceFormatted,
-                                        textAlign: TextAlign.center,
-                                        style: customStyleClass.getFontStyle3Bold()
-                                    ),
-                                  ),
+                              // Like
+                              InkWell(
+                                child:Icon(
+                                  currentAndLikedElementsProvider.checkIfCurrentEventIsAlreadyLiked() ? Icons.star_outlined : Icons.star_border,
+                                  color: customStyleClass.primeColor,
                                 ),
-                              ):SizedBox(
-                                width: screenWidth*0.2,
-                                child: Padding(
-                                  padding: EdgeInsets.only(
-                                      top: screenHeight*0.01
-                                  ),
-                                  child: Text(
-                                      " ",
-                                      textAlign: TextAlign.center,
-                                      style: customStyleClass.getFontStyle3Bold()
-                                  ),
+                                onTap: () => clickEventLike(currentAndLikedElementsProvider.currentClubMeEvent.getEventId()
                                 ),
-                              ),
+                              )
 
                             ],
                           ),
                         ],
-                      ),
-
-                      // Location
-                      Padding(
-                        padding: EdgeInsets.only(
-                            left: screenWidth*0.02,
-                            top: 26
-                        ),
-                        child: Align(
-                          alignment: Alignment.topLeft,
-                          child: Text(
-                              currentAndLikedElementsProvider.currentClubMeEvent.getClubName(),
-                              style:customStyleClass.getFontStyle5()
-                          ),
-                        ),
-                      ),
-
-                      // DJ
-                      Padding(
-                        padding: EdgeInsets.only(
-                            left: screenWidth*0.02,
-                            top: 46
-                        ),
-                        child: Align(
-                          alignment: Alignment.topLeft,
-                          child: Text(
-                              formattedDjName,
-                              textAlign: TextAlign.left,
-                              style: customStyleClass.getFontStyle6Bold()
-                          ),
-                        ),
-                      ),
-
-                      // When
-                      SizedBox(
-                        height: screenHeight*0.14,
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                              left: screenWidth*0.02,
-                              bottom: screenHeight*0.01
-                          ),
-                          child: Align(
-                            alignment: Alignment.bottomLeft,
-                            child: Text(
-                              formattedWeekday,
-                              style: customStyleClass.getFontStyle5BoldPrimeColor(),
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      // Icons
-                      Container(
-                        height: screenHeight*0.14,
-                        alignment: Alignment.bottomRight,
-                        padding: EdgeInsets.only(
-                            bottom: screenHeight*0.01,
-                            right: screenWidth*0.02
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-
-                                // Info
-                                if(currentAndLikedElementsProvider.currentClubMeEvent.getTicketLink().isNotEmpty)
-                                  GestureDetector(
-                                    child: Column(
-                                      children: [
-                                        Icon(
-                                          CupertinoIcons.ticket,
-                                          color: customStyleClass.primeColor,
-                                        ),
-                                      ],
-                                    ),
-                                    onTap: () => clickEventTicket(),
-                                  ),
-                                SizedBox(
-                                  width: screenWidth*0.02,
-                                ),
-
-                                // Like
-                                GestureDetector(
-                                  child: Column(
-                                    children: [
-                                      Icon(
-                                        currentAndLikedElementsProvider.checkIfCurrentEventIsAlreadyLiked() ? Icons.star_outlined : Icons.star_border,
-                                        color: customStyleClass.primeColor,
-                                      ),
-                                    ],
-                                  ),
-                                  onTap: () => clickEventLike(currentAndLikedElementsProvider.currentClubMeEvent.getEventId()
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: screenWidth*0.02,
-                                ),
-
-                                // Share
-                                // GestureDetector(
-                                //   child: Column(
-                                //     children: [
-                                //       Icon(
-                                //         Icons.share,
-                                //         color: customStyleClass.primeColor,
-                                //       ),
-                                //     ],
-                                //   ),
-                                //   onTap: () => clickEventShare(),
-                                // )
-                              ],
-                            )
-                          ],
-                        ),
-                      ),
-                    ],
-                  )
-              ),
-
-              // Description
-              // Text Info
-              Container(
-                height: screenHeight*0.5,
-                color: customStyleClass.backgroundColorMain,
-                padding: const EdgeInsets.only(
-                    top:15,
-                    bottom: 15,
-                    right:15,
-                    left:9
-                ),
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-
-                      // Description headline
-                      Container(
-                        alignment: Alignment.center,
-                        child: Text(
-                          "Beschreibung",
-                          style: customStyleClass.getFontStyle3Bold(),
-                        ),
-                      ),
-
-                      // Description content
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 10
-                        ),
-                        child: Text(
-                          currentAndLikedElementsProvider.currentClubMeEvent.getEventDescription(),
-                          textAlign: TextAlign.center,
-                          style: customStyleClass.getFontStyle4(),
-                        ),
-                      ),
-
-                      // Headline genres
-                      Container(
-                        alignment: Alignment.center,
-                        child: Text(
-                          "Musikrichtungen",
-                          style: customStyleClass.getFontStyle3Bold(),
-                        ),
-                      ),
-
-                      // Wrap: Genres
-                      Container(
-                        width: screenWidth*0.9,
-                        alignment: Alignment.center,
-                        child: Wrap(
-                          alignment: WrapAlignment.center,
-                          children: [
-                            for(String genre in genresToDisplay)
-                              Text(
-                                genre,
-                                style: customStyleClass.getFontStyle4(),
-                              )
-                          ],
-                        ),
-                      ),
-
-
-                      const Divider(
-                        color: Color(0xff121111),
-                        indent: 0,
-                        endIndent: 0,
-                      ),
-
-                      Divider(
-                        color: Colors.grey[900],
-                      ),
-
-                      // // Headline lounges
-                      // Container(
-                      //   alignment: Alignment.center,
-                      //   padding: const EdgeInsets.only(
-                      //       bottom: 20
-                      //   ),
-                      //   child: Text(
-                      //     "Lounges",
-                      //     style: customStyleClass.getFontStyle3Bold(),
-                      //   ),
-                      // ),
-                      //
-                      // // Lounges scrllview
-                      // SingleChildScrollView(
-                      //   scrollDirection: Axis.horizontal,
-                      //   child: Row(
-                      //     children: [
-                      //       Stack(
-                      //         children: [
-                      //           SizedBox(
-                      //             width: screenWidth*0.5,
-                      //             height: screenHeight*0.17,
-                      //             child: Image.asset("assets/images/lounge_blue.png"),
-                      //           ),
-                      //           SizedBox(
-                      //             width: screenWidth*0.5,
-                      //             height: screenHeight*0.15,
-                      //             child: Center(
-                      //               child: Text(
-                      //                 "Bald verfügbar in der App!",
-                      //                 style: customStyleClass.getFontStyle5BoldPrimeColor(),
-                      //               ),
-                      //             ),
-                      //           ),
-                      //         ],
-                      //       ),
-                      //       SizedBox(
-                      //         width: screenWidth*0.05,
-                      //       ),
-                      //       Stack(
-                      //         children: [
-                      //           SizedBox(
-                      //             width: screenWidth*0.5,
-                      //             height: screenHeight*0.17,
-                      //             child: Image.asset("assets/images/lounge_grey2.png"),
-                      //           ),
-                      //           SizedBox(
-                      //             width: screenWidth*0.5,
-                      //             height: screenHeight*0.15,
-                      //             child: Center(
-                      //               child: Text(
-                      //                 "Bald verfügbar in der App!",
-                      //                 style: customStyleClass.getFontStyle5Bold(),
-                      //               ),
-                      //             ),
-                      //           ),
-                      //         ],
-                      //       ),
-                      //       SizedBox(
-                      //         width: screenWidth*0.05,
-                      //       ),
-                      //       Stack(
-                      //         children: [
-                      //           SizedBox(
-                      //             width: screenWidth*0.5,
-                      //             height: screenHeight*0.17,
-                      //             child: Image.asset("assets/images/lounge_grey2.png"),
-                      //           ),
-                      //           SizedBox(
-                      //             width: screenWidth*0.5,
-                      //             height: screenHeight*0.15,
-                      //             child: Center(
-                      //               child: Text(
-                      //                 "Bald verfügbar in der App!",
-                      //                 style: customStyleClass.getFontStyle5Bold(),
-                      //               ),
-                      //             ),
-                      //           ),
-                      //         ],
-                      //       ),
-                      //     ],
-                      //   ),
-                      // )
-
-
+                      )
+                  ),
                     ],
                   ),
-                ),
               ),
 
-            ],
+              // DESCRIPTION, GENRES
+              Container(
+                child:Column(
+                  children: [
+                    // Description
+                    // Text Info
+                    Container(
+                      height: screenHeight*0.5,
+                      color: customStyleClass.backgroundColorMain,
+                      padding: const EdgeInsets.only(
+                          top:15,
+                          bottom: 15,
+                          right:15,
+                          left:9
+                      ),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+
+                            // Description headline
+                            Container(
+                              alignment: Alignment.center,
+                              child: Text(
+                                "Beschreibung",
+                                style: customStyleClass.getFontStyle3Bold(),
+                              ),
+                            ),
+
+                            // Description content
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 10
+                              ),
+                              child: Text(
+                                currentAndLikedElementsProvider.currentClubMeEvent.getEventDescription(),
+                                textAlign: TextAlign.center,
+                                style: customStyleClass.getFontStyle4(),
+                              ),
+                            ),
+
+                            // Headline genres
+                            Container(
+                              alignment: Alignment.center,
+                              child: Text(
+                                "Musikrichtungen",
+                                style: customStyleClass.getFontStyle3Bold(),
+                              ),
+                            ),
+
+                            // Wrap: Genres
+                            Container(
+                              width: screenWidth*0.9,
+                              alignment: Alignment.center,
+                              child: Wrap(
+                                alignment: WrapAlignment.center,
+                                children: [
+                                  for(String genre in genresToDisplay)
+                                    Text(
+                                      genre,
+                                      style: customStyleClass.getFontStyle4(),
+                                    )
+                                ],
+                              ),
+                            ),
+
+
+                            const Divider(
+                              color: Color(0xff121111),
+                              indent: 0,
+                              endIndent: 0,
+                            ),
+
+                            Divider(
+                              color: Colors.grey[900],
+                            ),
+
+                            // // Headline lounges
+                            // Container(
+                            //   alignment: Alignment.center,
+                            //   padding: const EdgeInsets.only(
+                            //       bottom: 20
+                            //   ),
+                            //   child: Text(
+                            //     "Lounges",
+                            //     style: customStyleClass.getFontStyle3Bold(),
+                            //   ),
+                            // ),
+                            //
+                            // // Lounges scrllview
+                            // SingleChildScrollView(
+                            //   scrollDirection: Axis.horizontal,
+                            //   child: Row(
+                            //     children: [
+                            //       Stack(
+                            //         children: [
+                            //           SizedBox(
+                            //             width: screenWidth*0.5,
+                            //             height: screenHeight*0.17,
+                            //             child: Image.asset("assets/images/lounge_blue.png"),
+                            //           ),
+                            //           SizedBox(
+                            //             width: screenWidth*0.5,
+                            //             height: screenHeight*0.15,
+                            //             child: Center(
+                            //               child: Text(
+                            //                 "Bald verfügbar in der App!",
+                            //                 style: customStyleClass.getFontStyle5BoldPrimeColor(),
+                            //               ),
+                            //             ),
+                            //           ),
+                            //         ],
+                            //       ),
+                            //       SizedBox(
+                            //         width: screenWidth*0.05,
+                            //       ),
+                            //       Stack(
+                            //         children: [
+                            //           SizedBox(
+                            //             width: screenWidth*0.5,
+                            //             height: screenHeight*0.17,
+                            //             child: Image.asset("assets/images/lounge_grey2.png"),
+                            //           ),
+                            //           SizedBox(
+                            //             width: screenWidth*0.5,
+                            //             height: screenHeight*0.15,
+                            //             child: Center(
+                            //               child: Text(
+                            //                 "Bald verfügbar in der App!",
+                            //                 style: customStyleClass.getFontStyle5Bold(),
+                            //               ),
+                            //             ),
+                            //           ),
+                            //         ],
+                            //       ),
+                            //       SizedBox(
+                            //         width: screenWidth*0.05,
+                            //       ),
+                            //       Stack(
+                            //         children: [
+                            //           SizedBox(
+                            //             width: screenWidth*0.5,
+                            //             height: screenHeight*0.17,
+                            //             child: Image.asset("assets/images/lounge_grey2.png"),
+                            //           ),
+                            //           SizedBox(
+                            //             width: screenWidth*0.5,
+                            //             height: screenHeight*0.15,
+                            //             child: Center(
+                            //               child: Text(
+                            //                 "Bald verfügbar in der App!",
+                            //                 style: customStyleClass.getFontStyle5Bold(),
+                            //               ),
+                            //             ),
+                            //           ),
+                            //         ],
+                            //       ),
+                            //     ],
+                            //   ),
+                            // )
+
+
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            ]
           ),
 
-          if(currentAndLikedElementsProvider.currentClubMeEvent.getEventMarketingFileName().isNotEmpty)
+          // if(currentAndLikedElementsProvider.currentClubMeEvent.getEventMarketingFileName().isNotEmpty)
             _buildContentIcon()
         ],
       ),
@@ -697,7 +633,6 @@ class _EventDetailViewState extends State<EventDetailView>{
       ),
     );
   }
-
   Widget _buildContentIcon(){
 
         if(isImage){
@@ -705,16 +640,18 @@ class _EventDetailViewState extends State<EventDetailView>{
           return GestureDetector(
             child: Container(
               padding: EdgeInsets.only(
-                top: screenHeight*0.13,
+                top: screenHeight*0.135,
+                right: 6
               ),
               width: screenWidth,
               alignment: Alignment.topRight,
               child: ClipRRect(
+                borderRadius: BorderRadius.circular(45.0),
                 child: Image.file(
                   file,
-                  width: 60,
-                  height: 60,
-                  // fit: BoxFit.cover,
+                  width: 50,
+                  height: 50,
+                  fit: BoxFit.cover,
                 ),
               ),
             ),
@@ -726,16 +663,18 @@ class _EventDetailViewState extends State<EventDetailView>{
           return GestureDetector(
             child: Container(
               padding: EdgeInsets.only(
-                top: screenHeight*0.13,
+                  top: screenHeight*0.135,
+                  right: 6
               ),
               width: screenWidth,
               alignment: Alignment.topRight,
               child: ClipRRect(
+                borderRadius: BorderRadius.circular(45.0),
                 child: Image.memory(
                   videoThumbnail!,
                   width: 60,
                   height: 60,
-                  // fit: BoxFit.cover,
+                  fit: BoxFit.cover,
                 ),
               ),
             ),
@@ -751,20 +690,11 @@ class _EventDetailViewState extends State<EventDetailView>{
           ),
           width: screenWidth,
           height: screenHeight,
-          // color: Colors.red,
           alignment: Alignment.topRight,
           child: CircularProgressIndicator(
             color: customStyleClass.primeColor,
           )
 
-          // ClipRRect(
-          //   child: Image.asset(
-          //     "assets/images/ClubMe_Logo_weiß.png",
-          //     width: 60,
-          //     height: 60,
-          //     // fit: BoxFit.cover,
-          //   ),
-          // ),
         ),
         onTap: () => clickEventContent(),
       );

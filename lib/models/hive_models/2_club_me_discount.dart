@@ -1,11 +1,13 @@
 import 'package:hive/hive.dart';
-part '2_club_me_local_discount.g.dart';
+
+import '6_opening_times.dart';
+part '2_club_me_discount.g.dart';
 
 @HiveType(typeId:  2)
-class ClubMeLocalDiscount{
+class ClubMeDiscount{
 
 
-  ClubMeLocalDiscount({
+  ClubMeDiscount({
     required this.discountId,
     required this.clubId,
     required this.clubName,
@@ -23,7 +25,8 @@ class ClubMeLocalDiscount{
     required this.ageLimitLowerLimit,
     required this.isRepeatedDays,
     required this.bigBannerFileName,
-    required this.smallBannerFileName
+    required this.smallBannerFileName,
+    required this.openingTimes
   });
 
   @HiveField(0)
@@ -70,6 +73,13 @@ class ClubMeLocalDiscount{
 
   @HiveField(18)
   String smallBannerFileName;
+
+  @HiveField(19)
+  OpeningTimes openingTimes;
+
+  OpeningTimes getOpeningTimes(){
+    return openingTimes;
+  }
 
   String getSmallBannerFileName(){
     return smallBannerFileName;

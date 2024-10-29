@@ -15,6 +15,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import '../../models/hive_models/1_club_me_discount_template.dart';
+import '../../models/hive_models/2_club_me_discount.dart';
 import '../../provider/state_provider.dart';
 import '../../provider/user_data_provider.dart';
 import '../../services/supabase_service.dart';
@@ -1353,7 +1354,6 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
         discountId: uuidV4.toString(),
         clubId: userDataProvider.getUserClubId(),
         clubName: userDataProvider.getUserClubName(),
-        // bannerId: userDataProvider.getUserClubEventBannerId(),
 
         discountTitle: titleController.text,
         discountDate: discountDate,
@@ -1373,7 +1373,8 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
 
          isRepeatedDays: isRepeatedDaysToSave,
         bigBannerFileName: Utils.discountBigImageNames[_currentPageIndex],
-        smallBannerFileName: Utils.discountSmallImageNames[_currentPageIndex]
+        smallBannerFileName: Utils.discountSmallImageNames[_currentPageIndex],
+      openingTimes: userDataProvider.getUserClub().getOpeningTimes()
     );
 
     if(isSupposedToBeTemplate == 1){

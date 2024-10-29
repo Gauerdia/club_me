@@ -1,22 +1,22 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of '2_club_me_local_discount.dart';
+part of '2_club_me_discount.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class ClubMeLocalDiscountAdapter extends TypeAdapter<ClubMeLocalDiscount> {
+class ClubMeDiscountAdapter extends TypeAdapter<ClubMeDiscount> {
   @override
   final int typeId = 2;
 
   @override
-  ClubMeLocalDiscount read(BinaryReader reader) {
+  ClubMeDiscount read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return ClubMeLocalDiscount(
+    return ClubMeDiscount(
       discountId: fields[2] as String,
       clubId: fields[0] as String,
       clubName: fields[1] as String,
@@ -35,13 +35,14 @@ class ClubMeLocalDiscountAdapter extends TypeAdapter<ClubMeLocalDiscount> {
       isRepeatedDays: fields[16] as int,
       bigBannerFileName: fields[17] as String,
       smallBannerFileName: fields[18] as String,
+      openingTimes: fields[19] as OpeningTimes,
     );
   }
 
   @override
-  void write(BinaryWriter writer, ClubMeLocalDiscount obj) {
+  void write(BinaryWriter writer, ClubMeDiscount obj) {
     writer
-      ..writeByte(18)
+      ..writeByte(19)
       ..writeByte(0)
       ..write(obj.clubId)
       ..writeByte(1)
@@ -77,7 +78,9 @@ class ClubMeLocalDiscountAdapter extends TypeAdapter<ClubMeLocalDiscount> {
       ..writeByte(17)
       ..write(obj.bigBannerFileName)
       ..writeByte(18)
-      ..write(obj.smallBannerFileName);
+      ..write(obj.smallBannerFileName)
+      ..writeByte(19)
+      ..write(obj.openingTimes);
   }
 
   @override
@@ -86,7 +89,7 @@ class ClubMeLocalDiscountAdapter extends TypeAdapter<ClubMeLocalDiscount> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is ClubMeLocalDiscountAdapter &&
+      other is ClubMeDiscountAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

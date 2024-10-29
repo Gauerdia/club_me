@@ -17,6 +17,7 @@ import 'package:uuid/uuid.dart';
 import 'package:uuid/v4.dart';
 import '../models/club.dart';
 import '../models/discount.dart';
+import '../models/hive_models/2_club_me_discount.dart';
 
 class SupabaseService{
 

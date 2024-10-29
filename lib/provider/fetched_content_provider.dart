@@ -3,9 +3,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../models/club.dart';
-import '../models/discount.dart';
 import '../models/event.dart';
 import 'package:timezone/standalone.dart' as tz;
+
+import '../models/hive_models/2_club_me_discount.dart';
 
 class FetchedContentProvider extends ChangeNotifier{
 

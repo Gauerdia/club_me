@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:toggle_switch/toggle_switch.dart';
+import '../../models/hive_models/2_club_me_discount.dart';
 import '../../provider/current_and_liked_elements_provider.dart';
 import '../../provider/state_provider.dart';
 import '../../services/supabase_service.dart';
@@ -1383,7 +1384,8 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
         ageLimitUpperLimit: int.parse(_ageLimitUpperLimitController.text),
 
         bigBannerFileName: Utils.discountBigImageNames[_currentPageIndex],
-      smallBannerFileName: Utils.discountSmallImageNames[_currentPageIndex]
+      smallBannerFileName: Utils.discountSmallImageNames[_currentPageIndex],
+      openingTimes: currentAndLikedElementsProvider.currentClubMeDiscount.getOpeningTimes()
 
     );
 

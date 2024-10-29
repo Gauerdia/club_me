@@ -6,6 +6,9 @@ import 'package:club_me/models/special_opening_times.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:timezone/standalone.dart' as tz;
 
+import 'hive_models/6_opening_times.dart';
+import 'hive_models/7_days.dart';
+
 class ClubMeClub{
 
   ClubMeClub({

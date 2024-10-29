@@ -5,7 +5,7 @@ import 'package:club_me/services/supabase_service.dart';
 import 'package:hive/hive.dart';
 import '../models/hive_models/0_club_me_user_data.dart';
 import '../models/hive_models/1_club_me_discount_template.dart';
-import '../models/hive_models/2_club_me_local_discount.dart';
+import '../models/hive_models/2_club_me_discount.dart';
 import '../models/hive_models/3_club_me_event_template.dart';
 import '../models/hive_models/4_temp_geo_location_data.dart';
 import '../shared/logger.util.dart';
@@ -38,7 +38,7 @@ class HiveService{
   Future<Box<ClubMeUserData>> get _clubMeUserClubBox async => await Hive.openBox<ClubMeUserData>(_clubMeUserDataBoxName);
   Future<Box<ClubMeEventTemplate>> get _clubMeEventTemplatesBox async => await Hive.openBox<ClubMeEventTemplate>(_clubMeEventTemplatesName);
   Future<Box<ClubMeDiscountTemplate>> get _clubMeDiscountTemplatesBox async => await Hive.openBox<ClubMeDiscountTemplate>(_clubMeDiscountTemplatesName);
-  Future<Box<ClubMeLocalDiscount>> get _clubMeLocalDiscountsBox async => await Hive.openBox<ClubMeLocalDiscount>(_clubMeLocalDiscountsName);
+  Future<Box<ClubMeDiscount>> get _clubMeLocalDiscountsBox async => await Hive.openBox<ClubMeDiscount>(_clubMeLocalDiscountsName);
   Future<Box<TempGeoLocationData>> get _tempGeoLocationDataBox async => await Hive.openBox<TempGeoLocationData>(_tempGeoLocationDataBoxName);
 
   Future<Box<ClubMeUsedDiscount>> get _clubMeUsedDiscountsBox async => await Hive.openBox<ClubMeUsedDiscount>(_clubMeUsedDiscountsBoxName);
@@ -55,7 +55,7 @@ class HiveService{
 
   // We save all discounts locally so that bad internet connection doesn't impede
   // the use of the discounts.
-  Future<List<ClubMeLocalDiscount>> getAllLocalDiscounts() async {
+  Future<List<ClubMeDiscount>> getAllLocalDiscounts() async {
     try{
       var box = await _clubMeLocalDiscountsBox;
       return box.values.toList();
@@ -90,10 +90,9 @@ class HiveService{
 
   Future<void> addLocalDiscount(ClubMeDiscount clubMeDiscount) async {
     try{
-      ClubMeLocalDiscount clubMeLocalDiscount = discountToLocalDiscountParser(clubMeDiscount);
 
       var box = await _clubMeLocalDiscountsBox;
-      await box.add(clubMeLocalDiscount);
+      await box.add(clubMeDiscount);
     }catch(e){
       log.d("HiveService. Function: addLocalDiscount. Error: $e");
       _supabaseService.createErrorLog("HiveService. Function: addLocalDiscount. Error: $e");
@@ -102,13 +101,12 @@ class HiveService{
 
   Future<void> updateLocalDiscount(ClubMeDiscount clubMeDiscount) async{
     try{
-      ClubMeLocalDiscount clubMeLocalDiscount = discountToLocalDiscountParser(clubMeDiscount);
 
       var discounts = await getAllLocalDiscounts();
       var index = discounts.indexWhere((element) => element.discountId == clubMeDiscount.getDiscountId());
 
       var box = await _clubMeLocalDiscountsBox;
-      await box.putAt(index, clubMeLocalDiscount);
+      await box.putAt(index, clubMeDiscount);
     }catch(e){
       log.d("HiveService. Function: updateLocalDiscount. Error: $e");
       _supabaseService.createErrorLog("HiveService. Function: updateLocalDiscount. Error: $e");

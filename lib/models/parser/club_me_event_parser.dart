@@ -1,4 +1,5 @@
 import '../event.dart';
+import '../hive_models/6_opening_times.dart';
 import '../opening_times.dart';
 
 ClubMeEvent parseClubMeEvent(var data){

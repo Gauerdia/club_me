@@ -1,6 +1,8 @@
 import 'package:club_me/models/opening_times.dart';
 import 'package:flutter/material.dart';
 
+import 'hive_models/6_opening_times.dart';
+
 class ClubMeEvent{
 
   ClubMeEvent({

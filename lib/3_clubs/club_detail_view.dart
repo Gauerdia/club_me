@@ -5,6 +5,7 @@ import 'package:club_me/shared/dialogs/TitleAndContentDialog.dart';
 import 'package:club_me/stories/show_story_chewie.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:logger/logger.dart';
+import '../models/hive_models/7_days.dart';
 import '../models/opening_times.dart';
 import 'user_view/components/event_card.dart';
 import '../provider/current_and_liked_elements_provider.dart';

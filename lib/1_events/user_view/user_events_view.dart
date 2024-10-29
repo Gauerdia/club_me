@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:club_me/main.dart';
 import 'package:club_me/models/hive_models/0_club_me_user_data.dart';
+import 'package:club_me/models/parser/special_days_to_days_parser.dart';
 import 'package:club_me/provider/user_data_provider.dart';
 import 'package:club_me/services/check_and_fetch_service.dart';
 import 'package:club_me/services/hive_service.dart';
@@ -17,8 +18,11 @@ import 'package:logger/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 // import 'package:workmanager/workmanager.dart';
+import '../../models/club.dart';
 import '../../models/event.dart';
+import '../../models/hive_models/7_days.dart';
 import '../../models/opening_times.dart';
+import '../../models/parser/club_me_club_parser.dart';
 import '../../models/parser/club_me_event_parser.dart';
 import '../../provider/current_and_liked_elements_provider.dart';
 import '../../provider/fetched_content_provider.dart';
@@ -89,9 +93,43 @@ class _UserEventsViewState extends State<UserEventsView> {
     // Get and set geo location
     _determinePosition().then((value) => setPositionLocallyAndInSupabase(value));
 
-    // Get or check all events
-    if(fetchedContentProvider.getFetchedEvents().isEmpty) {
-      _supabaseService.getAllEvents().then((data) => processEventsFromQuery(data));
+    // FETCHING CLUBS, THEN EVENTS
+    if(fetchedContentProvider.getFetchedClubs().isEmpty){
+      _supabaseService.getAllClubs().then(
+              (data) {
+            for(var element in data){
+              ClubMeClub currentClub = parseClubMeClub(element);
+
+              // Don't save the clubs that are only for development purposes
+              if(stateProvider.getUsingTheAppAsADeveloper()){
+
+                if(!fetchedContentProvider.getFetchedClubs().contains(currentClub)){
+                  fetchedContentProvider.addClubToFetchedClubs(currentClub);
+                }
+
+              }else if(!fetchedContentProvider.getFetchedClubs().contains(currentClub) && currentClub.getShowClubInApp()){
+                fetchedContentProvider.addClubToFetchedClubs(currentClub);
+              }
+
+            }
+
+            // Check if we need to download the corresponding images
+            _checkAndFetchService.checkAndFetchClubImages(
+                fetchedContentProvider.getFetchedClubs(),
+                stateProvider,
+                fetchedContentProvider,
+                false
+            );
+
+            // Get or check all events
+            if(fetchedContentProvider.getFetchedEvents().isEmpty) {
+              _supabaseService.getAllEvents().then((data) => processEventsFromQuery(data));
+            }else{
+              processEventsFromProvider(fetchedContentProvider);
+            }
+
+          }
+      );
     }else{
       processEventsFromProvider(fetchedContentProvider);
     }
@@ -584,6 +622,10 @@ class _UserEventsViewState extends State<UserEventsView> {
               Container(
                   height: 140,
                   width: screenWidth*0.95,
+                  padding: const EdgeInsets.only(
+                    top: 12,
+                    right: 8
+                  ),
                   alignment: Alignment.topRight,
                   child: ClipRRect(
                     borderRadius: const BorderRadius.only(
@@ -591,12 +633,18 @@ class _UserEventsViewState extends State<UserEventsView> {
                         topLeft: Radius.circular(15)
                     ),
                     child: InkWell(
-                      child: Image.asset(
-                        "assets/images/ClubMe_Logo_weiß.png",
-                        height: 60,
-                        width: 60,
-                        // fit: BoxFit.cover,
-                      ),
+                      child:
+                        Icon(
+                          Icons.camera_alt_outlined,
+                          color: customStyleClass.primeColor,
+                          size: 30,
+                        ),
+                      // Image.asset(
+                      //   "assets/images/ClubMe_Logo_weiß.png",
+                      //   height: 60,
+                      //   width: 60,
+                      //   // fit: BoxFit.cover,
+                      // ),
                         onTap: () {
                           currentAndLikedElementsProvider.setCurrentEvent(eventsToDisplay[index]);
                           stateProvider.setAccessedEventDetailFrom(0);
@@ -732,7 +780,12 @@ class _UserEventsViewState extends State<UserEventsView> {
   void processEventsFromProvider(FetchedContentProvider fetchedContentProvider){
 
     // Events in the provider ought to have all images fetched, already. So, we just sort.
-    eventsToDisplay = fetchedContentProvider.getFetchedEvents();
+
+    for(var currentEvent in fetchedContentProvider.getFetchedEvents()){
+      if(checkIfUpcomingEvent(currentEvent)){
+          eventsToDisplay.add(currentEvent);
+      }
+    }
     filterEvents(fetchedContentProvider);
 
     setState(() {processingComplete = true;});
@@ -941,31 +994,132 @@ class _UserEventsViewState extends State<UserEventsView> {
   bool checkIfUpcomingEvent(ClubMeEvent currentEvent){
 
     Days? clubOpeningTimesForThisDay;
+    Days? clubSpecialOpeningTimesForThisDay;
+    DateTime closingHourToCompare;
 
-    var eventWeekDay = currentEvent.eventDate.weekday;
+    fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
+    stateProvider = Provider.of<StateProvider>(context, listen: false);
+
+    var eventWeekDay = currentEvent.getEventDate().hour <= 6 ?
+    currentEvent.getEventDate().weekday -1 :
+    currentEvent.getEventDate().weekday;
+
+    ClubMeClub currentClub = fetchedContentProvider.getFetchedClubs().firstWhere(
+            (club) => club.getClubId() == currentEvent.getClubId()
+    );
+
+    // Get regular opening times
     try{
       clubOpeningTimesForThisDay = currentEvent.getOpeningTimes().days?.firstWhere(
-              (element) => element.day == eventWeekDay);
+              (days) => days.day == eventWeekDay);
     }catch(e){
-      return false;
+      print("UserEventsView. Error in checkIfUpcomingEvent, clubOpeningTimesForThisDay: $e");
+      clubOpeningTimesForThisDay = null;
     }
 
-    if(clubOpeningTimesForThisDay != null){
-
-      DateTime closingHourToCompare = DateTime(
-        currentEvent.getEventDate().year,
-        currentEvent.getEventDate().month,
-        currentEvent.getEventDate().day+1,
-        clubOpeningTimesForThisDay.closingHour!,
-        clubOpeningTimesForThisDay.closingHalfAnHour == 0 ? 0 :  30
+    // Get special opening times
+    try{
+      clubSpecialOpeningTimesForThisDay = SpecialDaysToDaysParser(
+          currentClub.getSpecialOpeningTimes().specialDays!.firstWhere(
+                  (days) => DateTime(days.year!, days.month!, days.day!).weekday == eventWeekDay)
       );
+    }catch(e){
+      print("UserEventsView. Error in checkIfUpcomingEvent, clubSpecialOpeningTimesForThisDay: $e");
+      clubSpecialOpeningTimesForThisDay = null;
+    }
+
+    // Edge case: no official opening times. Maybe the club forgot to add this day?
+    if(clubOpeningTimesForThisDay == null && clubSpecialOpeningTimesForThisDay == null){
+
+      // We will show the event for at least 5 hours of its duration
+      closingHourToCompare = DateTime(
+          currentEvent.getEventDate().year,
+          currentEvent.getEventDate().month,
+          currentEvent.getEventDate().day,
+          currentEvent.getEventDate().hour,
+        currentEvent.getEventDate().minute
+      );
+      closingHourToCompare.add(const Duration(hours: 5));
 
       if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
           closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
         return true;
       }
       return false;
+
+    }
+
+    // Check if regular opening times apply
+    if(clubOpeningTimesForThisDay != null){
+
+      // Check if the opening hour surpasses midnight
+      if(clubOpeningTimesForThisDay.openingHour! > clubOpeningTimesForThisDay.closingHour!){
+        closingHourToCompare = DateTime(
+            currentEvent.getEventDate().year,
+            currentEvent.getEventDate().month,
+            currentEvent.getEventDate().day+1,
+            clubOpeningTimesForThisDay.closingHour!,
+            clubOpeningTimesForThisDay.closingHalfAnHour! == 1 ?
+            30 : clubOpeningTimesForThisDay.closingHalfAnHour! == 2 ? 59 : 0
+        );
+      }else{
+        closingHourToCompare = DateTime(
+            currentEvent.getEventDate().year,
+            currentEvent.getEventDate().month,
+            currentEvent.getEventDate().day,
+            clubOpeningTimesForThisDay.closingHour!,
+            clubOpeningTimesForThisDay.closingHalfAnHour! == 1 ?
+            30 : clubOpeningTimesForThisDay.closingHalfAnHour! == 2 ? 59 : 0
+        );
+      }
+
+      if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
+          closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
+        return true;
+      }
+      return false;
+
+    }
+
+    // Only special opening time left
+    if(clubSpecialOpeningTimesForThisDay != null){
+
+      // Check if the opening hour surpasses midnight
+      if(clubSpecialOpeningTimesForThisDay.openingHour! > clubSpecialOpeningTimesForThisDay.closingHour!){
+        closingHourToCompare = DateTime(
+            currentEvent.getEventDate().year,
+            currentEvent.getEventDate().month,
+            currentEvent.getEventDate().day+1,
+            clubSpecialOpeningTimesForThisDay.closingHour!,
+            clubSpecialOpeningTimesForThisDay.closingHalfAnHour! == 1 ?
+            30 : clubSpecialOpeningTimesForThisDay.closingHalfAnHour! == 2 ? 59 : 0
+        );
     }else{
+        closingHourToCompare = DateTime(
+            currentEvent.getEventDate().year,
+            currentEvent.getEventDate().month,
+            currentEvent.getEventDate().day,
+            clubSpecialOpeningTimesForThisDay.closingHour!,
+            clubSpecialOpeningTimesForThisDay.closingHalfAnHour! == 1 ?
+            30 : clubSpecialOpeningTimesForThisDay.closingHalfAnHour! == 2 ? 59 : 0
+        );
+      }
+
+
+
+      if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
+          closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
+        return true;
+      }
+      return false;
+
+    }
+
+    // If the code proceeded until this point and has not returned nothing yet,
+    // we have an odd case and shouldn't display anything.
+    else{
+      _supabaseService.createErrorLog(
+          "UserEventsView. Fct: checkIfUpcomingEvent. Reached last else. Is not supposed to happen.");
       return false;
     }
   }

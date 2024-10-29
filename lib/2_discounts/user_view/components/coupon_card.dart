@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../models/discount.dart';
+import '../../../models/hive_models/2_club_me_discount.dart';
 import '../../../provider/current_and_liked_elements_provider.dart';
 import '../../../provider/fetched_content_provider.dart';
 import '../../../provider/state_provider.dart';
@@ -402,17 +403,26 @@ class CouponCard extends StatelessWidget {
   }
   void formatDateToDisplay(){
 
-    weekDayToDisplay = DateFormat('dd.MM.yyyy').format(clubMeDiscount.getDiscountDate());
+    // if the hour is in the morning hours, the discount is theoretically set
+    // for the night before.
+    var eventDateWeekday = clubMeDiscount.getDiscountDate().hour < 6 ?
+    clubMeDiscount.getDiscountDate().weekday-1 :
+    clubMeDiscount.getDiscountDate().weekday;
 
-    var eventDateWeekday = clubMeDiscount.getDiscountDate().weekday;
+    String weekDayToDisplayWorkingString = DateFormat('dd.MM.yyyy').format(
+      clubMeDiscount.getDiscountDate().hour < 6 ?
+      clubMeDiscount.getDiscountDate().subtract(const Duration(days: 1)) :
+      clubMeDiscount.getDiscountDate()
+    );
+
     switch(eventDateWeekday){
-      case(1): weekDayToDisplay = "Montag, $weekDayToDisplay";
-      case(2): weekDayToDisplay = "Dienstag, $weekDayToDisplay";
-      case(3): weekDayToDisplay = "Mittwoch, $weekDayToDisplay";
-      case(4): weekDayToDisplay = "Donnerstag, $weekDayToDisplay";
-      case(5): weekDayToDisplay = "Freitag, $weekDayToDisplay";
-      case(6): weekDayToDisplay = "Samstag, $weekDayToDisplay";
-      case(7): weekDayToDisplay = "Sonntag, $weekDayToDisplay";
+      case(1): weekDayToDisplay = "Montag, $weekDayToDisplayWorkingString";
+      case(2): weekDayToDisplay = "Dienstag, $weekDayToDisplayWorkingString";
+      case(3): weekDayToDisplay = "Mittwoch, $weekDayToDisplayWorkingString";
+      case(4): weekDayToDisplay = "Donnerstag, $weekDayToDisplayWorkingString";
+      case(5): weekDayToDisplay = "Freitag, $weekDayToDisplayWorkingString";
+      case(6): weekDayToDisplay = "Samstag, $weekDayToDisplayWorkingString";
+      case(7): weekDayToDisplay = "Sonntag, $weekDayToDisplayWorkingString";
     }
   }
 

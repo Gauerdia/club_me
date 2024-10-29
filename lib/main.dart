@@ -11,6 +11,8 @@ import 'package:club_me/club_statistics/club_statistics_view.dart';
 import 'package:club_me/log_in/log_in_view.dart';
 import 'package:club_me/models/hive_models/0_club_me_user_data.dart';
 import 'package:club_me/models/hive_models/5_club_me_used_discount.dart';
+import 'package:club_me/models/hive_models/6_opening_times.dart';
+import 'package:club_me/models/hive_models/7_days.dart';
 import 'package:club_me/profile/profile_view.dart';
 import 'package:club_me/provider/current_and_liked_elements_provider.dart';
 import 'package:club_me/provider/fetched_content_provider.dart';
@@ -74,7 +76,7 @@ import '3_clubs/club_view/components/update_photos_and_videos_view.dart';
 import '3_clubs/user_view/user_clubs_view.dart';
 import '4_map/user_map_view.dart';
 import 'models/hive_models/1_club_me_discount_template.dart';
-import 'models/hive_models/2_club_me_local_discount.dart';
+import 'models/hive_models/2_club_me_discount.dart';
 import 'models/hive_models/3_club_me_event_template.dart';
 import 'models/hive_models/4_temp_geo_location_data.dart';
 
@@ -94,9 +96,11 @@ Future<void> main() async {
   Hive.registerAdapter(ClubMeUserDataAdapter());
   Hive.registerAdapter(ClubMeEventTemplateAdapter());
   Hive.registerAdapter(ClubMeDiscountTemplateAdapter());
-  Hive.registerAdapter(ClubMeLocalDiscountAdapter());
+  Hive.registerAdapter(ClubMeDiscountAdapter());
   Hive.registerAdapter(TempGeoLocationDataAdapter());
   Hive.registerAdapter(ClubMeUsedDiscountAdapter());
+  Hive.registerAdapter(DaysAdapter());
+  Hive.registerAdapter(OpeningTimesAdapter());
 
   // Used to make sure that coupons and user timezones match
   tz.initializeTimeZones();

@@ -19,6 +19,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 import '../../models/event.dart';
+import '../../models/hive_models/7_days.dart';
 import '../../models/parser/club_me_event_parser.dart';
 import '../../provider/fetched_content_provider.dart';
 import '../../provider/state_provider.dart';

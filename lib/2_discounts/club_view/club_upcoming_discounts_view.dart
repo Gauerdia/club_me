@@ -4,6 +4,7 @@ import 'package:club_me/shared/custom_bottom_navigation_bar_clubs.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/discount.dart';
+import '../../models/hive_models/2_club_me_discount.dart';
 import '../../provider/fetched_content_provider.dart';
 import '../../provider/user_data_provider.dart';
 import '../../shared/custom_text_style.dart';

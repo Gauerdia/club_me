@@ -1,36 +1,19 @@
-/*
 import 'package:hive/hive.dart';
-part 'opening_times.g.dart';
 
-@HiveType(typeId: 6)
-class OpeningTimes {
-  List<Days>? days;
+part '7_days.g.dart';
 
-  OpeningTimes({this.days});
-
-  OpeningTimes.fromJson(Map<String, dynamic> json) {
-    if (json['days'] != null) {
-      days = <Days>[];
-      json['days'].forEach((v) {
-        days!.add(Days.fromJson(v));
-      });
-    }
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    if (days != null) {
-      data['days'] = days!.map((v) => v.toJson()).toList();
-    }
-    return data;
-  }
-}
-
+@HiveType(typeId: 7)
 class Days {
+
+  @HiveField(0)
   int? day;
+  @HiveField(1)
   int? openingHour;
+  @HiveField(2)
   int? closingHour;
+  @HiveField(3)
   int? openingHalfAnHour;
+  @HiveField(4)
   int? closingHalfAnHour;
 
   Days({this.day, this.openingHour, this.closingHour, this.openingHalfAnHour, this.closingHalfAnHour});
@@ -53,4 +36,4 @@ class Days {
     data['closing_half_an_hour'] = closingHalfAnHour;
     return data;
   }
-}*/
+}

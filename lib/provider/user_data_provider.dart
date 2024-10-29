@@ -6,6 +6,7 @@ import 'package:logger/logger.dart';
 import '../mock_ups/class_mock_ups.dart';
 import '../models/club.dart';
 import '../models/hive_models/0_club_me_user_data.dart';
+import '../models/hive_models/6_opening_times.dart';
 
 class UserDataProvider extends ChangeNotifier{
 

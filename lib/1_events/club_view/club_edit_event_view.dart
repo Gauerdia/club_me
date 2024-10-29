@@ -70,6 +70,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
   late TextEditingController _eventDescriptionController;
   late FixedExtentScrollController _fixedExtentScrollController1;
   late FixedExtentScrollController _fixedExtentScrollController2;
+  late FixedExtentScrollController _isRepeatedController;
   late TextEditingController _eventMusicGenresController;
   late TextEditingController _eventTicketLinkController;
 
@@ -141,6 +142,9 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
         text: tempCurrentAndLikedElementsProvider.currentClubMeEvent.getTicketLink()
     );
 
+
+
+
     if(tempCurrentAndLikedElementsProvider.currentClubMeEvent.getIsRepeatedDays() != 0){
       isRepeated = 1;
       switch(tempCurrentAndLikedElementsProvider.currentClubMeEvent.getIsRepeatedDays()){
@@ -148,6 +152,10 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
         case(14): isRepeatedIndex = 1; break;
       }
     }
+
+    _isRepeatedController = FixedExtentScrollController(
+      initialItem: isRepeatedIndex
+    );
 
     for(var element in Utils.genreListForCreating){
       musicGenresOffer.add(element);
@@ -798,7 +806,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                               SizedBox(
                                 width: screenWidth*0.4,
                                 child: CupertinoPicker(
-                                    scrollController: _fixedExtentScrollController1,
+                                    scrollController: _isRepeatedController,
                                     itemExtent: 50,
                                     onSelectedItemChanged: (int index){
                                       setState(() {
@@ -1391,8 +1399,12 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
       eventDescription: _eventDescriptionController.text,
       eventPrice: double.parse(_eventPriceController.text.replaceAll(",", ".")),
 
-      eventMarketingCreatedAt: file != null ? DateTime.now(): null,
-      eventMarketingFileName: file != null ? contentFileName : "",
+      eventMarketingCreatedAt: file != null ? DateTime.now() :
+      currentAndLikedElementsProvider.currentClubMeEvent.getEventMarketingCreatedAt(),
+
+      eventMarketingFileName: file != null ? contentFileName :
+      currentAndLikedElementsProvider.currentClubMeEvent.getEventMarketingFileName().isNotEmpty ?
+      currentAndLikedElementsProvider.currentClubMeEvent.getEventMarketingFileName() : "",
 
       isRepeatedDays: isRepeated != 0 ? daysToRepeat : 0,
 
