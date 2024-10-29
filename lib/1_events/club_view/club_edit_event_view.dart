@@ -55,7 +55,8 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
   bool isDateSelected = false;
   bool firstElementChanged = false;
   bool secondElementChanged = false;
-
+  bool marketingContentAlreadyExists = false;
+  bool showMarketingContent = false;
 
   late DateTime newSelectedDate;
 
@@ -143,7 +144,10 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
     );
 
 
-
+    if(tempCurrentAndLikedElementsProvider.currentClubMeEvent.getEventMarketingFileName().isNotEmpty){
+      marketingContentAlreadyExists = true;
+      pickedFileNameToDisplay = tempCurrentAndLikedElementsProvider.currentClubMeEvent.getEventMarketingFileName();
+    }
 
     if(tempCurrentAndLikedElementsProvider.currentClubMeEvent.getIsRepeatedDays() != 0){
       isRepeated = 1;
@@ -676,7 +680,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                       ),
 
                       // Show icon, name and erase-icon when file selected
-                      if(file != null)
+                      if(file != null || marketingContentAlreadyExists)
                         SizedBox(
                           width: screenWidth*0.9,
                           height: screenHeight*0.1,
@@ -688,12 +692,19 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                                 size: 32,
                                 color: customStyleClass.primeColor,
                               ),
-                              Text(
-                                pickedFileNameToDisplay,
-                                style: customStyleClass.getFontStyle3(),
+
+                              Flexible(
+                                  child: InkWell(
+                                      child:Text(
+                                        pickedFileNameToDisplay,
+                                        textAlign: TextAlign.center,
+                                        style: customStyleClass.getFontStyle3(),
+                                      ),
+                                    onTap: () => showContent(),
+                                  ),
                               ),
                               IconButton(
-                                  onPressed: () => setState(() {file = null;}),
+                                  onPressed: () => setState(() {file = null;marketingContentAlreadyExists = false;}),
                                   icon: Icon(
                                     Icons.delete,
                                     size: 32,
@@ -1185,7 +1196,9 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                     ],
                   ),
                 ),
-              )
+              ),
+
+
           ],
         )
     );
@@ -1300,6 +1313,42 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
     Navigator.pop(context);
   }
 
+  void showContent() async{
+
+    setState(() {
+      showMarketingContent = true;
+    });
+
+    String applicationFilesPath = stateProvider.appDocumentsDir.path;
+    String marketingFileName = currentAndLikedElementsProvider.currentClubMeEvent.getEventMarketingFileName();
+    var filePath = '$applicationFilesPath/$marketingFileName';
+
+    var checkIfExists = await File(filePath).exists();
+
+
+    if(checkIfExists){
+      file = File(filePath);
+    }else{
+
+      var marketingFile = await _supabaseService.getEventContent(
+          currentAndLikedElementsProvider.currentClubMeEvent.getEventMarketingFileName()
+      );
+
+      file = await File(filePath).writeAsBytes(marketingFile);
+    }
+
+    // We can derive the file type from the mime type
+    String mimeStr = lookupMimeType(file!.path)!;
+    var fileType = mimeStr.split("/");
+
+    if(fileType.contains('image')) {
+      isImage = true;
+    }else if(fileType.contains('video')){
+      isVideo = true;
+    }
+
+    setState(() {});
+  }
 
   // LOGIC
   void removeGenresFromList(String genreToRemove){
