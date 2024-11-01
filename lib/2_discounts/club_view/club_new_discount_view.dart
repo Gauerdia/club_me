@@ -69,6 +69,9 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
   int isTemplate = 0;
   int isSupposedToBeTemplate = 0;
 
+  List<String> minuteValuesToChoose = [
+    "0", "15", "30", "45", "59"
+  ];
 
   int hasTimeLimit = 0;
 
@@ -1084,7 +1087,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
 
                       // Question text
                       Text(
-                        "Bitte trage mit Hoch- und Herunterwischen die Uhrzeit ein, zu der das Event beginnt.",
+                        "Bitte trage mit Hoch- und Herunterwischen die Uhrzeit ein, bis wann der Coupon verfügbar ist.",
                         textAlign: TextAlign.left,
                         style: customStyleClass.getFontStyle4(),
                       ),
@@ -1097,7 +1100,6 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
                       // Cupertino pickers
                       SizedBox(
                         height: screenHeight*0.1,
-                        // color: Colors.red,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -1135,15 +1137,15 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
                                   itemExtent: 50,
                                   onSelectedItemChanged: (int index){
                                     setState(() {
-                                      selectedMinute=index*15;
+                                      selectedMinute = int.parse(minuteValuesToChoose[index]);
                                     });
                                   },
-                                  children: List<Widget>.generate(4, (index){
+                                  children: List<Widget>.generate(5, (index){
                                     return Center(
                                       child: Text(
                                         index == 0
                                             ? "00"
-                                            :(index*15).toString(),
+                                            :(minuteValuesToChoose[index]).toString(),
                                         style: customStyleClass.getFontStyle3(),
                                       ),
                                     );
@@ -1387,7 +1389,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
           fetchedContentProvider.addDiscountToFetchedDiscounts(clubMeDiscount);
           fetchedContentProvider.sortFetchedDiscounts();
           stateProvider.resetCurrentDiscountTemplate();
-          stateProvider.resetDiscountTemplates();
+          // stateProvider.resetDiscountTemplates();
           _checkAndFetchService.checkAndFetchDiscountImageAfterCreation
             (clubMeDiscount.getBigBannerFileName(),
               stateProvider,
@@ -1429,7 +1431,36 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
       bigBannerFileName: discount.getBigBannerFileName()
     );
 
-    _hiveService.addDiscountTemplate(clubMeDiscountTemplate);
+    _hiveService.addDiscountTemplate(clubMeDiscountTemplate).then(
+            (response){
+          if(response == 0){
+            stateProvider.addDiscountTemplate(clubMeDiscountTemplate);
+          }else{
+            showErrorBottomSheet(
+                2
+            );
+          }
+        });
+  }
+
+  void showErrorBottomSheet(int errorCode){
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context){
+          return SizedBox(
+            height: screenHeight*0.1,
+            child: Center(
+              child: Text(
+                  errorCode == 0 ?
+                  "Verzeihung, etwas ist beim Anlegen des Events schiefgegangen!":
+                  errorCode == 2 ?
+                  "Verzeihung, beim Anlegen der Vorlage ist etwas schiefgegangen":
+                  "Verzeihung, etwas ist beim Datei-Upload schiefgegangen!"
+              ),
+            ),
+          );
+        }
+    );
   }
 
 

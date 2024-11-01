@@ -2,7 +2,9 @@ import 'dart:typed_data';
 import 'dart:io' as io;
 import 'package:chewie/chewie.dart';
 import 'package:club_me/provider/current_and_liked_elements_provider.dart';
+import 'package:club_me/provider/user_data_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:no_screenshot/no_screenshot.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
@@ -33,12 +35,32 @@ class _ShowStoryChewieState extends State<ShowStoryChewie>
   @override
   void initState() {
     _noScreenshot.screenshotOff();
+
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+
+    final UserDataProvider userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
+    currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context, listen:  false);
+
+
+    _supabaseService.insertStoryWatch(
+        currentAndLikedElementsProvider.getCurrentClubStoryId(),
+        userDataProvider.getUserData().getUserId());
+
     initializePlayer();
     super.initState();
   }
 
   @override
   void dispose() {
+
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp
+    ]);
+
     _controller.dispose();
     _chewieController!.dispose();
     _chewieController!.setVolume(0.0);
@@ -173,9 +195,24 @@ class _ShowStoryChewieState extends State<ShowStoryChewie>
                     child: _chewieController != null && _chewieController!.videoPlayerController.value.isInitialized ?
 
                     // main video screen
+
+      //         OrientationBuilder(
+      //         builder: (context, orientation) {
+      //     // set the turn as per requirement
+      //     final turn = orientation == Orientation.landscape ? 1: 1; // set the turn as per requirement
+      //     return RotatedBox(
+      //     quarterTurns: turn,
+      //     child: Chewie(
+      //       controller: _chewieController!,
+      //     )
+      //   );
+      // },
+      // )
+
                     Chewie(
                       controller: _chewieController!,
-                    ):
+                    )
+          :
 
                     // loading screen
                     Column(

@@ -73,20 +73,21 @@ class FetchedContentProvider extends ChangeNotifier{
   List<ClubMeEvent> getFetchedEvents(){
     return fetchedEvents;
   }
-  List<ClubMeEvent> getFetchedUpcomingEvents(String userClubId){
+  // List<ClubMeEvent> getFetchedUpcomingEvents(String userClubId){
+  //
+  //   final berlin = tz.getLocation('Europe/Berlin');
+  //   final todayTimestamp = tz.TZDateTime.from(DateTime.now(), berlin);
+  //
+  //   List<ClubMeEvent> fetchedUpcomingEvents = [];
+  //
+  //   for(var element in fetchedEvents){
+  //     if(element.getEventDate().isAfter(todayTimestamp) && element.getClubId() == userClubId){
+  //       fetchedUpcomingEvents.add(element);
+  //     }
+  //   }
+  //   return fetchedUpcomingEvents;
+  // }
 
-    final berlin = tz.getLocation('Europe/Berlin');
-    final todayTimestamp = tz.TZDateTime.from(DateTime.now(), berlin);
-
-    List<ClubMeEvent> fetchedUpcomingEvents = [];
-
-    for(var element in fetchedEvents){
-      if(element.getEventDate().isAfter(todayTimestamp) && element.getClubId() == userClubId){
-        fetchedUpcomingEvents.add(element);
-      }
-    }
-    return fetchedUpcomingEvents;
-  }
   void setFetchedEvents(List<ClubMeEvent> fetchedEvents){
     this.fetchedEvents = fetchedEvents;
   }

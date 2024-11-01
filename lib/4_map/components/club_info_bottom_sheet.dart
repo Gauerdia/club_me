@@ -485,7 +485,7 @@ class _ClubInfoBottomSheetState extends State<ClubInfoBottomSheet> {
     fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
     customStyleClass = CustomStyleClass(context: context);
 
-    clubOpenStatus = currentAndLikedElementsProvider.currentClubMeClub.getClubOpenStatus();
+    clubOpenStatus = currentAndLikedElementsProvider.currentClubMeClub.getClubOpenStatus(fetchedContentProvider.getFetchedEvents());
 
     return Container(
         padding: EdgeInsets.only(

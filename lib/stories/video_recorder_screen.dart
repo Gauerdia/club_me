@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:adv_camera/adv_camera.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../shared/custom_text_style.dart';
 import 'video_player_screen.dart';
@@ -33,15 +34,42 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
   List<String> pictureSizes = <String>[];
   String? imagePath;
 
+  late Timer _timer;
+  late double deviceRatio;
+  late double xScale;
+  int _start = 10;
 
   @override
   void initState() {
     super.initState();
-    setUpCamera();
+    initCamera();
+
+    SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+    ]);
+
+  }
+  void initCamera() async {
+    final cameras = await availableCameras();
+    _controller = CameraController(
+      cameras.first,
+      ResolutionPreset.high,
+    );
+    _initializeControllerFuture = _controller.initialize();
+    setState(() {
+      canBeDrawn = true;
+    });
   }
 
   @override
   void dispose() {
+
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp
+    ]);
+
     _timer.cancel();
     _controller.dispose();
     super.dispose();
@@ -61,7 +89,7 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
 
         await Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => VideoPlayerScreen(videoPath: video!.path,),
+            builder: (context) => VideoPlayerScreen(videoPath: video.path,),
           ),
         );
       } else {
@@ -77,34 +105,9 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
       print(e);
     }
   }
-  void pressedRecord2() async {
 
-    if(_isRecording){
-
-    }else{
-      cameraController!.captureImage();
-      _isRecording = true;
-    }
-  }
-
-  void setUpCamera() async {
-    final cameras = await availableCameras();
-    _controller = CameraController(
-      cameras.first,
-      ResolutionPreset.high,
-    );
-    _initializeControllerFuture = _controller.initialize();
-    // xScale = _controller.value.aspectRatio / deviceRatio;
-    setState(() {
-      canBeDrawn = true;
-    });
-  }
-
-  late Timer _timer;
-  late double deviceRatio;
-  late double xScale;
-  int _start = 10;
-
+  // Gives some time before going to the next screen to make sure everything
+  // is saved correctly.
   void startTimer() async{
     const oneSec = Duration(seconds: 1);
     _timer = Timer.periodic(
@@ -132,47 +135,7 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
     );
   }
 
-  Widget _buildBottomNavigationBar(){
-    return Container(
-      height: screenHeight*0.1,
-      width: screenWidth,
-      child: Row(
-        mainAxisAlignment: _isRecording ? MainAxisAlignment.center
-        : MainAxisAlignment.spaceEvenly,
-        children: [
-          Align(
-              alignment: AlignmentDirectional.center,
-              child: GestureDetector(
-                child: Container(
-                  child: Container(
-                    width: 70,
-                    height: 70,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        width: 4,
-                        color: _isRecording ? customStyleClass.primeColor.withOpacity(0.5) : Colors.white.withOpacity(0.5)
-                      )
-                    ),
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: _isRecording ? customStyleClass.primeColor: Colors.white,
-                        // borderRadius: BorderRadius.circular(20)
-                      ),
-                    ),
-                  )
-                ),
-                onTap: () => pressedRecord(),
-              )
-          )
-        ],
-      ),
-    );
-  }
-
+  // Used for focussing while filming
   Future<void> _onTap(TapUpDetails details) async {
     if(_controller.value.isInitialized) {
       showFocusCircle = true;
@@ -204,29 +167,6 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
     }
   }
 
-  Widget cameraWidget(context) {
-    var camera = _controller.value;
-    // fetch screen size
-    final size = MediaQuery.of(context).size;
-
-    // calculate scale depending on screen and camera ratios
-    // this is actually size.aspectRatio / (1 / camera.aspectRatio)
-    // because camera preview size is received as landscape
-    // but we're calculating for portrait orientation
-    var scale = size.aspectRatio * camera.aspectRatio;
-
-    // to prevent scaling down, invert the value
-    if (scale < 1) scale = 1 / scale;
-
-    return Transform.scale(
-      scale: scale,
-      child: Center(
-        child: CameraPreview(_controller),
-      ),
-    );
-  }
-
-
   @override
   Widget build(BuildContext context) {
 
@@ -239,119 +179,140 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
 
     // Modify the yScale if you are in Landscape
     double yScale = 1;
-    
+
+
+
     return Scaffold(
 
       // bottomNavigationBar: _buildBottomNavigationBar(),
 
-      body: canBeDrawn ? FutureBuilder<void>(
-        future: _initializeControllerFuture,
-        builder: (context, snapshot) {
+      body: canBeDrawn ? Stack(
+        children: [
 
-          if(!snapshot.hasData){
-            if (snapshot.connectionState == ConnectionState.done) {
-              return GestureDetector(
-                onTapUp: (details) {
-                  _onTap(details);
-                },
-                child: Stack(
-                  children: [
+          FutureBuilder<void>(
+            future: _initializeControllerFuture,
+            builder: (context, snapshot) {
 
-                    // Camera view
-                    CameraPreview(_controller),
-                      
-                      // child: AspectRatio(
-                      //     aspectRatio: _controller.value.aspectRatio,
-                      //   child: CameraPreview(_controller),
-                      // )
-                    // ),
+              final scale = 1 / (_controller.value.aspectRatio * MediaQuery.of(context).size.aspectRatio);
 
-                    if(showFocusCircle) Positioned(
-                        top: y-20,
-                        left: x-20,
-                        child: Container(
-                          height: 40,
-                          width: 40,
-                          decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white,width: 1.5)
+              if(!snapshot.hasData){
+                if (snapshot.connectionState == ConnectionState.done) {
+                  return GestureDetector(
+                    onTapUp: (details) {
+                      _onTap(details);
+                    },
+                    child: Stack(
+                      children: [
+
+                        // Camera view
+
+                        OrientationBuilder(
+                          builder: (context, orientation) {
+                            // set the turn as per requirement
+                            final turn = orientation == Orientation.landscape ? 1: 4; // set the turn as per requirement
+                            return orientation == Orientation.landscape ?
+                            CameraPreview(_controller) : RotatedBox(
+                              quarterTurns: turn,
+                              child:Transform.scale(
+                                scale: scale,
+                                alignment: Alignment.topCenter,
+                                child: CameraPreview(_controller),
+                              ),
+                            );
+                          },
+                        ),
+
+                        // Focus point
+                        if(showFocusCircle) Positioned(
+                            top: y-20,
+                            left: x-20,
+                            child: Container(
+                              height: 40,
+                              width: 40,
+                              decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: Colors.white,width: 1.5)
+                              ),
+                            )
+                        ),
+
+                        // Record button
+                        Container(
+                          padding: const EdgeInsets.only(
+                              bottom: 20
+                          ),
+                          height: screenHeight,
+                          width: screenWidth,
+                          alignment: Alignment.bottomCenter,
+                          child: Row(
+                            mainAxisAlignment: _isRecording ? MainAxisAlignment.center
+                                : MainAxisAlignment.spaceEvenly,
+                            children: [
+                              GestureDetector(
+                                child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      // horizontal: screenWidth*0.055,
+                                      // vertical: screenHeight*0.02
+                                    ),
+                                    child: Container(
+                                      width: 70,
+                                      height: 70,
+                                      decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                              width: 4,
+                                              color: _isRecording ? customStyleClass.primeColor.withOpacity(0.5) : Colors.white.withOpacity(0.5)
+                                          )
+                                      ),
+                                      child: Container(
+                                        width: 40,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: _isRecording ? customStyleClass.primeColor: Colors.white,
+                                          // borderRadius: BorderRadius.circular(20)
+                                        ),
+                                      ),
+                                    )
+                                ),
+                                onTap: () => pressedRecord(),
+                              )
+                            ],
+                          ),
+                        ),
+
+
+                        //Close Icon
+                        Container(
+                          width: screenWidth,
+                          height: screenHeight,
+                          alignment: Alignment.topRight,
+                          padding: EdgeInsets.only(
+                              top: screenHeight*0.07,
+                              right: screenWidth*0.05
+                          ),
+                          child: IconButton(
+                            onPressed: () => pressedBack(),
+                            icon: const Icon(
+                              Icons.close,
+                              size: 30,
+                              color: Colors.white,
+                            ),
                           ),
                         )
+                      ],
                     ),
+                  );
+                } else {
+                  return Center(child: CircularProgressIndicator(color: customStyleClass.primeColor,));
+                }
+              }else{
+                return  Center(child: CircularProgressIndicator(color: customStyleClass.primeColor));
+              }
+            },
+          )
 
-                    // Record button
-                    Container(
-                      padding: const EdgeInsets.only(
-                          bottom: 20
-                      ),
-                      height: screenHeight,
-                      width: screenWidth,
-                      alignment: Alignment.bottomCenter,
-                      child: Row(
-                        mainAxisAlignment: _isRecording ? MainAxisAlignment.center
-                            : MainAxisAlignment.spaceEvenly,
-                        children: [
-                          GestureDetector(
-                            child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  // horizontal: screenWidth*0.055,
-                                  // vertical: screenHeight*0.02
-                                ),
-                                child: Container(
-                                  width: 70,
-                                  height: 70,
-                                  decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                          width: 4,
-                                          color: _isRecording ? customStyleClass.primeColor.withOpacity(0.5) : Colors.white.withOpacity(0.5)
-                                      )
-                                  ),
-                                  child: Container(
-                                    width: 40,
-                                    height: 40,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: _isRecording ? customStyleClass.primeColor: Colors.white,
-                                      // borderRadius: BorderRadius.circular(20)
-                                    ),
-                                  ),
-                                )
-                            ),
-                            onTap: () => pressedRecord(),
-                          )
-                        ],
-                      ),
-                    ),
-
-                    //Close Icon
-                    Container(
-                      width: screenWidth,
-                      height: screenHeight,
-                      alignment: Alignment.topRight,
-                      padding: EdgeInsets.only(
-                          top: screenHeight*0.07,
-                          right: screenWidth*0.05
-                      ),
-                      child: IconButton(
-                        onPressed: () => pressedBack(),
-                        icon: const Icon(
-                          Icons.close,
-                          size: 30,
-                          color: Colors.white,
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              );
-            } else {
-              return Center(child: CircularProgressIndicator(color: customStyleClass.primeColor,));
-            }
-          }else{
-            return  Center(child: CircularProgressIndicator(color: customStyleClass.primeColor));
-          }
-        },
+        ],
       ):
       Center(child: CircularProgressIndicator(color: customStyleClass.primeColor)),
     );

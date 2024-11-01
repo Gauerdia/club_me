@@ -112,7 +112,8 @@ class SupabaseService{
         "opening_times": clubMeEvent.getOpeningTimes().toJson(),
 
         "is_repeated_days": clubMeEvent.getIsRepeatedDays(),
-        "ticket_link": clubMeEvent.getTicketLink()
+        "ticket_link": clubMeEvent.getTicketLink(),
+        "closing_date": clubMeEvent.getClosingDate().toString()
 
       });
       log.d("insertEvent: Finished successfully. Response: $data");
@@ -167,7 +168,9 @@ class SupabaseService{
           'event_marketing_created_at': updatedEvent.getEventMarketingFileName().isNotEmpty ? DateTime.now().toString() : null,
 
           'ticket_link': updatedEvent.getTicketLink(),
-          'is_repeated_days': updatedEvent.getIsRepeatedDays()
+          'is_repeated_days': updatedEvent.getIsRepeatedDays(),
+
+        'closing_date': updatedEvent.getClosingDate().toString()
 
         }).match({
         'event_id' : updatedEvent.getEventId()
@@ -931,6 +934,24 @@ class SupabaseService{
     }catch(e){
       log.d("Error in SupabaseService. Function: insertEventContent. Error: ${e.toString()}. Vars: fileName, $fileName, eventId, $eventId");
       createErrorLog("Error in SupabaseService. Function: insertEventContent. Error: ${e.toString()}");
+      return 1;
+    }
+  }
+
+
+  Future<int> insertStoryWatch(String fileName, String userId) async{
+    try{
+      var data = await supabase
+          .from("club_me_story_watches")
+          .insert({
+        'file_name': fileName,
+        'user_id': userId
+      }).select();
+      log.d("insertStoryWatch: Finished successfully. Response: $data");
+      return 0;
+    }catch(e){
+      log.d("Error in SupabaseService. Function: insertStoryWatch. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: insertStoryWatch. Error: ${e.toString()}");
       return 1;
     }
   }

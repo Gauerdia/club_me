@@ -114,14 +114,16 @@ class HiveService{
   }
 
   // DISCOUNT TEMPLATE
-  Future<void> addDiscountTemplate(ClubMeDiscountTemplate discountTemplate) async {
+  Future<int> addDiscountTemplate(ClubMeDiscountTemplate discountTemplate) async {
     try{
       var box = await _clubMeDiscountTemplatesBox;
       await box.add(discountTemplate);
       log.d("addDiscountTemplate: Finished successfully");
+      return 0;
     }catch(e){
       log.d("HiveService. Function: addDiscountTemplate. Error: $e");
       _supabaseService.createErrorLog("HiveService. Function: addDiscountTemplate. Error: $e");
+      return 1;
     }
   }
   Future<List<ClubMeDiscountTemplate>> getAllDiscountTemplates() async {
@@ -156,13 +158,15 @@ class HiveService{
 
 
   // Event template
-  Future<void> addClubMeEventTemplate(ClubMeEventTemplate clubMeEventTemplate) async {
+  Future<int> addClubMeEventTemplate(ClubMeEventTemplate clubMeEventTemplate) async {
     try{
       var box = await _clubMeEventTemplatesBox;
       await box.add(clubMeEventTemplate);
+      return 0;
     }catch(e){
       log.d("HiveService. Function: addClubMeEventTemplate. Error: $e");
       _supabaseService.createErrorLog("HiveService. Function: addClubMeEventTemplate. Error: $e");
+      return 1;
     }
   }
   Future<List<ClubMeEventTemplate>> getAllClubMeEventTemplates() async {

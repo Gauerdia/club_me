@@ -1,4 +1,3 @@
-
 import 'package:hive/hive.dart';
 part '1_club_me_discount_template.g.dart';
 

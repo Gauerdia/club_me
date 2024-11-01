@@ -14,11 +14,15 @@ import 'package:go_router/go_router.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import '../../models/hive_models/2_club_me_discount.dart';
+import '../../models/hive_models/7_days.dart';
 import '../../provider/state_provider.dart';
 import '../../services/supabase_service.dart';
 import '../../shared/custom_bottom_navigation_bar_clubs.dart';
 import '../../shared/custom_text_style.dart';
 import 'components/small_discount_tile.dart';
+
+
+import 'package:collection/collection.dart';
 
 class ClubDiscountsView extends StatefulWidget {
   const ClubDiscountsView({Key? key}) : super(key: key);
@@ -53,15 +57,25 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
   void initState(){
     super.initState();
 
+    stateProvider = Provider.of<StateProvider>(context, listen: false);
     final userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
     final fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen: false);
+
+    if(stateProvider.getDiscountTemplates().isEmpty){
+      getAllDiscountTemplates();
+    }
 
     if(fetchedContentProvider.getFetchedDiscounts().isEmpty) {
       _supabaseService.getDiscountsOfSpecificClub(userDataProvider.getUserData().getClubId())
       .then((data) => filterDiscountsFromQuery(data));
     }else{
       for(var currentDiscount in fetchedContentProvider.getFetchedDiscounts()){
-        checkIfUpcomingOrPastDiscount(currentDiscount);
+        if(checkIfIsUpcomingDiscount(currentDiscount)){
+          upcomingDiscounts.add(currentDiscount);
+        }else{
+          pastDiscounts.add(currentDiscount);
+        }
+        checkIfFilteringIsNecessary();
         setState(() {});
       }
     }
@@ -72,8 +86,12 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
   // FILTER
   void checkIfFilteringIsNecessary(){
 
+    fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen: false);
+
     // Check if provider is full, but local arrays are empty
-    if(upcomingDiscounts.isEmpty && pastDiscounts.isEmpty && fetchedContentProvider.getFetchedDiscounts().isNotEmpty){
+    if(upcomingDiscounts.isEmpty &&
+        pastDiscounts.isEmpty &&
+        fetchedContentProvider.getFetchedDiscounts().isNotEmpty){
       filterDiscountsFromProvider();
     }
 
@@ -96,11 +114,15 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
   }
   void filterDiscountsFromProvider(){
 
-    upcomingDiscounts = [];
-    pastDiscounts = [];
+    // upcomingDiscounts = [];
+    // pastDiscounts = [];
 
     for(var currentDiscount in fetchedContentProvider.getFetchedDiscounts()){
-      checkIfUpcomingOrPastDiscount(currentDiscount);
+      if(checkIfIsUpcomingDiscount(currentDiscount)){
+        upcomingDiscounts.add(currentDiscount);
+      }else{
+        pastDiscounts.add(currentDiscount);
+      }
     }
 
     // Check if we need to download the corresponding images
@@ -133,7 +155,11 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
       ClubMeDiscount currentDiscount = parseClubMeDiscount(element);
 
       // Sort into upcoming and past arrays
-      checkIfUpcomingOrPastDiscount(currentDiscount);
+      if(checkIfIsUpcomingDiscount(currentDiscount)){
+        upcomingDiscounts.add(currentDiscount);
+      }else{
+        pastDiscounts.add(currentDiscount);
+      }
 
       // Check if maybe already fetched
       if(!fetchedContentProvider.getFetchedDiscounts().contains(currentDiscount)){
@@ -166,27 +192,100 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
 
   }
 
-  void checkIfUpcomingOrPastDiscount(ClubMeDiscount currentDiscount){
+  bool checkIfIsUpcomingDiscount(ClubMeDiscount currentDiscount){
 
     stateProvider = Provider.of<StateProvider>(context, listen: false);
     userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
 
-    // Sort the events into the correct arrays
-    if(currentDiscount.getDiscountDate().isAfter(stateProvider.getBerlinTime()) ||
-        currentDiscount.getDiscountDate().isAtSameMomentAs(stateProvider.getBerlinTime())){
+    Days? clubOpeningTimesForThisDay;
+    DateTime closingHourToCompare;
 
-      // Make sure that we only consider events of the current user's club
-      if(currentDiscount.getClubId() == userDataProvider.getUserData().getClubId()){
-        upcomingDiscounts.add(currentDiscount);
-      }
-    }else{
+    // Assumption: Every event starting before 6 is considered to be an event of
+    // the previous day.
+    var eventWeekDay = currentDiscount.getDiscountDate().hour <= 6 ?
+    currentDiscount.getDiscountDate().weekday -1 :
+    currentDiscount.getDiscountDate().weekday;
 
-      // Make sure that we only consider events of the current user's club
-      if(currentDiscount.getClubId() == userDataProvider.getUserData().getClubId()){
-        pastDiscounts.add(currentDiscount);
-      }
+    // Get regular opening times
+    try{
+      // first where is enough because we assume that there is only one regular time each day.
+      clubOpeningTimesForThisDay = userDataProvider.getUserClub().getOpeningTimes().days?.firstWhereOrNull(
+              (days) => days.day == eventWeekDay);
+    }catch(e){
+      print("ClubCouponView. Error in checkIfUpcomingEvent, clubOpeningTimesForThisDay: $e");
+      clubOpeningTimesForThisDay = null;
     }
 
+
+    // Easiest case: There is a time limit
+    if(currentDiscount.getHasTimeLimit()){
+
+      closingHourToCompare = DateTime(
+        currentDiscount.getDiscountDate().year,
+        currentDiscount.getDiscountDate().month,
+        currentDiscount.getDiscountDate().day,
+        currentDiscount.getDiscountDate().hour,
+        currentDiscount.getDiscountDate().minute,
+      );
+
+      if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
+          closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
+        return true;
+      }
+      return false;
+
+    }
+
+
+    // Second case: There are regular opening times but no time limi
+    if(clubOpeningTimesForThisDay != null){
+
+        closingHourToCompare = DateTime(
+          currentDiscount.getDiscountDate().year,
+          currentDiscount.getDiscountDate().month,
+          currentDiscount.getDiscountDate().day,
+          clubOpeningTimesForThisDay.closingHour!,
+            clubOpeningTimesForThisDay.closingHalfAnHour == 1 ? 30 :
+            clubOpeningTimesForThisDay.closingHalfAnHour == 2 ? 59 : 0
+        );
+
+        // Do this instead of day+1 because otherwise it might bug at the last day of a month
+        if(clubOpeningTimesForThisDay.closingHour! < currentDiscount.getDiscountDate().hour){
+          closingHourToCompare.add(const Duration(days: 1));
+        }
+
+      if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
+          closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
+        return true;
+      }
+      return false;
+    }
+
+    // third case: No regular opening times, no time limit
+    if(!currentDiscount.getHasTimeLimit() && clubOpeningTimesForThisDay == null){
+      closingHourToCompare = DateTime(
+        currentDiscount.getDiscountDate().year,
+        currentDiscount.getDiscountDate().month,
+        currentDiscount.getDiscountDate().day,
+        currentDiscount.getDiscountDate().hour,
+        currentDiscount.getDiscountDate().minute,
+      );
+      // There is no time limit, we show for 6 hours after start
+      closingHourToCompare.add(const Duration(hours: 6));
+
+      if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
+          closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
+        return true;
+      }
+      return false;
+
+    }
+
+    // If the code proceeded until this point and has not returned nothing yet,
+    // we have an odd case and shouldn't display anything.
+    _supabaseService.createErrorLog(
+        "ClubCouponsView. Fct: checkIfUpcomingEvent. Reached last else. Is not supposed to happen.");
+    return false;
   }
 
 
@@ -552,11 +651,9 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
 
-    if(stateProvider.getDiscountTemplates().isEmpty){
-      getAllDiscountTemplates();
-    }
 
-    checkIfFilteringIsNecessary();
+
+    //checkIfFilteringIsNecessary();
 
     return Scaffold(
 

@@ -69,11 +69,14 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
   late TextEditingController _eventDJController;
   late TextEditingController _eventPriceController;
   late TextEditingController _eventDescriptionController;
-  late FixedExtentScrollController _fixedExtentScrollController1;
-  late FixedExtentScrollController _fixedExtentScrollController2;
   late FixedExtentScrollController _isRepeatedController;
   late TextEditingController _eventMusicGenresController;
   late TextEditingController _eventTicketLinkController;
+
+  late FixedExtentScrollController _selectedStartingHourController;
+  late FixedExtentScrollController _selectedStartingMinuteController;
+  late FixedExtentScrollController _selectedClosingHourController;
+  late FixedExtentScrollController _selectedClosingMinuteController;
 
 
   bool isFromTemplate = false;
@@ -88,8 +91,13 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
   ];
   int isTemplate = 0;
 
-  int selectedHour = TimeOfDay.now().hour;
-  int selectedMinute = TimeOfDay.now().minute;
+  int selectedStartingHour = TimeOfDay.now().hour;
+  int selectedStartingMinute = TimeOfDay.now().minute;
+
+  int selectedClosingHour = 5;
+  int selectedClosingMinute = 0;
+
+  bool timePickEndActive = false;
 
   File? file;
   String fileExtension = "";
@@ -107,6 +115,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
   String contentFileName = "";
   String pickedFileNameToDisplay = "";
 
+  double distanceBetweenTitleAndTextField = 10;
 
 
   // INIT
@@ -122,11 +131,6 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
 
     processGenres(tempCurrentAndLikedElementsProvider);
 
-    newSelectedDate = tempCurrentAndLikedElementsProvider.currentClubMeEvent.getEventDate();
-
-    selectedHour = tempCurrentAndLikedElementsProvider.currentClubMeEvent.getEventDate().hour;
-    selectedMinute = tempCurrentAndLikedElementsProvider.currentClubMeEvent.getEventDate().minute;
-
     _eventTitleController = TextEditingController(
         text:tempCurrentAndLikedElementsProvider.currentClubMeEvent.getEventTitle());
     _eventDJController = TextEditingController(
@@ -135,13 +139,36 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
         text: tempCurrentAndLikedElementsProvider.currentClubMeEvent.getEventPrice().toString());
     _eventDescriptionController = TextEditingController(
         text: tempCurrentAndLikedElementsProvider.currentClubMeEvent.getEventDescription());
-    _fixedExtentScrollController1 = FixedExtentScrollController(
-        initialItem: tempCurrentAndLikedElementsProvider.currentClubMeEvent.getEventDate().hour);
-    _fixedExtentScrollController2 = FixedExtentScrollController(
-        initialItem: tempCurrentAndLikedElementsProvider.currentClubMeEvent.getEventDate().minute);
     _eventTicketLinkController = TextEditingController(
         text: tempCurrentAndLikedElementsProvider.currentClubMeEvent.getTicketLink()
     );
+
+    newSelectedDate = tempCurrentAndLikedElementsProvider.currentClubMeEvent.getEventDate();
+
+    selectedStartingHour = tempCurrentAndLikedElementsProvider.currentClubMeEvent.getEventDate().hour;
+    selectedStartingMinute = tempCurrentAndLikedElementsProvider.currentClubMeEvent.getEventDate().minute;
+    _selectedStartingHourController = FixedExtentScrollController(
+        initialItem: tempCurrentAndLikedElementsProvider.currentClubMeEvent.getEventDate().hour
+    );
+    _selectedStartingMinuteController = FixedExtentScrollController(
+        initialItem: tempCurrentAndLikedElementsProvider.currentClubMeEvent.getEventDate().minute
+    );
+
+    if(tempCurrentAndLikedElementsProvider.currentClubMeEvent.getClosingDate() != null){
+      _selectedClosingHourController = FixedExtentScrollController(
+          initialItem: tempCurrentAndLikedElementsProvider.currentClubMeEvent.getClosingDate()!.hour
+      );
+      _selectedClosingMinuteController = FixedExtentScrollController(
+          initialItem: tempCurrentAndLikedElementsProvider.currentClubMeEvent.getClosingDate()!.minute
+      );
+    }else{
+      _selectedClosingHourController = FixedExtentScrollController(
+          initialItem: selectedClosingHour
+      );
+      _selectedClosingMinuteController = FixedExtentScrollController(
+          initialItem: selectedClosingMinute
+      );
+    }
 
 
     if(tempCurrentAndLikedElementsProvider.currentClubMeEvent.getEventMarketingFileName().isNotEmpty){
@@ -421,7 +448,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                         ),
                       ),
 
-                      // Row: Datepicker, Hour/Minute, Price
+                      // Row: Datepicker,
                       Container(
                         width: screenWidth*0.9,
                         padding: const EdgeInsets.symmetric(
@@ -447,11 +474,10 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                                     ),
                                   ),
 
-
-                                  // OutlinedButton with Text
+                                  // OutlinedButton
                                   Container(
                                     padding:  EdgeInsets.only(
-                                        top: Utils.creationScreensDistanceBetweenTitleAndTextField
+                                        top: distanceBetweenTitleAndTextField
                                     ),
                                     width: screenWidth*0.4,
                                     child:OutlinedButton(
@@ -486,11 +512,27 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                                         )
                                     ),
                                   )
+
                                 ],
                               ),
                             ),
 
-                            // Text, OutlinedButton: Hour and minute
+                          ],
+                        ),
+                      ),
+
+                      // Row: closing Hours/Minutes
+                      Container(
+
+                        width: screenWidth*0.9,
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+
+                            // Hour and minute
                             SizedBox(
                               height: screenHeight*0.12,
                               child: Column(
@@ -500,20 +542,22 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                                   SizedBox(
                                     width: screenWidth*0.4,
                                     child: Text(
-                                      "Uhrzeit",
+                                      "Start-Uhrzeit",
                                       style: customStyleClass.getFontStyle3(),
                                       textAlign: TextAlign.left,
                                     ),
                                   ),
 
-                                  // OutlinedButton: SelectedHourAndTime
+                                  // OutlinedButton
                                   Container(
-                                    width: screenWidth*0.4,
                                     padding:  EdgeInsets.only(
-                                        top: Utils.creationScreensDistanceBetweenTitleAndTextField
+                                        top: distanceBetweenTitleAndTextField
                                     ),
+                                    width: screenWidth*0.4,
                                     child: OutlinedButton(
-                                        onPressed: () => setState(() {pickHourAndMinuteIsActive = true;}),
+                                        onPressed: () => setState(() {
+                                          pickHourAndMinuteIsActive = true;
+                                        }),
                                         style: OutlinedButton.styleFrom(
                                             minimumSize: Size(screenHeight*0.05,screenHeight*0.07),
                                             shape: RoundedRectangleBorder(
@@ -521,11 +565,56 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                                             )
                                         ),
                                         child: Text(
-                                          formatSelectedHourAndMinute(),
+                                          formatSelectedHourAndMinute(selectedStartingHour, selectedStartingMinute),
                                           style: customStyleClass.getFontStyle4(),
                                         )
                                     ),
                                   )
+
+                                ],
+                              ),
+                            ),
+
+                            // Hour and minute
+                            SizedBox(
+                              height: screenHeight*0.12,
+                              child: Column(
+                                children: [
+
+                                  // Text: Time
+                                  SizedBox(
+                                    width: screenWidth*0.4,
+                                    child: Text(
+                                      "End-Uhrzeit",
+                                      style: customStyleClass.getFontStyle3(),
+                                      textAlign: TextAlign.left,
+                                    ),
+                                  ),
+
+                                  // OutlinedButton
+                                  Container(
+                                    padding:  EdgeInsets.only(
+                                        top: distanceBetweenTitleAndTextField
+                                    ),
+                                    width: screenWidth*0.4,
+                                    child: OutlinedButton(
+                                        onPressed: () => setState(() {
+                                          pickHourAndMinuteIsActive = true;
+                                          timePickEndActive = true;
+                                        }),
+                                        style: OutlinedButton.styleFrom(
+                                            minimumSize: Size(screenHeight*0.05,screenHeight*0.07),
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(5.0)
+                                            )
+                                        ),
+                                        child: Text(
+                                          formatSelectedHourAndMinute(selectedClosingHour, selectedClosingMinute),
+                                          style: customStyleClass.getFontStyle4(),
+                                        )
+                                    ),
+                                  )
+
                                 ],
                               ),
                             ),
@@ -533,7 +622,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                         ),
                       ),
 
-                      // Text, TextField: Price
+                      // Price text field
                       Column(
                         children: [
 
@@ -547,18 +636,20 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                             ),
                           ),
 
+                          // Spacer
+                          SizedBox(
+                            height: screenHeight*0.007,
+                          ),
+
                           // Textfield: Price
                           Container(
                             width: screenWidth*0.9,
                             alignment: Alignment.centerLeft,
-                            padding:  EdgeInsets.only(
-                                top: Utils.creationScreensDistanceBetweenTitleAndTextField
-                            ),
                             child: SizedBox(
                               width: screenWidth*0.3,
                               child: TextField(
                                 controller: _eventPriceController,
-                                keyboardType: TextInputType.number,
+                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
                                 cursorColor: customStyleClass.primeColor,
                                 decoration: InputDecoration(
                                   hintText: "z.B. 10",
@@ -960,11 +1051,18 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                             SizedBox(
                               width: screenWidth*0.2,
                               child: CupertinoPicker(
-                                  scrollController: _fixedExtentScrollController1,
+                                  scrollController:
+                                  timePickEndActive ?
+                                  _selectedClosingHourController :
+                                  _selectedStartingHourController,
                                   itemExtent: 50,
                                   onSelectedItemChanged: (int index){
                                     setState(() {
-                                      selectedHour = index;
+                                      if(timePickEndActive){
+                                        selectedClosingHour = index;
+                                      }else{
+                                        selectedStartingHour = index;
+                                      }
                                     });
                                   },
                                   children: List<Widget>.generate(24, (index){
@@ -990,11 +1088,19 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                             SizedBox(
                               width: screenWidth*0.2,
                               child: CupertinoPicker(
-                                  scrollController: _fixedExtentScrollController2,
+                                  scrollController:
+                                  timePickEndActive ?
+                                  _selectedClosingMinuteController:
+                                  _selectedStartingMinuteController,
                                   itemExtent: 50,
                                   onSelectedItemChanged: (int index){
                                     setState(() {
-                                      selectedMinute = int.parse(minuteValuesToChoose[index]);
+
+                                      if(timePickEndActive){
+                                        selectedClosingMinute = int.parse(minuteValuesToChoose[index]);
+                                      }else{
+                                        selectedStartingMinute = int.parse(minuteValuesToChoose[index]);
+                                      }
                                     });
                                   },
                                   children: List<Widget>.generate(4, (index){
@@ -1412,8 +1518,17 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
         newSelectedDate.year,
         newSelectedDate.month,
         newSelectedDate.day,
-        selectedHour,
-        selectedMinute
+        selectedStartingHour,
+        selectedStartingMinute
+    );
+
+    DateTime concatenatedClosingDate = DateTime(
+        newSelectedDate.year,
+        newSelectedDate.month,
+        selectedStartingHour > selectedClosingHour ?
+        newSelectedDate.day+1: newSelectedDate.day,
+        selectedClosingHour,
+        selectedClosingMinute
     );
 
     // Adjust the ticket link if it lacks crucial parts
@@ -1478,6 +1593,8 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
       clubId: currentAndLikedElementsProvider.currentClubMeEvent.getClubId(),
       priorityScore: currentAndLikedElementsProvider.currentClubMeEvent.getPriorityScore(),
       openingTimes: userDataProvider.getUserClubOpeningTimes(),
+
+      closingDate: concatenatedClosingDate
 
     );
 
@@ -1547,7 +1664,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
   void showDialogToAddGenres(){
     setState(() {pickGenreIsActive = true;});
   }
-  String formatSelectedHourAndMinute(){
+  String formatSelectedHourAndMinute(int selectedHour, int selectedMinute){
     String hourToDisplay = "", minuteToDisplay = "";
 
     if(selectedHour < 10){

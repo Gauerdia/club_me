@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
@@ -38,6 +39,10 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   @override
   void initState() {
     super.initState();
+
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp
+    ]);
 
     _controller = VideoPlayerController.file(File(widget.videoPath));
 
@@ -98,11 +103,22 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                 return Stack(
                   children: [
 
-                    SizedBox(
-                      height: screenHeight*0.8,
-                      width: screenWidth,
-                      child: VideoPlayer(_controller),
+                    OrientationBuilder(
+                      builder: (context, orientation) {
+                        // set the turn as per requirement
+                        final turn = orientation == Orientation.landscape ? 1: 1; // set the turn as per requirement
+                        return RotatedBox(
+                          quarterTurns: turn,
+                          child: VideoPlayer(_controller),
+                        );
+                      },
                     ),
+
+                    // SizedBox(
+                    //   height: screenHeight*0.8,
+                    //   width: screenWidth,
+                    //   child: VideoPlayer(_controller),
+                    // ),
                     // Three icons
                     Container(
                       height: screenHeight,
@@ -182,6 +198,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                                 child: Icon(
                                   _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
                                   size: 32,
+                                  color: Colors.white,
                                 )
                             ),
                             onTap: () => pressedPlay(),
@@ -217,7 +234,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                                 child:
                                 const Icon(
                                   Icons.check,
-                                  color: Colors.white,
+                                  color: Colors.greenAccent,
                                   size: 32,
                                 )
                             ),

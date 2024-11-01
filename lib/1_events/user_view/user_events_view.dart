@@ -639,12 +639,6 @@ class _UserEventsViewState extends State<UserEventsView> {
                           color: customStyleClass.primeColor,
                           size: 30,
                         ),
-                      // Image.asset(
-                      //   "assets/images/ClubMe_Logo_weiß.png",
-                      //   height: 60,
-                      //   width: 60,
-                      //   // fit: BoxFit.cover,
-                      // ),
                         onTap: () {
                           currentAndLikedElementsProvider.setCurrentEvent(eventsToDisplay[index]);
                           stateProvider.setAccessedEventDetailFrom(0);
@@ -994,7 +988,6 @@ class _UserEventsViewState extends State<UserEventsView> {
   bool checkIfUpcomingEvent(ClubMeEvent currentEvent){
 
     Days? clubOpeningTimesForThisDay;
-    Days? clubSpecialOpeningTimesForThisDay;
     DateTime closingHourToCompare;
 
     fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
@@ -1010,28 +1003,57 @@ class _UserEventsViewState extends State<UserEventsView> {
 
     // Get regular opening times
     try{
-      clubOpeningTimesForThisDay = currentEvent.getOpeningTimes().days?.firstWhere(
+      clubOpeningTimesForThisDay = currentClub.getOpeningTimes().days?.firstWhere(
               (days) => days.day == eventWeekDay);
     }catch(e){
       print("UserEventsView. Error in checkIfUpcomingEvent, clubOpeningTimesForThisDay: $e");
       clubOpeningTimesForThisDay = null;
     }
 
-    // Get special opening times
-    try{
-      clubSpecialOpeningTimesForThisDay = SpecialDaysToDaysParser(
-          currentClub.getSpecialOpeningTimes().specialDays!.firstWhere(
-                  (days) => DateTime(days.year!, days.month!, days.day!).weekday == eventWeekDay)
+    // Easiest case: There is a closing date. Just use it.
+    if(currentEvent.getClosingDate() != null){
+      closingHourToCompare = DateTime(
+          currentEvent.getClosingDate()!.year,
+          currentEvent.getClosingDate()!.month,
+          currentEvent.getClosingDate()!.day,
+          currentEvent.getClosingDate()!.hour,
+          currentEvent.getClosingDate()!.minute
       );
-    }catch(e){
-      print("UserEventsView. Error in checkIfUpcomingEvent, clubSpecialOpeningTimesForThisDay: $e");
-      clubSpecialOpeningTimesForThisDay = null;
+      if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
+          closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
+        return true;
+      }
+      return false;
+    }
+
+    // Second case: Are there regular opening times?
+    if(clubOpeningTimesForThisDay != null){
+      closingHourToCompare = DateTime(
+          currentEvent.getEventDate().year,
+          currentEvent.getEventDate().month,
+          currentEvent.getEventDate().day,
+          clubOpeningTimesForThisDay.closingHour!,
+          clubOpeningTimesForThisDay.closingHalfAnHour! == 1 ?
+          30 : clubOpeningTimesForThisDay.closingHalfAnHour! == 2 ? 59 : 0
+      );
+
+      // Do this instead of day+1 because otherwise it might bug at the last day of a month
+      if(clubOpeningTimesForThisDay.openingHour! > clubOpeningTimesForThisDay.closingHour!){
+        closingHourToCompare.add(const Duration(days: 1));
+      }
+
+      if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
+          closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
+        return true;
+      }
+      return false;
+
     }
 
     // Edge case: no official opening times. Maybe the club forgot to add this day?
-    if(clubOpeningTimesForThisDay == null && clubSpecialOpeningTimesForThisDay == null){
+    if(clubOpeningTimesForThisDay == null){
 
-      // We will show the event for at least 5 hours of its duration
+      // We will show the event for at least 6 hours of its duration
       closingHourToCompare = DateTime(
           currentEvent.getEventDate().year,
           currentEvent.getEventDate().month,
@@ -1039,73 +1061,7 @@ class _UserEventsViewState extends State<UserEventsView> {
           currentEvent.getEventDate().hour,
         currentEvent.getEventDate().minute
       );
-      closingHourToCompare.add(const Duration(hours: 5));
-
-      if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
-          closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
-        return true;
-      }
-      return false;
-
-    }
-
-    // Check if regular opening times apply
-    if(clubOpeningTimesForThisDay != null){
-
-      // Check if the opening hour surpasses midnight
-      if(clubOpeningTimesForThisDay.openingHour! > clubOpeningTimesForThisDay.closingHour!){
-        closingHourToCompare = DateTime(
-            currentEvent.getEventDate().year,
-            currentEvent.getEventDate().month,
-            currentEvent.getEventDate().day+1,
-            clubOpeningTimesForThisDay.closingHour!,
-            clubOpeningTimesForThisDay.closingHalfAnHour! == 1 ?
-            30 : clubOpeningTimesForThisDay.closingHalfAnHour! == 2 ? 59 : 0
-        );
-      }else{
-        closingHourToCompare = DateTime(
-            currentEvent.getEventDate().year,
-            currentEvent.getEventDate().month,
-            currentEvent.getEventDate().day,
-            clubOpeningTimesForThisDay.closingHour!,
-            clubOpeningTimesForThisDay.closingHalfAnHour! == 1 ?
-            30 : clubOpeningTimesForThisDay.closingHalfAnHour! == 2 ? 59 : 0
-        );
-      }
-
-      if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
-          closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
-        return true;
-      }
-      return false;
-
-    }
-
-    // Only special opening time left
-    if(clubSpecialOpeningTimesForThisDay != null){
-
-      // Check if the opening hour surpasses midnight
-      if(clubSpecialOpeningTimesForThisDay.openingHour! > clubSpecialOpeningTimesForThisDay.closingHour!){
-        closingHourToCompare = DateTime(
-            currentEvent.getEventDate().year,
-            currentEvent.getEventDate().month,
-            currentEvent.getEventDate().day+1,
-            clubSpecialOpeningTimesForThisDay.closingHour!,
-            clubSpecialOpeningTimesForThisDay.closingHalfAnHour! == 1 ?
-            30 : clubSpecialOpeningTimesForThisDay.closingHalfAnHour! == 2 ? 59 : 0
-        );
-    }else{
-        closingHourToCompare = DateTime(
-            currentEvent.getEventDate().year,
-            currentEvent.getEventDate().month,
-            currentEvent.getEventDate().day,
-            clubSpecialOpeningTimesForThisDay.closingHour!,
-            clubSpecialOpeningTimesForThisDay.closingHalfAnHour! == 1 ?
-            30 : clubSpecialOpeningTimesForThisDay.closingHalfAnHour! == 2 ? 59 : 0
-        );
-      }
-
-
+      closingHourToCompare.add(const Duration(hours: 6));
 
       if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
           closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
@@ -1117,11 +1073,10 @@ class _UserEventsViewState extends State<UserEventsView> {
 
     // If the code proceeded until this point and has not returned nothing yet,
     // we have an odd case and shouldn't display anything.
-    else{
       _supabaseService.createErrorLog(
           "UserEventsView. Fct: checkIfUpcomingEvent. Reached last else. Is not supposed to happen.");
       return false;
-    }
+
   }
   bool checkIfIsLiked(ClubMeEvent currentEvent) {
     var isLiked = false;

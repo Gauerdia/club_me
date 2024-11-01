@@ -9,6 +9,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:logger/logger.dart';
 import 'package:mime/mime.dart';
 import 'package:provider/provider.dart';
 import 'package:toggle_switch/toggle_switch.dart';
@@ -23,6 +24,8 @@ import '../../services/supabase_service.dart';
 import '../../shared/custom_text_style.dart';
 import 'dart:io';
 
+import 'package:path/path.dart' as p;
+
 class ClubNewEventView extends StatefulWidget {
   const ClubNewEventView({Key? key}) : super(key: key);
 
@@ -33,6 +36,8 @@ class ClubNewEventView extends StatefulWidget {
 class _ClubNewEventViewState extends State<ClubNewEventView>{
 
   String headLine = "Neues Event";
+
+  var log = Logger();
 
   late DateTime newSelectedDate;
   late StateProvider stateProvider;
@@ -55,6 +60,11 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
   late FixedExtentScrollController _fixedExtentScrollController1;
   late FixedExtentScrollController _fixedExtentScrollController2;
 
+  late FixedExtentScrollController _startingHourController;
+  late FixedExtentScrollController _startingMinuteController;
+  late FixedExtentScrollController _closingHourController;
+  late FixedExtentScrollController _closingMinuteController;
+
   bool isUploading = false;
   bool isDateSelected = false;
   bool genreScreenActive = false;
@@ -69,17 +79,20 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
     "Wöchentlich", "Zweiwöchentlich"
   ];
   List<String> minuteValuesToChoose = [
-    "0", "15", "30", "59"
+    "0", "15", "30", "45", "59"
   ];
 
   int isTemplate = 0;
   int isSupposedToBeTemplate = 0;
+  int isSupposedToSaveFile = 0;
 
   String eventMusicGenresString = "";
 
   int creationIndex = 0;
-  int selectedHour = 0;
-  int selectedMinute = 0;
+  int selectedStartingHour = 22;
+  int selectedStartingMinute = 0;
+  int selectedClosingHour = 5;
+  int selectedClosingMinute = 0;
 
   double originalFoldHeightFactor = 0.08;
 
@@ -97,6 +110,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
   ChewieController? _chewieController;
   VideoPlayerController? _controller;
 
+  bool timePickEndActive = false;
   bool pickHourAndMinuteIsActive = false;
   bool pickGenreIsActive = false;
 
@@ -107,6 +121,8 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
   ByteData? screenshot;
 
   double distanceBetweenTitleAndTextField = 10;
+
+
 
   @override
   void initState(){
@@ -120,11 +136,15 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
     // If there is a current template, we use it
     if (stateProvider.getCurrentEventTemplate() != null){
 
+      // BASE INFO
       _eventDJController = TextEditingController(
-          text: stateProvider.getCurrentEventTemplate()?.getDjName()
+          text: stateProvider.getCurrentEventTemplate()!.getDjName()
       );
       _eventTitleController = TextEditingController(
-          text: stateProvider.getCurrentEventTemplate()?.getEventTitle()
+          text: stateProvider.getCurrentEventTemplate()!.getEventTitle()
+      );
+      _eventDescriptionController = TextEditingController(
+          text: stateProvider.getCurrentEventTemplate()!.getEventDescription()
       );
       _eventPriceController = TextEditingController(
           text: stateProvider.getCurrentEventTemplate()!.getEventPrice().toString()
@@ -132,29 +152,41 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
       _eventTicketLinkController = TextEditingController(
         text: stateProvider.getCurrentEventTemplate()!.getEventTitle()
       );
+      newSelectedDate = stateProvider.getCurrentEventTemplate()!.getEventDate();
+      _eventTicketLinkController = TextEditingController(
+          text: stateProvider.getCurrentEventTemplate()!.getTicketLink()
+      );
 
+      // GENRES
+      _eventMusicGenresController = TextEditingController();
       final split = stateProvider.getCurrentEventTemplate()!.getMusicGenres().split(',');
       for(int i=0; i< split.length; i++){
         musicGenresChosen.add(split[i]);
         musicGenresOffer.removeWhere((element) => element == split[i]);
       }
 
-      _eventDescriptionController = TextEditingController(
-          text: stateProvider.getCurrentEventTemplate()?.getEventDescription()
-      );
+      // STARTING/CLOSING HOURS
+      selectedStartingHour = stateProvider.getCurrentEventTemplate()!.getEventDate().hour;
+      selectedStartingMinute = stateProvider.getCurrentEventTemplate()!.getEventDate().minute;
+      _startingHourController = FixedExtentScrollController(initialItem: selectedStartingHour);
+      _startingMinuteController = FixedExtentScrollController(initialItem: selectedStartingMinute);
+      if(stateProvider.getCurrentEventTemplate()!.getClosingDate() != null){
+        selectedClosingHour = stateProvider.getCurrentEventTemplate()!.getClosingDate()!.hour;
+        selectedClosingMinute = stateProvider.getCurrentEventTemplate()!.getClosingDate()!.minute;
+        _closingHourController = FixedExtentScrollController(
+            initialItem: stateProvider.getCurrentEventTemplate()!.getClosingDate()!.hour
+        );
+        _closingMinuteController = FixedExtentScrollController(
+            initialItem: stateProvider.getCurrentEventTemplate()!.getClosingDate()!.minute
+        );
+      }
+      else{
+        _closingHourController = FixedExtentScrollController(initialItem: 0);
+        _closingMinuteController = FixedExtentScrollController(initialItem: 0);
+      }
 
-      selectedHour = stateProvider.getCurrentEventTemplate()!.getEventDate().hour;
-      selectedMinute = stateProvider.getCurrentEventTemplate()!.getEventDate().minute;
-      newSelectedDate = stateProvider.getCurrentEventTemplate()!.getEventDate();
 
-      _fixedExtentScrollController1 = FixedExtentScrollController(initialItem: selectedHour);
-      _fixedExtentScrollController2 = FixedExtentScrollController(initialItem: selectedMinute);
-
-      _eventMusicGenresController = TextEditingController();
-      _eventTicketLinkController = TextEditingController(
-        text: stateProvider.getCurrentEventTemplate()?.getTicketLink()
-      );
-
+      // REPETITION
       if(stateProvider.getCurrentEventTemplate()?.getIsRepeatedDays() != 0){
         isRepeated = 1;
         switch(stateProvider.getCurrentEventTemplate()?.getIsRepeatedDays()){
@@ -163,8 +195,26 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
         }
       }
 
+      // File
+      if(stateProvider.getCurrentEventTemplate()!.getFileName() != null){
+
+        file = File(
+            "${stateProvider.appDocumentsDir.path}/${stateProvider.getCurrentEventTemplate()!.getFileName()}"
+        );
+
+        var fileExtension = p.extension(file!.path);
+
+        var uuid = const Uuid();
+        var uuidV4 = uuid.v4();
+
+        pickedFileNameToDisplay = uuidV4;
+        contentFileName = "$uuidV4.$fileExtension";
+      }
+
       isTemplate = 1;
       stateProvider.resetCurrentEventTemplate();
+
+
     }else{
       _eventDJController = TextEditingController();
       _eventTitleController = TextEditingController();
@@ -175,6 +225,12 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
       _eventTicketLinkController = TextEditingController();
       _fixedExtentScrollController1 = FixedExtentScrollController(initialItem: 0);
       _fixedExtentScrollController2 = FixedExtentScrollController(initialItem: 0);
+
+      _startingHourController = FixedExtentScrollController(initialItem: selectedStartingHour);
+      _startingMinuteController = FixedExtentScrollController(initialItem: selectedStartingMinute);
+      _closingHourController = FixedExtentScrollController(initialItem: selectedClosingHour);
+      _closingMinuteController = FixedExtentScrollController(initialItem: selectedClosingMinute);
+
       newSelectedDate = DateTime.now();
     }
 
@@ -437,9 +493,8 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                         ),
                       ),
 
-                      // Row: Datepicker, Hour/Minute
+                      // Row: Datepicker,
                       Container(
-
                         width: screenWidth*0.9,
                         padding: const EdgeInsets.symmetric(
                             vertical: 10
@@ -507,6 +562,21 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                               ),
                             ),
 
+                          ],
+                        ),
+                      ),
+
+                      // Row: closing Hours/Minutes
+                      Container(
+
+                        width: screenWidth*0.9,
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+
                             // Hour and minute
                             SizedBox(
                               height: screenHeight*0.12,
@@ -517,7 +587,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                                   SizedBox(
                                     width: screenWidth*0.4,
                                     child: Text(
-                                      "Uhrzeit",
+                                      "Start-Uhrzeit",
                                       style: customStyleClass.getFontStyle3(),
                                       textAlign: TextAlign.left,
                                     ),
@@ -540,7 +610,51 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                                             )
                                         ),
                                         child: Text(
-                                          formatSelectedHourAndMinute(),
+                                          formatSelectedHourAndMinute(selectedStartingHour, selectedStartingMinute),
+                                          style: customStyleClass.getFontStyle4(),
+                                        )
+                                    ),
+                                  )
+
+                                ],
+                              ),
+                            ),
+
+                            // Hour and minute
+                            SizedBox(
+                              height: screenHeight*0.12,
+                              child: Column(
+                                children: [
+
+                                  // Text: Time
+                                  SizedBox(
+                                    width: screenWidth*0.4,
+                                    child: Text(
+                                      "End-Uhrzeit",
+                                      style: customStyleClass.getFontStyle3(),
+                                      textAlign: TextAlign.left,
+                                    ),
+                                  ),
+
+                                  // OutlinedButton
+                                  Container(
+                                    padding:  EdgeInsets.only(
+                                        top: distanceBetweenTitleAndTextField
+                                    ),
+                                    width: screenWidth*0.4,
+                                    child: OutlinedButton(
+                                        onPressed: () => setState(() {
+                                          pickHourAndMinuteIsActive = true;
+                                          timePickEndActive = true;
+                                        }),
+                                        style: OutlinedButton.styleFrom(
+                                            minimumSize: Size(screenHeight*0.05,screenHeight*0.07),
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(5.0)
+                                            )
+                                        ),
+                                        child: Text(
+                                          formatSelectedHourAndMinute(selectedClosingHour, selectedClosingMinute),
                                           style: customStyleClass.getFontStyle4(),
                                         )
                                     ),
@@ -909,6 +1023,55 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                         ),
                       ),
 
+                      if(isTemplate == 0 && isSupposedToBeTemplate != 0 && file != null)
+                        Container(
+                          width: screenWidth*0.9,
+                          alignment: Alignment.centerLeft,
+                          padding:  EdgeInsets.only(
+                              top: distanceBetweenTitleAndTextField
+                          ),
+                          child: SizedBox(
+                            width: screenWidth*0.45,
+                            child: Text(
+                              "Bild/Video auch als Vorlage speichern",
+                              style: customStyleClass.getFontStyle3(),
+                              textAlign: TextAlign.left,
+                            ),
+                          ),
+                        ),
+
+                      if(isTemplate == 0 && isSupposedToBeTemplate != 0 && file != null)
+                        Container(
+                          width: screenWidth*0.9,
+                          height: screenHeight*0.1,
+                          alignment: Alignment.centerLeft,
+                          child: Container(
+                            width: screenWidth*0.45,
+                            alignment: Alignment.centerLeft,
+                            child: SizedBox(
+                                width: screenWidth*0.3,
+                                child: ToggleSwitch(
+                                  minHeight: screenHeight*0.06,
+                                  initialLabelIndex: isSupposedToSaveFile,
+                                  totalSwitches: 2,
+                                  activeBgColor: [customStyleClass.primeColor],
+                                  activeFgColor: Colors.white,
+                                  inactiveFgColor: Colors.white,
+                                  inactiveBgColor: customStyleClass.backgroundColorEventTile,
+                                  labels: const [
+                                    'Nein',
+                                    'Ja',
+                                  ],
+                                  onToggle: (index) {
+                                    setState(() {
+                                      isSupposedToSaveFile == 0 ? isSupposedToSaveFile = 1 : isSupposedToSaveFile = 0;
+                                    });
+                                  },
+                                )
+                            ),
+                          ),
+                        ),
+
                       // Spacer
                       SizedBox(
                         height: screenHeight*0.15,
@@ -930,6 +1093,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                   setState(() {
                     pickHourAndMinuteIsActive = false;
                     pickGenreIsActive = false;
+                    timePickEndActive = false;
                   });
                 },
               ),
@@ -982,11 +1146,18 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                             SizedBox(
                               width: screenWidth*0.2,
                               child: CupertinoPicker(
-                                  scrollController: _fixedExtentScrollController1,
+                                  scrollController:
+                                  timePickEndActive ?
+                                  _closingHourController :
+                                  _startingHourController,
                                   itemExtent: 50,
                                   onSelectedItemChanged: (int index){
                                     setState(() {
-                                      selectedHour = index;
+                                      if(timePickEndActive){
+                                        selectedClosingHour = index;
+                                      }else{
+                                        selectedStartingHour = index;
+                                      }
                                     });
                                   },
                                   children: List<Widget>.generate(24, (index){
@@ -1008,14 +1179,18 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                             SizedBox(
                               width: screenWidth*0.2,
                               child: CupertinoPicker(
-                                  scrollController: _fixedExtentScrollController2,
+                                  scrollController: timePickEndActive? _closingMinuteController : _startingMinuteController,
                                   itemExtent: 50,
                                   onSelectedItemChanged: (int index){
                                     setState(() {
-                                      selectedMinute = int.parse(minuteValuesToChoose[index]);
+                                      if(timePickEndActive){
+                                        selectedClosingMinute = int.parse(minuteValuesToChoose[index]);
+                                      }else{
+                                        selectedStartingMinute = int.parse(minuteValuesToChoose[index]);
+                                      }
                                     });
                                   },
-                                  children: List<Widget>.generate(4, (index){
+                                  children: List<Widget>.generate(5, (index){
                                     return Center(
                                       child: Text(
                                         index == 0
@@ -1054,7 +1229,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                                 style: customStyleClass.getFontStyle4BoldPrimeColor(),
                               ),
                             ),
-                            onTap: () => setState(() {pickHourAndMinuteIsActive = false;}),
+                            onTap: () => setState(() {pickHourAndMinuteIsActive = false; timePickEndActive = false;}),
                           )
                       ),
 
@@ -1393,6 +1568,8 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
   }
 
 
+
+
   void createNewEvent(){
 
     // Get an unique id for the element
@@ -1414,14 +1591,26 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
       musicGenresString = musicGenresString.substring(0, musicGenresString.length - 1);
     }
 
-    // Format the date
+    // Format the starting Date
     DateTime concatenatedDate = DateTime(
         newSelectedDate.year,
         newSelectedDate.month,
         newSelectedDate.day,
-        selectedHour,
-        selectedMinute
+        selectedStartingHour,
+        selectedStartingMinute
     );
+
+    DateTime concatenatedClosingDate = DateTime(
+        newSelectedDate.year,
+        newSelectedDate.month,
+        selectedStartingHour > selectedClosingHour ?
+          newSelectedDate.day+1:
+          newSelectedDate.day,
+        selectedClosingHour,
+        selectedClosingMinute
+    );
+
+    // Format the closing date
 
     String ticketLinkToSave = "";
     if(_eventTicketLinkController.text.contains("http")){
@@ -1463,6 +1652,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
       openingTimes: userDataProvider.getUserClubOpeningTimes(),
 
       isRepeatedDays: isRepeated != 0 ? daysToRepeat : 0,
+      closingDate: concatenatedClosingDate
 
     );
 
@@ -1483,7 +1673,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
             currentAndLikedElementsProvider.setCurrentEvent(newEvent);
             fetchedContentProvider.addEventToFetchedEvents(newEvent);
             stateProvider.setAccessedEventDetailFrom(5);
-            stateProvider.resetEventTemplates();
+            // stateProvider.resetEventTemplates();
             context.go('/event_details');
           })
         }else{
@@ -1509,7 +1699,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
             currentAndLikedElementsProvider.setCurrentEvent(newEvent);
             fetchedContentProvider.addEventToFetchedEvents(newEvent);
             stateProvider.setAccessedEventDetailFrom(5);
-            stateProvider.resetEventTemplates();
+            // stateProvider.resetEventTemplates();
             context.go('/event_details');
           })
         }else{
@@ -1521,11 +1711,20 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
       });
     }
   }
-  void addEventToTemplates(ClubMeEvent clubMeEvent){
+  void addEventToTemplates(ClubMeEvent clubMeEvent) async{
 
     // Get an unique id for the element
     var uuid = const Uuid();
     var uuidV4 = uuid.v4();
+
+    final String dirPath = stateProvider.appDocumentsDir.path;
+
+    if(isSupposedToSaveFile != 0){
+      await File("$dirPath/$contentFileName").writeAsBytes(file!.readAsBytesSync()).then((onValue){
+        log.d("ClubNewEvent, Fct: addEventToTemplates: Finished successfully. Path: $dirPath/$contentFileName");
+        fetchedContentProvider.addFetchedBannerImageId(contentFileName);
+      });
+    }
 
     ClubMeEventTemplate clubMeEventTemplate = ClubMeEventTemplate(
         eventTitle: clubMeEvent.getEventTitle(),
@@ -1536,10 +1735,22 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
         musicGenres: clubMeEvent.getMusicGenres(),
       templateId: uuidV4,
       ticketLink: clubMeEvent.getTicketLink(),
-      isRepeatedDays: clubMeEvent.getIsRepeatedDays()
+      isRepeatedDays: clubMeEvent.getIsRepeatedDays(),
+      closingDate: clubMeEvent.getClosingDate(),
+      fileName: isSupposedToSaveFile != 0 ? contentFileName : null
     );
 
-    _hiveService.addClubMeEventTemplate(clubMeEventTemplate);
+    _hiveService.addClubMeEventTemplate(clubMeEventTemplate).then(
+        (response){
+          if(response == 0){
+            stateProvider.addEventTemplate(clubMeEventTemplate);
+          }else{
+            showErrorBottomSheet(
+              2
+            );
+          }
+        }
+    );
   }
 
   void showErrorBottomSheet(int errorCode){
@@ -1551,8 +1762,10 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
             child: Center(
               child: Text(
                   errorCode == 0 ?
-                  "Verzeihung, etwas ist beim Anlegen des Events schiefgegangen!"
-                      : "Verzeihung, etwas ist beim Datei-Upload schiefgegangen!"
+                  "Verzeihung, etwas ist beim Anlegen des Events schiefgegangen!":
+                      errorCode == 2 ?
+                          "Verzeihung, beim Anlegen der Vorlage ist etwas schiefgegangen":
+                       "Verzeihung, etwas ist beim Datei-Upload schiefgegangen!"
               ),
             ),
           );
@@ -1606,7 +1819,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
 
     return "$tempDay.$tempMonth.$tempYear";
   }
-  String formatSelectedHourAndMinute(){
+  String formatSelectedHourAndMinute(int selectedHour, int selectedMinute){
     String hourToDisplay = "", minuteToDisplay = "";
 
     if(selectedHour < 10){

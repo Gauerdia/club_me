@@ -528,7 +528,7 @@ class ClubCard extends StatelessWidget {
 
     customStyleClass = CustomStyleClass(context: context);
 
-    clubOpenStatus = clubMeClub.getClubOpenStatus();
+    clubOpenStatus = clubMeClub.getClubOpenStatus(fetchedContentProvider.getFetchedEvents());
 
     return _buildMainView(context);
   }

@@ -616,7 +616,6 @@ class _UserCouponsViewState extends State<UserCouponsView>
   bool checkIfIsUpcomingDiscount(ClubMeDiscount currentDiscount){
 
     Days? clubOpeningTimesForThisDay;
-    Days? clubSpecialOpeningTimesForThisDay;
     DateTime closingHourToCompare;
 
     // If there exists a time limit and it is set for the morning hours, we have
@@ -630,22 +629,11 @@ class _UserCouponsViewState extends State<UserCouponsView>
 
     // Get regular opening times
     try{
-      clubOpeningTimesForThisDay = currentDiscount.getOpeningTimes().days?.firstWhere(
+      clubOpeningTimesForThisDay = currentClub.getOpeningTimes().days?.firstWhere(
               (days) => days.day == discountWeekDay);
     }catch(e){
       print("UserEventsView. Error in checkIfUpcomingEvent, clubOpeningTimesForThisDay: $e");
       clubOpeningTimesForThisDay = null;
-    }
-
-    // Get special opening times
-    try{
-      clubSpecialOpeningTimesForThisDay = SpecialDaysToDaysParser(
-          currentClub.getSpecialOpeningTimes().specialDays!.firstWhere(
-                  (days) => DateTime(days.year!, days.month!, days.day!).weekday == discountWeekDay)
-      );
-    }catch(e){
-      print("UserEventsView. Error in checkIfUpcomingEvent, clubSpecialOpeningTimesForThisDay: $e");
-      clubSpecialOpeningTimesForThisDay = null;
     }
 
     // Edge case 1 : If there is a time limit, we already know exactly when to stop showing the discount
@@ -666,43 +654,22 @@ class _UserCouponsViewState extends State<UserCouponsView>
       return false;
     }
 
-    // Edge case 2: no official opening times. Maybe the club forgot to add this day?
-    if(clubOpeningTimesForThisDay == null && clubSpecialOpeningTimesForThisDay == null){
-
-        // We will show the event for at least 5 hours of its duration
-        closingHourToCompare = DateTime(
-            currentDiscount.getDiscountDate().year,
-            currentDiscount.getDiscountDate().month,
-            currentDiscount.getDiscountDate().day,
-            currentDiscount.getDiscountDate().hour,
-            currentDiscount.getDiscountDate().minute
-        );
-        closingHourToCompare.add(const Duration(hours: 5));
-
-
-      if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
-          closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
-        return true;
-      }
-      return false;
-
-    }
-
     // Check if regular opening times apply
     if(clubOpeningTimesForThisDay != null){
 
-      // Day value: We check if the opening time surpasses midnight. Then, we
-      // need to consider the next day.
       closingHourToCompare = DateTime(
           currentDiscount.getDiscountDate().year,
           currentDiscount.getDiscountDate().month,
-          clubOpeningTimesForThisDay.openingHour! > clubOpeningTimesForThisDay.closingHour! ?
-          currentDiscount.getDiscountDate().day+1 :
           currentDiscount.getDiscountDate().day,
           clubOpeningTimesForThisDay.closingHour!,
-          clubOpeningTimesForThisDay.closingHalfAnHour! == 1 ?
-          30 : clubOpeningTimesForThisDay.closingHalfAnHour! == 2 ? 59 : 0
+          clubOpeningTimesForThisDay.closingHalfAnHour! == 1 ? 30 :
+          clubOpeningTimesForThisDay.closingHalfAnHour! == 2 ? 59 : 0
       );
+
+      // Do this instead of day+1 because otherwise it might bug at the last day of a month
+      if(clubOpeningTimesForThisDay.closingHour! < clubOpeningTimesForThisDay.openingHour!){
+        closingHourToCompare.add(const Duration(days: 1));
+      }
 
       if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
           closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
@@ -712,37 +679,22 @@ class _UserCouponsViewState extends State<UserCouponsView>
 
     }
 
-    // Only special opening time left
-    if(clubSpecialOpeningTimesForThisDay != null){
-
-      // Day value: We check if the opening time surpasses midnight. Then, we
-      // need to consider the next day.
-      closingHourToCompare = DateTime(
-          currentDiscount.getDiscountDate().year,
-          currentDiscount.getDiscountDate().month,
-          clubSpecialOpeningTimesForThisDay.openingHour! > clubSpecialOpeningTimesForThisDay.closingHour! ?
-          currentDiscount.getDiscountDate().day+1:
-          currentDiscount.getDiscountDate().day,
-          clubSpecialOpeningTimesForThisDay.closingHour!,
-          clubSpecialOpeningTimesForThisDay.closingHalfAnHour! == 1 ?
-          30 : clubSpecialOpeningTimesForThisDay.closingHalfAnHour! == 2 ? 59 : 0
-      );
-
-      if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
-          closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
-        return true;
-      }
-      return false;
-
-    }
+    // third case: No regular opening times, no time limit
+    closingHourToCompare = DateTime(
+      currentDiscount.getDiscountDate().year,
+      currentDiscount.getDiscountDate().month,
+      currentDiscount.getDiscountDate().day,
+      currentDiscount.getDiscountDate().hour,
+      currentDiscount.getDiscountDate().minute,
+    );
+    // There is no time limit, we show for 6 hours after start
+    closingHourToCompare.add(const Duration(hours: 6));
 
     // If the code proceeded until this point and has not returned nothing yet,
     // we have an odd case and shouldn't display anything.
-    else{
-      _supabaseService.createErrorLog(
+    _supabaseService.createErrorLog(
           "UserEventsView. Fct: checkIfUpcomingEvent. Reached last else. Is not supposed to happen.");
-      return false;
-    }
+    return false;
 
   }
 

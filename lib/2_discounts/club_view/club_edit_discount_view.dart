@@ -50,6 +50,8 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
 
   late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
 
+  late FixedExtentScrollController _isRepeatedController;
+
   int selectedHour = 0;
   int selectedMinute = 0;
   int hasAgeLimit = 0;
@@ -104,6 +106,7 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
     );
 
     newSelectedDate = currentAndLikedElementsProvider.currentClubMeDiscount.getDiscountDate();
+
 
     if(currentAndLikedElementsProvider.currentClubMeDiscount.getHasTimeLimit()){
       hasTimeLimit = 1;
@@ -160,6 +163,10 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
         case(14): isRepeatedIndex = 1; break;
       }
     }
+
+    _isRepeatedController = FixedExtentScrollController(
+        initialItem: isRepeatedIndex
+    );
 
   }
 
@@ -988,7 +995,7 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
                               SizedBox(
                                 width: screenWidth*0.45,
                                 child: CupertinoPicker(
-                                    scrollController: _fixedExtentScrollController1,
+                                    scrollController: _isRepeatedController,
                                     itemExtent: 50,
                                     onSelectedItemChanged: (int index){
                                       setState(() {
@@ -1063,7 +1070,7 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
 
                       // Question text
                       Text(
-                        "Bitte trage mit Hoch- und Herunterwischen die Uhrzeit ein, zu der das Event beginnt.",
+                        "Bitte trage mit Hoch- und Herunterwischen die Uhrzeit ein, bis wann der Coupon verfügbar ist.",
                         textAlign: TextAlign.left,
                         style: customStyleClass.getFontStyle4(),
                       ),

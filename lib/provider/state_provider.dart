@@ -122,6 +122,11 @@ class StateProvider extends ChangeNotifier{
 
   // TEMPLATES
 
+  void addDiscountTemplate(ClubMeDiscountTemplate newTemplate){
+    discountTemplates.add(newTemplate);
+    notifyListeners();
+  }
+
   void resetDiscountTemplates(){
     discountTemplates = [];
   }
@@ -189,6 +194,11 @@ class StateProvider extends ChangeNotifier{
     notifyListeners();
   }
 
+  void addEventTemplate(ClubMeEventTemplate newTemplate){
+    eventTemplates.add(newTemplate);
+    notifyListeners();
+  }
+
   void setClubMeEventTemplates(List<ClubMeEventTemplate> newClubMeEventTemplates){
     try{
       eventTemplates = newClubMeEventTemplates;
@@ -198,6 +208,9 @@ class StateProvider extends ChangeNotifier{
     }
   }
   List<ClubMeEventTemplate> getClubMeEventTemplates(){
+
+    print("getClubMeEventTemplates: $eventTemplates");
+
     try{
       return eventTemplates;
     }catch(e){

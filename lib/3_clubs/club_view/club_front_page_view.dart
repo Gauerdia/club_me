@@ -29,6 +29,7 @@ import '../../shared/custom_bottom_navigation_bar_clubs.dart';
 import '../../shared/custom_text_style.dart';
 
 import '../user_view/components/event_card.dart';
+import 'package:collection/collection.dart';
 
 class ClubFrontPageView extends StatefulWidget {
   const ClubFrontPageView({Key? key}) : super(key: key);
@@ -50,6 +51,11 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
   List<String> priceListString = ["Angebote"];
   List<String> mehrEventsString = ["Mehr Events!", "Get more events"];
   List<String> mehrPhotosButtonString = ["Mehr Fotos!", "Explore more photos"];
+
+  List<String> specialDayToDisplay = [];
+  List<int> specialDayWeekdayToDisplay = [];
+  List<int> specialDayOpeningTimeToDisplay = [];
+  List<int> specialDayClosingTimeToDisplay = [];
 
   bool isLoading = false;
   bool showVideoIsActive = false;
@@ -84,6 +90,8 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
     getClub = _supabaseService.getSpecificClub(userDataProvider.getUserData().getClubId()).then(
             (fetchedClub) => processFetchedSpecificClub(fetchedClub[0]));
 
+    checkIfSpecialOpeningTimesApply();
+
     if(fetchedContentProvider.getFetchedEvents().isEmpty){
       getEvents = _supabaseService.getEventsOfSpecificClub(userDataProvider.getUserData().getUserId());
     }
@@ -107,6 +115,45 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
     //     // checkIfFrontPageImageIsFetched(element.id!);
     //   }
     // }
+  }
+
+  void checkIfSpecialOpeningTimesApply(){
+
+    final stateProvider = Provider.of<StateProvider>(context, listen: false);
+    final userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
+    final fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
+
+    // Get all current events of the club we display
+    List<ClubMeEvent> eventsOfCurrentClub = fetchedContentProvider.getFetchedEvents().where(
+            (event) => event.getClubId() == userDataProvider.getUserClub().getClubId()
+    ).toList();
+
+    // Only use the ones that are in the future
+    List<ClubMeEvent> eventsInTheFuture = eventsOfCurrentClub.where(
+            (event) => event.getEventDate().add(const Duration(hours: 6)).isAfter(stateProvider.getBerlinTime())
+    ).toList();
+
+    for(var event in eventsInTheFuture){
+
+      var eventWeekDay = event.getEventDate().weekday;
+
+      var complementaryOpeningTime = userDataProvider.getUserClub()
+          .getOpeningTimes().days?.firstWhereOrNull(
+              (days) => days.day == eventWeekDay);
+
+      if(complementaryOpeningTime == null){
+        specialDayToDisplay.add(
+            "${event.getEventDate().day}.${event.getEventDate().month}.${event.getEventDate().year}"
+        );
+        specialDayOpeningTimeToDisplay.add(event.getEventDate().hour);
+        if(event.getClosingDate() != null){
+          specialDayClosingTimeToDisplay.add(event.getClosingDate()!.hour);
+        }else{
+          specialDayClosingTimeToDisplay.add(99);
+        }
+        specialDayWeekdayToDisplay.add(eventWeekDay);
+      }
+    }
   }
 
 
@@ -925,10 +972,16 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
           height: screenHeight*0.02,
         ),
 
-        // Musikgenres
+        // Opening Times
         if(userDataProvider.userClub.getOpeningTimes().days != null)
           for(var element in userDataProvider.userClub.getOpeningTimes().days!)
             formatOpeningTime(element),
+
+        // Special Opening Times
+        for(int i = 0; i<specialDayToDisplay.length;i++)
+          formatSpecialOpeningTime(
+              specialDayWeekdayToDisplay[i], specialDayToDisplay[i],
+              specialDayOpeningTimeToDisplay[i], specialDayClosingTimeToDisplay[i]),
 
         // Spacer
         SizedBox(
@@ -1672,23 +1725,33 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
           ),
           Row(
             children: [
-              Text(
-                openingHourToDisplay,
-                style: customStyleClass.getFontStyle3(),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 10
-                ),
+              SizedBox(
                 child: Text(
-                  "-",
+                  openingHourToDisplay,
                   style: customStyleClass.getFontStyle3(),
                 ),
               ),
-              Text(
-                closingHourToDisplay,
-                style: customStyleClass.getFontStyle3(),
-              )
+              Container(
+                // color: Colors.red,
+                width: screenWidth*0.07,
+                child: Center(
+                  child: Text(
+                    "-",
+                    style: customStyleClass.getFontStyle3(),
+                  ),
+                ),
+              ),
+
+              Container(
+                // color: Colors.green,
+                  alignment: Alignment.centerRight,
+                  width: screenWidth*0.12,
+                  child: Text(
+                    closingHourToDisplay,
+                    style: customStyleClass.getFontStyle3(),
+                  )
+              ),
+
             ],
           )
         ],
@@ -1696,6 +1759,94 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
     );
 
   }
+  Container formatSpecialOpeningTime(
+      int weekDay, String textToDisplay,
+      int openingHourToDisplay, int closingHourToDisplay){
+
+    String dayToDisplay = "";
+
+    switch(weekDay){
+      case(1):dayToDisplay = "Montag";break;
+      case(2):dayToDisplay = "Dienstag";break;
+      case(3):dayToDisplay = "Mittwoch";break;
+      case(4):dayToDisplay = "Donnerstag";break;
+      case(5):dayToDisplay = "Freitag";break;
+      case(6):dayToDisplay = "Samstag";break;
+      case(7):dayToDisplay = "Sonntag";break;
+    }
+
+    dayToDisplay = "$dayToDisplay, $textToDisplay";
+
+    return Container(
+      width: screenWidth*0.9,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            dayToDisplay,
+            style: customStyleClass.getFontStyle3BoldPrimeColor(),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+
+              SizedBox(
+                child: Text(
+                  "${openingHourToDisplay.toString()}:00",
+                  style: customStyleClass.getFontStyle3(),
+                ),
+              ),
+
+
+              Container(
+                // color: Colors.red,
+                width: screenWidth*0.07,
+                child: Center(
+                  child: Text(
+                    "-",
+                    style: customStyleClass.getFontStyle3(),
+                  ),
+                ),
+              ),
+
+              Container(
+                // color: Colors.green,
+                  alignment: Alignment.centerRight,
+                  width: screenWidth*0.12,
+                  child: Text(
+                    closingHourToDisplay !=99 ?
+                    "${closingHourToDisplay.toString()}:00"
+                        : "--.--",
+                    style: customStyleClass.getFontStyle3(),
+                  )
+              ),
+
+              // Text(
+              //   openingHourToDisplay,
+              //   style: customStyleClass.getFontStyle3(),
+              // ),
+              // Padding(
+              //   padding: const EdgeInsets.symmetric(
+              //       horizontal: 10
+              //   ),
+              //   child: Text(
+              //     "-",
+              //     style: customStyleClass.getFontStyle3(),
+              //   ),
+              // ),
+              // Text(
+              //   closingHourToDisplay,
+              //   style: customStyleClass.getFontStyle3(),
+              // )
+            ],
+          )
+        ],
+      ),
+    );
+
+
+  }
+
   void setFundamentalVariables(){
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;

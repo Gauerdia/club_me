@@ -13,7 +13,9 @@ class ClubMeEventTemplate{
     required this.musicGenres,
     required this.templateId,
     required this.ticketLink,
-    required this.isRepeatedDays
+    required this.isRepeatedDays,
+    required this.closingDate,
+    required this.fileName
   });
 
 
@@ -35,6 +37,19 @@ class ClubMeEventTemplate{
   String ticketLink;
   @HiveField(8)
   int isRepeatedDays;
+  @HiveField(9)
+  DateTime? closingDate;
+  @HiveField(10)
+  String? fileName;
+
+  String? getFileName(){
+    return fileName;
+  }
+
+  DateTime? getClosingDate(){
+    return closingDate;
+  }
+
 
   int getIsRepeatedDays(){
     return isRepeatedDays;

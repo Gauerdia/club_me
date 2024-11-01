@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:club_me/1_events/club_view/club_events_view.dart';
 import 'package:club_me/services/check_and_fetch_service.dart';
 import 'package:club_me/shared/dialogs/TitleAndContentDialog.dart';
 import 'package:club_me/stories/show_story_chewie.dart';
@@ -21,7 +22,7 @@ import '../shared/custom_bottom_navigation_bar.dart';
 import '../provider/state_provider.dart';
 import '../shared/custom_text_style.dart';
 import '../models/event.dart';
-
+import 'package:collection/collection.dart';
 
 class ClubDetailView extends StatefulWidget {
   const ClubDetailView({Key? key}) : super(key: key);
@@ -55,6 +56,11 @@ class _ClubDetailViewState extends State<ClubDetailView> {
   List<String> mehrPhotosButtonString = ["Mehr Fotos!", "More photos!"];
   List<String> findOnMapsButtonString = ["Finde uns auf Maps!", "Find us on maps!"];
 
+  List<String> specialDayToDisplay = [];
+  List<int> specialDayWeekdayToDisplay = [];
+  List<int> specialDayOpeningTimeToDisplay = [];
+  List<int> specialDayClosingTimeToDisplay = [];
+
   int galleryImageToShowIndex = 0;
   bool showGalleryImageFullScreen = false;
 
@@ -65,6 +71,8 @@ class _ClubDetailViewState extends State<ClubDetailView> {
     stateProvider = Provider.of<StateProvider>(context, listen: false);
     fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen: false);
 
+    checkIfSpecialOpeningTimesApply();
+
     _checkAndFetchService.checkAndFetchSpecificClubImages(
         currentAndLikedElementsProvider.currentClubMeClub,
         stateProvider,
@@ -74,6 +82,43 @@ class _ClubDetailViewState extends State<ClubDetailView> {
   void dispose() {
     super.dispose();
   }
+
+
+  void checkIfSpecialOpeningTimesApply(){
+
+    // Get all current events of the club we display
+    List<ClubMeEvent> eventsOfCurrentClub = fetchedContentProvider.getFetchedEvents().where(
+        (event) => event.getClubId() == currentAndLikedElementsProvider.currentClubMeClub.getClubId()
+    ).toList();
+
+    // Only use the ones that are in the future
+    List<ClubMeEvent> eventsInTheFuture = eventsOfCurrentClub.where(
+        (event) => event.getEventDate().add(const Duration(hours: 6)).isAfter(stateProvider.getBerlinTime())
+    ).toList();
+
+    for(var event in eventsInTheFuture){
+
+      var eventWeekDay = event.getEventDate().weekday;
+
+      var complementaryOpeningTime = currentAndLikedElementsProvider.currentClubMeClub
+          .getOpeningTimes().days?.firstWhereOrNull(
+              (days) => days.day == eventWeekDay);
+
+      if(complementaryOpeningTime == null){
+           specialDayToDisplay.add(
+               "${event.getEventDate().day}.${event.getEventDate().month}.${event.getEventDate().year}"
+           );
+           specialDayOpeningTimeToDisplay.add(event.getEventDate().hour);
+           if(event.getClosingDate() != null){
+             specialDayClosingTimeToDisplay.add(event.getClosingDate()!.hour);
+           }else{
+             specialDayClosingTimeToDisplay.add(99);
+           }
+           specialDayWeekdayToDisplay.add(eventWeekDay);
+      }
+    }
+  }
+
 
 
   // CLICKED
@@ -569,6 +614,11 @@ class _ClubDetailViewState extends State<ClubDetailView> {
         // opening times
         for(var element in currentAndLikedElementsProvider.currentClubMeClub.getOpeningTimes().days!)
           formatOpeningTime(element),
+
+        for(int i = 0; i<specialDayToDisplay.length;i++)
+          formatSpecialOpeningTime(
+              specialDayWeekdayToDisplay[i], specialDayToDisplay[i],
+              specialDayOpeningTimeToDisplay[i], specialDayClosingTimeToDisplay[i]),
 
         // Spacer
         SizedBox(
@@ -1198,6 +1248,91 @@ class _ClubDetailViewState extends State<ClubDetailView> {
         ],
       ),
     );
+
+  }
+  Container formatSpecialOpeningTime(int weekDay, String textToDisplay, int openingHourToDisplay, int closingHourToDisplay){
+
+    String dayToDisplay = "";
+
+    switch(weekDay){
+      case(1):dayToDisplay = "Montag";break;
+      case(2):dayToDisplay = "Dienstag";break;
+      case(3):dayToDisplay = "Mittwoch";break;
+      case(4):dayToDisplay = "Donnerstag";break;
+      case(5):dayToDisplay = "Freitag";break;
+      case(6):dayToDisplay = "Samstag";break;
+      case(7):dayToDisplay = "Sonntag";break;
+    }
+
+    dayToDisplay = "$dayToDisplay, $textToDisplay";
+
+    return Container(
+      width: screenWidth*0.9,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            dayToDisplay,
+            style: customStyleClass.getFontStyle3BoldPrimeColor(),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+
+              SizedBox(
+                child: Text(
+                  "${openingHourToDisplay.toString()}:00",
+                  style: customStyleClass.getFontStyle3(),
+                ),
+              ),
+
+
+              Container(
+                // color: Colors.red,
+                width: screenWidth*0.07,
+                child: Center(
+                  child: Text(
+                    "-",
+                    style: customStyleClass.getFontStyle3(),
+                  ),
+                ),
+              ),
+
+              Container(
+                // color: Colors.green,
+                  alignment: Alignment.centerRight,
+                  width: screenWidth*0.12,
+                  child: Text(
+                    closingHourToDisplay !=99 ?
+                    "${closingHourToDisplay.toString()}:00"
+                        : "--.--",
+                    style: customStyleClass.getFontStyle3(),
+                  )
+              ),
+
+              // Text(
+              //   openingHourToDisplay,
+              //   style: customStyleClass.getFontStyle3(),
+              // ),
+              // Padding(
+              //   padding: const EdgeInsets.symmetric(
+              //       horizontal: 10
+              //   ),
+              //   child: Text(
+              //     "-",
+              //     style: customStyleClass.getFontStyle3(),
+              //   ),
+              // ),
+              // Text(
+              //   closingHourToDisplay,
+              //   style: customStyleClass.getFontStyle3(),
+              // )
+            ],
+          )
+        ],
+      ),
+    );
+
 
   }
   void _showDialogWithTitleAndText(String titleToDisplay, String contentToDisplay){

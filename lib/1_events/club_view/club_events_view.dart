@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
+import '../../models/hive_models/7_days.dart';
 import '../../models/parser/club_me_event_parser.dart';
 import '../../provider/current_and_liked_elements_provider.dart';
 import '../../provider/fetched_content_provider.dart';
@@ -18,6 +19,8 @@ import '../../shared/custom_text_style.dart';
 
 import 'club_edit_event_view.dart';
 import 'components/small_event_tile.dart';
+
+import 'package:collection/collection.dart';
 
 class ClubEventsView extends StatefulWidget {
   const ClubEventsView({Key? key}) : super(key: key);
@@ -62,15 +65,27 @@ class _ClubEventsViewState extends State<ClubEventsView> {
     userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
     fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
 
+    // GET TEMPLATES
+    if(stateProvider.getClubMeEventTemplates().isEmpty){
+      getAllEventTemplates(stateProvider);
+    }
+
     // Fetch events of our club
     if(fetchedContentProvider.getFetchedEvents().isEmpty){
       _supabaseService.getEventsOfSpecificClub(userDataProvider.getUserData().getClubId())
           .then((data) => filterEventsFromQuery(data, stateProvider));
     }else{
       for(var currentEvent in fetchedContentProvider.getFetchedEvents()){
-        checkIfUpcomingOrPastEvent(currentEvent);
+        if(checkIfIsUpcomingEvent(currentEvent)){
+         upcomingEvents.add(currentEvent);
+        }else{
+          pastEvents.add(currentEvent);
+        }
       }
+      setState(() {});
     }
+
+
 
     // Update last log in
     if(!stateProvider.updatedLastLogInForNow){
@@ -101,18 +116,38 @@ class _ClubEventsViewState extends State<ClubEventsView> {
 
     stateProvider.setClubUiActive(true);
 
+    // FILTER EVENTS WHEN ALL ARRAYS ARE EMPTY
     if(upcomingEvents.isEmpty && pastEvents.isEmpty){
       filterEventsFromProvider();
     }
+
+
     if(upcomingEvents.isNotEmpty &&
         !identical(upcomingEvents[0], fetchedContentProvider.getFetchedEvents().where(
                 (element) => element.getEventId() == upcomingEvents[0].getEventId()))){
       filterEventsFromProvider();
     }
+  }
 
-    if(stateProvider.getClubMeEventTemplates().isEmpty){
-      getAllEventTemplates(stateProvider);
+  void signInToSupabase(){
+
+    String firstWord = "";
+
+    String clubName = userDataProvider.getUserClub().getClubName();
+
+    List<String> parts = clubName.split(' ');
+
+    if(clubName.contains(" ")){
+      if(parts[0].toLowerCase() == 'club'){
+        firstWord = parts[1];
+      }else{
+        firstWord = parts[0];
+      }
+    }else{
+      firstWord = clubName.toLowerCase();
     }
+
+
 
   }
 
@@ -408,7 +443,11 @@ class _ClubEventsViewState extends State<ClubEventsView> {
     for(var currentEvent in fetchedContentProvider.getFetchedEvents()){
 
       // Sort into upcoming and past arrays
-      checkIfUpcomingOrPastEvent(currentEvent);
+      if(checkIfIsUpcomingEvent(currentEvent)){
+        upcomingEvents.add(currentEvent);
+      }else{
+        pastEvents.add(currentEvent);
+      }
 
     }
 
@@ -432,27 +471,106 @@ class _ClubEventsViewState extends State<ClubEventsView> {
       );
     }
   }
-  void checkIfUpcomingOrPastEvent(ClubMeEvent currentEvent){
+  bool checkIfIsUpcomingEvent(ClubMeEvent currentEvent){
 
     stateProvider = Provider.of<StateProvider>(context, listen: false);
 
-    // Sort the events into the correct arrays
-    if(currentEvent.getEventDate().isAfter(stateProvider.getBerlinTime()) ||
-        currentEvent.getEventDate().isAtSameMomentAs(stateProvider.getBerlinTime())){
+    Days? clubOpeningTimesForThisDay;
+    DateTime closingHourToCompare;
 
-      // Make sure that we only consider events of the current user's club
-      if(currentEvent.getClubId() == userDataProvider.getUserData().getClubId()){
-        upcomingEvents.add(currentEvent);
-      }
-    }else{
+    // Assumption: Every event starting before 6 is considered to be an event of
+    // the previous day.
+    var eventWeekDay = currentEvent.getEventDate().hour <= 6 ?
+    currentEvent.getEventDate().weekday -1 :
+    currentEvent.getEventDate().weekday;
 
-      // Make sure that we only consider events of the current user's club
-      if(currentEvent.getClubId() == userDataProvider.getUserData().getClubId()){
-        pastEvents.add(currentEvent);
-      }
+    // Get regular opening times
+    try{
+      // first where is enough because we assume that there is only one regular time each day.
+      clubOpeningTimesForThisDay = userDataProvider.getUserClub().getOpeningTimes().days?.firstWhereOrNull(
+              (days) => days.day == eventWeekDay);
+    }catch(e){
+      print("ClubEventsView. Error in checkIfUpcomingEvent, clubOpeningTimesForThisDay: $e");
+      clubOpeningTimesForThisDay = null;
     }
 
-    setState(() {});
+    // Easies case: With closing data, we know exactly when to stop displaying.
+    if(currentEvent.getClosingDate() != null){
+
+      closingHourToCompare = DateTime(
+        currentEvent.getClosingDate()!.year,
+        currentEvent.getClosingDate()!.month,
+        currentEvent.getClosingDate()!.day,
+        currentEvent.getClosingDate()!.hour,
+        currentEvent.getClosingDate()!.minute,
+      );
+
+      if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
+          closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
+        return true;
+      }
+      return false;
+    }
+
+    // Second case: the event aligns with the opening hours
+    if(clubOpeningTimesForThisDay != null){
+
+        // If there is an event during the day and we look at the app during the day but
+        // there is also a regular opening in the evening.
+        if(currentEvent.getEventDate().hour < clubOpeningTimesForThisDay.openingHour!){
+
+          // We don't have any guideline for this case. So 6 hours it is.
+          closingHourToCompare = DateTime(
+              currentEvent.getEventDate().year,
+              currentEvent.getEventDate().month,
+              currentEvent.getEventDate().day,
+            currentEvent.getEventDate().hour,
+            currentEvent.getEventDate().minute
+          );
+          closingHourToCompare.add(const Duration(hours: 6));
+        }else{
+
+          closingHourToCompare = DateTime(
+              currentEvent.getEventDate().year,
+              currentEvent.getEventDate().month,
+              currentEvent.getEventDate().day,
+              clubOpeningTimesForThisDay.closingHour!,
+              clubOpeningTimesForThisDay.closingHalfAnHour == 1 ? 30 :
+              clubOpeningTimesForThisDay.closingHalfAnHour == 2 ? 59 : 0
+          );
+
+          // Do this instead of day+1 because otherwise it might bug at the last day of a month
+          if(clubOpeningTimesForThisDay.closingHour! < currentEvent.getEventDate().hour){
+            closingHourToCompare.add(const Duration(days: 1));
+          }
+
+      }
+
+      if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
+          closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
+        return true;
+      }
+      return false;
+
+    }
+
+    // Third case: event is out of general opening times and no closing hour.
+    // We don't have any guideline for this case. So 6 hours it is.
+    closingHourToCompare = DateTime(
+      currentEvent.getEventDate().year,
+      currentEvent.getEventDate().month,
+      currentEvent.getEventDate().day,
+      currentEvent.getEventDate().hour,
+      currentEvent.getEventDate().minute,
+    );
+    closingHourToCompare.add(const Duration(hours: 6));
+
+
+    if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
+        closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
+      return true;
+    }
+    return false;
 
   }
   void filterEventsFromQuery(var data, StateProvider stateProvider){
@@ -464,7 +582,11 @@ class _ClubEventsViewState extends State<ClubEventsView> {
       ClubMeEvent currentEvent = parseClubMeEvent(element);
 
       // Sort into upcoming and past arrays
-      checkIfUpcomingOrPastEvent(currentEvent);
+      if(checkIfIsUpcomingEvent(currentEvent)){
+        upcomingEvents.add(currentEvent);
+      }else{
+        pastEvents.add(currentEvent);
+      }
 
       // Check if maybe already fetched
       if(!fetchedContentProvider.getFetchedEvents().contains(currentEvent)){

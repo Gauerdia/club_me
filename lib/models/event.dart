@@ -24,7 +24,8 @@ class ClubMeEvent{
     required this.priorityScore,
     required this.openingTimes,
     required this.ticketLink,
-    required this.isRepeatedDays
+    required this.isRepeatedDays,
+    required this.closingDate
   });
 
   String eventId;
@@ -57,6 +58,12 @@ class ClubMeEvent{
   OpeningTimes openingTimes;
 
   String ticketLink;
+
+  DateTime? closingDate;
+
+  DateTime? getClosingDate(){
+    return closingDate;
+  }
 
 
   int getIsRepeatedDays(){

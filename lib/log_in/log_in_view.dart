@@ -321,11 +321,27 @@ class _LogInViewState extends State<LogInView> {
                         ),
                       );
                     }else{
+
+                      List<TempClubData> clubData = [];
+
+                      for(var element in snapshot.data!){
+                        ClubMeClub currentClub = parseClubMeClub(element);
+
+                        clubData.add(
+                            TempClubData(
+                              clubName: currentClub.getClubName(),
+                              clubId: currentClub.getClubId()
+                            )
+                        );
+                      }
+
+                      clubData.sort((a,b) => a.clubName.compareTo(b.clubName));
+
                       return Column(
                           children: [
 
                             Text(
-                                "Wähle einen CLub",
+                                "Wähle einen Club",
                             style: customStyleClass.getFontStyle4BoldPrimeColor(),
                             ),
 
@@ -334,11 +350,8 @@ class _LogInViewState extends State<LogInView> {
                           height: screenHeight*0.82,
                           child: ListView.builder(
                             shrinkWrap: true,
-                              itemCount: snapshot.data?.length,
+                              itemCount: clubData.length,
                               itemBuilder: (context, index){
-
-                                var element = snapshot.data![index];
-                                ClubMeClub currentClub = parseClubMeClub(element);
 
                                 return InkWell(
                                   child: ListTile(
@@ -347,12 +360,12 @@ class _LogInViewState extends State<LogInView> {
                                       color: customStyleClass.primeColor,
                                     ),
                                     title: Text(
-                                      currentClub.getClubName(),
+                                      clubData[index].clubName,
                                       style: customStyleClass.getFontStyle3(),
                                     ),
                                   ),
                                   onTap: (){
-                                    selectedClubId = currentClub.getClubId();
+                                    selectedClubId = clubData[index].clubId;
                                     clickEventChooseClub();
                                   },
                                 );
@@ -634,5 +647,15 @@ class _LogInViewState extends State<LogInView> {
   }
 }
 
+class TempClubData{
 
+  TempClubData({
+    required this.clubName,
+    required this.clubId
+});
+
+  String clubId;
+  String clubName;
+
+}
 

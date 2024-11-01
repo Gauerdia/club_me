@@ -26,13 +26,15 @@ class ClubMeEventTemplateAdapter extends TypeAdapter<ClubMeEventTemplate> {
       templateId: fields[6] as String,
       ticketLink: fields[7] as String,
       isRepeatedDays: fields[8] as int,
+      closingDate: fields[9] as DateTime?,
+      fileName: fields[10] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ClubMeEventTemplate obj) {
     writer
-      ..writeByte(9)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.djName)
       ..writeByte(1)
@@ -50,7 +52,11 @@ class ClubMeEventTemplateAdapter extends TypeAdapter<ClubMeEventTemplate> {
       ..writeByte(7)
       ..write(obj.ticketLink)
       ..writeByte(8)
-      ..write(obj.isRepeatedDays);
+      ..write(obj.isRepeatedDays)
+      ..writeByte(9)
+      ..write(obj.closingDate)
+      ..writeByte(10)
+      ..write(obj.fileName);
   }
 
   @override

@@ -141,16 +141,6 @@ class _UserMapViewState extends State<UserMapView>{
           setBasicMarker(currentClub);
         }
 
-
-
-        // if(!fetchedContentProvider.getFetchedClubs().contains(currentClub) && currentClub.getShowClubInApp()){
-        //   fetchedContentProvider.addClubToFetchedClubs(currentClub);
-        // }
-
-        // if(currentClub.getShowClubInApp()){
-        //   clubsToDisplay.add(currentClub);
-        //   setBasicMarker(currentClub);
-        // }
       }
 
       // Check if we need to download the corresponding images
@@ -185,6 +175,8 @@ class _UserMapViewState extends State<UserMapView>{
       setUserLocationMarker();
 
     }
+
+    filterClubs();
 
     setState(() {
       showMap = true;

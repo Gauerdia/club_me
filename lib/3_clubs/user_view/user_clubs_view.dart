@@ -7,6 +7,7 @@ import 'package:club_me/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
+import '../../models/hive_models/7_days.dart';
 import '../../models/parser/club_me_club_parser.dart';
 import '../../provider/current_and_liked_elements_provider.dart';
 import '../../provider/fetched_content_provider.dart';
@@ -17,7 +18,7 @@ import '../../shared/custom_text_style.dart';
 
 import '../../shared/dialogs/TitleAndContentDialog.dart';
 import 'components/club_card.dart';
-
+import 'package:collection/collection.dart';
 class UserClubsView extends StatefulWidget {
   const UserClubsView({Key? key}) : super(key: key);
 
@@ -394,7 +395,7 @@ class _UserClubsViewState extends State<UserClubsView>
                   for(var club in clubsToDisplay)
                     ClubCard(
                       events: fetchedContentProvider.getFetchedEvents().where((event){
-                        return (event.getClubId() == club.getClubId() && checkIfIsEventIsAfterToday(event));
+                        return (event.getClubId() == club.getClubId() && checkIfIsEventIsAfterToday(event, club));
                       }).toList(),
                       clubMeClub: club,
                       triggerSetState: triggerSetState,
@@ -765,15 +766,109 @@ class _UserClubsViewState extends State<UserClubsView>
       _currentPageIndex = currentPageIndex;
     });
   }
-  bool checkIfIsEventIsAfterToday(ClubMeEvent event){
-    // final berlin = tz.getLocation('Europe/Berlin');
-    // final todayTimestampGermany = tz.TZDateTime.from(DateTime.now(), berlin);
+  bool checkIfIsEventIsAfterToday(ClubMeEvent currentEvent, ClubMeClub currentClub){
 
-    if(event.getEventDate().isBefore(stateProvider.getBerlinTime())){
+    Days? clubOpeningTimesForThisDay;
+    DateTime closingHourToCompare;
+
+    var eventWeekDay = currentEvent.getEventDate().hour <= 6 ?
+    currentEvent.getEventDate().weekday -1 :
+    currentEvent.getEventDate().weekday;
+
+    // Get regular opening times
+    try{
+      // first where is enough because we assume that there is only one regular time each day.
+      clubOpeningTimesForThisDay = currentClub.getOpeningTimes().days?.firstWhereOrNull(
+              (days) => days.day == eventWeekDay);
+    }catch(e){
+      print("ClubEventsView. Error in checkIfUpcomingEvent, clubOpeningTimesForThisDay: $e");
+      clubOpeningTimesForThisDay = null;
+    }
+
+    // Easies case: With closing data, we know exactly when to stop displaying.
+    if(currentEvent.getClosingDate() != null){
+
+      closingHourToCompare = DateTime(
+        currentEvent.getClosingDate()!.year,
+        currentEvent.getClosingDate()!.month,
+        currentEvent.getClosingDate()!.day,
+        currentEvent.getClosingDate()!.hour,
+        currentEvent.getClosingDate()!.minute,
+      );
+
+      if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
+          closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
+        return true;
+      }
       return false;
-    }else{
+    }
+
+    // Second case: the event aligns with the opening hours
+    if(clubOpeningTimesForThisDay != null){
+
+      // If there is an event during the day and we look at the app during the day but
+      // there is also a regular opening in the evening.
+      if(currentEvent.getEventDate().hour < clubOpeningTimesForThisDay.openingHour!){
+
+        // We don't have any guideline for this case. So 6 hours it is.
+        closingHourToCompare = DateTime(
+            currentEvent.getEventDate().year,
+            currentEvent.getEventDate().month,
+            currentEvent.getEventDate().day,
+            currentEvent.getEventDate().hour,
+            currentEvent.getEventDate().minute
+        );
+        closingHourToCompare.add(const Duration(hours: 6));
+      }else{
+
+        closingHourToCompare = DateTime(
+            currentEvent.getEventDate().year,
+            currentEvent.getEventDate().month,
+            currentEvent.getEventDate().day,
+            clubOpeningTimesForThisDay.closingHour!,
+            clubOpeningTimesForThisDay.closingHalfAnHour == 1 ? 30 :
+            clubOpeningTimesForThisDay.closingHalfAnHour == 2 ? 59 : 0
+        );
+
+        // Do this instead of day+1 because otherwise it might bug at the last day of a month
+        if(clubOpeningTimesForThisDay.closingHour! < currentEvent.getEventDate().hour){
+          closingHourToCompare.add(const Duration(days: 1));
+        }
+
+      }
+
+      if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
+          closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
+        return true;
+      }
+      return false;
+
+    }
+
+    // Third case: event is out of general opening times and no closing hour.
+    // We don't have any guideline for this case. So 6 hours it is.
+    closingHourToCompare = DateTime(
+      currentEvent.getEventDate().year,
+      currentEvent.getEventDate().month,
+      currentEvent.getEventDate().day,
+      currentEvent.getEventDate().hour,
+      currentEvent.getEventDate().minute,
+    );
+    closingHourToCompare.add(const Duration(hours: 6));
+
+
+    if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
+        closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
       return true;
     }
+    return false;
+
+
+    // if(event.getEventDate().add(const Duration(hours: 6)).isBefore(stateProvider.getBerlinTime())){
+    //   return false;
+    // }else{
+    //   return true;
+    // }
 
   }
 
