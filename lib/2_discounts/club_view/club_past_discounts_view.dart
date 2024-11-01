@@ -239,6 +239,10 @@ class _ClubPastDiscountsViewState extends State<ClubPastDiscountsView>
       // }
     }
 
+    discountsToDisplay.sort(
+        (a,b) => b.getDiscountDate().compareTo(a.getDiscountDate())
+    );
+
     _tabController = TabController(length: discountsToDisplay.length, vsync: this);
   }
   bool checkIfIsLiked(ClubMeDiscount discount){
@@ -302,16 +306,11 @@ class _ClubPastDiscountsViewState extends State<ClubPastDiscountsView>
       closingHourToCompare = DateTime(
           currentDiscount.getDiscountDate().year,
           currentDiscount.getDiscountDate().month,
-          currentDiscount.getDiscountDate().day,
+          currentDiscount.getDiscountDate().day+1,
           clubOpeningTimesForThisDay.closingHour!,
           clubOpeningTimesForThisDay.closingHalfAnHour == 1 ? 30 :
           clubOpeningTimesForThisDay.closingHalfAnHour == 2 ? 59 : 0
       );
-
-      // Do this instead of day+1 because otherwise it might bug at the last day of a month
-      if(clubOpeningTimesForThisDay.closingHour! < currentDiscount.getDiscountDate().hour){
-        closingHourToCompare.add(const Duration(days: 1));
-      }
 
       if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
           closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
@@ -326,11 +325,9 @@ class _ClubPastDiscountsViewState extends State<ClubPastDiscountsView>
         currentDiscount.getDiscountDate().year,
         currentDiscount.getDiscountDate().month,
         currentDiscount.getDiscountDate().day,
-        currentDiscount.getDiscountDate().hour,
+        currentDiscount.getDiscountDate().hour+6,
         currentDiscount.getDiscountDate().minute,
       );
-      // There is no time limit, we show for 6 hours after start
-      closingHourToCompare.add(const Duration(hours: 6));
 
       if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
           closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){

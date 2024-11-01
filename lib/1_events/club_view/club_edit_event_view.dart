@@ -156,6 +156,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
         initialItem: tempCurrentAndLikedElementsProvider.currentClubMeEvent.getEventDate().minute
     );
 
+    // CLOSING DATE
     if(tempCurrentAndLikedElementsProvider.currentClubMeEvent.getClosingDate() != null){
       _selectedClosingHourController = FixedExtentScrollController(
           initialItem: tempCurrentAndLikedElementsProvider.currentClubMeEvent.getClosingDate()!.hour
@@ -163,6 +164,8 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
       _selectedClosingMinuteController = FixedExtentScrollController(
           initialItem: tempCurrentAndLikedElementsProvider.currentClubMeEvent.getClosingDate()!.minute
       );
+      selectedClosingMinute = tempCurrentAndLikedElementsProvider.currentClubMeEvent.getClosingDate()!.minute;
+      selectedClosingHour = tempCurrentAndLikedElementsProvider.currentClubMeEvent.getClosingDate()!.hour;
       closingTimeWasChanged = true;
     }else{
       _selectedClosingHourController = FixedExtentScrollController(
@@ -173,12 +176,13 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
       );
     }
 
-
+    // EVENT MARKETING FILE
     if(tempCurrentAndLikedElementsProvider.currentClubMeEvent.getEventMarketingFileName().isNotEmpty){
       marketingContentAlreadyExists = true;
       pickedFileNameToDisplay = tempCurrentAndLikedElementsProvider.currentClubMeEvent.getEventMarketingFileName();
     }
 
+    // REPETITION
     if(tempCurrentAndLikedElementsProvider.currentClubMeEvent.getIsRepeatedDays() != 0){
       isRepeated = 1;
       switch(tempCurrentAndLikedElementsProvider.currentClubMeEvent.getIsRepeatedDays()){

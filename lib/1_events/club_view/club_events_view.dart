@@ -75,13 +75,7 @@ class _ClubEventsViewState extends State<ClubEventsView> {
       _supabaseService.getEventsOfSpecificClub(userDataProvider.getUserData().getClubId())
           .then((data) => filterEventsFromQuery(data, stateProvider));
     }else{
-      for(var currentEvent in fetchedContentProvider.getFetchedEvents()){
-        if(checkIfIsUpcomingEvent(currentEvent)){
-         upcomingEvents.add(currentEvent);
-        }else{
-          pastEvents.add(currentEvent);
-        }
-      }
+      filterEventsFromProvider();
       setState(() {});
     }
 
@@ -467,7 +461,7 @@ class _ClubEventsViewState extends State<ClubEventsView> {
     // We have something to show? Awesome, now apply an ascending order
     if(pastEvents.isNotEmpty){
       pastEvents.sort((a,b) =>
-          a.getEventDate().millisecondsSinceEpoch.compareTo(b.getEventDate().millisecondsSinceEpoch)
+          b.getEventDate().millisecondsSinceEpoch.compareTo(a.getEventDate().millisecondsSinceEpoch)
       );
     }
   }
@@ -608,7 +602,7 @@ class _ClubEventsViewState extends State<ClubEventsView> {
     // We have something to show? Awesome, now apply an ascending order
     if(pastEvents.isNotEmpty){
       pastEvents.sort((a,b) =>
-          a.getEventDate().millisecondsSinceEpoch.compareTo(b.getEventDate().millisecondsSinceEpoch)
+          b.getEventDate().millisecondsSinceEpoch.compareTo(a.getEventDate().millisecondsSinceEpoch)
       );
     }
 

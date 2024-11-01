@@ -335,6 +335,11 @@ class _ClubPastEventsViewState extends State<ClubPastEventsView> {
       isAnyFilterActive = false;
       eventsToDisplay = fetchedEventsThatHaveAlreadyTakenPlace;
     }
+
+    eventsToDisplay.sort(
+        (a,b) => b.getEventDate().compareTo(a.getEventDate())
+    );
+
   }
 
 
@@ -360,6 +365,8 @@ class _ClubPastEventsViewState extends State<ClubPastEventsView> {
 
 
   bool checkIfIsUpcomingEvent(ClubMeEvent currentEvent){
+
+    print("clubpastevent: ${currentEvent.getEventTitle()}");
 
     stateProvider = Provider.of<StateProvider>(context, listen: false);
     userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
@@ -394,6 +401,8 @@ class _ClubPastEventsViewState extends State<ClubPastEventsView> {
         currentEvent.getClosingDate()!.minute,
       );
 
+      print("clubpastevent: has closing date $closingHourToCompare");
+
       if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
           closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
         return true;
@@ -412,26 +421,20 @@ class _ClubPastEventsViewState extends State<ClubPastEventsView> {
         closingHourToCompare = DateTime(
             currentEvent.getEventDate().year,
             currentEvent.getEventDate().month,
-            currentEvent.getEventDate().day,
+            currentEvent.getEventDate().day+6,
             currentEvent.getEventDate().hour,
             currentEvent.getEventDate().minute
         );
-        closingHourToCompare.add(const Duration(hours: 6));
       }else{
 
         closingHourToCompare = DateTime(
             currentEvent.getEventDate().year,
             currentEvent.getEventDate().month,
-            currentEvent.getEventDate().day,
+            currentEvent.getEventDate().day+1,
             clubOpeningTimesForThisDay.closingHour!,
             clubOpeningTimesForThisDay.closingHalfAnHour == 1 ? 30 :
             clubOpeningTimesForThisDay.closingHalfAnHour == 2 ? 59 : 0
         );
-
-        // Do this instead of day+1 because otherwise it might bug at the last day of a month
-        if(clubOpeningTimesForThisDay.closingHour! < currentEvent.getEventDate().hour){
-          closingHourToCompare.add(const Duration(days: 1));
-        }
 
       }
 
@@ -449,11 +452,9 @@ class _ClubPastEventsViewState extends State<ClubPastEventsView> {
       currentEvent.getEventDate().year,
       currentEvent.getEventDate().month,
       currentEvent.getEventDate().day,
-      currentEvent.getEventDate().hour,
+      currentEvent.getEventDate().hour+6,
       currentEvent.getEventDate().minute,
     );
-    closingHourToCompare.add(const Duration(hours: 6));
-
 
     if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
         closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){

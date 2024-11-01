@@ -69,15 +69,8 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
       _supabaseService.getDiscountsOfSpecificClub(userDataProvider.getUserData().getClubId())
       .then((data) => filterDiscountsFromQuery(data));
     }else{
-      for(var currentDiscount in fetchedContentProvider.getFetchedDiscounts()){
-        if(checkIfIsUpcomingDiscount(currentDiscount)){
-          upcomingDiscounts.add(currentDiscount);
-        }else{
-          pastDiscounts.add(currentDiscount);
-        }
-        checkIfFilteringIsNecessary();
+        filterDiscountsFromProvider();
         setState(() {});
-      }
     }
 
   }
@@ -142,7 +135,7 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
     // We have something to show? Awesome, now apply an ascending order
     if(pastDiscounts.isNotEmpty){
       pastDiscounts.sort((a,b) =>
-          a.getDiscountDate().millisecondsSinceEpoch.compareTo(b.getDiscountDate().millisecondsSinceEpoch)
+          b.getDiscountDate().millisecondsSinceEpoch.compareTo(a.getDiscountDate().millisecondsSinceEpoch)
       );
     }
 
@@ -184,7 +177,7 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
     // We have something to show? Awesome, now apply an ascending order
     if(pastDiscounts.isNotEmpty){
       pastDiscounts.sort((a,b) =>
-          a.getDiscountDate().millisecondsSinceEpoch.compareTo(b.getDiscountDate().millisecondsSinceEpoch)
+          b.getDiscountDate().millisecondsSinceEpoch.compareTo(a.getDiscountDate().millisecondsSinceEpoch)
       );
     }
 
