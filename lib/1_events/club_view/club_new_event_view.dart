@@ -1639,7 +1639,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
     ClubMeEvent newEvent = ClubMeEvent(
 
       eventId: uuidV4,
-      priorityScore: 0.0,
+      priorityScore: userDataProvider.getUserClub().getPriorityScore().toDouble(),
       eventDate: concatenatedDate,
       musicGenres: musicGenresString,
       eventMarketingCreatedAt: file != null ? DateTime.now(): null,
@@ -1657,7 +1657,8 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
       openingTimes: userDataProvider.getUserClubOpeningTimes(),
 
       isRepeatedDays: isRepeated != 0 ? daysToRepeat : 0,
-      closingDate: closingTimeWasChanged ? concatenatedClosingDate : null
+      closingDate: closingTimeWasChanged ? concatenatedClosingDate : null,
+      showEventInApp: userDataProvider.getUserClub().getClubId() == "9876-1234-5684" ? false : true
 
     );
 

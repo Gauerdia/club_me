@@ -394,9 +394,7 @@ class _UserClubsViewState extends State<UserClubsView>
 
                   for(var club in clubsToDisplay)
                     ClubCard(
-                      events: fetchedContentProvider.getFetchedEvents().where((event){
-                        return (event.getClubId() == club.getClubId() && checkIfIsEventIsAfterToday(event, club));
-                      }).toList(),
+                      events: getUpcomingClubEvents(club.getClubId(), club),
                       clubMeClub: club,
                       triggerSetState: triggerSetState,
                       clickEventShare: clickEventShare,
@@ -422,6 +420,14 @@ class _UserClubsViewState extends State<UserClubsView>
       ),
     );
   }
+
+  List<ClubMeEvent> getUpcomingClubEvents(String clubId, ClubMeClub club){
+
+    return fetchedContentProvider.getFetchedEvents().where((event){
+      return (event.getClubId() == club.getClubId() && checkIfIsEventIsAfterToday(event, club));
+    }).toList();
+  }
+
   Widget _buildFilterMenu(){
     return Container(
       padding: EdgeInsets.only(
@@ -788,6 +794,7 @@ class _UserClubsViewState extends State<UserClubsView>
     // Easies case: With closing data, we know exactly when to stop displaying.
     if(currentEvent.getClosingDate() != null){
 
+
       closingHourToCompare = DateTime(
         currentEvent.getClosingDate()!.year,
         currentEvent.getClosingDate()!.month,
@@ -815,25 +822,21 @@ class _UserClubsViewState extends State<UserClubsView>
             currentEvent.getEventDate().year,
             currentEvent.getEventDate().month,
             currentEvent.getEventDate().day,
-            currentEvent.getEventDate().hour,
+            currentEvent.getEventDate().hour+6,
             currentEvent.getEventDate().minute
         );
-        closingHourToCompare.add(const Duration(hours: 6));
-      }else{
+
+      }
+      else{
 
         closingHourToCompare = DateTime(
             currentEvent.getEventDate().year,
             currentEvent.getEventDate().month,
-            currentEvent.getEventDate().day,
+            currentEvent.getEventDate().day+1,
             clubOpeningTimesForThisDay.closingHour!,
             clubOpeningTimesForThisDay.closingHalfAnHour == 1 ? 30 :
             clubOpeningTimesForThisDay.closingHalfAnHour == 2 ? 59 : 0
         );
-
-        // Do this instead of day+1 because otherwise it might bug at the last day of a month
-        if(clubOpeningTimesForThisDay.closingHour! < currentEvent.getEventDate().hour){
-          closingHourToCompare.add(const Duration(days: 1));
-        }
 
       }
 
@@ -851,24 +854,15 @@ class _UserClubsViewState extends State<UserClubsView>
       currentEvent.getEventDate().year,
       currentEvent.getEventDate().month,
       currentEvent.getEventDate().day,
-      currentEvent.getEventDate().hour,
+      currentEvent.getEventDate().hour+6,
       currentEvent.getEventDate().minute,
     );
-    closingHourToCompare.add(const Duration(hours: 6));
-
 
     if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
         closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
       return true;
     }
     return false;
-
-
-    // if(event.getEventDate().add(const Duration(hours: 6)).isBefore(stateProvider.getBerlinTime())){
-    //   return false;
-    // }else{
-    //   return true;
-    // }
 
   }
 

@@ -346,12 +346,26 @@ class _UserCouponsViewState extends State<UserCouponsView>
 
       ClubMeDiscount currentDiscount = parseClubMeDiscount(element);
 
-      if(checkIfIsUpcomingDiscount(currentDiscount)){
-        if(!fetchedContentProvider.getFetchedDiscounts().contains(currentDiscount) &&
-           !checkIfAnyRestrictionsApply(currentDiscount)){
-          fetchedContentProvider.addDiscountToFetchedDiscounts(currentDiscount);
+
+      // Accessing as dev: Just push it through. Otherwise, check for toggle
+      if(stateProvider.getUsingTheAppAsADeveloper()){
+
+        if(checkIfIsUpcomingDiscount(currentDiscount)){
+          if(!fetchedContentProvider.getFetchedDiscounts().contains(currentDiscount) &&
+              !checkIfAnyRestrictionsApply(currentDiscount)){
+            fetchedContentProvider.addDiscountToFetchedDiscounts(currentDiscount);
+          }
+        }
+
+      }else if(!fetchedContentProvider.getFetchedDiscounts().contains(currentDiscount) && currentDiscount.getShowDiscountInApp()){
+        if(checkIfIsUpcomingDiscount(currentDiscount)){
+          if(!fetchedContentProvider.getFetchedDiscounts().contains(currentDiscount) &&
+              !checkIfAnyRestrictionsApply(currentDiscount)){
+            fetchedContentProvider.addDiscountToFetchedDiscounts(currentDiscount);
+          }
         }
       }
+
     }
 
     _tabController = TabController(length:fetchedContentProvider.getFetchedDiscounts().length, vsync: this);
@@ -623,7 +637,7 @@ class _UserCouponsViewState extends State<UserCouponsView>
     var discountWeekDay = currentDiscount.getDiscountDate().hour <= 6 ?
     currentDiscount.getDiscountDate().weekday-1 : currentDiscount.getDiscountDate().weekday;
 
-    ClubMeClub currentClub = fetchedContentProvider.getFetchedClubs().firstWhere(
+    ClubMeClub? currentClub = fetchedContentProvider.getFetchedClubs().firstWhere(
             (club) => club.getClubId() == currentDiscount.getClubId()
     );
 
@@ -660,16 +674,12 @@ class _UserCouponsViewState extends State<UserCouponsView>
       closingHourToCompare = DateTime(
           currentDiscount.getDiscountDate().year,
           currentDiscount.getDiscountDate().month,
-          currentDiscount.getDiscountDate().day,
+          currentDiscount.getDiscountDate().day+1,
           clubOpeningTimesForThisDay.closingHour!,
           clubOpeningTimesForThisDay.closingHalfAnHour! == 1 ? 30 :
           clubOpeningTimesForThisDay.closingHalfAnHour! == 2 ? 59 : 0
       );
 
-      // Do this instead of day+1 because otherwise it might bug at the last day of a month
-      if(clubOpeningTimesForThisDay.closingHour! < clubOpeningTimesForThisDay.openingHour!){
-        closingHourToCompare.add(const Duration(days: 1));
-      }
 
       if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
           closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
@@ -684,11 +694,9 @@ class _UserCouponsViewState extends State<UserCouponsView>
       currentDiscount.getDiscountDate().year,
       currentDiscount.getDiscountDate().month,
       currentDiscount.getDiscountDate().day,
-      currentDiscount.getDiscountDate().hour,
+      currentDiscount.getDiscountDate().hour+6,
       currentDiscount.getDiscountDate().minute,
     );
-    // There is no time limit, we show for 6 hours after start
-    closingHourToCompare.add(const Duration(hours: 6));
 
     // If the code proceeded until this point and has not returned nothing yet,
     // we have an odd case and shouldn't display anything.

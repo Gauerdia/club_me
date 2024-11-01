@@ -142,6 +142,13 @@ class ClubMeClub{
     final berlin = tz.getLocation('Europe/Berlin');
     final todayTimestamp = tz.TZDateTime.from(DateTime.now(), berlin);
 
+    final berlinTimeStampWithoutTZ = DateTime(
+      todayTimestamp.year,
+      todayTimestamp.month,
+      todayTimestamp.day,
+      todayTimestamp.hour,
+      todayTimestamp.minute
+    );
 
     // Get events of the club
     List<ClubMeEvent>? clubsEventsToday;
@@ -149,7 +156,7 @@ class ClubMeClub{
     try{
       clubsEventsToday = currentEvents.where((event) =>
       event.getClubId() == getClubId() &&
-          event.getEventDate().weekday == todayTimestamp.weekday).toList();
+          event.getEventDate().weekday == berlinTimeStampWithoutTZ.weekday).toList();
       clubsEventsToday.sort(
               (a,b) => a.getEventDate().hour.compareTo(b.getEventDate().hour)
       );
@@ -158,7 +165,7 @@ class ClubMeClub{
     try{
       clubsEventsYesterday = currentEvents.where((event) =>
       event.getClubId() == getClubId() &&
-          event.getEventDate().weekday == todayTimestamp.weekday-1).toList();
+          event.getEventDate().weekday == berlinTimeStampWithoutTZ.weekday-1).toList();
       clubsEventsYesterday.sort(
               (a,b) => a.getEventDate().hour.compareTo(b.getEventDate().hour)
       );
@@ -174,10 +181,10 @@ class ClubMeClub{
     }
 
     Days? yesterdaysOpeningTimes = tempOpeningTimes.days!
-        .firstWhereOrNull((element) => element.day == (todayTimestamp.weekday-1));
+        .firstWhereOrNull((element) => element.day == (berlinTimeStampWithoutTZ.weekday-1));
 
     Days? todaysOpeningTimes = tempOpeningTimes.days!
-        .firstWhereOrNull((element) => element.day == todayTimestamp.weekday);
+        .firstWhereOrNull((element) => element.day == berlinTimeStampWithoutTZ.weekday);
 
     DateTime? yesterdayOpeningAsDateTime;
     DateTime? yesterdayClosingAsDateTime;
@@ -188,9 +195,9 @@ class ClubMeClub{
     if(yesterdaysOpeningTimes != null){
 
       yesterdayOpeningAsDateTime = DateTime(
-          todayTimestamp.year,
-          todayTimestamp.month,
-          todayTimestamp.day-1,
+          berlinTimeStampWithoutTZ.year,
+          berlinTimeStampWithoutTZ.month,
+          berlinTimeStampWithoutTZ.day-1,
           yesterdaysOpeningTimes.openingHour!,
           yesterdaysOpeningTimes.openingHalfAnHour == 2 ?
           59 : yesterdaysOpeningTimes.openingHalfAnHour == 1 ?
@@ -198,10 +205,10 @@ class ClubMeClub{
       );
 
       yesterdayClosingAsDateTime = DateTime(
-          todayTimestamp.year,
-          todayTimestamp.month,
+          berlinTimeStampWithoutTZ.year,
+          berlinTimeStampWithoutTZ.month,
           yesterdaysOpeningTimes.closingHour! > yesterdaysOpeningTimes.openingHour! ?
-          todayTimestamp.day-1 : todayTimestamp.day,
+          berlinTimeStampWithoutTZ.day-1 : berlinTimeStampWithoutTZ.day,
           yesterdaysOpeningTimes.closingHour!,
           yesterdaysOpeningTimes.closingHalfAnHour == 2 ?
           59 : yesterdaysOpeningTimes.closingHalfAnHour == 1 ?
@@ -212,9 +219,9 @@ class ClubMeClub{
     if(todaysOpeningTimes != null){
 
       todayOpeningAsDateTime = DateTime(
-          todayTimestamp.year,
-          todayTimestamp.month,
-          todayTimestamp.day,
+          berlinTimeStampWithoutTZ.year,
+          berlinTimeStampWithoutTZ.month,
+          berlinTimeStampWithoutTZ.day,
           todaysOpeningTimes.openingHour!,
           todaysOpeningTimes.openingHalfAnHour == 2 ?
           59 : todaysOpeningTimes.openingHalfAnHour == 1 ?
@@ -222,10 +229,10 @@ class ClubMeClub{
       );
 
       todayClosingAsDateTime = DateTime(
-          todayTimestamp.year,
-          todayTimestamp.month,
+          berlinTimeStampWithoutTZ.year,
+          berlinTimeStampWithoutTZ.month,
           todaysOpeningTimes.closingHour! < todaysOpeningTimes.openingHour! ?
-          todayTimestamp.day+1: todayTimestamp.day,
+          berlinTimeStampWithoutTZ.day+1: berlinTimeStampWithoutTZ.day,
           todaysOpeningTimes.closingHour!,
           todaysOpeningTimes.closingHalfAnHour == 2 ?
           59 : todaysOpeningTimes.closingHalfAnHour == 1 ?
@@ -245,9 +252,10 @@ class ClubMeClub{
     if(yesterdayOpeningAsDateTime != null && yesterdayClosingAsDateTime != null){
 
       // We are inside of an active opening time
-      if(todayTimestamp.isAfter(yesterdayOpeningAsDateTime) && todayTimestamp.isBefore(yesterdayClosingAsDateTime)){
+      if(berlinTimeStampWithoutTZ.isAfter(yesterdayOpeningAsDateTime) && berlinTimeStampWithoutTZ.isBefore(yesterdayClosingAsDateTime)){
 
-        if(todayTimestamp.difference(yesterdayClosingAsDateTime).inHours <= 2){
+        if(yesterdayClosingAsDateTime.difference(berlinTimeStampWithoutTZ).inHours <= 2){
+
           return ClubOpenStatus(
               openingStatus: 3,
               textToDisplay:  yesterdayClosingAsDateTime.minute < 10 ?
@@ -260,21 +268,22 @@ class ClubMeClub{
       }
 
       // Don't do anything if is after. The rest of the algo will check for other possible settings.
-      if(todayTimestamp.isAfter(yesterdayClosingAsDateTime)){}
+      if(berlinTimeStampWithoutTZ.isAfter(yesterdayClosingAsDateTime)){}
 
     }
 
     // Maybe an event without opening times from yesterday?
     if(clubsEventsYesterday != null){
+
       for(var event in clubsEventsYesterday){
 
         // Ideally, there is a closing date available
         if(event.getClosingDate() != null){
 
           // only interesting constellation: we are in between the event times
-          if(todayTimestamp.isAfter(event.getEventDate()) && todayTimestamp.isBefore(event.getClosingDate()!)
+          if(berlinTimeStampWithoutTZ.isAfter(event.getEventDate()) && berlinTimeStampWithoutTZ.isBefore(event.getClosingDate()!)
           ){
-            if(todayTimestamp.difference(event.getClosingDate()!).inHours <= 2){
+            if(event.getClosingDate()!.difference(berlinTimeStampWithoutTZ).inHours <= 2){
               return ClubOpenStatus(
                   openingStatus: 3,
                   textToDisplay: event.getClosingDate()!.minute < 10 ?
@@ -299,7 +308,7 @@ class ClubMeClub{
 
           // Only interesting case: The event surpasses midnight
           // only interesting constellation: we are in between the event times
-          if(todayTimestamp.isAfter(event.getEventDate()) && todayTimestamp.isBefore(tempEventEnding)){
+          if(berlinTimeStampWithoutTZ.isAfter(event.getEventDate()) && berlinTimeStampWithoutTZ.isBefore(tempEventEnding)){
               return ClubOpenStatus(openingStatus: 2, textToDisplay: "");
           }
         }
@@ -311,10 +320,10 @@ class ClubMeClub{
     if(todayOpeningAsDateTime != null && todayClosingAsDateTime != null){
 
       // We are inside of an active opening time
-      if(todayTimestamp.isAfter(todayOpeningAsDateTime) && todayTimestamp.isBefore(todayClosingAsDateTime)){
+      if(berlinTimeStampWithoutTZ.isAfter(todayOpeningAsDateTime) && berlinTimeStampWithoutTZ.isBefore(todayClosingAsDateTime)){
 
         // Check if it's still worth it
-        if(todayTimestamp.difference(todayClosingAsDateTime).inHours <= 2){
+        if(todayClosingAsDateTime.difference(berlinTimeStampWithoutTZ).inHours <= 2){
           return ClubOpenStatus(
               openingStatus: 3,
               textToDisplay: todayClosingAsDateTime.minute < 10 ?
@@ -327,7 +336,8 @@ class ClubMeClub{
       }
 
       // If we are before, we save the info but check other settings first.
-      if(todayTimestamp.isBefore(todayOpeningAsDateTime)){
+      if(berlinTimeStampWithoutTZ.isBefore(todayOpeningAsDateTime)){
+
         currentStatusToReturn = ClubOpenStatus(
             openingStatus: 1,
             textToDisplay: todayOpeningAsDateTime.minute < 10 ?
@@ -336,7 +346,7 @@ class ClubMeClub{
         );
       }
       // If we are after an event, we save the info but check other settings first.
-      else if(todayTimestamp.isAfter(todayClosingAsDateTime)){
+      else if(berlinTimeStampWithoutTZ.isAfter(todayClosingAsDateTime)){
         currentStatusToReturn = ClubOpenStatus(
             openingStatus: 0,
             textToDisplay: ""
@@ -353,12 +363,13 @@ class ClubMeClub{
 
           // Only interesting case: The event surpasses midnight
           // only interesting constellation: we are in between the event times
-          if(todayTimestamp.isAfter(event.getEventDate()) && todayTimestamp.isBefore(event.getClosingDate()!)){
+          if(berlinTimeStampWithoutTZ.isAfter(event.getEventDate()) && berlinTimeStampWithoutTZ.isBefore(event.getClosingDate()!)){
             return ClubOpenStatus(openingStatus: 2, textToDisplay: "");
           }
 
           // if currentStatusToReturn is null, that means there is no opening time today
-          if(todayTimestamp.isBefore(event.getEventDate()) && currentStatusToReturn == null){
+          if(berlinTimeStampWithoutTZ.isBefore(event.getEventDate()) && currentStatusToReturn == null){
+
             return ClubOpenStatus(
                 openingStatus: 1,
                 textToDisplay: event.getEventDate().minute < 10 ?
@@ -375,12 +386,13 @@ class ClubMeClub{
           tempEventEnding.add(const Duration(hours: 6));
 
           // only interesting constellation: we are in between the event times
-          if(todayTimestamp.isAfter(event.getEventDate()) && todayTimestamp.isBefore(tempEventEnding)){
+          if(berlinTimeStampWithoutTZ.isAfter(event.getEventDate()) && berlinTimeStampWithoutTZ.isBefore(tempEventEnding)){
             return ClubOpenStatus(openingStatus: 2, textToDisplay: "");
           }
 
           // if currentStatusToReturn is null, that means there is no opening time today
-          if(todayTimestamp.isBefore(event.getEventDate()) && currentStatusToReturn == null){
+          if(berlinTimeStampWithoutTZ.isBefore(event.getEventDate()) && currentStatusToReturn == null){
+
             return ClubOpenStatus(
                 openingStatus: 1,
                 textToDisplay: event.getEventDate().minute < 10 ?

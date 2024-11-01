@@ -1605,7 +1605,8 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
       priorityScore: currentAndLikedElementsProvider.currentClubMeEvent.getPriorityScore(),
       openingTimes: userDataProvider.getUserClubOpeningTimes(),
 
-      closingDate: closingTimeWasChanged ? concatenatedClosingDate : null
+      closingDate: closingTimeWasChanged ? concatenatedClosingDate : null,
+      showEventInApp: currentAndLikedElementsProvider.currentClubMeEvent.getShowEventInApp()
 
     );
 

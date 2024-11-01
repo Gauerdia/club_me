@@ -4,6 +4,7 @@ import '../opening_times.dart';
 
 ClubMeEvent parseClubMeEvent(var data){
 
+
   ClubMeEvent clubMeEvent =
   ClubMeEvent(
       eventId: data['event_id'],
@@ -23,7 +24,8 @@ ClubMeEvent parseClubMeEvent(var data){
       ticketLink: data["ticket_link"],
       isRepeatedDays: data['is_repeated_days'],
       bannerImageFileName: data['banner_image_file_name'],
-      closingDate: data['closing_date'] != null ? DateTime.tryParse(data['closing_date']): null
+      closingDate: data['closing_date'] != null ? DateTime.tryParse(data['closing_date']): null,
+      showEventInApp: data['show_event_in_app']
   );
 
   return clubMeEvent;

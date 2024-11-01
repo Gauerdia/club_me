@@ -113,7 +113,8 @@ class SupabaseService{
 
         "is_repeated_days": clubMeEvent.getIsRepeatedDays(),
         "ticket_link": clubMeEvent.getTicketLink(),
-        "closing_date": clubMeEvent.getClosingDate()?.toString()
+        "closing_date": clubMeEvent.getClosingDate()?.toString(),
+        'show_event_in_app': clubMeEvent.getShowEventInApp()
 
       });
       log.d("insertEvent: Finished successfully. Response: $data");
@@ -505,7 +506,8 @@ class SupabaseService{
 
         'is_repeated_days': clubMeDiscount.getIsRepeatedDays(),
         'big_banner_file_name': clubMeDiscount.getBigBannerFileName(),
-        'small_banner_file_name': clubMeDiscount.getSmallBannerFileName()
+        'small_banner_file_name': clubMeDiscount.getSmallBannerFileName(),
+        'show_discount_in_app': clubMeDiscount.getShowDiscountInApp()
 
       }).select();
       log.d("insertDiscount: Finished successfully. Response: $data");

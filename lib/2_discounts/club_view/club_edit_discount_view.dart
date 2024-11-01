@@ -1392,7 +1392,8 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
 
         bigBannerFileName: Utils.discountBigImageNames[_currentPageIndex],
       smallBannerFileName: Utils.discountSmallImageNames[_currentPageIndex],
-      openingTimes: currentAndLikedElementsProvider.currentClubMeDiscount.getOpeningTimes()
+      openingTimes: currentAndLikedElementsProvider.currentClubMeDiscount.getOpeningTimes(),
+      showDiscountInApp: currentAndLikedElementsProvider.currentClubMeDiscount.getShowDiscountInApp()
 
     );
 

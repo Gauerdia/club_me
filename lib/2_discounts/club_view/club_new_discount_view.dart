@@ -1376,7 +1376,8 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
          isRepeatedDays: isRepeatedDaysToSave,
         bigBannerFileName: Utils.discountBigImageNames[_currentPageIndex],
         smallBannerFileName: Utils.discountSmallImageNames[_currentPageIndex],
-      openingTimes: userDataProvider.getUserClub().getOpeningTimes()
+      openingTimes: userDataProvider.getUserClub().getOpeningTimes(),
+      showDiscountInApp: userDataProvider.getUserClub().getClubId() == "9876-1234-5684" ? false: true
     );
 
     if(isSupposedToBeTemplate == 1){

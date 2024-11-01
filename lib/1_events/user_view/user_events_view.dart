@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:club_me/1_events/club_view/club_events_view.dart';
 import 'package:club_me/main.dart';
 import 'package:club_me/models/hive_models/0_club_me_user_data.dart';
 import 'package:club_me/models/parser/special_days_to_days_parser.dart';
@@ -32,6 +33,8 @@ import 'package:intl/intl.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
 import 'components/event_tile.dart';
+
+import 'package:collection/collection.dart';
 
 class UserEventsView extends StatefulWidget {
   const UserEventsView({Key? key}) : super(key: key);
@@ -792,13 +795,27 @@ class _UserEventsViewState extends State<UserEventsView> {
 
       ClubMeEvent currentEvent = parseClubMeEvent(element);
 
-      if(checkIfUpcomingEvent(currentEvent)){
-        if(!fetchedContentProvider.getFetchedEvents().contains(currentEvent)){
-          fetchedContentProvider.addEventToFetchedEvents(currentEvent);
-          eventsToDisplay.add(currentEvent);
+      // Accessing as dev: Just push it through. Otherwise, check for toggle
+      if(stateProvider.getUsingTheAppAsADeveloper()){
+
+        if(checkIfUpcomingEvent(currentEvent)){
+          if(!fetchedContentProvider.getFetchedEvents().contains(currentEvent)){
+            fetchedContentProvider.addEventToFetchedEvents(currentEvent);
+            eventsToDisplay.add(currentEvent);
+          }
+        }
+
+      }else if(!fetchedContentProvider.getFetchedEvents().contains(currentEvent) && currentEvent.getShowEventInApp()){
+        if(checkIfUpcomingEvent(currentEvent)){
+          if(!fetchedContentProvider.getFetchedEvents().contains(currentEvent)){
+            fetchedContentProvider.addEventToFetchedEvents(currentEvent);
+            eventsToDisplay.add(currentEvent);
+          }
         }
       }
     }
+
+
 
     // Check if we need to download the corresponding images
     _checkAndFetchService.checkAndFetchEventImages(
@@ -918,8 +935,23 @@ class _UserEventsViewState extends State<UserEventsView> {
 
     }else{
       isAnyFilterActive = false;
-      eventsToDisplay = fetchedContentProvider.getFetchedEvents();
+
+      for(var event in fetchedContentProvider.getFetchedEvents()){
+        eventsToDisplay.add(event);
+      }
     }
+
+    eventsToDisplay.sort((a,b) {
+
+      DateTime firstDate = DateTime(a.getEventDate().year, a.getEventDate().month, a.getEventDate().day);
+      DateTime secondDate = DateTime(b.getEventDate().year, b.getEventDate().month, b.getEventDate().day);
+
+      int cmp = firstDate.compareTo(secondDate);
+      if (cmp != 0) return cmp;
+      print("inside, ${a.getPriorityScore()}, ${b.getPriorityScore()}");
+      return a.getPriorityScore().compareTo(b.getPriorityScore());
+    });
+
   }
   void filterForFavorites(){
     setState(() {
@@ -997,13 +1029,20 @@ class _UserEventsViewState extends State<UserEventsView> {
     currentEvent.getEventDate().weekday -1 :
     currentEvent.getEventDate().weekday;
 
-    ClubMeClub currentClub = fetchedContentProvider.getFetchedClubs().firstWhere(
+    ClubMeClub? currentClub = fetchedContentProvider.getFetchedClubs().firstWhereOrNull(
             (club) => club.getClubId() == currentEvent.getClubId()
     );
 
+    if(currentClub == null){
+      log.d(
+        "Error in UserEventsView. No corresponding club found. "
+            "Event: ${currentEvent.getEventTitle()} ${currentEvent.getEventId()}, its clubId: ${currentEvent.getClubId()}"
+      );
+    }
+
     // Get regular opening times
     try{
-      clubOpeningTimesForThisDay = currentClub.getOpeningTimes().days?.firstWhere(
+      clubOpeningTimesForThisDay = currentClub?.getOpeningTimes().days?.firstWhereOrNull(
               (days) => days.day == eventWeekDay);
     }catch(e){
       print("UserEventsView. Error in checkIfUpcomingEvent, clubOpeningTimesForThisDay: $e");
@@ -1019,6 +1058,7 @@ class _UserEventsViewState extends State<UserEventsView> {
           currentEvent.getClosingDate()!.hour,
           currentEvent.getClosingDate()!.minute
       );
+
       if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
           closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
         return true;
@@ -1031,16 +1071,11 @@ class _UserEventsViewState extends State<UserEventsView> {
       closingHourToCompare = DateTime(
           currentEvent.getEventDate().year,
           currentEvent.getEventDate().month,
-          currentEvent.getEventDate().day,
+          currentEvent.getEventDate().day+1,
           clubOpeningTimesForThisDay.closingHour!,
           clubOpeningTimesForThisDay.closingHalfAnHour! == 1 ?
           30 : clubOpeningTimesForThisDay.closingHalfAnHour! == 2 ? 59 : 0
       );
-
-      // Do this instead of day+1 because otherwise it might bug at the last day of a month
-      if(clubOpeningTimesForThisDay.openingHour! > clubOpeningTimesForThisDay.closingHour!){
-        closingHourToCompare.add(const Duration(days: 1));
-      }
 
       if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
           closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
@@ -1058,10 +1093,9 @@ class _UserEventsViewState extends State<UserEventsView> {
           currentEvent.getEventDate().year,
           currentEvent.getEventDate().month,
           currentEvent.getEventDate().day,
-          currentEvent.getEventDate().hour,
+          currentEvent.getEventDate().hour+6,
         currentEvent.getEventDate().minute
       );
-      closingHourToCompare.add(const Duration(hours: 6));
 
       if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
           closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){

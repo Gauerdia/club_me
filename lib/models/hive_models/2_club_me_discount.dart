@@ -26,7 +26,8 @@ class ClubMeDiscount{
     required this.isRepeatedDays,
     required this.bigBannerFileName,
     required this.smallBannerFileName,
-    required this.openingTimes
+    required this.openingTimes,
+    required this.showDiscountInApp
   });
 
   @HiveField(0)
@@ -76,6 +77,13 @@ class ClubMeDiscount{
 
   @HiveField(19)
   OpeningTimes openingTimes;
+
+  @HiveField(20)
+  bool showDiscountInApp;
+
+  bool getShowDiscountInApp(){
+    return showDiscountInApp;
+  }
 
   OpeningTimes getOpeningTimes(){
     return openingTimes;
