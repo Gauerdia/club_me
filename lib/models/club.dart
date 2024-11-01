@@ -190,28 +190,24 @@ class ClubMeClub{
       yesterdayOpeningAsDateTime = DateTime(
           todayTimestamp.year,
           todayTimestamp.month,
-          todayTimestamp.day,
+          todayTimestamp.day-1,
           yesterdaysOpeningTimes.openingHour!,
           yesterdaysOpeningTimes.openingHalfAnHour == 2 ?
           59 : yesterdaysOpeningTimes.openingHalfAnHour == 1 ?
           30 : 0
       );
-      yesterdayOpeningAsDateTime.subtract(const Duration(days: 1));
 
       yesterdayClosingAsDateTime = DateTime(
           todayTimestamp.year,
           todayTimestamp.month,
-          todayTimestamp.day,
+          yesterdaysOpeningTimes.closingHour! > yesterdaysOpeningTimes.openingHour! ?
+          todayTimestamp.day-1 : todayTimestamp.day,
           yesterdaysOpeningTimes.closingHour!,
           yesterdaysOpeningTimes.closingHalfAnHour == 2 ?
           59 : yesterdaysOpeningTimes.closingHalfAnHour == 1 ?
           30 : 0
       );
 
-      // If the closing hour finishes after the opening hour, it doesn't surpass midnight
-      if(yesterdaysOpeningTimes.closingHour! > yesterdaysOpeningTimes.openingHour!){
-        yesterdayOpeningAsDateTime.subtract(const Duration(days: 1));
-      }
     }
     if(todaysOpeningTimes != null){
 
@@ -228,17 +224,13 @@ class ClubMeClub{
       todayClosingAsDateTime = DateTime(
           todayTimestamp.year,
           todayTimestamp.month,
-          todayTimestamp.day,
+          todaysOpeningTimes.closingHour! < todaysOpeningTimes.openingHour! ?
+          todayTimestamp.day+1: todayTimestamp.day,
           todaysOpeningTimes.closingHour!,
           todaysOpeningTimes.closingHalfAnHour == 2 ?
           59 : todaysOpeningTimes.closingHalfAnHour == 1 ?
           30 : 0
       );
-
-      // If the closing hour finishes after the opening hour, it doesn't surpass midnight
-      if(todaysOpeningTimes.closingHour! < todaysOpeningTimes.openingHour!){
-        todayClosingAsDateTime.add(const Duration(days: 1));
-      }
 
     }
 
@@ -297,8 +289,13 @@ class ClubMeClub{
         // If there is no closing date available, we assume at least 6 hours event time
         else{
 
-          DateTime tempEventEnding = event.getEventDate();
-          tempEventEnding.add(const Duration(hours: 6));
+          DateTime tempEventEnding = DateTime(
+            event.getEventDate().year,
+            event.getEventDate().month,
+            event.getEventDate().day,
+            event.getEventDate().hour+6,
+            event.getEventDate().minute,
+          );
 
           // Only interesting case: The event surpasses midnight
           // only interesting constellation: we are in between the event times

@@ -438,10 +438,24 @@ class CouponCardClub extends StatelessWidget {
   }
   void formatDateToDisplay(){
 
-    weekDayToDisplay = DateFormat('dd.MM.yyyy').format(clubMeDiscount.getDiscountDate());
+    DateTime dateToUse;
+    if(clubMeDiscount.getHasTimeLimit() && clubMeDiscount.getDiscountDate().hour < 8){
+      dateToUse = DateTime(
+          clubMeDiscount.getDiscountDate().year,
+          clubMeDiscount.getDiscountDate().month,
+          clubMeDiscount.getDiscountDate().day-1,
+          clubMeDiscount.getDiscountDate().hour,
+          clubMeDiscount.getDiscountDate().minute
+      );
+    }else{
+      dateToUse = clubMeDiscount.getDiscountDate();
+    }
+
+    weekDayToDisplay = DateFormat('dd.MM.yyyy').format(dateToUse);
 
     var eventDateWeekday = clubMeDiscount.getDiscountDate().weekday;
     switch(eventDateWeekday){
+      case(0): weekDayToDisplay = "Sonntag, $weekDayToDisplay";
       case(1): weekDayToDisplay = "Montag, $weekDayToDisplay";
       case(2): weekDayToDisplay = "Dienstag, $weekDayToDisplay";
       case(3): weekDayToDisplay = "Mittwoch, $weekDayToDisplay";

@@ -113,7 +113,7 @@ class SupabaseService{
 
         "is_repeated_days": clubMeEvent.getIsRepeatedDays(),
         "ticket_link": clubMeEvent.getTicketLink(),
-        "closing_date": clubMeEvent.getClosingDate().toString()
+        "closing_date": clubMeEvent.getClosingDate()?.toString()
 
       });
       log.d("insertEvent: Finished successfully. Response: $data");

@@ -1525,34 +1525,14 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
   }
   void clickEventProcessNewDiscount(){
 
-    late DateTime concatenatedDate;
-
-    // If there is no limit we use the latest hour possible
-    if(hasTimeLimit == 0){
-      concatenatedDate = DateTime(
-          newSelectedDate.year,
-          newSelectedDate.month,
-          newSelectedDate.day,
-          23,
-          59
-      );
-    }else{
-      concatenatedDate = DateTime(
-          newSelectedDate.year,
-          newSelectedDate.month,
-          newSelectedDate.day,
-          selectedHour,
-          selectedMinute
-      );
-    }
-
     setState(() {
       isUploading = true;
     });
 
     if(_discountTitleController.text.isEmpty){
       showDialogOfMissingValue();
-    }else{
+    }
+    else{
 
       late DateTime concatenatedDate;
 
@@ -1566,9 +1546,12 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
             59
         );
       }else{
+
         concatenatedDate = DateTime(
             newSelectedDate.year,
             newSelectedDate.month,
+            selectedHour < 10  ?
+            newSelectedDate.day+1:
             newSelectedDate.day,
             selectedHour,
             selectedMinute

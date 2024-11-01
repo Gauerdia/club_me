@@ -238,6 +238,8 @@ class _ClubPastDiscountsViewState extends State<ClubPastDiscountsView>
       //   discountsToDisplay.add(discount);
       // }
     }
+
+    _tabController = TabController(length: discountsToDisplay.length, vsync: this);
   }
   bool checkIfIsLiked(ClubMeDiscount discount){
     return false;

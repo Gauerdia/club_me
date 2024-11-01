@@ -114,8 +114,8 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
   }
   void filterDiscountsFromProvider(){
 
-    // upcomingDiscounts = [];
-    // pastDiscounts = [];
+    upcomingDiscounts = [];
+    pastDiscounts = [];
 
     for(var currentDiscount in fetchedContentProvider.getFetchedDiscounts()){
       if(checkIfIsUpcomingDiscount(currentDiscount)){
@@ -237,22 +237,17 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
     }
 
 
-    // Second case: There are regular opening times but no time limi
+    // Second case: There are regular opening times but no time limit
     if(clubOpeningTimesForThisDay != null){
 
         closingHourToCompare = DateTime(
           currentDiscount.getDiscountDate().year,
           currentDiscount.getDiscountDate().month,
-          currentDiscount.getDiscountDate().day,
+          currentDiscount.getDiscountDate().day+1,
           clubOpeningTimesForThisDay.closingHour!,
             clubOpeningTimesForThisDay.closingHalfAnHour == 1 ? 30 :
             clubOpeningTimesForThisDay.closingHalfAnHour == 2 ? 59 : 0
         );
-
-        // Do this instead of day+1 because otherwise it might bug at the last day of a month
-        if(clubOpeningTimesForThisDay.closingHour! < currentDiscount.getDiscountDate().hour){
-          closingHourToCompare.add(const Duration(days: 1));
-        }
 
       if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
           closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
@@ -267,11 +262,10 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
         currentDiscount.getDiscountDate().year,
         currentDiscount.getDiscountDate().month,
         currentDiscount.getDiscountDate().day,
-        currentDiscount.getDiscountDate().hour,
+        currentDiscount.getDiscountDate().hour+6,
         currentDiscount.getDiscountDate().minute,
       );
-      // There is no time limit, we show for 6 hours after start
-      closingHourToCompare.add(const Duration(hours: 6));
+
 
       if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
           closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
@@ -593,8 +587,11 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
               onPressed: () => _supabaseService.deleteDiscount(upcomingDiscounts[0].getDiscountId()).then((value){
                 if(value == 0){
                   setState(() {
-                    fetchedContentProvider.fetchedDiscounts.removeWhere((element) => element.getDiscountId() == upcomingDiscounts[0].getDiscountId());
+                    fetchedContentProvider.removeFetchedDiscountById(upcomingDiscounts[0].getDiscountId());
                     upcomingDiscounts.removeAt(0);
+                  //   fetchedContentProvider.fetchedDiscounts.removeWhere(
+                  //           (element) => element.getDiscountId() == upcomingDiscounts[0].getDiscountId());
+                  //   upcomingDiscounts.removeAt(0);
                   });
                   Navigator.pop(context);
                 }else{
@@ -641,6 +638,7 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
   @override
   Widget build(BuildContext context) {
 
+
     customStyleClass = CustomStyleClass(context: context);
     stateProvider = Provider.of<StateProvider>(context);
     userDataProvider = Provider.of<UserDataProvider>(context);
@@ -651,6 +649,12 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
 
+    // Triggers after deleting or adding a discount to the grid
+    if(upcomingDiscounts.length + pastDiscounts.length != fetchedContentProvider.getFetchedDiscounts().where(
+        (discount) => discount.getClubId() == userDataProvider.getUserData().getClubId()
+    ).toList().length){
+      filterDiscountsFromProvider();
+    }
 
 
     //checkIfFilteringIsNecessary();

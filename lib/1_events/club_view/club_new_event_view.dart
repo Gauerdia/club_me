@@ -89,9 +89,9 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
   String eventMusicGenresString = "";
 
   int creationIndex = 0;
-  int selectedStartingHour = 22;
+  int selectedStartingHour = 0;
   int selectedStartingMinute = 0;
-  int selectedClosingHour = 5;
+  int selectedClosingHour = 0;
   int selectedClosingMinute = 0;
 
   double originalFoldHeightFactor = 0.08;
@@ -121,6 +121,8 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
   ByteData? screenshot;
 
   double distanceBetweenTitleAndTextField = 10;
+
+  bool closingTimeWasChanged = false;
 
 
 
@@ -654,7 +656,8 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                                             )
                                         ),
                                         child: Text(
-                                          formatSelectedHourAndMinute(selectedClosingHour, selectedClosingMinute),
+                                          closingTimeWasChanged ? formatSelectedHourAndMinute(selectedClosingHour, selectedClosingMinute)
+                                          : "--.--",
                                           style: customStyleClass.getFontStyle4(),
                                         )
                                     ),
@@ -1155,6 +1158,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                                     setState(() {
                                       if(timePickEndActive){
                                         selectedClosingHour = index;
+                                        closingTimeWasChanged = true;
                                       }else{
                                         selectedStartingHour = index;
                                       }
@@ -1185,6 +1189,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                                     setState(() {
                                       if(timePickEndActive){
                                         selectedClosingMinute = int.parse(minuteValuesToChoose[index]);
+                                        closingTimeWasChanged = true;
                                       }else{
                                         selectedStartingMinute = int.parse(minuteValuesToChoose[index]);
                                       }
@@ -1652,7 +1657,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
       openingTimes: userDataProvider.getUserClubOpeningTimes(),
 
       isRepeatedDays: isRepeated != 0 ? daysToRepeat : 0,
-      closingDate: concatenatedClosingDate
+      closingDate: closingTimeWasChanged ? concatenatedClosingDate : null
 
     );
 
@@ -1820,21 +1825,22 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
     return "$tempDay.$tempMonth.$tempYear";
   }
   String formatSelectedHourAndMinute(int selectedHour, int selectedMinute){
-    String hourToDisplay = "", minuteToDisplay = "";
 
-    if(selectedHour < 10){
-      hourToDisplay = "0$selectedHour";
-    }else{
-      hourToDisplay = selectedHour.toString();
-    }
-    if(selectedMinute < 10){
-      minuteToDisplay = "0$selectedMinute";
-    }else{
-      minuteToDisplay = selectedMinute.toString();
-    }
+      String hourToDisplay = "", minuteToDisplay = "";
 
-    return "$hourToDisplay:$minuteToDisplay";
-  }
+      if(selectedHour < 10){
+        hourToDisplay = "0$selectedHour";
+      }else{
+        hourToDisplay = selectedHour.toString();
+      }
+      if(selectedMinute < 10){
+        minuteToDisplay = "0$selectedMinute";
+      }else{
+        minuteToDisplay = selectedMinute.toString();
+      }
+
+      return "$hourToDisplay:$minuteToDisplay";
+    }
 
 
   @override

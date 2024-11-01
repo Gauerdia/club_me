@@ -426,8 +426,10 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
               onPressed: () => _supabaseService.deleteEvent(clubMeEvent.getEventId()).then((value){
                 if(value == 0){
                   setState(() {
-                    fetchedContentProvider.fetchedEvents.removeWhere((element) => element.getEventId() == clubMeEvent.getEventId());
+                    fetchedContentProvider.fetchedEvents.removeWhere(
+                            (element) => element.getEventId() == clubMeEvent.getEventId());
                   });
+                  Navigator.pop(context);
                   Navigator.pop(context);
                 }else{
                   Navigator.pop(context);

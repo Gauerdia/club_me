@@ -209,8 +209,6 @@ class StateProvider extends ChangeNotifier{
   }
   List<ClubMeEventTemplate> getClubMeEventTemplates(){
 
-    print("getClubMeEventTemplates: $eventTemplates");
-
     try{
       return eventTemplates;
     }catch(e){

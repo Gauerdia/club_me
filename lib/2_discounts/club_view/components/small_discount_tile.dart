@@ -22,8 +22,25 @@ class SmallDiscountTile extends StatelessWidget {
 
     String weekDayToDisplay = "";
 
-    var eventDateWeekday = clubMeDiscount.getDiscountDate().weekday;
+    DateTime dateToUse;
+    int eventDateWeekday;
+
+    if(clubMeDiscount.hasTimeLimit && clubMeDiscount.getDiscountDate().hour < 8){
+      eventDateWeekday = clubMeDiscount.getDiscountDate().weekday-1;
+      dateToUse = DateTime(
+          clubMeDiscount.getDiscountDate().year,
+          clubMeDiscount.getDiscountDate().month,
+          clubMeDiscount.getDiscountDate().day-1,
+          clubMeDiscount.getDiscountDate().hour,
+          clubMeDiscount.getDiscountDate().minute
+      );
+    }else{
+      eventDateWeekday = clubMeDiscount.getDiscountDate().weekday;
+      dateToUse = clubMeDiscount.getDiscountDate();
+    }
+
     switch(eventDateWeekday){
+      case(0): weekDayToDisplay = "Sonntag";
       case(1): weekDayToDisplay = "Montag";
       case(2): weekDayToDisplay = "Dienstag";
       case(3): weekDayToDisplay = "Mittwoch";
@@ -33,13 +50,13 @@ class SmallDiscountTile extends StatelessWidget {
       case(7): weekDayToDisplay = "Sonntag";
     }
 
-    weekDayToDisplay = "$weekDayToDisplay, ${DateFormat('dd.MM.yyyy').format(clubMeDiscount.getDiscountDate())}";
+    weekDayToDisplay = "$weekDayToDisplay, ${DateFormat('dd.MM.yyyy').format(dateToUse)}";
 
     if(clubMeDiscount.getHasTimeLimit()){
-      var hourToDisplay = clubMeDiscount.getDiscountDate().hour < 10 ?
-      "0${clubMeDiscount.getDiscountDate().hour}" : clubMeDiscount.getDiscountDate().hour.toString();
-      var minuteToDisplay = clubMeDiscount.getDiscountDate().minute < 10 ?
-      "0${clubMeDiscount.getDiscountDate().minute}" : clubMeDiscount.getDiscountDate().minute.toString();
+      var hourToDisplay = dateToUse.hour < 10 ?
+      "0${dateToUse.hour}" : dateToUse.toString();
+      var minuteToDisplay = dateToUse.minute < 10 ?
+      "0${dateToUse.minute}" : dateToUse.minute.toString();
 
       weekDayToDisplay = "$weekDayToDisplay, bis $hourToDisplay:$minuteToDisplay Uhr";
     }

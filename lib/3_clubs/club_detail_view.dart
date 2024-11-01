@@ -105,8 +105,14 @@ class _ClubDetailViewState extends State<ClubDetailView> {
               (days) => days.day == eventWeekDay);
 
       if(complementaryOpeningTime == null){
+
+        String dayToAdd = event.getEventDate().day < 10 ?
+         "0${event.getEventDate().day}": event.getEventDate().day.toString();
+        String monthToAdd = event.getEventDate().month < 10 ?
+        "0${event.getEventDate().month}": event.getEventDate().month.toString();
+
            specialDayToDisplay.add(
-               "${event.getEventDate().day}.${event.getEventDate().month}.${event.getEventDate().year}"
+               "$dayToAdd.$monthToAdd.${event.getEventDate().year}"
            );
            specialDayOpeningTimeToDisplay.add(event.getEventDate().hour);
            if(event.getClosingDate() != null){
@@ -1304,29 +1310,14 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                   width: screenWidth*0.12,
                   child: Text(
                     closingHourToDisplay !=99 ?
+                    closingHourToDisplay < 10 ?
+                    "0${closingHourToDisplay.toString()}:00":
                     "${closingHourToDisplay.toString()}:00"
                         : "--.--",
                     style: customStyleClass.getFontStyle3(),
                   )
               ),
 
-              // Text(
-              //   openingHourToDisplay,
-              //   style: customStyleClass.getFontStyle3(),
-              // ),
-              // Padding(
-              //   padding: const EdgeInsets.symmetric(
-              //       horizontal: 10
-              //   ),
-              //   child: Text(
-              //     "-",
-              //     style: customStyleClass.getFontStyle3(),
-              //   ),
-              // ),
-              // Text(
-              //   closingHourToDisplay,
-              //   style: customStyleClass.getFontStyle3(),
-              // )
             ],
           )
         ],

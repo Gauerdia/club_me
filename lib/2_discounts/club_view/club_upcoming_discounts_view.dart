@@ -61,6 +61,8 @@ class _ClubUpcomingDiscountsViewState extends State<ClubUpcomingDiscountsView>
         discountsToDisplay.add(discount);
       }
 
+      _tabController = TabController(length: discountsToDisplay.length, vsync: this);
+
       // // local var to shorten the expressions
       // DateTime discountTimestamp = discount.getDiscountDate();
       //

@@ -98,6 +98,7 @@ class FetchedContentProvider extends ChangeNotifier{
   void updateSpecificEvent(String eventId, ClubMeEvent updatedClubMeEvent){
     int index = fetchedEvents.indexWhere((element) => element.getEventId() == eventId);
     fetchedEvents[index] = updatedClubMeEvent;
+    notifyListeners();
   }
   void sortFetchedEvents(){
     fetchedEvents.sort((a,b) =>
@@ -142,6 +143,10 @@ class FetchedContentProvider extends ChangeNotifier{
   }
   void removeFetchedDiscount(ClubMeDiscount clubMeDiscount){
     fetchedDiscounts.remove(clubMeDiscount);
+    notifyListeners();
+  }
+  void removeFetchedDiscountById(String discountId){
+    fetchedDiscounts.removeWhere((discount) => discount.getDiscountId() == discountId);
     notifyListeners();
   }
   void addDiscountToFetchedDiscounts(ClubMeDiscount clubMeDiscount){

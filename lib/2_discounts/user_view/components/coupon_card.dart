@@ -403,19 +403,28 @@ class CouponCard extends StatelessWidget {
   }
   void formatDateToDisplay(){
 
-    // if the hour is in the morning hours, the discount is theoretically set
-    // for the night before.
-    var eventDateWeekday = clubMeDiscount.getDiscountDate().hour < 6 ?
-    clubMeDiscount.getDiscountDate().weekday-1 :
-    clubMeDiscount.getDiscountDate().weekday;
 
-    String weekDayToDisplayWorkingString = DateFormat('dd.MM.yyyy').format(
-      clubMeDiscount.getDiscountDate().hour < 6 ?
-      clubMeDiscount.getDiscountDate().subtract(const Duration(days: 1)) :
-      clubMeDiscount.getDiscountDate()
-    );
+    DateTime dateToUse;
+    int eventDateWeekday;
+
+    if(clubMeDiscount.hasTimeLimit && clubMeDiscount.getDiscountDate().hour < 8){
+      eventDateWeekday = clubMeDiscount.getDiscountDate().weekday-1;
+      dateToUse = DateTime(
+          clubMeDiscount.getDiscountDate().year,
+          clubMeDiscount.getDiscountDate().month,
+          clubMeDiscount.getDiscountDate().day-1,
+          clubMeDiscount.getDiscountDate().hour,
+          clubMeDiscount.getDiscountDate().minute
+      );
+    }else{
+      eventDateWeekday = clubMeDiscount.getDiscountDate().weekday;
+      dateToUse = clubMeDiscount.getDiscountDate();
+    }
+
+    String weekDayToDisplayWorkingString = DateFormat('dd.MM.yyyy').format(dateToUse);
 
     switch(eventDateWeekday){
+      case(0): weekDayToDisplay = "Sonntag, $weekDayToDisplayWorkingString";
       case(1): weekDayToDisplay = "Montag, $weekDayToDisplayWorkingString";
       case(2): weekDayToDisplay = "Dienstag, $weekDayToDisplayWorkingString";
       case(3): weekDayToDisplay = "Mittwoch, $weekDayToDisplayWorkingString";

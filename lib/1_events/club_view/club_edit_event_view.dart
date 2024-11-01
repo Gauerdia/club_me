@@ -94,7 +94,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
   int selectedStartingHour = TimeOfDay.now().hour;
   int selectedStartingMinute = TimeOfDay.now().minute;
 
-  int selectedClosingHour = 5;
+  int selectedClosingHour = 0;
   int selectedClosingMinute = 0;
 
   bool timePickEndActive = false;
@@ -116,6 +116,8 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
   String pickedFileNameToDisplay = "";
 
   double distanceBetweenTitleAndTextField = 10;
+
+  bool closingTimeWasChanged = false;
 
 
   // INIT
@@ -161,6 +163,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
       _selectedClosingMinuteController = FixedExtentScrollController(
           initialItem: tempCurrentAndLikedElementsProvider.currentClubMeEvent.getClosingDate()!.minute
       );
+      closingTimeWasChanged = true;
     }else{
       _selectedClosingHourController = FixedExtentScrollController(
           initialItem: selectedClosingHour
@@ -609,7 +612,9 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                                             )
                                         ),
                                         child: Text(
-                                          formatSelectedHourAndMinute(selectedClosingHour, selectedClosingMinute),
+                                          closingTimeWasChanged ?
+                                          formatSelectedHourAndMinute(selectedClosingHour, selectedClosingMinute):
+                                            "--.--",
                                           style: customStyleClass.getFontStyle4(),
                                         )
                                     ),
@@ -1060,6 +1065,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                                     setState(() {
                                       if(timePickEndActive){
                                         selectedClosingHour = index;
+                                        closingTimeWasChanged = true;
                                       }else{
                                         selectedStartingHour = index;
                                       }
@@ -1098,6 +1104,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
 
                                       if(timePickEndActive){
                                         selectedClosingMinute = int.parse(minuteValuesToChoose[index]);
+                                        closingTimeWasChanged = true;
                                       }else{
                                         selectedStartingMinute = int.parse(minuteValuesToChoose[index]);
                                       }
@@ -1594,7 +1601,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
       priorityScore: currentAndLikedElementsProvider.currentClubMeEvent.getPriorityScore(),
       openingTimes: userDataProvider.getUserClubOpeningTimes(),
 
-      closingDate: concatenatedClosingDate
+      closingDate: closingTimeWasChanged ? concatenatedClosingDate : null
 
     );
 
