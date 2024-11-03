@@ -59,6 +59,7 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
       ResolutionPreset.high,
     );
     _initializeControllerFuture = _controller.initialize();
+    await _controller.lockCaptureOrientation();
     setState(() {
       canBeDrawn = true;
     });
@@ -214,9 +215,7 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
                             return orientation == Orientation.landscape ?
                             CameraPreview(_controller) : RotatedBox(
                               quarterTurns: turn,
-                              child:
-
-                              CameraPreview(_controller)
+                              child: CameraPreview(_controller)
 
                               // Transform.scale(
                               //   scale: scale,
