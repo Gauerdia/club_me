@@ -849,6 +849,9 @@ class _UserEventsViewState extends State<UserEventsView> {
       _currentRangeValues = RangeValues(0, maxValueRangeSlider);
     }
 
+    // reset array
+    eventsToDisplay = [];
+
     // Check if any filter is applied
     if(
     _currentRangeValues.end != maxValueRangeSlider ||
@@ -869,9 +872,6 @@ class _UserEventsViewState extends State<UserEventsView> {
       }else{
         isAnyFilterActive = false;
       }
-
-      // reset array
-      eventsToDisplay = [];
 
       // Iterate through all available events
       for(var event in fetchedContentProvider.getFetchedEvents()){
@@ -948,7 +948,6 @@ class _UserEventsViewState extends State<UserEventsView> {
 
       int cmp = firstDate.compareTo(secondDate);
       if (cmp != 0) return cmp;
-      print("inside, ${a.getPriorityScore()}, ${b.getPriorityScore()}");
       return a.getPriorityScore().compareTo(b.getPriorityScore());
     });
 

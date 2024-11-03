@@ -46,8 +46,8 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
 
     SystemChrome.setPreferredOrientations([
         DeviceOrientation.portraitUp,
-        DeviceOrientation.landscapeLeft,
-        DeviceOrientation.landscapeRight,
+        // DeviceOrientation.landscapeLeft,
+        // DeviceOrientation.landscapeRight,
     ]);
 
   }
@@ -213,11 +213,15 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
                             return orientation == Orientation.landscape ?
                             CameraPreview(_controller) : RotatedBox(
                               quarterTurns: turn,
-                              child:Transform.scale(
-                                scale: scale,
-                                alignment: Alignment.topCenter,
-                                child: CameraPreview(_controller),
-                              ),
+                              child:
+
+                              CameraPreview(_controller)
+
+                              // Transform.scale(
+                              //   scale: scale,
+                              //   alignment: Alignment.topCenter,
+                              //   child: ,
+                              // ),
                             );
                           },
                         ),

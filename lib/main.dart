@@ -609,10 +609,10 @@ class MyApp extends StatelessWidget {
                   fontSize: 72,
                   fontWeight: FontWeight.bold
               ),
-              titleLarge: GoogleFonts.oswald(
-              ),
-              bodyMedium: GoogleFonts.merriweather(),
-              displaySmall: GoogleFonts.pacifico()
+              // titleLarge: GoogleFonts.oswald(
+              // ),
+              // bodyMedium: GoogleFonts.merriweather(),
+              // displaySmall: GoogleFonts.pacifico()
           ),
         ),
       ),

@@ -22,6 +22,8 @@ import '../shared/custom_bottom_navigation_bar.dart';
 import 'package:intl/intl.dart';
 import '../shared/custom_text_style.dart';
 
+import 'package:gal/gal.dart';
+
 class EventDetailView extends StatefulWidget {
   const EventDetailView({Key? key}) : super(key: key);
 
@@ -39,6 +41,9 @@ class _EventDetailViewState extends State<EventDetailView>{
   late Future getEventContent;
 
   String titleToDisplay = "Events";
+
+
+  bool contentDownloadIsLoading = false;
 
   bool isUploading = false;
   bool isDateSelected = false;
@@ -176,6 +181,35 @@ class _EventDetailViewState extends State<EventDetailView>{
 
             // Show "close" button when content is shown
             isContentShown ?
+                stateProvider.getUsingTheAppAsADeveloper() ?
+                    Container(
+                      alignment: Alignment.centerRight,
+                      width: screenWidth,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+
+                          contentDownloadIsLoading ? CircularProgressIndicator(color: customStyleClass.primeColor,):
+                          IconButton(
+                            onPressed: () => clickEventDownloadContent(),
+                            icon: Icon(
+                              Icons.save,
+                              color: customStyleClass.primeColor,
+                              size: 30,
+                            ),
+                          ),
+
+                          IconButton(
+                            onPressed: () => clickEventContent(),
+                            icon: const Icon(
+                              Icons.close,
+                              color: Colors.white,
+                              size: 30,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ) :
             Container(
               alignment: Alignment.centerRight,
               width: screenWidth,
@@ -772,6 +806,68 @@ class _EventDetailViewState extends State<EventDetailView>{
   }
   void clickEventBack(){
     stateProvider.leaveEventDetailPage(context);
+  }
+  void clickEventDownloadContent() async{
+    if(isImage || isVideo){
+      String applicationFilesPath = stateProvider.appDocumentsDir.path;
+      String marketingFileName = currentAndLikedElementsProvider.currentClubMeEvent.getEventMarketingFileName();
+      var filePath = '$applicationFilesPath/$marketingFileName';
+      setState(() {
+        contentDownloadIsLoading = true;
+      });
+      await Gal.putImage(filePath);
+      setState(() {
+        contentDownloadIsLoading = false;
+      });
+      showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return Container(
+            height: 100,
+            color: Colors.white,
+            child: const Center(
+              child: Text("Bild erfolgreich auf deinem Gerät gespeichert."),
+            ),
+          );
+        },
+      );
+    }else if(isVideo){
+      String applicationFilesPath = stateProvider.appDocumentsDir.path;
+      String marketingFileName = currentAndLikedElementsProvider.currentClubMeEvent.getEventMarketingFileName();
+      var filePath = '$applicationFilesPath/$marketingFileName';
+      setState(() {
+        contentDownloadIsLoading = true;
+      });
+      await Gal.putVideo(filePath);
+      setState(() {
+        contentDownloadIsLoading = false;
+      });
+      showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return Container(
+            height: 100,
+            color: Colors.white,
+            child: const Center(
+              child: Text("Video erfolgreich auf deinem Gerät gespeichert."),
+            ),
+          );
+        },
+      );
+    }else{
+      showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return Container(
+              height: 100,
+              color: Colors.white,
+              child: const Center(
+                child: Text("Der Inhalt ist noch nicht vollständig geladen, bitte hab einen Augenblick Geduld."),
+          ),
+          );
+        },
+      );
+    }
   }
 
 

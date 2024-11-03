@@ -3,7 +3,7 @@ description: "The first draft of the ClubMe app."
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.0.110
+version: 1.0.111
 
 environment:
   sdk: '>=3.2.6 <4.0.0'
@@ -137,6 +137,8 @@ dependencies:
   widget_to_marker: ^1.0.6
 
   age_calculator: ^1.0.0
+
+  gal: ^2.3.0
 
 flutter_localizations:
   sdk: flutter

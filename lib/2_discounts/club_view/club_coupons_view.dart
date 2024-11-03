@@ -107,6 +107,8 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
   }
   void filterDiscountsFromProvider(){
 
+    final fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen: false);
+
     upcomingDiscounts = [];
     pastDiscounts = [];
 

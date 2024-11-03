@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 import 'dart:io' as io;
 import 'package:chewie/chewie.dart';
@@ -31,6 +32,7 @@ class _ShowStoryChewieState extends State<ShowStoryChewie>
 
   late double screenHeight, screenWidth;
 
+  bool loadingFinished = false;
 
   @override
   void initState() {
@@ -38,8 +40,8 @@ class _ShowStoryChewieState extends State<ShowStoryChewie>
 
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
+      // DeviceOrientation.landscapeLeft,
+      // DeviceOrientation.landscapeRight,
     ]);
 
     final UserDataProvider userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
@@ -50,7 +52,8 @@ class _ShowStoryChewieState extends State<ShowStoryChewie>
         currentAndLikedElementsProvider.getCurrentClubStoryId(),
         userDataProvider.getUserData().getUserId());
 
-    initializePlayer();
+    initVideoPlayer();
+    // initializePlayer();
     super.initState();
   }
 
@@ -72,16 +75,50 @@ class _ShowStoryChewieState extends State<ShowStoryChewie>
     Navigator.pop(context);
   }
 
-  _createChewieController() {
-    _chewieController = ChewieController(
-      videoPlayerController: _controller,
-      looping: true,
-      autoPlay: true,
-      showOptions: false,
-      autoInitialize: true,
-      allowFullScreen: true,
-    );
-  }
+  void initVideoPlayer() async{
+
+    currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context, listen:  false);
+
+    late io.File file;
+    late String filePath;
+    late Uint8List? videoFile;
+
+    try{
+
+      videoFile = await _supabaseService.getClubVideo(currentAndLikedElementsProvider.getCurrentClubStoryId());
+
+      io.Directory tempDir = await getTemporaryDirectory();
+      String tempPath = tempDir.path;
+      filePath = '$tempPath/file_01.mp4';
+
+      File file = await io.File(filePath).writeAsBytes(videoFile);
+
+      _controller = VideoPlayerController.file(file);
+      await _controller.initialize();
+      _controller.setLooping(true);
+      _controller.play();
+
+      setState(() {
+        loadingFinished = true;
+      });
+
+    }catch(e){
+      print("Error in ShowStoryChewie. Fct: initVideoPlayer. Error: $e");
+      _supabaseService.createErrorLog("Error in ShowStoryChewie. Fct: initVideoPlayer. Error: $e");
+    }
+
+}
+
+  // _createChewieController() {
+  //   _chewieController = ChewieController(
+  //     videoPlayerController: _controller,
+  //     looping: true,
+  //     autoPlay: true,
+  //     showOptions: false,
+  //     autoInitialize: true,
+  //     allowFullScreen: true,
+  //   );
+  // }
 
   Future<void> initializePlayer() async {
 
@@ -102,9 +139,9 @@ class _ShowStoryChewieState extends State<ShowStoryChewie>
 
       _controller = VideoPlayerController.file(file);
       await _controller.initialize();
-      setState((){
-        _createChewieController();
-      });
+      // setState((){
+      //   _createChewieController();
+      // });
 
     }catch(e){
       print(e);
@@ -114,9 +151,9 @@ class _ShowStoryChewieState extends State<ShowStoryChewie>
 
         _controller = VideoPlayerController.file(raw);
         await _controller.initialize();
-        setState((){
-          _createChewieController();
-        });
+        // setState((){
+        //   _createChewieController();
+        // });
       }catch(e){
         _supabaseService.createErrorLog("ShowStoryChewie. Fct: initializePlayer, 2nd step: $e");
       }
@@ -185,55 +222,20 @@ class _ShowStoryChewieState extends State<ShowStoryChewie>
       ),
       home: Scaffold(
         appBar: _buildAppBar(),
-        body: Container(
-          width: screenWidth,
-          height: screenHeight,
-          child: Column(
-            children: [
-              Expanded(
-                  child: Center(
-                    child: _chewieController != null && _chewieController!.videoPlayerController.value.isInitialized ?
-
-                    // main video screen
-
-      //         OrientationBuilder(
-      //         builder: (context, orientation) {
-      //     // set the turn as per requirement
-      //     final turn = orientation == Orientation.landscape ? 1: 1; // set the turn as per requirement
-      //     return RotatedBox(
-      //     quarterTurns: turn,
-      //     child: Chewie(
-      //       controller: _chewieController!,
-      //     )
-      //   );
-      // },
-      // )
-
-                    Chewie(
-                      controller: _chewieController!,
-                    )
-          :
-
-                    // loading screen
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        CircularProgressIndicator(
-                          color: customStyleClass.primeColor,
-                        ),
-                        const SizedBox(height: 20,),
-                        Text(
-                          "Lädt...",
-                          style: customStyleClass.getFontStyle3(),
-                        )
-                      ],
-                    ),
-
-                  )
-              ),
-            ],
-          ),
+        body: loadingFinished ?
+        OrientationBuilder(
+          builder: (context, orientation) {
+            // set the turn as per requirement
+            final turn = orientation == Orientation.landscape ? 1: 1; // set the turn as per requirement
+            return RotatedBox(
+              quarterTurns: turn,
+              child: VideoPlayer(_controller),
+            );
+          },
+        ): Center(
+          child: CircularProgressIndicator(color: customStyleClass.primeColor),
         )
+
       )
     );
   }

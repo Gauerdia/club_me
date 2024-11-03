@@ -91,8 +91,12 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
       body: Stack(
         children: [
           showLoading ?
-          const Center(
-            child: CircularProgressIndicator(),
+          Container(
+            width: screenWidth,
+            height: screenHeight,
+            child: Center(
+              child: CircularProgressIndicator( color: customStyleClass.primeColor,),
+            ),
           ):
           FutureBuilder(
             future: _initializeControllerFuture,
@@ -248,8 +252,12 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                 );
 
               } else {
-                return const Center(
-                  child: CircularProgressIndicator(),
+                return Container(
+                  width: screenWidth,
+                    height: screenHeight,
+                  child: Center(
+                    child: CircularProgressIndicator( color: customStyleClass.primeColor,),
+                  ),
                 );
               }
             },

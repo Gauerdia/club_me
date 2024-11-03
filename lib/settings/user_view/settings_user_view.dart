@@ -197,6 +197,7 @@ class _SettingsUserViewState extends State<SettingsUserView> {
     fetchedContentProvider.setFetchedClubs([]);
     fetchedContentProvider.setFetchedDiscounts([]);
     stateProvider.setClubUiActive(false);
+    stateProvider.setUsingTheAppAsADeveloper(false);
     stateProvider.setPageIndex(0);
     stateProvider.activeLogOut = false;
     _hiveService.resetUserData().then((value) => context.go("/register"));
