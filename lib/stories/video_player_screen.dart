@@ -107,6 +107,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                 return Stack(
                   children: [
 
+                    if(Platform.isAndroid)
                     OrientationBuilder(
                       builder: (context, orientation) {
                         // set the turn as per requirement
@@ -117,6 +118,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                         );
                       },
                     ),
+
+                    if(Platform.isIOS)
+                      VideoPlayer(_controller),
 
                     // SizedBox(
                     //   height: screenHeight*0.8,

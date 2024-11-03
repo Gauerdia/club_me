@@ -223,6 +223,7 @@ class _ShowStoryChewieState extends State<ShowStoryChewie>
       home: Scaffold(
         appBar: _buildAppBar(),
         body: loadingFinished ?
+          Platform.isAndroid ?
         OrientationBuilder(
           builder: (context, orientation) {
             // set the turn as per requirement
@@ -232,7 +233,8 @@ class _ShowStoryChewieState extends State<ShowStoryChewie>
               child: VideoPlayer(_controller),
             );
           },
-        ): Center(
+        ):VideoPlayer(_controller):
+        Center(
           child: CircularProgressIndicator(color: customStyleClass.primeColor),
         )
 
