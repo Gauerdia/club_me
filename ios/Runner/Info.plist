@@ -41,9 +41,11 @@
 		<array>
 			<string>UIInterfaceOrientationPortrait</string>
 		</array>
-		<key>
-		    UIRequiresFullScreen
-		</key>
+		    <key>UISupportedInterfaceOrientations~ipad</key>
+        <array>
+            <string>UIInterfaceOrientationPortrait</string>
+        </array>
+	    <key>UIRequiresFullScreen</key>
 		<true/>
 		<key>CADisableMinimumFrameDurationOnPhone</key>
 		<true/>
