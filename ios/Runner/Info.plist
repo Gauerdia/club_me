@@ -3,113 +3,113 @@
 <plist version="1.0">
 	<dict>
 		<key>MinimumOSVersion</key>
-		<string>14.0</string>
+		    <string>14.0</string>
 		<key>NSAppTransportSecurity</key>
-		<dict>
-			<key>NSAllowsArbitraryLoads</key>
-			<true/>
-		</dict>
+            <dict>
+                <key>NSAllowsArbitraryLoads</key>
+                <true/>
+            </dict>
 		<key>ITSAppUsesNonExemptEncryption</key>
-		<false/>
+		    <false/>
 		<key>CFBundleDevelopmentRegion</key>
-		<string>$(DEVELOPMENT_LANGUAGE)</string>
+		    <string>$(DEVELOPMENT_LANGUAGE)</string>
 		<key>CFBundleDisplayName</key>
-		<string>Club Me</string>
+		    <string>Club Me</string>
 		<key>CFBundleExecutable</key>
-		<string>$(EXECUTABLE_NAME)</string>
+		    <string>$(EXECUTABLE_NAME)</string>
 		<key>CFBundleIdentifier</key>
-		<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+		    <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 		<key>CFBundleInfoDictionaryVersion</key>
-		<string>6.0</string>
+		    <string>6.0</string>
 		<key>CFBundleName</key>
-		<string>club_me</string>
+		    <string>club_me</string>
 		<key>CFBundlePackageType</key>
-		<string>APPL</string>
+		    <string>APPL</string>
 		<key>CFBundleShortVersionString</key>
-		<string>$(FLUTTER_BUILD_NAME)</string>
+		    <string>$(FLUTTER_BUILD_NAME)</string>
 		<key>CFBundleSignature</key>
-		<string>????</string>
+		    <string>????</string>
 		<key>CFBundleVersion</key>
-		<string>$(FLUTTER_BUILD_NUMBER)</string>
+		    <string>$(FLUTTER_BUILD_NUMBER)</string>
 		<key>LSRequiresIPhoneOS</key>
-		<true/>
+		    <true/>
 		<key>UILaunchStoryboardName</key>
-		<string>LaunchScreen</string>
+		    <string>LaunchScreen</string>
 		<key>UIMainStoryboardFile</key>
-		<string>Main</string>
+		    <string>Main</string>
 		<key>UISupportedInterfaceOrientations</key>
-		<array>
-			<string>UIInterfaceOrientationPortrait</string>
-		</array>
-		    <key>UISupportedInterfaceOrientations~ipad</key>
-        <array>
-            <string>UIInterfaceOrientationPortrait</string>
-        </array>
+            <array>
+                <string>UIInterfaceOrientationPortrait</string>
+            </array>
+		<key>UISupportedInterfaceOrientations~ipad</key>
+            <array>
+                <string>UIInterfaceOrientationPortrait</string>
+            </array>
 	    <key>UIRequiresFullScreen</key>
-		<true/>
+		    <true/>
 		<key>CADisableMinimumFrameDurationOnPhone</key>
-		<true/>
+		    <true/>
 		<key>UIApplicationSupportsIndirectInputEvents</key>
-		<true/>
+		    <true/>
 		<key>keychain-access-groups</key>
-		<array>
-			<string>$(AppIdentifierPrefix)com.google.GIDSignIn</string>
-		</array>
+            <array>
+                <string>$(AppIdentifierPrefix)com.google.GIDSignIn</string>
+            </array>
 		<key>LSApplicationQueriesSchemes</key>
-		<array>
-			<string>googlegmail</string>
-			<string>x-dispatch</string>
-			<string>readdle-spark</string>
-			<string>airmail</string>
-			<string>ms-outlook</string>
-			<string>ymail</string>
-			<string>fastmail</string>
-			<string>superhuman</string>
-			<string>protonmail</string>
-		</array>
+            <array>
+                <string>googlegmail</string>
+                <string>x-dispatch</string>
+                <string>readdle-spark</string>
+                <string>airmail</string>
+                <string>ms-outlook</string>
+                <string>ymail</string>
+                <string>fastmail</string>
+                <string>superhuman</string>
+                <string>protonmail</string>
+            </array>
 		<key>UIBackgroundModes</key>
-		<array>
-			<string>fetch</string>
-			<string>remote-notification</string>
-		</array>
+            <array>
+                <string>fetch</string>
+                <string>remote-notification</string>
+            </array>
 		<key>LSSupportsOpeningDocumentsInPlace</key>
-		<true/>
+		    <true/>
 		<key>UIStatusBarHidden</key>
-		<false/>
+		    <false/>
 		<key>NSCameraUsageDescription</key>
-		<string>Part of the user experience is the option to record stories as marketing material for the clubs. Therefore, we need access to the camera to allow recording these videos.</string>
+		    <string>Part of the user experience is the option to record stories as marketing material for the clubs. Therefore, we need access to the camera to allow recording these videos.</string>
 		<key>NSMicrophoneUsageDescription</key>
-		<string>Analogically with NSCameraUsageDescription we want the stories to also provide audio. Therefore, we need this permission as well.</string>
+		    <string>Analogically with NSCameraUsageDescription we want the stories to also provide audio. Therefore, we need this permission as well.</string>
 		<key>NSPhotoLibraryUsageDescription</key>
-		<string>This app needs the access to the photo library because it allows users to upload photos and videos as content to accompany the events, e.g. as marketing content.</string>
+		    <string>This app needs the access to the photo library because it allows users to upload photos and videos as content to accompany the events, e.g. as marketing content.</string>
 		<key>NSPhotoLibraryAddUsageDescription</key>
-		<string>Analogically with NSPhotoLibraryUsageDescription we need the permission to allow the user to also save content he/she recorded to his/her photo library.</string>
+		    <string>Analogically with NSPhotoLibraryUsageDescription we need the permission to allow the user to also save content he/she recorded to his/her photo library.</string>
 		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-		<string>One of the main functionalities of this app is the map that displays all the clubs close to the user. To make the user have an idea where he is located currently, we need his/her location.</string>
+		    <string>One of the main functionalities of this app is the map that displays all the clubs close to the user. To make the user have an idea where he is located currently, we need his/her location.</string>
 		<key>NSLocationWhenInUseUsageDescription</key>
-		<string>This permissions is analogue to NSLocationAlwaysAndWhenInUseUsageDescription. Part of the user experience is the map to show clubs in one's proximity. For that we need access to the location.</string>
+		    <string>This permissions is analogue to NSLocationAlwaysAndWhenInUseUsageDescription. Part of the user experience is the map to show clubs in one's proximity. For that we need access to the location.</string>
 		<key>NSLocationAlwaysUsageDescription</key>
-		<string>One of the main functionalities of this app is the map that displays all the clubs close to the user. To make the user have an idea where he is located currently, we need his/her location.</string>
+		    <string>One of the main functionalities of this app is the map that displays all the clubs close to the user. To make the user have an idea where he is located currently, we need his/her location.</string>
 		<key>GIDClientID</key>
-		<string>com.googleusercontent.apps947015013780-cfmc26giatfe8tsgf0eg3im36h0qsvj0</string>
+		    <string>com.googleusercontent.apps947015013780-cfmc26giatfe8tsgf0eg3im36h0qsvj0</string>
 		<key>CFBundleURLTypes</key>
-		<array>
-			<dict>
-				<key>CFBundleTypeRole</key>
-				<string>Editor</string>
-				<key>CFBundleURLSchemes</key>
-				<array>
-					<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-				</array>
-			</dict>
-			<dict>
-				<key>CFBundleTypeRole</key>
-				<string>Editor</string>
-				<key>CFBundleURLSchemes</key>
-				<array>
-					<string>com.googleusercontent.apps.947015013780-cfmc26giatfe8tsgf0eg3im36h0qsvj0</string>
-				</array>
-			</dict>
-		</array>
+            <array>
+                <dict>
+                    <key>CFBundleTypeRole</key>
+                    <string>Editor</string>
+                    <key>CFBundleURLSchemes</key>
+                    <array>
+                        <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+                    </array>
+                </dict>
+                <dict>
+                    <key>CFBundleTypeRole</key>
+                    <string>Editor</string>
+                    <key>CFBundleURLSchemes</key>
+                    <array>
+                        <string>com.googleusercontent.apps.947015013780-cfmc26giatfe8tsgf0eg3im36h0qsvj0</string>
+                    </array>
+                </dict>
+            </array>
 	</dict>
 </plist>

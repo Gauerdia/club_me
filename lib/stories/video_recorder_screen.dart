@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:adv_camera/adv_camera.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -205,7 +206,7 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
                       children: [
 
                         // Camera view
-
+                        Platform.isAndroid ?
                         OrientationBuilder(
                           builder: (context, orientation) {
                             // set the turn as per requirement
@@ -224,7 +225,7 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
                               // ),
                             );
                           },
-                        ),
+                        ) : CameraPreview(_controller),
 
                         // Focus point
                         if(showFocusCircle) Positioned(
