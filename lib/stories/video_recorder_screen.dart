@@ -59,6 +59,7 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
       ResolutionPreset.high,
     );
     _initializeControllerFuture = _controller.initialize();
+    await _controller.lockCaptureOrientation(DeviceOrientation.portraitUp);
     // await _controller.lockCaptureOrientation();
     setState(() {
       canBeDrawn = true;
