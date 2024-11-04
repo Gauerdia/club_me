@@ -54,7 +54,7 @@ class SmallDiscountTile extends StatelessWidget {
 
     if(clubMeDiscount.getHasTimeLimit()){
       var hourToDisplay = dateToUse.hour < 10 ?
-      "0${dateToUse.hour}" : dateToUse.toString();
+      "0${dateToUse.hour}" : dateToUse.hour.toString();
       var minuteToDisplay = dateToUse.minute < 10 ?
       "0${dateToUse.minute}" : dateToUse.minute.toString();
 

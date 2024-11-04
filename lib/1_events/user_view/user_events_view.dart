@@ -1018,13 +1018,18 @@ class _UserEventsViewState extends State<UserEventsView> {
   }
   bool checkIfUpcomingEvent(ClubMeEvent currentEvent){
 
+
+    // Assumption: Every event until 4:59 started the day before.
+    // Assumption: There are no official opening times for events between 5 and 12.
+    // We'll just add 6 hours to it.
+
     Days? clubOpeningTimesForThisDay;
     DateTime closingHourToCompare;
 
     fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
     stateProvider = Provider.of<StateProvider>(context, listen: false);
 
-    var eventWeekDay = currentEvent.getEventDate().hour <= 6 ?
+    var eventWeekDay = currentEvent.getEventDate().hour <= 4 ?
     currentEvent.getEventDate().weekday -1 :
     currentEvent.getEventDate().weekday;
 
@@ -1067,14 +1072,28 @@ class _UserEventsViewState extends State<UserEventsView> {
 
     // Second case: Are there regular opening times?
     if(clubOpeningTimesForThisDay != null){
-      closingHourToCompare = DateTime(
-          currentEvent.getEventDate().year,
-          currentEvent.getEventDate().month,
-          currentEvent.getEventDate().day+1,
-          clubOpeningTimesForThisDay.closingHour!,
-          clubOpeningTimesForThisDay.closingHalfAnHour! == 1 ?
-          30 : clubOpeningTimesForThisDay.closingHalfAnHour! == 2 ? 59 : 0
-      );
+
+      // Events that start in the morning should not be set to the next day
+      if(currentEvent.getEventDate().hour >= 5 && currentEvent.getEventDate().hour <= 12){
+        closingHourToCompare = DateTime(
+            currentEvent.getEventDate().year,
+            currentEvent.getEventDate().month,
+            currentEvent.getEventDate().day,
+            currentEvent.getEventDate().hour+6,
+            currentEvent.getEventDate().minute
+        );
+      }
+
+      else{
+        closingHourToCompare = DateTime(
+            currentEvent.getEventDate().year,
+            currentEvent.getEventDate().month,
+            currentEvent.getEventDate().day+1,
+            clubOpeningTimesForThisDay.closingHour!,
+            clubOpeningTimesForThisDay.closingHalfAnHour! == 1 ?
+            30 : clubOpeningTimesForThisDay.closingHalfAnHour! == 2 ? 59 : 0
+        );
+      }
 
       if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
           closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){

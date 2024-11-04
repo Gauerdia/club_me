@@ -59,7 +59,7 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
       ResolutionPreset.high,
     );
     _initializeControllerFuture = _controller.initialize();
-    await _controller.lockCaptureOrientation();
+    // await _controller.lockCaptureOrientation();
     setState(() {
       canBeDrawn = true;
     });
@@ -206,26 +206,6 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
                     child: Stack(
                       children: [
 
-                        // Camera view
-                        Platform.isAndroid ?
-                        OrientationBuilder(
-                          builder: (context, orientation) {
-                            // set the turn as per requirement
-                            final turn = orientation == Orientation.landscape ? 1: 4; // set the turn as per requirement
-                            return orientation == Orientation.landscape ?
-                            CameraPreview(_controller) : RotatedBox(
-                              quarterTurns: turn,
-                              child: CameraPreview(_controller)
-
-                              // Transform.scale(
-                              //   scale: scale,
-                              //   alignment: Alignment.topCenter,
-                              //   child: ,
-                              // ),
-                            );
-                          },
-                        ) :
-                        // iPHONE
                         CameraPreview(_controller),
 
                         // Focus point
