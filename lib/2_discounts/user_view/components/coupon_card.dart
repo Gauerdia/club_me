@@ -407,7 +407,7 @@ class CouponCard extends StatelessWidget {
     DateTime dateToUse;
     int eventDateWeekday;
 
-    if(clubMeDiscount.hasTimeLimit && clubMeDiscount.getDiscountDate().hour < 8){
+    if(clubMeDiscount.hasTimeLimit && clubMeDiscount.getDiscountDate().hour < 6){
       eventDateWeekday = clubMeDiscount.getDiscountDate().weekday-1;
       dateToUse = DateTime(
           clubMeDiscount.getDiscountDate().year,

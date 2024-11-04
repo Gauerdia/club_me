@@ -439,7 +439,7 @@ class CouponCardClub extends StatelessWidget {
   void formatDateToDisplay(){
 
     DateTime dateToUse;
-    if(clubMeDiscount.getHasTimeLimit() && clubMeDiscount.getDiscountDate().hour < 8){
+    if(clubMeDiscount.getHasTimeLimit() && clubMeDiscount.getDiscountDate().hour < 6){
       dateToUse = DateTime(
           clubMeDiscount.getDiscountDate().year,
           clubMeDiscount.getDiscountDate().month,
@@ -453,7 +453,8 @@ class CouponCardClub extends StatelessWidget {
 
     weekDayToDisplay = DateFormat('dd.MM.yyyy').format(dateToUse);
 
-    var eventDateWeekday = clubMeDiscount.getDiscountDate().weekday;
+    var eventDateWeekday = dateToUse.weekday;
+
     switch(eventDateWeekday){
       case(0): weekDayToDisplay = "Sonntag, $weekDayToDisplay";
       case(1): weekDayToDisplay = "Montag, $weekDayToDisplay";
