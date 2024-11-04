@@ -229,7 +229,7 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
                         OrientationBuilder(
                           builder: (context, orientation) {
                             // set the turn as per requirement
-                            final turn = orientation == Orientation.landscape ? 1: 0; // set the turn as per requirement
+                            final turn = orientation == Orientation.landscape ? 2: 1; // set the turn as per requirement
                             return RotatedBox(
                                 quarterTurns: turn,
                                 child: CameraPreview(_controller)
