@@ -58,9 +58,12 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
       cameras.first,
       ResolutionPreset.high,
     );
-    await _controller.initialize();
-    // _initializeControllerFuture = _controller.initialize();
-    await _controller.lockCaptureOrientation(DeviceOrientation.portraitUp);
+    // await _controller.initialize();
+    _initializeControllerFuture = _controller.initialize().then(
+        (_) async => await _controller.lockCaptureOrientation(DeviceOrientation.portraitUp)
+    );
+
+    // await _controller.lockCaptureOrientation(DeviceOrientation.portraitUp);
     setState(() {
       canBeDrawn = true;
     });
@@ -181,7 +184,15 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
     deviceRatio = screenWidth / screenHeight;
 
     return Scaffold(
-      body: canBeDrawn ? Stack(
+      body: (!canBeDrawn) ?
+      SizedBox(
+        width: screenWidth,
+        height: screenHeight,
+        child: Center(
+          child: CircularProgressIndicator(color: customStyleClass.primeColor,),
+        ),
+      ):
+      Stack(
         children: [
 
           FutureBuilder<void>(
@@ -290,8 +301,7 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
           )
 
         ],
-      ):
-      Center(child: CircularProgressIndicator(color: customStyleClass.primeColor)),
+      )
     );
   }
 }
