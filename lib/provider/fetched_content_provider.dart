@@ -13,6 +13,8 @@ class FetchedContentProvider extends ChangeNotifier{
   late BitmapDescriptor clubIcon;
   late BitmapDescriptor closeClubIcon;
 
+  bool eventUpdatedRerenderNeeded = false;
+
   List<ClubMeClub> fetchedClubs = [];
   List<ClubMeEvent> fetchedEvents = [];
   List<ClubMeDiscount> fetchedDiscounts = [];
@@ -98,6 +100,7 @@ class FetchedContentProvider extends ChangeNotifier{
   void updateSpecificEvent(String eventId, ClubMeEvent updatedClubMeEvent){
     int index = fetchedEvents.indexWhere((element) => element.getEventId() == eventId);
     fetchedEvents[index] = updatedClubMeEvent;
+    eventUpdatedRerenderNeeded = true;
     notifyListeners();
   }
   void sortFetchedEvents(){

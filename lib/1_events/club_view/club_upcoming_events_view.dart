@@ -81,6 +81,24 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
     userDataProvider = Provider.of<UserDataProvider>(context);
     fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
     currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context);
+
+    if(fetchedContentProvider.eventUpdatedRerenderNeeded){
+      resetUpcomingEvents();
+      fetchedContentProvider.eventUpdatedRerenderNeeded = false;
+    }
+
+  }
+
+
+  void resetUpcomingEvents(){
+    setState(() {
+      fetchedEventsThatAreUpcoming = [];
+      eventsToDisplay = [];
+      for(var element in fetchedContentProvider.getFetchedEvents()){
+        fetchedEventsThatAreUpcoming.add(element);
+      }
+      filterEvents();
+    });
   }
 
 
@@ -339,6 +357,9 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
   // FILTER
   void filterEvents(){
 
+    // reset array
+    eventsToDisplay = [];
+
     // Check if any filter is applied
     if(
     _currentRangeValues.end != 30 ||
@@ -349,9 +370,6 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
 
       // set for coloring
       isAnyFilterActive = true;
-
-      // reset array
-      eventsToDisplay = [];
 
       // Iterate through all available events
       for(var event in fetchedEventsThatAreUpcoming){
@@ -391,6 +409,7 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
       isAnyFilterActive = false;
       eventsToDisplay = fetchedEventsThatAreUpcoming;
     }
+
 
   }
   void sortUpcomingEvents(){

@@ -651,8 +651,12 @@ class _ClubDiscountsViewState extends State<ClubDiscountsView> {
       filterDiscountsFromProvider();
     }
 
-
-    //checkIfFilteringIsNecessary();
+    // When the first element has been edited, we want the screen to re-render
+    if(upcomingDiscounts.isNotEmpty &&
+        !identical(upcomingDiscounts[0], fetchedContentProvider.getFetchedDiscounts().where(
+                (element) => element.getDiscountId() == upcomingDiscounts[0].getDiscountId()))){
+      filterDiscountsFromProvider();
+    }
 
     return Scaffold(
 

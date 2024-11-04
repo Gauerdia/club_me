@@ -115,7 +115,7 @@ class _ClubEventsViewState extends State<ClubEventsView> {
       filterEventsFromProvider();
     }
 
-
+    // When the first element has been edited, we want the screen to re-render
     if(upcomingEvents.isNotEmpty &&
         !identical(upcomingEvents[0], fetchedContentProvider.getFetchedEvents().where(
                 (element) => element.getEventId() == upcomingEvents[0].getEventId()))){
