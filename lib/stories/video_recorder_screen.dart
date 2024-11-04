@@ -58,9 +58,9 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
       cameras.first,
       ResolutionPreset.high,
     );
-    _initializeControllerFuture = _controller.initialize();
+    await _controller.initialize();
+    // _initializeControllerFuture = _controller.initialize();
     await _controller.lockCaptureOrientation(DeviceOrientation.portraitUp);
-    // await _controller.lockCaptureOrientation();
     setState(() {
       canBeDrawn = true;
     });
@@ -180,23 +180,13 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
 
     deviceRatio = screenWidth / screenHeight;
 
-    // Modify the yScale if you are in Landscape
-    double yScale = 1;
-
-
-
     return Scaffold(
-
-      // bottomNavigationBar: _buildBottomNavigationBar(),
-
       body: canBeDrawn ? Stack(
         children: [
 
           FutureBuilder<void>(
             future: _initializeControllerFuture,
             builder: (context, snapshot) {
-
-              final scale = 1 / (_controller.value.aspectRatio * MediaQuery.of(context).size.aspectRatio);
 
               if(!snapshot.hasData){
                 if (snapshot.connectionState == ConnectionState.done) {
