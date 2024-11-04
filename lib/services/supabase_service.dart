@@ -171,7 +171,7 @@ class SupabaseService{
           'ticket_link': updatedEvent.getTicketLink(),
           'is_repeated_days': updatedEvent.getIsRepeatedDays(),
 
-        'closing_date': updatedEvent.getClosingDate().toString()
+        'closing_date': updatedEvent.getClosingDate() != null ? updatedEvent.getClosingDate().toString() : null
 
         }).match({
         'event_id' : updatedEvent.getEventId()

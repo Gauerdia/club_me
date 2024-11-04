@@ -51,13 +51,15 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
     initCamera();
   }
   void initCamera() async {
+
     final cameras = await availableCameras();
+
     _controller = CameraController(
       cameras.first,
       ResolutionPreset.high,
     );
     _initializeControllerFuture = _controller.initialize();
-    // await _controller.lockCaptureOrientation();
+    await _controller.lockCaptureOrientation();
     setState(() {
       canBeDrawn = true;
     });
