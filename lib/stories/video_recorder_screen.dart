@@ -224,7 +224,18 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
                               // ),
                             );
                           },
-                        ) : CameraPreview(_controller),
+                        ) :
+                        // iPHONE
+                        OrientationBuilder(
+                          builder: (context, orientation) {
+                            // set the turn as per requirement
+                            final turn = orientation == Orientation.landscape ? 1: 0; // set the turn as per requirement
+                            return RotatedBox(
+                                quarterTurns: turn,
+                                child: CameraPreview(_controller)
+                            );
+                          },
+                        ),
 
                         // Focus point
                         if(showFocusCircle) Positioned(
