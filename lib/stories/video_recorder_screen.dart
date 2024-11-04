@@ -43,14 +43,12 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
   @override
   void initState() {
     super.initState();
-    initCamera();
 
     SystemChrome.setPreferredOrientations([
-        DeviceOrientation.portraitUp,
-        // DeviceOrientation.landscapeLeft,
-        // DeviceOrientation.landscapeRight,
+      DeviceOrientation.portraitUp,
     ]);
 
+    initCamera();
   }
   void initCamera() async {
     final cameras = await availableCameras();
@@ -226,16 +224,7 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
                           },
                         ) :
                         // iPHONE
-                        OrientationBuilder(
-                          builder: (context, orientation) {
-                            // set the turn as per requirement
-                            final turn = orientation == Orientation.landscape ? 3: 0; // set the turn as per requirement
-                            return RotatedBox(
-                                quarterTurns: turn,
-                                child: CameraPreview(_controller)
-                            );
-                          },
-                        ),
+                        CameraPreview(_controller),
 
                         // Focus point
                         if(showFocusCircle) Positioned(

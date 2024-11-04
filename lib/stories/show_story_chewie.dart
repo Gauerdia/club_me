@@ -40,8 +40,6 @@ class _ShowStoryChewieState extends State<ShowStoryChewie>
 
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
-      // DeviceOrientation.landscapeLeft,
-      // DeviceOrientation.landscapeRight,
     ]);
 
     final UserDataProvider userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
