@@ -25,7 +25,7 @@ class SupabaseService{
 
 
 
-  Future<DateTime> getLatestInfoScreenDate() async{
+  Future<List<DateTime>> getLatestInfoScreenDate() async{
     try{
       var data =  await supabase
           .from('latest_info_screen')
@@ -34,25 +34,42 @@ class SupabaseService{
       // We are sure that there is only one element
       for(var element in data){
         log.d("getEventsOfSpecificClub: Finished successfully.Response: ${element['created_at']}");
-        return DateTime.parse(element['created_at']);
+        List<DateTime> times = [];
+        times.add(DateTime.parse(element['created_at']));
+        times.add(DateTime.parse(element['show_until']));
+        return times;
       }
 
       // if we cant fetch anything, we just return something so that at least the
       // current info screen is displayed again.
-      return DateTime(
-        2000,
-        1,
-        2
-      );
+      return [
+        DateTime(
+            2000,
+            1,
+            2
+        ),
+        DateTime(
+          2000,
+          1,
+          2
+        )
+      ];
 
     }catch(e){
       log.d("Error in SupabaseService. Function: getEventsOfSpecificClub. Error: ${e.toString()}");
       createErrorLog("Error in SupabaseService. Function: getEventsOfSpecificClub. Error: ${e.toString()}");
-      return DateTime(
-        2000,
-        1,
-        2
-      );
+      return [
+        DateTime(
+            2000,
+            1,
+            2
+        ),
+        DateTime(
+            2000,
+            1,
+            2
+        )
+      ];
     }
   }
 

@@ -82,7 +82,7 @@ class _UserEventsViewState extends State<UserEventsView> {
   bool processingComplete = false;
 
   bool checkedForInfoScreen = false;
-  bool noInfoScreenToShow = false;
+  bool noInfoScreenToShow = true;
 
   @override
   void initState(){
@@ -185,11 +185,31 @@ class _UserEventsViewState extends State<UserEventsView> {
     try{
       if(!stateProvider.alreadyCheckedForInfoScreen){
 
-        DateTime lastInfoScreenDate = await _supabaseService.getLatestInfoScreenDate();
+        List<DateTime> lastInfoScreenDate = await _supabaseService.getLatestInfoScreenDate();
         DateTime? localLastInfoScreenDate = await _hiveService.getLatestInfoScreenDate();
 
-        // Only if there is a local entry and it is newer than the db one, we care.
-        if(localLastInfoScreenDate != null && localLastInfoScreenDate.isAfter(lastInfoScreenDate)){
+        print("test: ${lastInfoScreenDate[0]}");
+        print("test: ${lastInfoScreenDate[1]}");
+        print("test: ${localLastInfoScreenDate}");
+
+        // Only relevant if we are before the expiration date.
+        if( stateProvider.getBerlinTime().isBefore(lastInfoScreenDate[1]) ){
+
+          // If we have seen the ad already, let's see if there was an update.
+          if(localLastInfoScreenDate != null){
+
+            // Have we already seen the recent ad?
+            if(localLastInfoScreenDate.isAfter(lastInfoScreenDate[0])){
+              noInfoScreenToShow = true;
+            }else{
+              noInfoScreenToShow = false;
+            }
+
+          }else{
+            noInfoScreenToShow = false;
+          }
+
+        }else{
           noInfoScreenToShow = true;
         }
 
