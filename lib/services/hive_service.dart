@@ -1,7 +1,9 @@
 import 'package:club_me/models/discount.dart';
 import 'package:club_me/models/hive_models/5_club_me_used_discount.dart';
 import 'package:club_me/models/parser/discount_to_local_discount_parser.dart';
+import 'package:club_me/provider/state_provider.dart';
 import 'package:club_me/services/supabase_service.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:hive/hive.dart';
 import '../models/hive_models/0_club_me_user_data.dart';
 import '../models/hive_models/1_club_me_discount_template.dart';
@@ -9,6 +11,7 @@ import '../models/hive_models/2_club_me_discount.dart';
 import '../models/hive_models/3_club_me_event_template.dart';
 import '../models/hive_models/4_temp_geo_location_data.dart';
 import '../shared/logger.util.dart';
+import 'package:timezone/standalone.dart' as tz;
 
 class HiveService{
 
@@ -31,6 +34,8 @@ class HiveService{
 
   final String _clubMeUsedDiscountsBoxName = "clubMeUsedDiscountsBox";
 
+  final String _latestInfoScreenBoxName = "latestInfoScreenBox";
+
   Future<Box<String>> get _clubMeEventBox async => await Hive.openBox<String>(_clubMeFavoriteEventsBoxName);
   Future<Box<String>> get _clubMeClubBox async => await Hive.openBox<String>(_clubMeFavoriteClubsBoxName);
   Future<Box<String>> get _clubMeDiscountBox async => await Hive.openBox<String>(_clubMeFavoriteDiscountsBoxName);
@@ -40,8 +45,44 @@ class HiveService{
   Future<Box<ClubMeDiscountTemplate>> get _clubMeDiscountTemplatesBox async => await Hive.openBox<ClubMeDiscountTemplate>(_clubMeDiscountTemplatesName);
   Future<Box<ClubMeDiscount>> get _clubMeLocalDiscountsBox async => await Hive.openBox<ClubMeDiscount>(_clubMeLocalDiscountsName);
   Future<Box<TempGeoLocationData>> get _tempGeoLocationDataBox async => await Hive.openBox<TempGeoLocationData>(_tempGeoLocationDataBoxName);
-
   Future<Box<ClubMeUsedDiscount>> get _clubMeUsedDiscountsBox async => await Hive.openBox<ClubMeUsedDiscount>(_clubMeUsedDiscountsBoxName);
+  Future<Box<DateTime>> get _latestInfoScreenBox async => await Hive.openBox<DateTime>(_latestInfoScreenBoxName);
+
+  Future<DateTime?> getLatestInfoScreenDate() async{
+    try{
+      var box = await _latestInfoScreenBox;
+      return box.values.toList().first;
+    }catch(e){
+      log.d("HiveService. Function: getLatestInfoScreenDate. Error: $e");
+      _supabaseService.createErrorLog("HiveService. Function: getLatestInfoScreenDate. Error: $e");
+      return DateTime(
+        2000,
+        1,
+        1
+      );
+    }
+  }
+
+  Future<void> updateLatestInfoScreenDate() async{
+    try{
+
+      final berlin = tz.getLocation('Europe/Berlin');
+      final todayTimestamp = tz.TZDateTime.from(DateTime.now(), berlin);
+      DateTime newTimeStamp = DateTime(todayTimestamp.year, todayTimestamp.month, todayTimestamp.day, todayTimestamp.hour, todayTimestamp.minute);
+
+      var box = await _latestInfoScreenBox;
+      var boxContent = box.values.toList();
+      if(boxContent.isEmpty){
+        box.add(newTimeStamp);
+      }else{
+        await box.putAt(0, newTimeStamp);
+      }
+    }catch(e){
+      log.d("HiveService. Function: updateLatestInfoScreenDate. Error: $e");
+      _supabaseService.createErrorLog("HiveService. Function: updateLatestInfoScreenDate. Error: $e");
+    }
+  }
+
 
   Future<void> addTempGeoLocationData(TempGeoLocationData tempGeoLocationData) async{
     try{

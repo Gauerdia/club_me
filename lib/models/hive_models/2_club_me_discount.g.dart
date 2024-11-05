@@ -37,13 +37,14 @@ class ClubMeDiscountAdapter extends TypeAdapter<ClubMeDiscount> {
       smallBannerFileName: fields[18] as String,
       openingTimes: fields[19] as OpeningTimes,
       showDiscountInApp: fields[20] as bool,
+      specialOccasionActive: fields[21] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, ClubMeDiscount obj) {
     writer
-      ..writeByte(20)
+      ..writeByte(21)
       ..writeByte(0)
       ..write(obj.clubId)
       ..writeByte(1)
@@ -83,7 +84,9 @@ class ClubMeDiscountAdapter extends TypeAdapter<ClubMeDiscount> {
       ..writeByte(19)
       ..write(obj.openingTimes)
       ..writeByte(20)
-      ..write(obj.showDiscountInApp);
+      ..write(obj.showDiscountInApp)
+      ..writeByte(21)
+      ..write(obj.specialOccasionActive);
   }
 
   @override

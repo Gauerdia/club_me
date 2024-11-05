@@ -48,6 +48,7 @@ class StateProvider extends ChangeNotifier{
 
   bool activeLogOut = false;
 
+  bool alreadyCheckedForInfoScreen = false;
   bool updatedLastLogInForNow = false;
 
   bool openEventDetailContentDirectly = false;

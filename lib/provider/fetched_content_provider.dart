@@ -30,7 +30,6 @@ class FetchedContentProvider extends ChangeNotifier{
         "assets/images/beispiel_100x100.png"
     ).then((icon) {
       clubIcon = icon;
-      print("FetchedProvider, clubIcon, finished");
     });
 
     await BitmapDescriptor.asset(
@@ -38,7 +37,6 @@ class FetchedContentProvider extends ChangeNotifier{
         "assets/images/clubme_100x100.png"
     ).then((icon) {
       closeClubIcon = icon;
-      print("FetchedProvider, clubIcon, finished");
     });
 
   }

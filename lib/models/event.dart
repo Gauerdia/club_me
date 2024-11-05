@@ -26,7 +26,8 @@ class ClubMeEvent{
     required this.ticketLink,
     required this.isRepeatedDays,
     required this.closingDate,
-    required this.showEventInApp
+    required this.showEventInApp,
+    required this.specialOccasionActive
   });
 
   String eventId;
@@ -63,6 +64,12 @@ class ClubMeEvent{
   DateTime? closingDate;
 
   bool showEventInApp;
+
+  bool specialOccasionActive;
+
+  bool getSpecialOccasionActive(){
+    return specialOccasionActive;
+  }
 
   bool getShowEventInApp(){
     return showEventInApp;

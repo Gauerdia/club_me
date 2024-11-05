@@ -44,12 +44,41 @@ class CouponCard extends StatelessWidget {
   bool isLiked;
   String timeLimitToDisplay = "";
 
+  bool specialOccasionActive = true;
+
 
   // BUILD
   Widget _buildStackView(BuildContext context){
 
     return Stack(
       children: [
+
+        if(clubMeDiscount.getSpecialOccasionActive())
+        Container(
+            width: screenWidth*0.91,
+            height: screenHeight*0.56,
+            decoration:const BoxDecoration(
+                gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    stops: [
+                  0.1,
+                  0.9
+                ], colors: [
+                  Colors.pinkAccent,
+                  Colors.blueAccent
+                ]),
+              border: Border(
+              ),
+              borderRadius: BorderRadius.only(
+                  topRight: Radius.circular(15),
+                  topLeft: Radius.circular(15),
+                bottomLeft: Radius.circular(15),
+                bottomRight: Radius.circular(15)
+              ),
+            )
+
+        ),
 
         // main Div
         Padding(
@@ -86,9 +115,6 @@ class CouponCard extends StatelessWidget {
     );
   }
   Widget _buildStackViewContent(BuildContext context){
-
-
-
     return Column(
       children: [
 
@@ -98,12 +124,23 @@ class CouponCard extends StatelessWidget {
             child: Stack(
               children: [
 
-
                 fetchedContentProvider.getFetchedBannerImageIds()
                     .contains(clubMeDiscount.getBigBannerFileName()) ?
-                SizedBox(
+                Container(
                   height: screenHeight*0.35,
                   width: screenWidth,
+                  decoration: specialOccasionActive ? BoxDecoration(
+                    border: Border(
+                      // top: BorderSide(color: Colors.pinkAccent, width: 2.0),
+                      // left: BorderSide(color: Colors.pinkAccent, width: 2.0),
+                      // right: BorderSide(color: Colors.pinkAccent, width: 2.0),
+                      // bottom: BorderSide(color: Colors.yellow, width: 2.0),
+                    ),
+                    borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(15),
+                        topLeft: Radius.circular(15)
+                    ),
+                  ):BoxDecoration(),
                   child: ClipRRect(
                       borderRadius: const BorderRadius.only(
                           topRight: Radius.circular(15),
@@ -139,7 +176,23 @@ class CouponCard extends StatelessWidget {
           child: Container(
               height: screenHeight*0.2,
               width: screenWidth,
-              decoration: BoxDecoration(
+              decoration: specialOccasionActive ?
+
+              BoxDecoration(
+                color: customStyleClass.backgroundColorEventTile,
+                borderRadius: const BorderRadius.only(
+                    bottomRight: Radius.circular(12),
+                    bottomLeft: Radius.circular(12)
+                ),
+                border: Border(
+                  // bottom: BorderSide(color: Colors.pinkAccent, width: 2.0),
+                  // left: BorderSide(color: Colors.pinkAccent, width: 2.0),
+                  // right: BorderSide(color: Colors.pinkAccent, width: 2.0),
+                  // bottom: BorderSide(color: Colors.yellow, width: 2.0),
+                ),
+              ):
+
+              BoxDecoration(
                 color: customStyleClass.backgroundColorEventTile,
                 borderRadius: const BorderRadius.only(
                     bottomRight: Radius.circular(12),

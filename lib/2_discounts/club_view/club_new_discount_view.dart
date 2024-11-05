@@ -1377,7 +1377,8 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
         bigBannerFileName: Utils.discountBigImageNames[_currentPageIndex],
         smallBannerFileName: Utils.discountSmallImageNames[_currentPageIndex],
       openingTimes: userDataProvider.getUserClub().getOpeningTimes(),
-      showDiscountInApp: userDataProvider.getUserClub().getClubId() == "9876-1234-5684" ? false: true
+      showDiscountInApp: userDataProvider.getUserClub().getClubId() == "9876-1234-5684" ? false: true,
+      specialOccasionActive: false
     );
 
     if(isSupposedToBeTemplate == 1){

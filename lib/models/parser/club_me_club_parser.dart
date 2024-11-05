@@ -36,7 +36,8 @@ ClubMeClub parseClubMeClub(var data){
     mapPinImageName: data['map_pin_image_name'],
     specialOpeningTimes: SpecialOpeningTimes.fromJson(data['special_opening_times']),
     closePartner: data['close_partner'],
-    showClubInApp: data['show_club_in_app']
+    showClubInApp: data['show_club_in_app'],
+    specialOccasionActive: data['special_occasion_active']
 
   );
 

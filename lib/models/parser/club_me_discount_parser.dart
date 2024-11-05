@@ -33,6 +33,7 @@ ClubMeDiscount parseClubMeDiscount(var data){
       bigBannerFileName: data['big_banner_file_name'],
       smallBannerFileName: data['small_banner_file_name'],
       openingTimes: OpeningTimes.fromJson(data['opening_times']),
-      showDiscountInApp: data['show_discount_in_app']
+      showDiscountInApp: data['show_discount_in_app'],
+    specialOccasionActive: data['special_occasion_active']
   );
 }

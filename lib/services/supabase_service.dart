@@ -24,6 +24,39 @@ class SupabaseService{
   final log = getLogger();
 
 
+
+  Future<DateTime> getLatestInfoScreenDate() async{
+    try{
+      var data =  await supabase
+          .from('latest_info_screen')
+          .select();
+
+      // We are sure that there is only one element
+      for(var element in data){
+        log.d("getEventsOfSpecificClub: Finished successfully.Response: ${element['created_at']}");
+        return DateTime.parse(element['created_at']);
+      }
+
+      // if we cant fetch anything, we just return something so that at least the
+      // current info screen is displayed again.
+      return DateTime(
+        2000,
+        1,
+        2
+      );
+
+    }catch(e){
+      log.d("Error in SupabaseService. Function: getEventsOfSpecificClub. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: getEventsOfSpecificClub. Error: ${e.toString()}");
+      return DateTime(
+        2000,
+        1,
+        2
+      );
+    }
+  }
+
+
   // GEO LOCATION
 
   Future<int> saveUsersGeoLocation(String userId, double latCoord, double longCoord) async{

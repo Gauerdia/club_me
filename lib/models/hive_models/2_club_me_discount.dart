@@ -27,7 +27,8 @@ class ClubMeDiscount{
     required this.bigBannerFileName,
     required this.smallBannerFileName,
     required this.openingTimes,
-    required this.showDiscountInApp
+    required this.showDiscountInApp,
+    required this.specialOccasionActive
   });
 
   @HiveField(0)
@@ -80,6 +81,13 @@ class ClubMeDiscount{
 
   @HiveField(20)
   bool showDiscountInApp;
+
+  @HiveField(21)
+  bool specialOccasionActive;
+
+  bool getSpecialOccasionActive(){
+    return specialOccasionActive;
+  }
 
   bool getShowDiscountInApp(){
     return showDiscountInApp;

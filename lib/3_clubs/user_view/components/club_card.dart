@@ -66,6 +66,7 @@ class ClubCard extends StatelessWidget {
   int todaysOpeningHour = 0;
   int todaysClosingHour = 0;
 
+  bool specialOccasionActive = true;
 
   // BUILD
   Widget _buildMainView(BuildContext context){
@@ -75,12 +76,36 @@ class ClubCard extends StatelessWidget {
         child: Stack(
           children: [
 
+            if(clubMeClub.getSpecialOccasionActive())
+            Center(
+              child: Container(
+                width: screenWidth*widthFactor+5,
+                height: topHeight+bottomHeight+5,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(
+                        15
+                    ),
+                  gradient: const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      stops: [
+                        0.1,
+                        0.9
+                      ], colors: [
+                    Colors.pinkAccent,
+                    Colors.blueAccent
+                  ]),
+                ),
+              ),
+            ),
+
             // Back background for the bottom part
             Center(
               child: Container(
                 width: screenWidth*widthFactor,
                 height: topHeight+bottomHeight,
                 decoration: BoxDecoration(
+                  color: customStyleClass.backgroundColorMain,
                     borderRadius: BorderRadius.circular(
                         15
                     ),

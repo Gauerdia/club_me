@@ -36,7 +36,8 @@ ClubMeClub mockUpClub = ClubMeClub(
   mapPinImageName: "black_100x100.png",
   specialOpeningTimes: SpecialOpeningTimes(),
   closePartner: false,
-  showClubInApp: true
+  showClubInApp: true,
+  specialOccasionActive: false
 );
 
 ClubMeUserData mockUpUserData = ClubMeUserData(

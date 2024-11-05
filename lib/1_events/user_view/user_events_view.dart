@@ -81,6 +81,9 @@ class _UserEventsViewState extends State<UserEventsView> {
 
   bool processingComplete = false;
 
+  bool checkedForInfoScreen = false;
+  bool noInfoScreenToShow = false;
+
   @override
   void initState(){
 
@@ -95,6 +98,8 @@ class _UserEventsViewState extends State<UserEventsView> {
 
     // Get and set geo location
     _determinePosition().then((value) => setPositionLocallyAndInSupabase(value));
+
+    checkForInfoScreen();
 
     // FETCHING CLUBS, THEN EVENTS
     if(fetchedContentProvider.getFetchedClubs().isEmpty){
@@ -173,22 +178,54 @@ class _UserEventsViewState extends State<UserEventsView> {
     }
   }
 
+  void checkForInfoScreen() async{
+
+    final stateProvider = Provider.of<StateProvider>(context, listen: false);
+
+    try{
+      if(!stateProvider.alreadyCheckedForInfoScreen){
+
+        DateTime lastInfoScreenDate = await _supabaseService.getLatestInfoScreenDate();
+        DateTime? localLastInfoScreenDate = await _hiveService.getLatestInfoScreenDate();
+
+        // Only if there is a local entry and it is newer than the db one, we care.
+        if(localLastInfoScreenDate != null && localLastInfoScreenDate.isAfter(lastInfoScreenDate)){
+          noInfoScreenToShow = true;
+        }
+
+        await _hiveService.updateLatestInfoScreenDate();
+
+        setState(() {
+          checkedForInfoScreen = true;
+          stateProvider.alreadyCheckedForInfoScreen = true;
+        });
+      }else{
+        setState(() {
+          checkedForInfoScreen = true;
+          noInfoScreenToShow = true;
+        });
+      }
+    }catch(e){
+      log.d("UserEventsView. Fct: checkForInfoScreen. Error: $e");
+    }
+  }
+
 
   // BUILD
   AppBar _buildAppbar(){
 
-    return isSearchActive ?
-
-    // Show the app bar with the search bar
-    AppBar(
-      surfaceTintColor: customStyleClass.backgroundColorMain,
-      backgroundColor: customStyleClass.backgroundColorMain,
+    return
+      checkedForInfoScreen ?
+      AppBar(
+      surfaceTintColor: noInfoScreenToShow ? customStyleClass.backgroundColorMain : Colors.transparent,
+      backgroundColor: noInfoScreenToShow ? customStyleClass.backgroundColorMain : Colors.transparent,
       title: Container(
         width: screenWidth,
-        color: customStyleClass.backgroundColorMain,
+        color: noInfoScreenToShow ? customStyleClass.backgroundColorMain : Colors.transparent,
         child: Stack(
           children: [
             // Headline
+            if(noInfoScreenToShow)
             Container(
                 alignment: Alignment.bottomCenter,
                 height: 50,
@@ -196,6 +233,8 @@ class _UserEventsViewState extends State<UserEventsView> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+
+                    isSearchActive ?
                     SizedBox(
                       width: screenWidth*0.4,
                       child: TextField(
@@ -221,12 +260,26 @@ class _UserEventsViewState extends State<UserEventsView> {
                         ),
                         cursorColor: customStyleClass.primeColor,
                       ),
+                    ):Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                                headLine,
+                                textAlign: TextAlign.center,
+                                style: customStyleClass.getFontStyleHeadline1Bold()
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ],
                 )
             ),
 
             // Search icon
+            if(noInfoScreenToShow)
             Container(
                 width: screenWidth,
                 alignment: Alignment.centerLeft,
@@ -246,6 +299,7 @@ class _UserEventsViewState extends State<UserEventsView> {
             ),
 
             // Right icons
+            if(noInfoScreenToShow)
             Container(
               width: screenWidth,
               alignment: Alignment.centerRight,
@@ -278,67 +332,7 @@ class _UserEventsViewState extends State<UserEventsView> {
               ),
             ),
 
-          ],
-        ),
-      ),
-    ):
-
-    // Show the app bar with the title
-    AppBar(
-        surfaceTintColor: customStyleClass.backgroundColorMain,
-        backgroundColor: customStyleClass.backgroundColorMain,
-        title: Container(
-          width: screenWidth,
-          color: customStyleClass.backgroundColorMain,
-          child: Stack(
-            children: [
-
-              // Headline
-              Container(
-                  alignment: Alignment.bottomCenter,
-                  height: 50,
-                  width: screenWidth,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                  headLine,
-                                  textAlign: TextAlign.center,
-                                  style: customStyleClass.getFontStyleHeadline1Bold()
-                              ),
-                            ],
-                          ),
-                        ],
-                      )
-                    ],
-                  )
-              ),
-
-              // Search icon
-              Container(
-                  width: screenWidth,
-                  alignment: Alignment.centerLeft,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      IconButton(
-                          onPressed: () => toggleIsSearchActive(),
-                          icon: Icon(
-                            Icons.search,
-                            color: searchValue != "" ? customStyleClass.primeColor : Colors.white,
-                            // size: 20,
-                          )
-                      )
-                    ],
-                  )
-              ),
-
-              // Right icons
+            if(!noInfoScreenToShow)
               Container(
                 width: screenWidth,
                 alignment: Alignment.centerRight,
@@ -346,35 +340,119 @@ class _UserEventsViewState extends State<UserEventsView> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     IconButton(
-                        onPressed: () => filterForFavorites(),
-                        icon: Icon(
-                          onlyFavoritesIsActive ? Icons.star : Icons.star_border,
-                          color: onlyFavoritesIsActive ? customStyleClass.primeColor : Colors.white,
+                        onPressed: (){
+                          setState(() {
+                            noInfoScreenToShow = true;
+                          });
+                        },
+                        icon: const Icon(
+                          Icons.close,
+                          color: Colors.white,
                         )
                     ),
-                    Padding(
-                        padding: const EdgeInsets.only(right: 0),
-                        child: GestureDetector(
-                          child: Container(
-                              padding: const EdgeInsets.all(7),
-                              child: Icon(
-                                Icons.filter_alt_outlined,
-                                color: isAnyFilterActive || isFilterMenuActive ? customStyleClass.primeColor : Colors.white,
-                              )
-                          ),
-                          onTap: (){
-                            toggleIsFilterMenuActive();
-                          },
-                        )
-                    )
                   ],
                 ),
               ),
+          ],
+        ),
+      ),
+    ):AppBar(
+        surfaceTintColor: Colors.transparent,
+        backgroundColor: Colors.transparent,
+      );
 
-            ],
-          ),
-        )
-    );
+    // Show the app bar with the title
+    // AppBar(
+    //     surfaceTintColor: customStyleClass.backgroundColorMain,
+    //     backgroundColor: customStyleClass.backgroundColorMain,
+    //     title: Container(
+    //       width: screenWidth,
+    //       color: customStyleClass.backgroundColorMain,
+    //       child: Stack(
+    //         children: [
+    //
+    //           // Headline
+    //           Container(
+    //               alignment: Alignment.bottomCenter,
+    //               height: 50,
+    //               width: screenWidth,
+    //               child: Column(
+    //                 mainAxisAlignment: MainAxisAlignment.center,
+    //                 children: [
+    //                   Row(
+    //                     mainAxisAlignment: MainAxisAlignment.spaceAround,
+    //                     children: [
+    //                       Row(
+    //                         children: [
+    //                           Text(
+    //                               headLine,
+    //                               textAlign: TextAlign.center,
+    //                               style: customStyleClass.getFontStyleHeadline1Bold()
+    //                           ),
+    //                         ],
+    //                       ),
+    //                     ],
+    //                   )
+    //                 ],
+    //               )
+    //           ),
+    //
+    //           // Search icon
+    //           Container(
+    //               width: screenWidth,
+    //               alignment: Alignment.centerLeft,
+    //               child: Column(
+    //                 mainAxisAlignment: MainAxisAlignment.end,
+    //                 children: [
+    //                   IconButton(
+    //                       onPressed: () => toggleIsSearchActive(),
+    //                       icon: Icon(
+    //                         Icons.search,
+    //                         color: searchValue != "" ? customStyleClass.primeColor : Colors.white,
+    //                         // size: 20,
+    //                       )
+    //                   )
+    //                 ],
+    //               )
+    //           ),
+    //
+    //           // Right icons
+    //           Container(
+    //             width: screenWidth,
+    //             alignment: Alignment.centerRight,
+    //             child: Row(
+    //               mainAxisAlignment: MainAxisAlignment.end,
+    //               children: [
+    //                 IconButton(
+    //                     onPressed: () => filterForFavorites(),
+    //                     icon: Icon(
+    //                       onlyFavoritesIsActive ? Icons.star : Icons.star_border,
+    //                       color: onlyFavoritesIsActive ? customStyleClass.primeColor : Colors.white,
+    //                     )
+    //                 ),
+    //                 Padding(
+    //                     padding: const EdgeInsets.only(right: 0),
+    //                     child: GestureDetector(
+    //                       child: Container(
+    //                           padding: const EdgeInsets.all(7),
+    //                           child: Icon(
+    //                             Icons.filter_alt_outlined,
+    //                             color: isAnyFilterActive || isFilterMenuActive ? customStyleClass.primeColor : Colors.white,
+    //                           )
+    //                       ),
+    //                       onTap: (){
+    //                         toggleIsFilterMenuActive();
+    //                       },
+    //                     )
+    //                 )
+    //               ],
+    //             ),
+    //           ),
+    //
+    //         ],
+    //       ),
+    //     )
+    // );
   }
   Widget _buildMainView(){
     return Container(
@@ -708,6 +786,30 @@ class _UserEventsViewState extends State<UserEventsView> {
     ):SizedBox(
       width: screenWidth,
       height: screenHeight*0.8,
+      child: Center(
+        child: CircularProgressIndicator(
+          color: customStyleClass.primeColor,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoScreen(){
+    return Container(
+      width: screenWidth,
+      height: screenHeight,
+      child: Center(
+        child: Image.asset(
+          "assets/images/lange_nacht.png"
+        ),
+      ),
+    );
+  }
+
+  _buildLoadingScreen(){
+    return SizedBox(
+      width: screenWidth,
+      height: screenHeight,
       child: Center(
         child: CircularProgressIndicator(
           color: customStyleClass.primeColor,
@@ -1156,11 +1258,18 @@ class _UserEventsViewState extends State<UserEventsView> {
 
     return Scaffold(
 
-        extendBodyBehindAppBar: false,
+        extendBodyBehindAppBar: true,
 
-        bottomNavigationBar: CustomBottomNavigationBar(),
+        bottomNavigationBar:
+        checkedForInfoScreen ? noInfoScreenToShow ?
+        CustomBottomNavigationBar() : SizedBox() : SizedBox(),
         appBar: _buildAppbar(),
-        body: _buildMainView()
+        body:
+          checkedForInfoScreen ?
+            noInfoScreenToShow ?
+              _buildMainView() :
+            _buildInfoScreen() :
+            _buildLoadingScreen()
     );
   }
 }

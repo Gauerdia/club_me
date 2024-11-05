@@ -48,7 +48,8 @@ class ClubMeClub{
     required this.specialOpeningTimes,
 
     required this.closePartner,
-    required this.showClubInApp
+    required this.showClubInApp,
+    required this.specialOccasionActive
 
   });
 
@@ -86,6 +87,12 @@ class ClubMeClub{
 
   bool closePartner;
   bool showClubInApp;
+
+  bool specialOccasionActive;
+
+  bool getSpecialOccasionActive(){
+    return specialOccasionActive;
+  }
 
   bool getShowClubInApp(){
     return showClubInApp;
