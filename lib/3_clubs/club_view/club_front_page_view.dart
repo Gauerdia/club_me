@@ -130,36 +130,144 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
 
     // Only use the ones that are in the future
     List<ClubMeEvent> eventsInTheFuture = eventsOfCurrentClub.where(
-            (event) => event.getEventDate().add(const Duration(hours: 6)).isAfter(stateProvider.getBerlinTime())
+            (event){
+              DateTime eventWithEstimatedLength = DateTime(
+                event.getEventDate().year,
+                event.getEventDate().month,
+                event.getEventDate().day,
+                event.getEventDate().hour+6,
+                event.getEventDate().minute,
+              );
+              DateTime berlinTimeWithoutTZ = DateTime(
+                  stateProvider.getBerlinTime().year,
+                  stateProvider.getBerlinTime().month,
+                  stateProvider.getBerlinTime().day,
+                  stateProvider.getBerlinTime().hour,
+                  stateProvider.getBerlinTime().month
+              );
+              if(eventWithEstimatedLength.isAfter(berlinTimeWithoutTZ)){
+                return true;
+              }else{
+                return false;
+              }
+            }
     ).toList();
 
+
+
+    // Check if any is outside of regular opening hours
     for(var event in eventsInTheFuture){
 
-      var eventWeekDay = event.getEventDate().weekday;
+      int eventWeekDay = event.getEventDate().weekday;
 
-      var complementaryOpeningTime = userDataProvider.getUserClub()
+      var yesterdayOpeningTime = userDataProvider.getUserClub()
+          .getOpeningTimes().days?.firstWhereOrNull(
+              (days) => days.day == eventWeekDay-1);
+
+      var todayOpeningTime = userDataProvider.getUserClub()
           .getOpeningTimes().days?.firstWhereOrNull(
               (days) => days.day == eventWeekDay);
 
-      if(complementaryOpeningTime == null){
 
-        String dayToAdd = event.getEventDate().day < 10 ?
-        "0${event.getEventDate().day}": event.getEventDate().day.toString();
-        String monthToAdd = event.getEventDate().month < 10 ?
-        "0${event.getEventDate().month}": event.getEventDate().month.toString();
+      // First case: Only an event from yesterday might influence our decision
+      if(yesterdayOpeningTime != null && todayOpeningTime == null){
 
-        specialDayToDisplay.add(
-            "$dayToAdd.$monthToAdd.${event.getEventDate().year}"
+        DateTime yesterdayClosing = DateTime(
+            event.getEventDate().year,
+            event.getEventDate().month,
+            event.getEventDate().day,
+            yesterdayOpeningTime.closingHour!,
+            yesterdayOpeningTime.closingHalfAnHour == 2 ?
+            59 : yesterdayOpeningTime.closingHalfAnHour == 1 ? 30:0
         );
-        specialDayOpeningTimeToDisplay.add(event.getEventDate().hour);
-        if(event.getClosingDate() != null){
-          specialDayClosingTimeToDisplay.add(event.getClosingDate()!.hour);
-        }else{
-          specialDayClosingTimeToDisplay.add(99);
+
+        // If we are already past the closing time, than it is out of line
+        if(event.getEventDate().isAfter(yesterdayClosing)){
+          formatAndSaveSpecialDayToDisplay(event.getEventDate(), event.getClosingDate());
         }
-        specialDayWeekdayToDisplay.add(eventWeekDay);
+
       }
+      // Second case: Both days are to consider
+      else if(yesterdayOpeningTime != null && todayOpeningTime != null){
+
+        DateTime yesterdayOpening = DateTime(
+            event.getEventDate().year,
+            event.getEventDate().month,
+            event.getEventDate().day-1,
+            yesterdayOpeningTime.openingHour!,
+            yesterdayOpeningTime.openingHalfAnHour == 2 ?
+            59 : yesterdayOpeningTime.openingHalfAnHour == 1 ? 30:0
+        );
+
+        DateTime todayOpening = DateTime(
+            event.getEventDate().year,
+            event.getEventDate().month,
+            event.getEventDate().day,
+            todayOpeningTime.openingHour!,
+            todayOpeningTime.openingHalfAnHour == 2 ?
+            59 : todayOpeningTime.openingHalfAnHour == 1 ? 30:0
+        );
+
+        if(event.getEventDate().isAfter(yesterdayOpening) && event.getEventDate().isBefore(todayOpening)){
+          formatAndSaveSpecialDayToDisplay(event.getEventDate(), event.getClosingDate());
+        }
+
+      }
+      // Third case: Nothing yesterday, but something today
+      else if(yesterdayOpeningTime == null && todayOpeningTime != null){
+
+        DateTime todayOpening = DateTime(
+            event.getEventDate().year,
+            event.getEventDate().month,
+            event.getEventDate().day,
+            todayOpeningTime.openingHour!,
+            todayOpeningTime.openingHalfAnHour == 2 ?
+            59 : todayOpeningTime.openingHalfAnHour == 1 ? 30:0
+        );
+
+        if(event.getEventDate().isBefore(todayOpening)){
+          formatAndSaveSpecialDayToDisplay(event.getEventDate(), event.getClosingDate());
+        }
+
+
+      }
+      // There are no opening times yesterday or today? Definitely a special opening time
+      else if(yesterdayOpeningTime == null && todayOpeningTime == null){
+        formatAndSaveSpecialDayToDisplay(
+            event.getEventDate(),
+            event.getClosingDate()
+        );
+      }
+
     }
+  }
+  void formatAndSaveSpecialDayToDisplay(DateTime eventDate, DateTime? closingDate){
+
+    // format the string to display
+    String dayToAdd = eventDate.day < 10 ?
+    "0${eventDate.day}": eventDate.day.toString();
+    String monthToAdd = eventDate.month < 10 ?
+    "0${eventDate.month}": eventDate.month.toString();
+
+    // Add the date to display
+    specialDayToDisplay.add(
+        "$dayToAdd.$monthToAdd.${eventDate.year}"
+    );
+
+    // Save the opening hour
+    specialDayOpeningTimeToDisplay.add(eventDate.hour);
+
+    // If we have a closing hour, we know the exact hour to display
+    if(closingDate != null){
+      specialDayClosingTimeToDisplay.add(eventDate.hour);
+    }
+    // If not, we signal our algo that we don't know, aka 99
+    else{
+      specialDayClosingTimeToDisplay.add(99);
+    }
+
+    // Save the weekday to display the written weekday
+    specialDayWeekdayToDisplay.add(eventDate.weekday);
   }
 
 

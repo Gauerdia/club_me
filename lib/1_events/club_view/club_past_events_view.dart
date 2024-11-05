@@ -366,8 +366,6 @@ class _ClubPastEventsViewState extends State<ClubPastEventsView> {
 
   bool checkIfIsUpcomingEvent(ClubMeEvent currentEvent){
 
-    print("clubpastevent: ${currentEvent.getEventTitle()}");
-
     stateProvider = Provider.of<StateProvider>(context, listen: false);
     userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
 
@@ -376,7 +374,7 @@ class _ClubPastEventsViewState extends State<ClubPastEventsView> {
 
     // Assumption: Every event starting before 6 is considered to be an event of
     // the previous day.
-    var eventWeekDay = currentEvent.getEventDate().hour <= 6 ?
+    var eventWeekDay = currentEvent.getEventDate().hour <= 5 ?
     currentEvent.getEventDate().weekday -1 :
     currentEvent.getEventDate().weekday;
 

@@ -94,8 +94,10 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
     setState(() {
       fetchedEventsThatAreUpcoming = [];
       eventsToDisplay = [];
-      for(var element in fetchedContentProvider.getFetchedEvents()){
-        fetchedEventsThatAreUpcoming.add(element);
+      for(var currentEvent in fetchedContentProvider.getFetchedEvents()){
+        if(checkIfIsUpcomingEvent(currentEvent)){
+          fetchedEventsThatAreUpcoming.add(currentEvent);
+        }
       }
       filterEvents();
     });
@@ -508,7 +510,7 @@ class _ClubUpcomingEventsViewState extends State<ClubUpcomingEventsView> {
 
     // Assumption: Every event starting before 6 is considered to be an event of
     // the previous day.
-    var eventWeekDay = currentEvent.getEventDate().hour <= 6 ?
+    var eventWeekDay = currentEvent.getEventDate().hour <= 5 ?
     currentEvent.getEventDate().weekday -1 :
     currentEvent.getEventDate().weekday;
 

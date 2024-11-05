@@ -255,7 +255,7 @@ class _ClubUpcomingDiscountsViewState extends State<ClubUpcomingDiscountsView>
 
     // Assumption: Every event starting before 6 is considered to be an event of
     // the previous day.
-    var eventWeekDay = currentDiscount.getDiscountDate().hour <= 6 ?
+    var eventWeekDay = currentDiscount.getDiscountDate().hour <= 5 ?
     currentDiscount.getDiscountDate().weekday -1 :
     currentDiscount.getDiscountDate().weekday;
 
