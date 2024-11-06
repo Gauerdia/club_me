@@ -188,10 +188,6 @@ class _UserEventsViewState extends State<UserEventsView> {
         List<DateTime> lastInfoScreenDate = await _supabaseService.getLatestInfoScreenDate();
         DateTime? localLastInfoScreenDate = await _hiveService.getLatestInfoScreenDate();
 
-        print("test: ${lastInfoScreenDate[0]}");
-        print("test: ${lastInfoScreenDate[1]}");
-        print("test: ${localLastInfoScreenDate}");
-
         // Only relevant if we are before the expiration date.
         if( stateProvider.getBerlinTime().isBefore(lastInfoScreenDate[1]) ){
 
@@ -505,183 +501,7 @@ class _UserEventsViewState extends State<UserEventsView> {
 
             // Filter menu
             if(isFilterMenuActive)
-              Container(
-                height: screenHeight*0.14,
-                width: screenWidth,
-
-                decoration: BoxDecoration(
-                    color: customStyleClass.backgroundColorMain,
-                  border: Border(
-                    bottom: BorderSide(
-                      color: customStyleClass.backgroundColorEventTile,
-                      width: 2
-                    )
-                  )
-                ),
-                child: Row(
-                  children: [
-
-                    // Price
-                    SizedBox(
-                      width: screenWidth*0.33,
-                      child: Column(
-                        children: [
-
-                          // Spacer
-                          SizedBox(
-                            height: screenHeight*0.01,
-                          ),
-
-                          // Text: Price
-                          Text(
-                            "Preis",
-                            style: customStyleClass.getFontStyle3(),
-                          ),
-
-                          // RangeSlider: Price
-                          RangeSlider(
-                            max: maxValueRangeSlider,
-                            divisions: 10,
-                            labels: RangeLabels(
-                              "0",
-                              _currentRangeValues.end.round().toString(),
-                            ),
-                            values: _currentRangeValues,
-                            onChanged: (RangeValues values) {
-                              setState(() {
-                                _currentRangeValues = values;
-                                filterEvents(fetchedContentProvider);
-                              });
-                            },
-                            activeColor: customStyleClass.primeColor,
-                            inactiveColor: customStyleClass.primeColor,
-                            overlayColor: WidgetStateProperty.all(customStyleClass.primeColorDark),
-                          )
-                        ],
-                      ),
-                    ),
-
-                    SizedBox(
-                      width: screenWidth*0.33,
-                      child: Column(
-                        children: [
-
-                          // Spacer
-                          SizedBox(
-                            height: screenHeight*0.01,
-                          ),
-
-                          // Text: Genre
-                          SizedBox(
-                            child: Text(
-                              "Wochentag",
-                              textAlign: TextAlign.left,
-                              style: customStyleClass.getFontStyle3(),
-                            ),
-                          ),
-
-                          // Dropdown
-                          Theme(
-                            data: Theme.of(context).copyWith(
-                                canvasColor: customStyleClass.backgroundColorMain
-                            ),
-                            child: DropdownMenu<String>(
-                              width: 110,
-                              initialSelection: weekDayDropDownValue,
-                              onSelected: (String? value){
-                                setState(() {
-                                  weekDayDropDownValue = value!;
-                                  filterEvents(fetchedContentProvider);
-                                });
-                              },
-                              textStyle: const TextStyle(
-                                color: Colors.white
-                              ),
-                              menuStyle: MenuStyle(
-                                surfaceTintColor: WidgetStateProperty.all<Color>(customStyleClass.backgroundColorEventTile),
-                                backgroundColor: WidgetStateProperty.all<Color>(customStyleClass.backgroundColorEventTile),
-                                alignment: Alignment.bottomLeft,
-                                maximumSize: const WidgetStatePropertyAll(
-                                    Size.fromHeight(300),
-                                ),
-                              ),
-                              dropdownMenuEntries: Utils.weekDaysForFiltering
-                                  .map<DropdownMenuEntry<String>>((String value){
-                                    return DropdownMenuEntry(
-                                        value: value,
-                                        label: value,
-                                      style: ButtonStyle(
-                                        foregroundColor: WidgetStateProperty.all<Color>(Colors.white)
-                                      )
-                                    );
-                              }).toList(),
-                            )
-                          )
-                        ],
-                      ),
-                    ),
-
-                    // Genre filter
-                    SizedBox(
-                      width: screenWidth*0.33,
-                      child: Column(
-                        children: [
-
-                          // Spacer
-                          SizedBox(
-                            height: screenHeight*0.01,
-                          ),
-
-                          // Text: Genre
-                          Text(
-                            "Musikrichtung",
-                            style: customStyleClass.getFontStyle3(),
-                          ),
-
-                          // Dropdown
-                          Theme(
-                            data: Theme.of(context).copyWith(
-                                canvasColor: customStyleClass.backgroundColorMain
-                            ),
-                            child: DropdownMenu<String>(
-                              width: 120,
-                              initialSelection: dropdownValue,
-                              onSelected: (String? value){
-                                setState(() {
-                                  dropdownValue = value!;
-                                  filterEvents(fetchedContentProvider);
-                                });
-                              },
-                              textStyle: const TextStyle(
-                                  color: Colors.white
-                              ),
-                              menuStyle: MenuStyle(
-                                surfaceTintColor: WidgetStateProperty.all<Color>(customStyleClass.backgroundColorEventTile),
-                                backgroundColor: WidgetStateProperty.all<Color>(customStyleClass.backgroundColorEventTile),
-                                alignment: Alignment.bottomLeft,
-                                maximumSize: const WidgetStatePropertyAll(
-                                  Size.fromHeight(300),
-                                ),
-                              ),
-                              dropdownMenuEntries: Utils.genreListForFiltering
-                                  .map<DropdownMenuEntry<String>>((String value){
-                                return DropdownMenuEntry(
-                                    value: value,
-                                    label: value,
-                                    style: ButtonStyle(
-                                        foregroundColor: WidgetStateProperty.all<Color>(Colors.white)
-                                    )
-                                );
-                              }).toList(),
-                            )
-                          ),
-
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-              ),
+              _buildFilterWidget()
           ],
         )
     );
@@ -836,6 +656,196 @@ class _UserEventsViewState extends State<UserEventsView> {
         ),
       ),
     );
+  }
+
+  Widget _buildFilterWidget(){
+    return Container(
+      padding: EdgeInsets.only(
+        top: screenHeight*0.12
+      ),
+      decoration: BoxDecoration(
+          color: customStyleClass.backgroundColorMain,
+          border: Border(
+              bottom: BorderSide(
+                  color: Colors.grey[900]!,
+                  width: 1
+              )
+          )
+      ),
+      height: screenHeight*0.24,
+      width: screenWidth,
+      child: Container(
+        child: Center(
+          child:Row(
+            children: [
+
+              // Price
+              SizedBox(
+                width: screenWidth*0.33,
+                child: Column(
+                  children: [
+
+                    // Spacer
+                    SizedBox(
+                      height: screenHeight*0.01,
+                    ),
+
+                    // Text: Price
+                    Text(
+                      "Preis",
+                      style: customStyleClass.getFontStyle3(),
+                    ),
+
+                    // RangeSlider: Price
+                    RangeSlider(
+                      max: maxValueRangeSlider,
+                      divisions: 10,
+                      labels: RangeLabels(
+                        "0",
+                        _currentRangeValues.end.round().toString(),
+                      ),
+                      values: _currentRangeValues,
+                      onChanged: (RangeValues values) {
+                        setState(() {
+                          _currentRangeValues = values;
+                          filterEvents(fetchedContentProvider);
+                        });
+                      },
+                      activeColor: customStyleClass.primeColor,
+                      inactiveColor: customStyleClass.primeColor,
+                      overlayColor: WidgetStateProperty.all(customStyleClass.primeColorDark),
+                    )
+                  ],
+                ),
+              ),
+
+              // Weekday
+              SizedBox(
+                width: screenWidth*0.33,
+                child: Column(
+                  children: [
+
+                    // Spacer
+                    SizedBox(
+                      height: screenHeight*0.01,
+                    ),
+
+                    // Text: Genre
+                    SizedBox(
+                      child: Text(
+                        "Wochentag",
+                        textAlign: TextAlign.left,
+                        style: customStyleClass.getFontStyle3(),
+                      ),
+                    ),
+
+                    // Dropdown
+                    Theme(
+                        data: Theme.of(context).copyWith(
+                            canvasColor: customStyleClass.backgroundColorMain
+                        ),
+                        child: DropdownMenu<String>(
+                          width: 110,
+                          initialSelection: weekDayDropDownValue,
+                          onSelected: (String? value){
+                            setState(() {
+                              weekDayDropDownValue = value!;
+                              filterEvents(fetchedContentProvider);
+                            });
+                          },
+                          textStyle: const TextStyle(
+                              color: Colors.white
+                          ),
+                          menuStyle: MenuStyle(
+                            surfaceTintColor: WidgetStateProperty.all<Color>(customStyleClass.backgroundColorEventTile),
+                            backgroundColor: WidgetStateProperty.all<Color>(customStyleClass.backgroundColorEventTile),
+                            alignment: Alignment.bottomLeft,
+                            maximumSize: const WidgetStatePropertyAll(
+                              Size.fromHeight(300),
+                            ),
+                          ),
+                          dropdownMenuEntries: Utils.weekDaysForFiltering
+                              .map<DropdownMenuEntry<String>>((String value){
+                            return DropdownMenuEntry(
+                                value: value,
+                                label: value,
+                                style: ButtonStyle(
+                                    foregroundColor: WidgetStateProperty.all<Color>(Colors.white)
+                                )
+                            );
+                          }).toList(),
+                        )
+                    )
+                  ],
+                ),
+              ),
+
+              // Genre filter
+              SizedBox(
+                width: screenWidth*0.33,
+                child: Column(
+                  children: [
+
+                    // Spacer
+                    SizedBox(
+                      height: screenHeight*0.01,
+                    ),
+
+                    // Text: Genre
+                    Text(
+                      "Musikrichtung",
+                      style: customStyleClass.getFontStyle3(),
+                    ),
+
+                    // Dropdown
+                    Theme(
+                        data: Theme.of(context).copyWith(
+                            canvasColor: customStyleClass.backgroundColorMain
+                        ),
+                        child: DropdownMenu<String>(
+                          width: 120,
+                          initialSelection: dropdownValue,
+                          onSelected: (String? value){
+                            setState(() {
+                              dropdownValue = value!;
+                              filterEvents(fetchedContentProvider);
+                            });
+                          },
+                          textStyle: const TextStyle(
+                              color: Colors.white
+                          ),
+                          menuStyle: MenuStyle(
+                            surfaceTintColor: WidgetStateProperty.all<Color>(customStyleClass.backgroundColorEventTile),
+                            backgroundColor: WidgetStateProperty.all<Color>(customStyleClass.backgroundColorEventTile),
+                            alignment: Alignment.bottomLeft,
+                            maximumSize: const WidgetStatePropertyAll(
+                              Size.fromHeight(300),
+                            ),
+                          ),
+                          dropdownMenuEntries: Utils.genreListForFiltering
+                              .map<DropdownMenuEntry<String>>((String value){
+                            return DropdownMenuEntry(
+                                value: value,
+                                label: value,
+                                style: ButtonStyle(
+                                    foregroundColor: WidgetStateProperty.all<Color>(Colors.white)
+                                )
+                            );
+                          }).toList(),
+                        )
+                    ),
+
+                  ],
+                ),
+              )
+            ],
+          )
+        ),
+      ),
+    );
+
+
+    //
   }
 
 
@@ -1070,7 +1080,7 @@ class _UserEventsViewState extends State<UserEventsView> {
 
       int cmp = firstDate.compareTo(secondDate);
       if (cmp != 0) return cmp;
-      return a.getPriorityScore().compareTo(b.getPriorityScore());
+      return b.getPriorityScore().compareTo(a.getPriorityScore());
     });
 
   }
@@ -1274,10 +1284,10 @@ class _UserEventsViewState extends State<UserEventsView> {
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
 
-
-
     return Scaffold(
 
+      // Filter acted strange because of this. Without this, we dont need the padding for the
+      // filter widget.
         extendBodyBehindAppBar: true,
 
         bottomNavigationBar:
