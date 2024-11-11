@@ -259,7 +259,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
 
     // If we have a closing hour, we know the exact hour to display
     if(closingDate != null){
-      specialDayClosingTimeToDisplay.add(eventDate.hour);
+      specialDayClosingTimeToDisplay.add(closingDate.hour);
     }
     // If not, we signal our algo that we don't know, aka 99
     else{
@@ -1904,8 +1904,11 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
 
+              // Opening hour
               SizedBox(
                 child: Text(
+                  openingHourToDisplay < 10 ?
+                  "0${openingHourToDisplay.toString()}:00" :
                   "${openingHourToDisplay.toString()}:00",
                   style: customStyleClass.getFontStyle3(),
                 ),
