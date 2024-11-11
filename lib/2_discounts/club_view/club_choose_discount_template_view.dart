@@ -71,6 +71,7 @@ class _ClubChooseDiscountTemplateViewState extends State<ClubChooseDiscountTempl
         child: SingleChildScrollView(
             child: Column(
               children: [
+
                 for(var discountTemplate in stateProvider.getDiscountTemplates())
                   GestureDetector(
                     child: Container(
@@ -113,7 +114,11 @@ class _ClubChooseDiscountTemplateViewState extends State<ClubChooseDiscountTempl
                       stateProvider.setCurrentDiscountTemplate(discountTemplate);
                       context.go("/club_new_discount");
                     },
-                  )
+                  ),
+
+                SizedBox(
+                  height: screenHeight*0.12,
+                )
               ],
             )
         )

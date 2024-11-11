@@ -121,7 +121,11 @@ class _ClubChooseEventTemplateViewState extends State<ClubChooseEventTemplateVie
             child: Column(
               children: [
                 for(var eventTemplate in stateProvider.getClubMeEventTemplates())
-                  _buildTemplateTile(eventTemplate)
+                  _buildTemplateTile(eventTemplate),
+
+                SizedBox(
+                  height: screenHeight*0.12,
+                )
               ],
             )
         )
