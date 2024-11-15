@@ -557,7 +557,7 @@ class _UserMapViewState extends State<UserMapView>{
         text: "Hello World",
         index: 0
       ).toBitmapDescriptor(
-          logicalSize: const Size(50, 50), imageSize: const Size(50, 50)
+          logicalSize: const Size(100, 100), imageSize: const Size(100, 100)
       ).then((response) => {
         _markers['user_location'] = Marker(
           markerId: const MarkerId("user_location"),

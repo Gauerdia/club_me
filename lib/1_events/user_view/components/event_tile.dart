@@ -1,7 +1,9 @@
 import 'dart:io';
+import 'package:club_me/provider/current_and_liked_elements_provider.dart';
 import 'package:club_me/shared/dialogs/title_content_and_button_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../models/event.dart';
@@ -27,6 +29,7 @@ class EventTile extends StatelessWidget {
 
   late StateProvider stateProvider;
   late FetchedContentProvider fetchedContentProvider;
+  late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
 
   late CustomStyleClass customStyleClass;
   late double screenHeight, screenWidth;
@@ -54,9 +57,10 @@ class EventTile extends StatelessWidget {
 
 
   void initGeneralSettings(BuildContext context){
-    stateProvider = Provider.of<StateProvider>(context);
 
+    stateProvider = Provider.of<StateProvider>(context);
     fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
+    currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context);
 
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
@@ -321,7 +325,7 @@ class EventTile extends StatelessWidget {
                     Container(
                         height: topHeight,
                         decoration: BoxDecoration(
-                          color: customStyleClass.backgroundColorMain,
+                          color: Colors.black,
                           border: Border.all(
                               color: customStyleClass.backgroundColorEventTile
                           ),
@@ -365,28 +369,6 @@ class EventTile extends StatelessWidget {
                                   ),
                                 )
                             ),
-
-                            // Display logo, when content is available
-                            // clubMeEvent.getEventMarketingFileName().isNotEmpty && showMaterialButton ?
-                            //     InkWell(
-                            //       child: Container(
-                            //         height: topHeight,
-                            //         width: screenWidth,
-                            //         alignment: Alignment.topRight,
-                            //         child: ClipRRect(
-                            //           borderRadius: const BorderRadius.only(
-                            //               topRight: Radius.circular(15),
-                            //               topLeft: Radius.circular(15)
-                            //           ),
-                            //           child: Image.asset(
-                            //             "assets/images/ClubMe_Logo_weiß.png",
-                            //             height: 60,
-                            //             width: 60,
-                            //             // fit: BoxFit.cover,
-                            //           ),
-                            //         ),
-                            //       ),
-                            //     ): Container(),
 
                           ],
                         )
@@ -493,8 +475,17 @@ class EventTile extends StatelessWidget {
                                         ),
                                         onTap: () => clickEventTicket(context),
                                       ),
+
                                     SizedBox(
                                       width: screenWidth*0.02,
+                                    ),
+
+                                    InkWell(
+                                      child: Icon(
+                                        Icons.house,
+                                        color: customStyleClass.primeColor,
+                                      ),
+                                      onTap: () => clickEventGoToClubDetailPage(context, clubMeEvent.getClubId()),
                                     ),
 
                                     // Like
@@ -610,6 +601,21 @@ class EventTile extends StatelessWidget {
             );
         }
     );
+  }
+
+  void clickEventGoToClubDetailPage(BuildContext context, String clubId){
+
+
+
+    currentAndLikedElementsProvider.setCurrentClub(
+      fetchedContentProvider.getFetchedClubs().where(
+          (club) => club.getClubId() == clubId
+      ).first
+    );
+    stateProvider.setAccessedEventDetailFrom(0);
+    context.push('/club_details');
+
+
   }
 
 

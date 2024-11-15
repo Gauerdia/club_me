@@ -89,6 +89,8 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
   int hasUsageLimit = 0;
   int hasUsageLimitIndex = 0;
 
+  int isRedeemable = 1;
+
   bool pickHourAndMinuteIsActive = false;
 
   double distanceBetweenTitleAndTextField = 10;
@@ -1033,6 +1035,64 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
                           ),
                         ),
 
+                      // switch between discount and information
+                      if(stateProvider.getUsingTheAppAsADeveloper())
+                        Container(
+                          width: screenWidth*0.9,
+                          // height: screenHeight*0.12,
+                          alignment: Alignment.centerLeft,
+                          padding:  EdgeInsets.only(
+                              top: distanceBetweenTitleAndTextField
+                          ),
+
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+
+                              Column(
+                                children: [
+
+                                  // Text: "repeat coupon"
+                                  Container(
+                                    width: screenWidth*0.9,
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      "Admin: Coupon oder Angebot?",
+                                      style: customStyleClass.getFontStyle3(),
+                                    ),
+                                  ),
+
+                                  Container(
+                                      padding:  EdgeInsets.only(
+                                          top: distanceBetweenTitleAndTextField
+                                      ),
+                                      width: screenWidth*0.9,
+                                      alignment: Alignment.centerLeft,
+                                      child: ToggleSwitch(
+                                        minHeight: screenHeight*0.07,
+                                        initialLabelIndex: isRedeemable,
+                                        totalSwitches: 2,
+                                        activeBgColor: [customStyleClass.primeColor],
+                                        activeFgColor: Colors.white,
+                                        inactiveFgColor: Colors.white,
+                                        inactiveBgColor: customStyleClass.backgroundColorEventTile,
+                                        labels: const [
+                                          'Angebot',
+                                          'Coupon',
+                                        ],
+                                        onToggle: (index) {
+                                          setState(() {
+                                            isRedeemable == 0 ? isRedeemable = 1 : isRedeemable = 0;
+                                          });
+                                        },
+                                      )
+                                  ),
+                                ],
+                              ),
+
+                            ],
+                          ),
+                        ),
 
                       // Spacer
                       SizedBox(
@@ -1373,12 +1433,15 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
         ageLimitLowerLimit: int.parse(_ageLimitLowerLimitController.text),
         ageLimitUpperLimit: int.parse(_ageLimitUpperLimitController.text),
 
-         isRepeatedDays: isRepeatedDaysToSave,
+        isRepeatedDays: isRepeatedDaysToSave,
         bigBannerFileName: Utils.discountBigImageNames[_currentPageIndex],
         smallBannerFileName: Utils.discountSmallImageNames[_currentPageIndex],
-      openingTimes: userDataProvider.getUserClub().getOpeningTimes(),
-      showDiscountInApp: userDataProvider.getUserClub().getClubId() == "9876-1234-5684" ? false: true,
-      specialOccasionActive: false
+        openingTimes: userDataProvider.getUserClub().getOpeningTimes(),
+        showDiscountInApp: userDataProvider.getUserClub().getClubId() == "9876-1234-5684" ? false: true,
+        specialOccasionActive: false,
+
+        isRedeemable: isRedeemable == 0 ? false: true
+
     );
 
     if(isSupposedToBeTemplate == 1){
@@ -1391,7 +1454,6 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
           fetchedContentProvider.addDiscountToFetchedDiscounts(clubMeDiscount);
           fetchedContentProvider.sortFetchedDiscounts();
           stateProvider.resetCurrentDiscountTemplate();
-          // stateProvider.resetDiscountTemplates();
           _checkAndFetchService.checkAndFetchDiscountImageAfterCreation
             (clubMeDiscount.getBigBannerFileName(),
               stateProvider,

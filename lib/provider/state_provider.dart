@@ -58,13 +58,16 @@ class StateProvider extends ChangeNotifier{
 
   bool usingTheAppAsADeveloper = false;
 
-
+  bool accessedTutorialFromSettings = false;
 
 
 
   final SupabaseService _supabaseService = SupabaseService();
   final log = getLogger();
 
+  void activateAccessedTutorialFromSettings(){
+    accessedTutorialFromSettings = true;
+  }
 
   bool getUsingTheAppAsADeveloper(){
     return usingTheAppAsADeveloper;

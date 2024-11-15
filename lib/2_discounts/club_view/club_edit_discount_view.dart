@@ -65,6 +65,8 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
   bool firstElementChanged = false;
   bool secondElementChanged = false;
 
+  int isRedeemable = 0;
+
   int isRepeated = 0;
   int isRepeatedIndex = 0;
 
@@ -167,6 +169,10 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
     _isRepeatedController = FixedExtentScrollController(
         initialItem: isRepeatedIndex
     );
+
+    if(currentAndLikedElementsProvider.currentClubMeDiscount.getIsRedeemable()){
+      isRedeemable = 1;
+    }
 
   }
 
@@ -1017,6 +1023,65 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
                         ),
                       ),
 
+                      // switch between discount and information
+                      if(stateProvider.getUsingTheAppAsADeveloper())
+                        Container(
+                          width: screenWidth*0.9,
+                          // height: screenHeight*0.12,
+                          alignment: Alignment.centerLeft,
+                          padding:  EdgeInsets.only(
+                              top: distanceBetweenTitleAndTextField
+                          ),
+
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+
+                              Column(
+                                children: [
+
+                                  // Text: "repeat coupon"
+                                  Container(
+                                    width: screenWidth*0.9,
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      "Admin: Coupon oder Angebot?",
+                                      style: customStyleClass.getFontStyle3(),
+                                    ),
+                                  ),
+
+                                  Container(
+                                      padding:  EdgeInsets.only(
+                                          top: distanceBetweenTitleAndTextField
+                                      ),
+                                      width: screenWidth*0.9,
+                                      alignment: Alignment.centerLeft,
+                                      child: ToggleSwitch(
+                                        minHeight: screenHeight*0.07,
+                                        initialLabelIndex: isRedeemable,
+                                        totalSwitches: 2,
+                                        activeBgColor: [customStyleClass.primeColor],
+                                        activeFgColor: Colors.white,
+                                        inactiveFgColor: Colors.white,
+                                        inactiveBgColor: customStyleClass.backgroundColorEventTile,
+                                        labels: const [
+                                          'Angebot',
+                                          'Coupon',
+                                        ],
+                                        onToggle: (index) {
+                                          setState(() {
+                                            isRedeemable == 0 ? isRedeemable = 1 : isRedeemable = 0;
+                                          });
+                                        },
+                                      )
+                                  ),
+                                ],
+                              ),
+
+                            ],
+                          ),
+                        ),
+
                       // Spacer
                       SizedBox(
                         height: screenHeight*0.07,
@@ -1391,10 +1456,11 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
         ageLimitUpperLimit: int.parse(_ageLimitUpperLimitController.text),
 
         bigBannerFileName: Utils.discountBigImageNames[_currentPageIndex],
-      smallBannerFileName: Utils.discountSmallImageNames[_currentPageIndex],
-      openingTimes: currentAndLikedElementsProvider.currentClubMeDiscount.getOpeningTimes(),
-      showDiscountInApp: currentAndLikedElementsProvider.currentClubMeDiscount.getShowDiscountInApp(),
-      specialOccasionActive: false
+        smallBannerFileName: Utils.discountSmallImageNames[_currentPageIndex],
+        openingTimes: currentAndLikedElementsProvider.currentClubMeDiscount.getOpeningTimes(),
+        showDiscountInApp: currentAndLikedElementsProvider.currentClubMeDiscount.getShowDiscountInApp(),
+        specialOccasionActive: false,
+        isRedeemable: isRedeemable == 0 ? false : true
 
     );
 

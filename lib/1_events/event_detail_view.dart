@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:chewie/chewie.dart';
+import 'package:club_me/models/club.dart';
 import 'package:club_me/provider/fetched_content_provider.dart';
 import 'package:club_me/shared/custom_bottom_navigation_bar_clubs.dart';
 import 'package:club_me/shared/dialogs/TitleAndContentDialog.dart';
@@ -8,6 +9,7 @@ import 'package:club_me/shared/dialogs/title_content_and_button_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:go_router/go_router.dart';
 import 'package:logger/logger.dart';
 import 'package:mime/mime.dart';
 import 'package:provider/provider.dart';
@@ -23,6 +25,8 @@ import 'package:intl/intl.dart';
 import '../shared/custom_text_style.dart';
 
 import 'package:gal/gal.dart';
+
+import '../shared/map_utils.dart';
 
 class EventDetailView extends StatefulWidget {
   const EventDetailView({Key? key}) : super(key: key);
@@ -245,8 +249,11 @@ class _EventDetailViewState extends State<EventDetailView>{
               ),
 
               // Header (image)
-              fetchedContentProvider.getFetchedBannerImageIds().contains(currentAndLikedElementsProvider.currentClubMeEvent.getBannerImageFileName()) ?
-              SizedBox(
+              fetchedContentProvider
+                  .getFetchedBannerImageIds()
+                  .contains(currentAndLikedElementsProvider.currentClubMeEvent.getBannerImageFileName()) ?
+              Container(
+                color: Colors.black,
                   width: screenWidth,
                   height: screenHeight*0.165,
                   child: Image(
@@ -271,7 +278,6 @@ class _EventDetailViewState extends State<EventDetailView>{
               // Main Infos
               Container(
                   width: screenWidth,
-                  // height: screenHeight*0.14,
                   color: customStyleClass.backgroundColorEventTile,
                   child: Column(
                     children: [
@@ -365,6 +371,16 @@ class _EventDetailViewState extends State<EventDetailView>{
                               width: screenWidth*0.02,
                               ),
 
+                              InkWell(
+                                child: Icon(
+                                  Icons.house,
+                                  color: customStyleClass.primeColor,
+                                ),
+                                onTap: () => clickEventGoToClubDetailPage(
+                                    context,
+                                    currentAndLikedElementsProvider.currentClubMeEvent.getClubId()),
+                              ),
+
                               // Like
                               InkWell(
                                 child:Icon(
@@ -404,12 +420,17 @@ class _EventDetailViewState extends State<EventDetailView>{
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
 
+                            // Spacer
+                            const SizedBox(
+                              height: 20,
+                            ),
+
                             // Description headline
                             Container(
                               alignment: Alignment.center,
                               child: Text(
                                 "Beschreibung",
-                                style: customStyleClass.getFontStyle3Bold(),
+                                style: customStyleClass.getFontStyle1Bold(),
                               ),
                             ),
 
@@ -426,13 +447,32 @@ class _EventDetailViewState extends State<EventDetailView>{
                               ),
                             ),
 
+                            // Spacer
+                            const SizedBox(
+                              height: 20,
+                            ),
+
+                            Divider(
+                              color: Colors.grey[900],
+                            ),
+
+                            // Spacer
+                            const SizedBox(
+                              height: 20,
+                            ),
+
                             // Headline genres
                             Container(
                               alignment: Alignment.center,
                               child: Text(
                                 "Musikrichtungen",
-                                style: customStyleClass.getFontStyle3Bold(),
+                                style: customStyleClass.getFontStyle1Bold(),
                               ),
+                            ),
+
+                            // Spacer
+                            const SizedBox(
+                              height: 10,
                             ),
 
                             // Wrap: Genres
@@ -451,6 +491,10 @@ class _EventDetailViewState extends State<EventDetailView>{
                               ),
                             ),
 
+                            // Spacer
+                            const SizedBox(
+                              height: 10,
+                            ),
 
                             const Divider(
                               color: Color(0xff121111),
@@ -461,6 +505,8 @@ class _EventDetailViewState extends State<EventDetailView>{
                             Divider(
                               color: Colors.grey[900],
                             ),
+
+                            _buildContactSection()
 
                             // // Headline lounges
                             // Container(
@@ -553,7 +599,10 @@ class _EventDetailViewState extends State<EventDetailView>{
                     ),
                   ],
                 ),
-              )
+              ),
+
+
+
             ]
           ),
 
@@ -734,6 +783,128 @@ class _EventDetailViewState extends State<EventDetailView>{
       );
   }
 
+  Widget _buildContactSection(){
+
+    ClubMeClub currentClub = fetchedContentProvider.getFetchedClubs().firstWhere(
+        (club) => club.getClubId() == currentAndLikedElementsProvider.currentClubMeEvent.getClubId()
+    );
+
+
+    String ContactZipToDisplay = "";
+    String ContactCityToDisplay = "";
+
+    ContactZipToDisplay = currentClub.getContactZip();
+    ContactCityToDisplay = currentClub.getContactCity();
+
+    return Column(
+      children: [
+
+        // Kontakt headline
+        Container(
+          width: screenWidth,
+          alignment: Alignment.center,
+          padding: EdgeInsets.only(
+              top: screenHeight*0.01
+          ),
+          child: Text(
+            "Kontakt",
+            textAlign: TextAlign.left,
+            style: customStyleClass.getFontStyle1Bold(),
+          ),
+        ),
+
+        SizedBox(
+          height: screenHeight*0.02,
+        ),
+
+        // Anschrift + icon
+        Container(
+          width: screenWidth*0.9,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+
+              // Anschrift
+              Container(
+                child: Column(
+                  children: [
+
+                    // Contact name text
+                    SizedBox(
+                      width: screenWidth*0.6,
+                      child: Text(
+                        currentClub.getContactName(),
+                        textAlign: TextAlign.left,
+                        style: customStyleClass.getFontStyle4Bold(),
+                      ),
+                    ),
+
+                    // Street
+                    Container(
+                      width: screenWidth*0.6,
+                      alignment: Alignment.centerLeft,
+                      child:Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            currentClub.getContactStreet(),
+                            textAlign: TextAlign.left,
+                            style:customStyleClass.getFontStyle4(),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left:5),
+                            child: Text(
+                              currentClub.getContactStreetNumber().toString(),
+                              textAlign: TextAlign.left,
+                              style:customStyleClass.getFontStyle4(),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+
+                    // City
+                    SizedBox(
+                      width: screenWidth*0.6,
+                      child: Text(
+                        "$ContactZipToDisplay $ContactCityToDisplay",
+                        textAlign: TextAlign.left,
+                        style: customStyleClass.getFontStyle4(),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+
+              // Google maps icon
+              Column(
+                children: [
+
+                  InkWell(
+                    child: SizedBox(
+                      width: screenWidth*0.2,
+                      height: screenWidth*0.2,
+                      child: Image.asset(
+                        'assets/images/google_maps_3.png',
+                      ),
+                    ),
+                    onTap: ()=> MapUtils.openMap(
+                        currentClub.getGeoCoordLat(),
+                        currentClub.getGeoCoordLng()),
+                  ),
+                ],
+              )
+            ],
+          ),
+        ),
+
+        // Spacer
+        SizedBox(
+          height: screenHeight*0.1,
+        )
+      ],
+    );
+  }
 
 
 
@@ -868,6 +1039,19 @@ class _EventDetailViewState extends State<EventDetailView>{
         },
       );
     }
+  }
+
+  void clickEventGoToClubDetailPage(BuildContext context, String clubId){
+
+    currentAndLikedElementsProvider.setCurrentClub(
+        fetchedContentProvider.getFetchedClubs().where(
+                (club) => club.getClubId() == clubId
+        ).first
+    );
+    stateProvider.setAccessedEventDetailFrom(0);
+    context.push('/club_details');
+
+
   }
 
 

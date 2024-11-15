@@ -18,7 +18,7 @@ class OffersListClubView extends StatefulWidget {
 
 class _OffersListClubViewState extends State<OffersListClubView> {
 
-  String headline = "Angebote";
+  String headline = "Aktionen";
 
   late double screenHeight, screenWidth;
   late CustomStyleClass customStyleClass;
@@ -108,7 +108,7 @@ class _OffersListClubViewState extends State<OffersListClubView> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "Angebot ${index+1}",
+                          "Aktion ${index+1}",
                           style: customStyleClass.getFontStyle2Bold(),
                         ),
                         IconButton(
@@ -375,7 +375,7 @@ class _OffersListClubViewState extends State<OffersListClubView> {
                           child: Row(
                             children: [
                               Text(
-                                "Weiteres Angebot",
+                                "Weitere Aktion",
                                 style: customStyleClass.getFontStyle2Bold(),
                               ),
                               Icon(

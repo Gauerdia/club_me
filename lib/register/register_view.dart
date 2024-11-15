@@ -39,7 +39,8 @@ class RegisterView extends StatefulWidget {
   State<RegisterView> createState() => _RegisterViewState();
 }
 
-class _RegisterViewState extends State<RegisterView> {
+class _RegisterViewState extends State<RegisterView>
+    with TickerProviderStateMixin{
 
   String headLine = "ClubMe";
 
@@ -88,6 +89,13 @@ class _RegisterViewState extends State<RegisterView> {
   late ClubMeUserData userDataToRegister;
   String emailToVerify = "";
 
+  int tutorialIndex = 0;
+  bool checkedForTutorial = false;
+  bool showTutorial = false;
+
+  int tutorialPageIndex = 0;
+  late TabController _tabController;
+  late PageController _pageViewController;
 
   // INIT
   @override
@@ -99,12 +107,29 @@ class _RegisterViewState extends State<RegisterView> {
     _monthController = FixedExtentScrollController(initialItem: 0);
     _yearController = FixedExtentScrollController(initialItem: 24);
 
+
+    _pageViewController = PageController();
+    _tabController = TabController(length: 9, vsync: this);
+
     fetchUserDataFromHive();
+    checkIfTutorialSeen();
 
   }
 
 
+  void checkIfTutorialSeen() async{
 
+    bool tutorialSeen = await _hiveService.getTutorialSeen();
+
+    if(!tutorialSeen){
+      context.go("/show_tutorial");
+    }else{
+      setState(() {
+        showTutorial = !tutorialSeen;
+        checkedForTutorial = true;
+      });
+    }
+  }
 
 
   void checkIfRegistrationIsLegit() async {
@@ -290,32 +315,81 @@ class _RegisterViewState extends State<RegisterView> {
 
 
   // The main logic
+
   Widget _buildViewBasedOnIndex(){
-    if(hasNoAccountYet){
-      switch(progressIndex){
-        case(0):
-          return _buildChooseRegistrationMethod();
-        case(1):
-          return _buildRegisterAsUser();
-        case(3):
-          return _buildShowPremiumAdvantages();
-        case(4):
-          return _buildGoogleAcceptAGBAndPrivacy();
-        default:
-          return Container();
+
+    if(checkedForTutorial){
+      if(showTutorial){
+        return _buildTutorial();
+      }else{
+        switch(progressIndex){
+          case(0):
+            return _buildChooseRegistrationMethod();
+          case(1):
+            return _buildRegisterAsUser();
+          case(3):
+            return _buildShowPremiumAdvantages();
+          case(4):
+            return _buildGoogleAcceptAGBAndPrivacy();
+          default:
+            return Container();
+        }
       }
     }else{
       return SizedBox(
         width: screenWidth,
         height: screenHeight,
         child: Center(
-          child: Image.asset(
-              "assets/images/ClubMe_Logo_weiß.png"
+          child: CircularProgressIndicator(
+            color: customStyleClass.primeColor,
           ),
         ),
       );
     }
   }
+
+  Widget _buildTutorial(){
+    return Container(
+      width: screenWidth,
+      height: screenHeight,
+      child: Center(
+        child: SizedBox(
+            height: screenHeight,
+            width: screenWidth,
+            child: PageView(
+              controller: _pageViewController,
+              onPageChanged: _handlePageViewChanged,
+              children: <Widget>[
+
+                Image.asset(
+                  "assets/images/1_willkommen_ohne.png"
+                )
+
+                // for(var discount in discountsToDisplay)
+                //   Center(
+                //       child: CouponCard(
+                //         clubMeDiscount: discount,
+                //         isLiked: checkIfIsLiked(discount),
+                //         clickedOnShare: clickEventShare,
+                //         clickedOnLike: clickEventLike,
+                //       )
+                //   ),
+              ],
+            )
+        ),
+      ),
+    );
+
+  }
+
+
+  void _handlePageViewChanged(int currentPageIndex) {
+    _tabController.index = currentPageIndex;
+    setState(() {
+      tutorialPageIndex = currentPageIndex;
+    });
+  }
+
 
   // main window
   Widget _buildChooseRegistrationMethod(){

@@ -172,7 +172,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
                               size: customStyleClass.getIconSize1(),
                             ),
                             Text(
-                              "Coupons",
+                              "Angebote",
                                 style: GoogleFonts.inter(
                                     textStyle: TextStyle(
                                         color: stateProvider.pageIndex == 3 ? customStyleClass.primeColor : Colors.white,
@@ -186,7 +186,8 @@ class CustomBottomNavigationBar extends StatelessWidget {
                       onTap: (){
 
                         if(stateProvider.usingWithoutRegistration){
-                          showRegistrationNeededDialog(context);
+                          context.push("/need_to_register");
+                          // showRegistrationNeededDialog(context);
                         }else{
                           stateProvider.setPageIndex(3);
                           context.go('/user_coupons');
@@ -220,7 +221,8 @@ class CustomBottomNavigationBar extends StatelessWidget {
                       onTap: (){
 
                         if(stateProvider.usingWithoutRegistration){
-                          showRegistrationNeededDialog(context);
+                          context.go("/register");
+                          // showRegistrationNeededDialog(context);
                         }else{
                           stateProvider.setPageIndex(4);
                           context.go('/user_profile');

@@ -174,6 +174,10 @@ class _SettingsUserViewState extends State<SettingsUserView> {
   void clickEventSponsors(){
     context.push("/user_sponsors");
   }
+  void clickEventTutorial(){
+    stateProvider.activateAccessedTutorialFromSettings();
+    context.push("/show_tutorial");
+  }
   void clickEventLogOut(){
     showDialog(
         context: context,
@@ -513,6 +517,30 @@ class _SettingsUserViewState extends State<SettingsUserView> {
                         ),
                       ),
                       onTap: () => clickEventSponsors(),
+                    ),
+
+                    // tutorial
+                    InkWell(
+                      child: SizedBox(
+                        width: screenWidth*0.9,
+                        child: Row(
+                          children: [
+                            IconButton(onPressed: () => clickEventTutorial(), icon: Icon(
+                              Icons.laptop_chromebook,
+                              color: customStyleClass.primeColor,
+                              size: 25,
+                            )),
+                            SizedBox(
+                              width: screenWidth*0.02,
+                            ),
+                            Text(
+                              "Anleitung",
+                              style: customStyleClass.getFontStyle1(),
+                            )
+                          ],
+                        ),
+                      ),
+                      onTap: () => clickEventTutorial(),
                     ),
 
                     // switch

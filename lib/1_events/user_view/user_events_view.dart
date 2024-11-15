@@ -131,7 +131,7 @@ class _UserEventsViewState extends State<UserEventsView> {
 
             // Get or check all events
             if(fetchedContentProvider.getFetchedEvents().isEmpty) {
-              _supabaseService.getAllEvents().then((data) => processEventsFromQuery(data));
+              _supabaseService.getAllEventsAfterYesterday().then((data) => processEventsFromQuery(data));
             }else{
               processEventsFromProvider(fetchedContentProvider);
             }

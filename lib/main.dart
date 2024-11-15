@@ -22,7 +22,9 @@ import 'package:club_me/register/components/accept_agb_and_privacy_view.dart';
 import 'package:club_me/register/components/enter_as_developer_view.dart';
 import 'package:club_me/register/components/forgot_password_view.dart';
 import 'package:club_me/register/components/log_in_as_club_view.dart';
+import 'package:club_me/register/components/need_to_register_page.dart';
 import 'package:club_me/register/components/register_for_user_as_club_view.dart';
+import 'package:club_me/register/components/show_tutorial_page.dart';
 import 'package:club_me/register/register_view.dart';
 import 'package:club_me/settings/club_view/components/faq_club_view.dart';
 import 'package:club_me/settings/club_view/settings_club_view.dart';
@@ -543,6 +545,16 @@ final GoRouter _router = GoRouter(
             state: state,
             child: const AcceptAgbAndPrivacyView()
         )
+    ),
+
+    GoRoute(
+        path: '/need_to_register',
+        builder: (context, state) => const NeedToRegisterPage()
+    ),
+
+    GoRoute(
+        path: '/show_tutorial',
+        builder: (context, state) => const ShowTutorialPage()
     ),
 
 

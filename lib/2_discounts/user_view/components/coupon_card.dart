@@ -80,6 +80,34 @@ class CouponCard extends StatelessWidget {
 
         ),
 
+        if(clubMeDiscount.getIsRedeemable())
+          Container(
+              width: screenWidth*0.91,
+              height: screenHeight*0.56,
+              decoration:const BoxDecoration(
+                gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    stops: [
+                      0.1,
+                      0.9
+                    ], colors: [
+                  Color(0xffa67c00),
+                  Color(0xffffdc73),
+                ]),
+                border: Border(
+                ),
+                borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(15),
+                    topLeft: Radius.circular(15),
+                    bottomLeft: Radius.circular(15),
+                    bottomRight: Radius.circular(15)
+                ),
+              )
+
+          ),
+
+
         // main Div
         Padding(
           padding: const EdgeInsets.only(
@@ -129,18 +157,14 @@ class CouponCard extends StatelessWidget {
                 Container(
                   height: screenHeight*0.35,
                   width: screenWidth,
-                  decoration: specialOccasionActive ? BoxDecoration(
-                    border: Border(
-                      // top: BorderSide(color: Colors.pinkAccent, width: 2.0),
-                      // left: BorderSide(color: Colors.pinkAccent, width: 2.0),
-                      // right: BorderSide(color: Colors.pinkAccent, width: 2.0),
-                      // bottom: BorderSide(color: Colors.yellow, width: 2.0),
-                    ),
+                  decoration: specialOccasionActive ?
+                  const BoxDecoration(
                     borderRadius: BorderRadius.only(
                         topRight: Radius.circular(15),
                         topLeft: Radius.circular(15)
                     ),
-                  ):BoxDecoration(),
+                  ):
+                  const BoxDecoration(),
                   child: ClipRRect(
                       borderRadius: const BorderRadius.only(
                           topRight: Radius.circular(15),
@@ -224,15 +248,16 @@ class CouponCard extends StatelessWidget {
                                     titleToDisplay,
                                     style: customStyleClass.getFontStyle2Bold(),
                                   ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                        bottom: 15
-                                    ),
-                                    child: Text(
-                                      "VIP",
-                                      style: customStyleClass.getFontStyleVIPGold(),
-                                    ),
-                                  )
+                                  if(clubMeDiscount.getIsRedeemable())
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                          bottom: 15
+                                      ),
+                                      child: Text(
+                                        "VIP",
+                                        style: customStyleClass.getFontStyleVIPGold(),
+                                      ),
+                                    )
                                 ],
                               ),
                             ),
@@ -373,6 +398,7 @@ class CouponCard extends StatelessWidget {
                             style: customStyleClass.getFontStyle5BoldPrimeColor(),
                           ),
 
+                          if(clubMeDiscount.getIsRedeemable())
                           InkWell(
                             child: Row(
                               children: [

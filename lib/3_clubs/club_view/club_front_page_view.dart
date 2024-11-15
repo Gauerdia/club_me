@@ -48,7 +48,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
 
   List<ClubMeEvent> pastEvents = [];
   List<ClubMeEvent> upcomingEvents = [];
-  List<String> priceListString = ["Angebote"];
+  List<String> priceListString = ["Aktionen"];
   List<String> mehrEventsString = ["Mehr Events!", "Get more events"];
   List<String> mehrPhotosButtonString = ["Mehr Fotos!", "Explore more photos"];
 
@@ -426,7 +426,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                       color: customStyleClass.primeColor,
                     ),
                     Text(
-                      "Angebote",
+                      "Aktionen",
                       style: customStyleClass.getFontStyle6(),
                     )
                   ],
@@ -1056,26 +1056,26 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
               ),
 
               // New event icon
-              Padding(
-                  padding: EdgeInsets.only(
-                      right: screenWidth*0.05
-                  ),
-                  child: GestureDetector(
-                    child: Container(
-                        alignment: Alignment.centerRight,
-                        padding: const EdgeInsets.all(7),
-                        decoration: BoxDecoration(
-                          // color: Colors.black,
-                          borderRadius: BorderRadius.circular(45),
-                        ),
-                        child: Icon(
-                          Icons.edit,
-                          color: customStyleClass.primeColor,
-                        )
-                    ),
-                    onTap: () =>  clickOnEditOpeningTimes(),
-                  )
-              )
+              // Padding(
+              //     padding: EdgeInsets.only(
+              //         right: screenWidth*0.05
+              //     ),
+              //     child: GestureDetector(
+              //       child: Container(
+              //           alignment: Alignment.centerRight,
+              //           padding: const EdgeInsets.all(7),
+              //           decoration: BoxDecoration(
+              //             // color: Colors.black,
+              //             borderRadius: BorderRadius.circular(45),
+              //           ),
+              //           child: Icon(
+              //             Icons.edit,
+              //             color: customStyleClass.primeColor,
+              //           )
+              //       ),
+              //       onTap: () =>  clickOnEditOpeningTimes(),
+              //     )
+              // )
             ],
           ),
         ),

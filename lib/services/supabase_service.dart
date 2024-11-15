@@ -115,6 +115,47 @@ class SupabaseService{
     }
   }
 
+  Future<PostgrestList> getAllEventsAfterYesterday() async{
+    try{
+
+      var todayDay = DateTime.now().day;
+      var todayMonth = DateTime.now().month;
+      var todayYear = DateTime.now().year;
+
+      // I am paranoid with dates. Surely, there is a more elegant way to do this.
+      var yesterday = DateTime(
+        todayYear,
+        todayMonth,
+        todayDay-1
+      );
+      var inTwoWeeks = DateTime(
+        todayYear,
+        todayMonth,
+        todayDay+14
+      );
+
+      var concatYesterday = '${yesterday.year}-${yesterday.month}-${yesterday.day}';
+      var concatInTwoWeeks = '${inTwoWeeks.year}-${inTwoWeeks.month}-${inTwoWeeks.day}';
+
+      var data = await supabase
+          .from('club_me_events')
+          .select('*')
+          .lte('event_date', concatInTwoWeeks)
+          .gte('event_date', concatYesterday);
+      List<String> titles = [];
+      for(var element in data){
+        titles.add(element['event_title']);
+      }
+      log.d("getAllEventsAfterYesterday: Finished successfully.Response: $titles");
+      return data;
+    }
+    catch(e){
+      log.d("Error in SupabaseService. Function: getAllEventsAfterYesterday. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: getAllEventsAfterYesterday. Error: ${e.toString()}");
+      return [];
+    }
+  }
+
   Future<PostgrestList> getEventsOfSpecificClub(String clubId) async{
     try{
       var data =  await supabase
@@ -526,6 +567,42 @@ class SupabaseService{
       return [];
     }
   }
+
+  Future<PostgrestList> getAllDiscountsFromYesterday() async{
+    try{
+
+      var todayDay = DateTime.now().day;
+      var todayMonth = DateTime.now().month;
+      var todayYear = DateTime.now().year;
+
+      // I am paranoid with dates. Surely, there is a more elegant way to do this.
+      var yesterday = DateTime(
+          todayYear,
+          todayMonth,
+          todayDay-1
+      );
+
+      var concat = '${yesterday.year}-${yesterday.month}-${yesterday.day}';
+
+      var data = await supabase
+          .from('club_me_discounts')
+          .select()
+          .gte('discount_date', concat);
+
+      List<String> titles = [];
+      for(var element in data){
+        titles.add(element['discount_title']);
+      }
+
+      log.d("getAllDiscountsFromYesterday: Finished successfully. Response: $titles");
+      return data;
+    }catch(e){
+      log.d("Error in SupabaseService. Function: getAllDiscountsFromYesterday. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: getAllDiscountsFromYesterday. Error: ${e.toString()}");
+      return [];
+    }
+  }
+
   Future<int> insertDiscount(ClubMeDiscount clubMeDiscount) async{
 
     try{
@@ -557,7 +634,8 @@ class SupabaseService{
         'is_repeated_days': clubMeDiscount.getIsRepeatedDays(),
         'big_banner_file_name': clubMeDiscount.getBigBannerFileName(),
         'small_banner_file_name': clubMeDiscount.getSmallBannerFileName(),
-        'show_discount_in_app': clubMeDiscount.getShowDiscountInApp()
+        'show_discount_in_app': clubMeDiscount.getShowDiscountInApp(),
+        'is_redeemable': clubMeDiscount.getIsRedeemable()
 
       }).select();
       log.d("insertDiscount: Finished successfully. Response: $data");
@@ -624,7 +702,8 @@ class SupabaseService{
         'age_limit_upper_limit': clubMeDiscount.getAgeLimitUpperLimit(),
 
         'is_repeated_days': clubMeDiscount.getIsRepeatedDays(),
-        'big_banner_file_name': clubMeDiscount.getBigBannerFileName()
+        'big_banner_file_name': clubMeDiscount.getBigBannerFileName(),
+        'is_redeemable': clubMeDiscount.getIsRedeemable()
 
       }).match({
         'discount_id' : clubMeDiscount.getDiscountId()

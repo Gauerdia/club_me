@@ -37,7 +37,7 @@ class _UserCouponsViewState extends State<UserCouponsView>
 
   var log = Logger();
 
-  String headline = "Coupons";
+  String headline = "Angebote";
   late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
   late FetchedContentProvider fetchedContentProvider;
   late Future getDiscounts;
@@ -88,7 +88,7 @@ class _UserCouponsViewState extends State<UserCouponsView>
     if(fetchedContentProvider.getFetchedDiscounts().isEmpty) {
       _hiveService.getAllLocalDiscounts().then((data){
                 processDiscountsFromHive(data);
-                _supabaseService.getAllDiscounts().then(
+                _supabaseService.getAllDiscountsFromYesterday().then(
                         (data) => processDiscountsFromQuery(data)
                 );
       });

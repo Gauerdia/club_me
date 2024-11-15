@@ -36,6 +36,8 @@ class HiveService{
 
   final String _latestInfoScreenBoxName = "latestInfoScreenBox";
 
+  final String _tutorialSeenBoxName = "tutorialSeenBox";
+
   Future<Box<String>> get _clubMeEventBox async => await Hive.openBox<String>(_clubMeFavoriteEventsBoxName);
   Future<Box<String>> get _clubMeClubBox async => await Hive.openBox<String>(_clubMeFavoriteClubsBoxName);
   Future<Box<String>> get _clubMeDiscountBox async => await Hive.openBox<String>(_clubMeFavoriteDiscountsBoxName);
@@ -47,6 +49,30 @@ class HiveService{
   Future<Box<TempGeoLocationData>> get _tempGeoLocationDataBox async => await Hive.openBox<TempGeoLocationData>(_tempGeoLocationDataBoxName);
   Future<Box<ClubMeUsedDiscount>> get _clubMeUsedDiscountsBox async => await Hive.openBox<ClubMeUsedDiscount>(_clubMeUsedDiscountsBoxName);
   Future<Box<DateTime>> get _latestInfoScreenBox async => await Hive.openBox<DateTime>(_latestInfoScreenBoxName);
+  Future<Box<bool>> get _tutorialSeenBox async => await Hive.openBox<bool>(_tutorialSeenBoxName);
+
+  Future<bool> getTutorialSeen() async{
+    try{
+      var box = await _tutorialSeenBox;
+      if(box.values.isNotEmpty){
+        return true;
+      }
+      return false;
+    }catch(e){
+      log.d("HiveService. Function: getTutorialSeen. Error: $e");
+      _supabaseService.createErrorLog("HiveService. Function: getTutorialSeen. Error: $e");
+      return false;
+    }
+  }
+  Future<void> setTutorialSeen() async {
+    try{
+      var box = await _tutorialSeenBox;
+      await box.add(true);
+    }catch(e){
+      log.d("HiveService. Function: setTutorialSeen. Error: $e");
+      _supabaseService.createErrorLog("HiveService. Function: setTutorialSeen. Error: $e");
+    }
+  }
 
   Future<DateTime?> getLatestInfoScreenDate() async{
     try{

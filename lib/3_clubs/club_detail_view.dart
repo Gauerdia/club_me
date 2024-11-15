@@ -52,7 +52,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
 
   List<String> alreadyFetchedFrontPageImages = [];
   List<ClubMeEvent> eventsToDisplay = [];
-  List<String> priceListString = ["Angebote"];
+  List<String> priceListString = ["Aktionen"];
   List<String> mehrEventsString = ["Mehr Events!", "More events!"];
   List<String> mehrPhotosButtonString = ["Mehr Fotos!", "More photos!"];
   List<String> findOnMapsButtonString = ["Finde uns auf Maps!", "Find us on maps!"];
@@ -247,8 +247,8 @@ class _ClubDetailViewState extends State<ClubDetailView> {
       context.push("/user_offers");
     }else{
       _showDialogWithTitleAndText(
-          "Angebote",
-          "Dieser Club verfügt derzeit über keine speziellen Angebote in der App."
+          "Aktionen",
+          "Dieser Club verfügt derzeit über keine speziellen Aktionen in der App."
       );
     }
 
@@ -1248,7 +1248,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                         color: customStyleClass.primeColor,
                     ),
                     Text(
-                      "Angebote",
+                      "Aktionen",
                       style: customStyleClass.getFontStyle6(),
                     )
                   ],

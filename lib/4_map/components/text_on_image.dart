@@ -11,7 +11,7 @@ class TextOnImage extends StatelessWidget {
   final String text;
 
   List<String> imagePaths = [
-    "assets/images/1_standort_blau_weiss.png",
+    "assets/images/standort_weiss_blau_2.png",
     "assets/images/clubme_100x100.png",
     "assets/images/beispiel_100x100.png",
   ];
