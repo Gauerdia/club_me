@@ -362,7 +362,7 @@ class _RegisterViewState extends State<RegisterView>
               children: <Widget>[
 
                 Image.asset(
-                  "assets/images/1_willkommen_ohne.png"
+                  "assets/images/1_willkommen_ohne_V2.png"
                 )
 
                 // for(var discount in discountsToDisplay)

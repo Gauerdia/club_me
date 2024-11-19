@@ -111,7 +111,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                     OrientationBuilder(
                       builder: (context, orientation) {
                         // set the turn as per requirement
-                        final turn = orientation == Orientation.landscape ? 1: 1; // set the turn as per requirement
+                        final turn = orientation == Orientation.landscape ? 1: 0; // set the turn as per requirement
                         return RotatedBox(
                           quarterTurns: turn,
                           child: VideoPlayer(_controller),

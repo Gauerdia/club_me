@@ -42,7 +42,7 @@ class _ShowTutorialPageState extends State<ShowTutorialPage>
       child: Stack(
         children: [
 
-          Image.asset("assets/images/1_willkommen_ohne.png"),
+          Image.asset("assets/images/1_willkommen_ohne_V2.png"),
 
           Container(
               padding: const EdgeInsets.symmetric(
@@ -84,7 +84,7 @@ class _ShowTutorialPageState extends State<ShowTutorialPage>
       child: Stack(
       children: [
 
-        Image.asset("assets/images/2_event-detailansicht_ohne.png"),
+        Image.asset("assets/images/2_event-detailansicht_ohne_V2.png"),
 
         Container(
             padding: const EdgeInsets.symmetric(
@@ -129,7 +129,7 @@ class _ShowTutorialPageState extends State<ShowTutorialPage>
     Stack(
       children: [
 
-        Image.asset("assets/images/3_externe_ticketlinks_ohne.png"),
+        Image.asset("assets/images/3_externe_ticketlinks_ohne_V2.png"),
 
         Container(
             padding: const EdgeInsets.symmetric(
@@ -172,7 +172,7 @@ class _ShowTutorialPageState extends State<ShowTutorialPage>
     child: Stack(
       children: [
 
-        Image.asset("assets/images/4_angehaengte_bilder_ohne.png"),
+        Image.asset("assets/images/4_angehaengte_bilder_ohne_V2.png"),
 
         Container(
             padding: const EdgeInsets.symmetric(
@@ -211,7 +211,7 @@ class _ShowTutorialPageState extends State<ShowTutorialPage>
     return Stack(
       children: [
 
-        Image.asset("assets/images/5_club-detailansicht_ohne.png"),
+        Image.asset("assets/images/5_club-detailansicht_ohne_V2.png"),
 
         Container(
             padding: const EdgeInsets.symmetric(
@@ -250,7 +250,7 @@ class _ShowTutorialPageState extends State<ShowTutorialPage>
     return Stack(
       children: [
 
-        Image.asset("assets/images/6_live-story_clubs_ohne.png"),
+        Image.asset("assets/images/6_live-story_clubs_ohne_V2.png"),
 
         Container(
             padding: const EdgeInsets.symmetric(
@@ -289,7 +289,7 @@ class _ShowTutorialPageState extends State<ShowTutorialPage>
     return Stack(
       children: [
 
-        Image.asset("assets/images/7_club-liste_ohne.png"),
+        Image.asset("assets/images/7_club-liste_ohne_V2.png"),
 
         Container(
             padding: const EdgeInsets.symmetric(
@@ -328,7 +328,7 @@ class _ShowTutorialPageState extends State<ShowTutorialPage>
     return Stack(
       children: [
 
-        Image.asset("assets/images/8_live-story_clubs_ohne.png"),
+        Image.asset("assets/images/8_live-story_clubs_ohne_V2.png"),
 
         Container(
             padding: const EdgeInsets.symmetric(
@@ -367,7 +367,7 @@ class _ShowTutorialPageState extends State<ShowTutorialPage>
     return Stack(
       children: [
 
-        Image.asset("assets/images/9_coupons_einloesen_ohne.png"),
+        Image.asset("assets/images/9_coupons_einloesen_ohne_V2.png"),
 
         Container(
             padding: const EdgeInsets.symmetric(
@@ -418,7 +418,7 @@ class _ShowTutorialPageState extends State<ShowTutorialPage>
       case 6: widgetToPush = _buildSeventhScreen();
       case 7: widgetToPush = _buildEighthScreen();
       case 8: widgetToPush = _buildNinthScreen();
-      default: widgetToPush = Image.asset("assets/images/1_willkommen_ohne.png");
+      default: widgetToPush = Image.asset("assets/images/1_willkommen_ohne_V2.png");
     }
 
     Navigator.push(
@@ -444,7 +444,7 @@ class _ShowTutorialPageState extends State<ShowTutorialPage>
 
   void skipOrFinish(){
     if(stateProvider.accessedTutorialFromSettings){
-      context.go("/user_settings");
+      context.go("/user_profile");
     }else{
       _hiveService.setTutorialSeen().then((response) => context.go("/register"));
     }

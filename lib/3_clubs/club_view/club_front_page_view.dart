@@ -1038,7 +1038,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
     return Column(
       children: [
 
-
+        // HEADLINE
         Container(
           width: screenWidth,
           padding: EdgeInsets.only(
@@ -1054,28 +1054,6 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                   style: customStyleClass.getFontStyle1Bold(),
                 ),
               ),
-
-              // New event icon
-              // Padding(
-              //     padding: EdgeInsets.only(
-              //         right: screenWidth*0.05
-              //     ),
-              //     child: GestureDetector(
-              //       child: Container(
-              //           alignment: Alignment.centerRight,
-              //           padding: const EdgeInsets.all(7),
-              //           decoration: BoxDecoration(
-              //             // color: Colors.black,
-              //             borderRadius: BorderRadius.circular(45),
-              //           ),
-              //           child: Icon(
-              //             Icons.edit,
-              //             color: customStyleClass.primeColor,
-              //           )
-              //       ),
-              //       onTap: () =>  clickOnEditOpeningTimes(),
-              //     )
-              // )
             ],
           ),
         ),
@@ -1847,10 +1825,10 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
               ),
               Container(
                 // color: Colors.red,
-                width: screenWidth*0.07,
+                // width: screenWidth*0.07,
                 child: Center(
                   child: Text(
-                    "-",
+                    " - ",
                     style: customStyleClass.getFontStyle3(),
                   ),
                 ),
@@ -1859,7 +1837,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
               Container(
                 // color: Colors.green,
                   alignment: Alignment.centerRight,
-                  width: screenWidth*0.12,
+                  // width: screenWidth*0.12,
                   child: Text(
                     closingHourToDisplay,
                     style: customStyleClass.getFontStyle3(),
@@ -1916,26 +1894,22 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
 
 
               Container(
-                // color: Colors.red,
-                width: screenWidth*0.07,
                 child: Center(
                   child: Text(
-                    "-",
+                    " - ",
                     style: customStyleClass.getFontStyle3(),
                   ),
                 ),
               ),
 
               Container(
-                // color: Colors.green,
                   alignment: Alignment.centerRight,
-                  width: screenWidth*0.12,
                   child: Text(
                     closingHourToDisplay != 99 ?
                     closingHourToDisplay < 10 ?
                     "0${closingHourToDisplay.toString()}:00" :
                     "${closingHourToDisplay.toString()}:00"
-                        : "--.--",
+                        : "  --.--",
                     style: customStyleClass.getFontStyle3(),
                   )
               ),

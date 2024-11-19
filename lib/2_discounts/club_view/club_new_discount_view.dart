@@ -743,7 +743,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
 
                                   // Text: UsageLimit
                                   Container(
-                                    width: screenWidth*0.45,
+                                    width: screenWidth*0.65,
                                     alignment: Alignment.centerLeft,
                                     child: Text(
                                       "Nutzungsbeschränkung",

@@ -168,15 +168,21 @@ class _ClubUpcomingDiscountsViewState extends State<ClubUpcomingDiscountsView>
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      Icons.keyboard_arrow_left_sharp,
-                      size: customStyleClass.navigationArrowSize,
-                      color: _currentPageIndex > 0 ? customStyleClass.primeColor: Colors.grey,
+                    InkWell(
+                      child: Icon(
+                        Icons.keyboard_arrow_left_sharp,
+                        size: customStyleClass.navigationArrowSize,
+                        color: _currentPageIndex > 0 ? customStyleClass.primeColor: Colors.grey,
+                      ),
+                      onTap: () => deiterateView(),
                     ),
-                    Icon(
-                      Icons.keyboard_arrow_right_sharp,
-                      size: customStyleClass.navigationArrowSize,
-                      color: _currentPageIndex < (fetchedUpcomingDiscounts.length-1) ? customStyleClass.primeColor: Colors.grey,
+                    InkWell(
+                      child:Icon(
+                        Icons.keyboard_arrow_right_sharp,
+                        size: customStyleClass.navigationArrowSize,
+                        color: _currentPageIndex < (fetchedUpcomingDiscounts.length-1) ? customStyleClass.primeColor: Colors.grey,
+                      ),
+                      onTap: () => iterateView(),
                     ),
                   ],
                 ),
@@ -243,7 +249,6 @@ class _ClubUpcomingDiscountsViewState extends State<ClubUpcomingDiscountsView>
       _currentPageIndex = currentPageIndex;
     });
   }
-
 
   bool checkIfIsUpcomingDiscount(ClubMeDiscount currentDiscount){
 
@@ -333,6 +338,22 @@ class _ClubUpcomingDiscountsViewState extends State<ClubUpcomingDiscountsView>
     _supabaseService.createErrorLog(
         "ClubCouponsView. Fct: checkIfUpcomingEvent. Reached last else. Is not supposed to happen.");
     return false;
+  }
+
+  void iterateView(){
+    if(_currentPageIndex < (discountsToDisplay.length-1)){
+      setState(() {
+        _pageViewController.animateToPage( _currentPageIndex+1, duration: Duration(milliseconds: 250), curve: Curves.bounceInOut);
+      });
+    }
+
+  }
+  void deiterateView(){
+    if(_currentPageIndex > 0 ){
+      setState(() {
+        _pageViewController.animateToPage(  _currentPageIndex-1, duration: Duration(milliseconds: 250), curve: Curves.bounceInOut);
+      });
+    }
   }
 
   @override

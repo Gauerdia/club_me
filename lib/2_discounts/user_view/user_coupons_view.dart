@@ -706,6 +706,22 @@ class _UserCouponsViewState extends State<UserCouponsView>
 
   }
 
+  void iterateView(){
+    if(_currentPageIndex < (discountsToDisplay.length-1)){
+      setState(() {
+        _pageViewController.animateToPage( _currentPageIndex+1, duration: Duration(milliseconds: 250), curve: Curves.bounceInOut);
+      });
+    }
+
+  }
+  void deiterateView(){
+    if(_currentPageIndex > 0 ){
+      setState(() {
+        _pageViewController.animateToPage(  _currentPageIndex-1, duration: Duration(milliseconds: 250), curve: Curves.bounceInOut);
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -747,15 +763,21 @@ class _UserCouponsViewState extends State<UserCouponsView>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      Icons.keyboard_arrow_left_sharp,
-                      size: customStyleClass.navigationArrowSize,
-                      color: _currentPageIndex > 0 ? customStyleClass.primeColor : Colors.grey,
+                    InkWell(
+                      child: Icon(
+                        Icons.keyboard_arrow_left_sharp,
+                        size: customStyleClass.navigationArrowSize,
+                        color: _currentPageIndex > 0 ? customStyleClass.primeColor : Colors.grey,
+                      ),
+                      onTap: () => deiterateView(),
                     ),
-                    Icon(
-                      Icons.keyboard_arrow_right_sharp,
-                      size: customStyleClass.navigationArrowSize,
-                      color: _currentPageIndex < (discountsToDisplay.length-1) ? customStyleClass.primeColor : Colors.grey,
+                    InkWell(
+                      child: Icon(
+                        Icons.keyboard_arrow_right_sharp,
+                        size: customStyleClass.navigationArrowSize,
+                        color: _currentPageIndex < (discountsToDisplay.length-1) ? customStyleClass.primeColor : Colors.grey,
+                      ),
+                      onTap: () => iterateView(),
                     ),
                   ],
                 ),

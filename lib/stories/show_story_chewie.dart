@@ -219,19 +219,29 @@ class _ShowStoryChewieState extends State<ShowStoryChewie>
         scaffoldBackgroundColor: customStyleClass.backgroundColorMain,
       ),
       home: Scaffold(
+        extendBodyBehindAppBar: false,
+
         appBar: _buildAppBar(),
         body: loadingFinished ?
           Platform.isAndroid ?
-        OrientationBuilder(
-          builder: (context, orientation) {
-            // set the turn as per requirement
-            final turn = orientation == Orientation.landscape ? 1: 0; // set the turn as per requirement
-            return RotatedBox(
-              quarterTurns: turn,
-              child: VideoPlayer(_controller),
-            );
-          },
-        ):VideoPlayer(_controller):
+
+              Container(
+                // padding: EdgeInsets.only(
+                //   top: screenHeight*0.1
+                // ),
+                child: OrientationBuilder(
+                  builder: (context, orientation) {
+                    // set the turn as per requirement
+                    final turn = orientation == Orientation.landscape ? 1: 0; // set the turn as per requirement
+                    return RotatedBox(
+                      quarterTurns: turn,
+                      child: VideoPlayer(_controller),
+                    );
+                  },
+                ),
+              )
+
+              :VideoPlayer(_controller):
         Center(
           child: CircularProgressIndicator(color: customStyleClass.primeColor),
         )

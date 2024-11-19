@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'package:club_me/models/club.dart';
 import 'package:club_me/models/event.dart';
+import 'package:club_me/models/parser/club_me_club_parser.dart';
 import 'package:club_me/services/check_and_fetch_service.dart';
 import 'package:club_me/shared/custom_bottom_navigation_bar_clubs.dart';
 import 'package:club_me/shared/dialogs/title_content_and_button_dialog.dart';
@@ -69,6 +71,13 @@ class _ClubEventsViewState extends State<ClubEventsView> {
     if(stateProvider.getClubMeEventTemplates().isEmpty){
       getAllEventTemplates(stateProvider);
     }
+
+    _supabaseService.getSpecificClub(userDataProvider.getUserData().getClubId()).then(
+        (value){
+          ClubMeClub club = parseClubMeClub(value.first);
+          userDataProvider.setUserClub(club);
+        }
+    );
 
     // Fetch events of our club
     if(fetchedContentProvider.getFetchedEvents().isEmpty){

@@ -232,6 +232,7 @@ class CouponCardClub extends StatelessWidget {
                                       titleToDisplay,
                                       style: customStyleClass.getFontStyle3Bold(),
                                     ),
+                                    if(clubMeDiscount.getIsRedeemable())
                                     Padding(
                                       padding: const EdgeInsets.only(
                                           bottom: 15

@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:chewie/chewie.dart';
 import 'package:club_me/models/club.dart';
 import 'package:club_me/provider/fetched_content_provider.dart';
+import 'package:club_me/provider/user_data_provider.dart';
 import 'package:club_me/shared/custom_bottom_navigation_bar_clubs.dart';
 import 'package:club_me/shared/dialogs/TitleAndContentDialog.dart';
 import 'package:club_me/shared/dialogs/title_content_and_button_dialog.dart';
@@ -61,6 +62,7 @@ class _EventDetailViewState extends State<EventDetailView>{
   late StateProvider stateProvider;
   late FetchedContentProvider fetchedContentProvider;
   late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
+  late UserDataProvider userDataProvider;
 
   late double screenHeight, screenWidth;
   late CustomStyleClass customStyleClass;
@@ -244,9 +246,9 @@ class _EventDetailViewState extends State<EventDetailView>{
             children: [
 
               // Spacer
-              SizedBox(
-                height: screenHeight*0.125,
-              ),
+              // SizedBox(
+              //   height: screenHeight*0.125,
+              // ),
 
               // Header (image)
               fetchedContentProvider
@@ -641,13 +643,13 @@ class _EventDetailViewState extends State<EventDetailView>{
           // Video container
           SizedBox(
             width: screenWidth,
-            height: screenHeight,
+            // height: screenHeight*0.8,
             child: _chewieController != null &&
                 _chewieController!
                     .videoPlayerController.value.isInitialized
                 ? SizedBox(
               width: screenWidth,
-              height: screenHeight*0.97,
+              // height: screenHeight*0.8, // 97
               child: Chewie(
                 controller: _chewieController!,
               ),
@@ -723,7 +725,8 @@ class _EventDetailViewState extends State<EventDetailView>{
           return GestureDetector(
             child: Container(
               padding: EdgeInsets.only(
-                top: screenHeight*0.135,
+                  top: 10,
+                // top: screenHeight*0.135,
                 right: 6
               ),
               width: screenWidth,
@@ -746,7 +749,8 @@ class _EventDetailViewState extends State<EventDetailView>{
           return GestureDetector(
             child: Container(
               padding: EdgeInsets.only(
-                  top: screenHeight*0.135,
+                top: 10,
+                  // top: screenHeight*0.135,
                   right: 6
               ),
               width: screenWidth,
@@ -768,7 +772,8 @@ class _EventDetailViewState extends State<EventDetailView>{
       return GestureDetector(
         child: Container(
           padding: EdgeInsets.only(
-            top: screenHeight*0.14,
+              top: 10,
+            // top: screenHeight*0.14,
             right: 15
           ),
           width: screenWidth,
@@ -785,9 +790,20 @@ class _EventDetailViewState extends State<EventDetailView>{
 
   Widget _buildContactSection(){
 
-    ClubMeClub currentClub = fetchedContentProvider.getFetchedClubs().firstWhere(
-        (club) => club.getClubId() == currentAndLikedElementsProvider.currentClubMeEvent.getClubId()
-    );
+
+    userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
+    late ClubMeClub currentClub;
+
+    if(userDataProvider.getUserData().getProfileType() == 0){
+      currentClub = fetchedContentProvider.getFetchedClubs().firstWhere(
+              (club) => club.getClubId() == currentAndLikedElementsProvider.currentClubMeEvent.getClubId()
+      );
+    }else{
+      currentClub = userDataProvider.getUserClub();
+    }
+
+
+
 
 
     String ContactZipToDisplay = "";
@@ -1233,9 +1249,10 @@ class _EventDetailViewState extends State<EventDetailView>{
   Widget build(BuildContext context) {
 
     customStyleClass = CustomStyleClass(context: context);
-    stateProvider = Provider.of<StateProvider>(context);
-    fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
 
+    stateProvider = Provider.of<StateProvider>(context);
+    userDataProvider = Provider.of<UserDataProvider>(context);
+    fetchedContentProvider = Provider.of<FetchedContentProvider>(context);
     currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context);
 
     screenWidth = MediaQuery.of(context).size.width;
@@ -1251,7 +1268,7 @@ class _EventDetailViewState extends State<EventDetailView>{
     return Scaffold(
 
       extendBody: true,
-      extendBodyBehindAppBar: true,
+      extendBodyBehindAppBar: false,
       resizeToAvoidBottomInset: false,
 
 

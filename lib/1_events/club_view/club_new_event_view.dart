@@ -1651,7 +1651,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
       eventDescription: _eventDescriptionController.text,
       eventPrice: _eventPriceController.text.isNotEmpty ?  double.parse(_eventPriceController.text.replaceAll(",", ".")): 0,
 
-      clubId: userDataProvider.getUserClubId(),
+      clubId: userDataProvider.getUserData().getClubId(),
       clubName: userDataProvider.getUserClubName(),
       bannerImageFileName: userDataProvider.getUserClub().getBigLogoFileName(),
       openingTimes: userDataProvider.getUserClubOpeningTimes(),
