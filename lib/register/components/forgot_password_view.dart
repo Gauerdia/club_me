@@ -23,6 +23,7 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
   bool showVIP = false;
 
   final TextEditingController _forgotPasswordEMailController = TextEditingController();
+  final TextEditingController _forgotPasswordNameController = TextEditingController();
   final TextEditingController _oneTimePasswordCOntroller = TextEditingController();
 
   final SupabaseService _supabaseService = SupabaseService();
@@ -32,11 +33,72 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
 
   bool showSuccessfullySent = false;
 
+  late CustomStyleClass customStyleClass;
+
   void clickEventSendEMailForAccountRecovery(){
-    setState(() {
-      _supabaseService.saveForgotPassword(_forgotPasswordEMailController.text);
-      showSuccessfullySent = true;
-    });
+
+    if(_forgotPasswordEMailController.text.isEmpty || _forgotPasswordNameController.text.isEmpty){
+
+      showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return Container(
+            height: 100,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 30
+            ),
+            width: screenWidth,
+            color: customStyleClass.backgroundColorEventTile,
+            child: Center(
+              child: Text(
+                'Bitte gib einen Namen und eine E-Mail-Adresse an.',
+                style: customStyleClass.getFontStyle3(),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          );
+        },
+      );
+
+    }else{
+
+      _supabaseService.checkIfEMailExists(_forgotPasswordEMailController.text).then(
+          (response){
+            if(response.isEmpty){
+
+              showModalBottomSheet(
+                context: context,
+                builder: (BuildContext context) {
+                  return Container(
+                    height: 100,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 30
+                    ),
+                    width: screenWidth,
+                    color: customStyleClass.backgroundColorEventTile,
+                    child: Center(
+                      child: Text(
+                        'Leider ist uns kein Nutzer mit dieser E-Mail-Adresse bekannt.',
+                        style: customStyleClass.getFontStyle3(),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  );
+                },
+              );
+
+            }else{
+              setState(() {
+                _supabaseService.saveForgotPassword(
+                    _forgotPasswordEMailController.text,
+                    _forgotPasswordNameController.text
+                );
+                showSuccessfullySent = true;
+              });
+            }
+          }
+      );
+    }
   }
   void clickEventCheckPasswordForAccountRecovery(){
 
@@ -70,7 +132,7 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
   @override
   Widget build(BuildContext context) {
 
-    final customStyleClass = CustomStyleClass(context: context);
+    customStyleClass = CustomStyleClass(context: context);
 
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
@@ -142,12 +204,15 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    "Vielen Dank! Die E-Mail mit deinem Zugangspasswort sollte bald bei dir eintreffen!",
-                    style: customStyleClass.getFontStyle3(),
-                    textAlign: TextAlign.center,
-                  ),
                   SizedBox(
+                    width: screenWidth*0.9,
+                    child: Text(
+                      "Vielen Dank! Die E-Mail mit deinem Zugangspasswort sollte bald bei dir eintreffen!",
+                      style: customStyleClass.getFontStyle3(),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  const SizedBox(
                     height: 10,
                   ),
                   Row(
@@ -183,11 +248,6 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
               child: Column(
                   children: [
 
-
-                    // const SizedBox(
-                    //   height: 100,
-                    // ),
-
                     // Question headline
                     Container(
                       width: screenWidth*0.9,
@@ -199,6 +259,45 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
                         "Kommst du nicht mehr in deinen Account? Lass dir jetzt ein Zugangspasswort schicken!",
                         textAlign: TextAlign.center,
                         style: customStyleClass.getFontStyle2Bold(),
+                      ),
+                    ),
+
+                    // Text: Title
+                    Container(
+                      width: screenWidth*0.9,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "Dein Name",
+                        style: customStyleClass.getFontStyle3(),
+                      ),
+                    ),
+
+                    // Textfield email
+                    Container(
+                      height: screenHeight*0.12,
+                      width: screenWidth*0.9,
+                      padding:  EdgeInsets.only(
+                          top: distanceBetweenTitleAndTextField
+                      ),
+                      child: TextField(
+                        controller: _forgotPasswordNameController,
+                        cursorColor: customStyleClass.primeColor,
+                        decoration: InputDecoration(
+                          focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: customStyleClass.primeColor
+                              )
+                          ),
+                          hintText: "z.B. Max Moritz",
+                          border: const OutlineInputBorder(),
+                          contentPadding: const EdgeInsets.only(
+                              left: 20,
+                              top:20,
+                              bottom:20
+                          ),
+                        ),
+                        style: customStyleClass.getFontStyle4(),
+                        maxLength: 35,
                       ),
                     ),
 

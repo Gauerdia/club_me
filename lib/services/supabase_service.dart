@@ -1090,7 +1090,28 @@ class SupabaseService{
 
   // MISC
 
-  Future<int> saveForgotPassword(String email) async{
+
+  Future<PostgrestList> checkIfEMailExists(String eMail) async{
+    try{
+      var data = await supabase
+          .from('club_me_users')
+          .select()
+          .eq("e_mail", eMail);
+      log.d("checkIfEMailExists: Finished successfully.Response: $data");
+      if(data.isNotEmpty){
+        return data;
+      }else{
+        return [];
+      }
+    }
+    catch(e){
+      log.d("Error in SupabaseService. Function: checkIfEMailExists. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: checkIfEMailExists. Error: ${e.toString()}");
+      return [];
+    }
+  }
+
+  Future<int> saveForgotPassword(String email, String name) async{
 
     var uuid = const Uuid();
     var uuidV4 = uuid.v4();
@@ -1100,6 +1121,7 @@ class SupabaseService{
           .from("forgot_password_logs")
           .insert({
         "e_mail": email,
+        "name": name,
         "one_time_password": uuidV4.substring(0, 8)
       });
       log.d("saveForgotPassword: Finished successfully. Response: $data");

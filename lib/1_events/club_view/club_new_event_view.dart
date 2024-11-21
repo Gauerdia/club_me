@@ -1595,6 +1595,10 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
     if (musicGenresString.isNotEmpty) {
       musicGenresString = musicGenresString.substring(0, musicGenresString.length - 1);
     }
+    // Cut the occasional first comma
+    if(musicGenresString.isNotEmpty && musicGenresString[0] == ","){
+      musicGenresString = musicGenresString.substring(1, musicGenresString.length);
+    }
 
     // Format the starting Date
     DateTime concatenatedDate = DateTime(
