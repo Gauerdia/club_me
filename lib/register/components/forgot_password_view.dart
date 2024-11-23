@@ -499,7 +499,13 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
       bottomNavigationBar: Container(
         // color: Colors.red,
         width: screenWidth,
-        height: 50,
+        decoration: BoxDecoration(
+            color: customStyleClass.backgroundColorMain,
+            border: Border(
+              top: BorderSide(color: Colors.grey, width: 1.0),
+            )
+        ),
+        height: 70,
         alignment: Alignment.bottomCenter,
         child: Center(
           child: Image.asset(

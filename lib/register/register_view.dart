@@ -133,6 +133,525 @@ class _RegisterViewState extends State<RegisterView>
   }
 
 
+  Widget _buildNewRegisterView(){
+    return Container(
+      height: screenHeight,
+      color: customStyleClass.backgroundColorMain,
+      child: SingleChildScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+
+
+            // Text: Saludations
+            Container(
+              width: screenWidth*0.9,
+              padding: EdgeInsets.only(
+                  top: distanceBetweenTitleAndTextField
+              ),
+              child: Text(
+                "Wir freuen uns, dich in unserer Club-Community begrüßen zu dürfen!",
+                textAlign: TextAlign.center,
+                style: customStyleClass.getFontStyle5(),
+              ),
+            ),
+
+            // Textfield: First name
+            Container(
+              // height: screenHeight*0.12,
+              width: screenWidth*0.9,
+              padding:  EdgeInsets.only(
+                  top: distanceBetweenTitleAndTextField*0.5
+              ),
+              child: TextField(
+                focusNode: firstNameFocusNode,
+                controller: _firstNameController,
+                cursorColor: customStyleClass.primeColor,
+                decoration: InputDecoration(
+                    focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                            color: customStyleClass.primeColor
+                        )
+                    ),
+                    hintText: "z.B. Max",
+                    border: const OutlineInputBorder(),
+                    contentPadding: const EdgeInsets.only(
+                        left: 20,
+                        top:10,
+                        bottom:10
+                    ),
+                    labelText: 'Vorname',
+                    labelStyle: TextStyle(
+                        color: Colors.grey
+                    )
+                ),
+                style: customStyleClass.getFontStyle5(),
+                // onTap: _requestFocus,
+              ),
+            ),
+
+            // Textfield_ last name
+            Container(
+              // height: screenHeight*0.12,
+              width: screenWidth*0.9,
+              padding:  EdgeInsets.only(
+                  top: distanceBetweenTitleAndTextField
+              ),
+              child: TextField(
+                focusNode: lastNameFocusNode,
+                controller: _lastNameController,
+                cursorColor: customStyleClass.primeColor,
+                decoration: InputDecoration(
+                    focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                            color: customStyleClass.primeColor
+                        )
+                    ),
+                    hintText: "z.B. Mustermann",
+                    border: const OutlineInputBorder(),
+                    contentPadding: const EdgeInsets.only(
+                        left: 20,
+                        top:10,
+                        bottom:10
+                    ),
+                    labelText: 'Nachname',
+                    labelStyle: TextStyle(
+                        color: Colors.grey
+                    )
+                ),
+                style: customStyleClass.getFontStyle4(),
+                // onTap: _requestFocus,
+              ),
+            ),
+
+            // Textfield: email
+            Container(
+              // height: screenHeight*0.12,
+              width: screenWidth*0.9,
+              padding:  EdgeInsets.only(
+                  top: distanceBetweenTitleAndTextField
+              ),
+              child: TextFormField(
+                controller: _eMailController,
+                cursorColor: customStyleClass.primeColor,
+                decoration: InputDecoration(
+                    focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                            color: customStyleClass.primeColor
+                        )
+                    ),
+                    hintText: "z.B. max.mustermann@gmx.de",
+                    border: const OutlineInputBorder(),
+                    contentPadding: const EdgeInsets.only(
+                        left: 20,
+                        top:10,
+                        bottom:10
+                    ),
+                    labelText: 'E-Mail-Adresse',
+                    labelStyle: TextStyle(
+                        color: Colors.grey
+                    )
+                ),
+                style: customStyleClass.getFontStyle4(),
+              ),
+            ),
+
+            // Text: Title
+            Container(
+              padding: EdgeInsets.only(
+                  top: distanceBetweenTitleAndTextField*2
+              ),
+              width: screenWidth*0.9,
+              alignment: Alignment.centerLeft,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Geschlecht",
+                    style: customStyleClass.getFontStyle3(),
+                  ),
+                  InkWell(
+                    child: Icon(
+                        Icons.info_outlined,
+                        color: customStyleClass.primeColor
+                    ),
+                    onTap: () => clickEventShowInfo(1),
+                  )
+                ],
+              ),
+            ),
+
+            // toggle man, woman, diverse
+            Container(
+              width: screenWidth*0.9,
+              padding:  EdgeInsets.only(
+                  top: distanceBetweenTitleAndTextField
+              ),
+              child:  Center(
+                child: ToggleSwitch(
+                  initialLabelIndex: gender,
+                  totalSwitches: 3,
+                  activeBgColor: [customStyleClass.primeColor],
+                  activeFgColor: Colors.white,
+                  inactiveFgColor: customStyleClass.primeColor,
+                  inactiveBgColor: customStyleClass.backgroundColorEventTile,
+                  labels: const [
+                    'Männlich',
+                    'Weiblich',
+                    "Divers"
+                  ],
+                  minWidth: screenWidth*0.9,
+                  minHeight: screenHeight*0.05,
+                  onToggle: (index) {
+                    setState(() {
+                      gender = index!;
+                    });
+                  },
+                ),
+              ),
+            ),
+
+            // Text: Date
+            Container(
+              padding:  EdgeInsets.only(
+                  top: distanceBetweenTitleAndTextField
+              ),
+              width: screenWidth*0.9,
+              alignment: Alignment.centerLeft,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Geburtsdatum",
+                    style: customStyleClass.getFontStyle3(),
+                  ),
+                  InkWell(
+                    child: Icon(
+                      Icons.info_outlined,
+                      color: customStyleClass.primeColor,
+                    ),
+                    onTap: () => clickEventShowInfo(2),
+                  )
+                ],
+              ),
+            ),
+
+            // Birth date picking
+            Container(
+              // padding:  EdgeInsets.only(
+              //     top: distanceBetweenTitleAndTextField
+              // ),
+                width: screenWidth*0.9,
+                height: screenHeight*0.12,
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children:[
+
+                      Row(
+                        children: [
+                          // day
+                          SizedBox(
+                            width: screenWidth*0.2,
+                            child: CupertinoPicker(
+                                scrollController: _dayController,
+                                itemExtent: 50,
+                                onSelectedItemChanged: (int index){
+                                  setState(() {
+                                    selectedDay = index+1;
+                                  });
+                                },
+                                children: List<Widget>.generate(31, (index){
+                                  return Center(
+                                    child: Text(
+                                      index < 9 ?
+                                      "0${(index+1).toString()}" :
+                                      (index+1).toString(),
+                                      style: customStyleClass.getFontStyle3(),
+                                    ),
+                                  );
+                                })
+                            ),
+                          ),
+
+
+                          // month
+                          SizedBox(
+                            width: screenWidth*0.4,
+                            child: CupertinoPicker(
+                              scrollController: _monthController,
+                              itemExtent: 50,
+                              onSelectedItemChanged: (int index){
+                                setState(() {
+                                  selectedMonth = index+1;
+                                });
+                              },
+                              children:
+                              Utils.monthsForPicking.map((item){
+                                return Padding(
+                                  padding: const EdgeInsets.only(
+                                      top: 15
+                                  ),
+                                  child: Text(
+                                    item,
+                                    style: customStyleClass.getFontStyle2(),
+                                  ),
+                                );
+                              }).toList(),
+                              // List<Widget>.generate(12, (index){
+                              //   return Center(
+                              //     child: Text(
+                              //       index < 9 ?
+                              //       "0${(index+1).toString()}" :
+                              //       (index+1).toString(),
+                              //       style: customStyleClass.getFontStyle3(),
+                              //     ),
+                              //   );
+                              // })
+                            ),
+                          ),
+
+
+                          // year
+                          SizedBox(
+                            width: screenWidth*0.2,
+                            child: CupertinoPicker(
+                                scrollController: _yearController,
+                                itemExtent: 50,
+                                onSelectedItemChanged: (int index){
+                                  setState(() {
+                                    selectedYear = (2024-index);
+                                  });
+                                },
+                                children: List<Widget>.generate(100, (index){
+                                  return Center(
+                                    child: Text(
+                                      (2024-index).toString(),
+                                      style: customStyleClass.getFontStyle3(),
+                                    ),
+                                  );
+                                })
+                            ),
+                          ),
+                        ],
+                      )
+
+                    ]
+                )
+            ),
+
+            // DATENSCHUTZ
+            Container(
+              padding: EdgeInsets.only(
+                  top: distanceBetweenTitleAndTextField*2
+              ),
+              width: screenWidth*0.95,
+              child: Row(
+                children: [
+                  Checkbox(
+                      activeColor: customStyleClass.primeColor,
+                      value: privacyAccepted,
+                      onChanged: (bool? newValue){
+                        setState(() {
+                          privacyAccepted = newValue!;
+                        });
+                      }
+                  ),
+                  SizedBox(
+                    width: screenWidth*0.8,
+                    child: RichText(
+                        text: TextSpan(
+                            children: [
+                              TextSpan(
+                                  text: "Ich habe die",
+                                  style: customStyleClass.getFontStyle5()
+                              ),
+                              TextSpan(
+                                  text: " allgemeinen Geschäftsbedingungen ",
+                                  style: customStyleClass.getFontStyle5BoldPrimeColor(),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () => clickEventAGB()
+                              ),
+                              TextSpan(
+                                  text: "und die",
+                                  style: customStyleClass.getFontStyle5()
+                              ),
+                              TextSpan(
+                                  text: " Datenschutzerklärung ",
+                                  style: customStyleClass.getFontStyle5BoldPrimeColor(),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () => clickEventPrivacy()
+                              ),
+                              TextSpan(
+                                  text: "gelesen und akzeptiert.",
+                                  style: customStyleClass.getFontStyle5()
+                              )
+                            ]
+                        )
+                    ),
+                  )
+                ],
+              ),
+            ),
+
+            // Register buttons
+            Container(
+              width: screenWidth*0.9,
+              padding: EdgeInsets.only(
+                  top: distanceBetweenTitleAndTextField
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+
+                  InkWell(
+                    child: Text(
+                      "Weiter ohne Registrierung",
+                      style: customStyleClass.getFontStyle4Bold(),
+                    ),
+                    onTap: () => clickEventProceedWithoutRegistration(),
+                  ),
+
+                  InkWell(
+                    child: Container(
+                      width: 150,
+                      padding: EdgeInsets.symmetric(
+                          vertical: 10,
+                          horizontal: 10
+                      ),
+                      decoration: BoxDecoration(
+                          color: customStyleClass.primeColor,
+                          borderRadius: BorderRadius.circular(15)
+                      ),
+                      child: Center(
+                        child: Text(
+                          "Registrieren",
+                          style: customStyleClass.getFontStyle4Bold(),
+                        ),
+                      ),
+                    ),
+                    onTap: () => checkIfRegistrationIsLegit(),
+                  )
+
+                ],
+              ),
+            ),
+
+
+            // Google
+            if(Platform.isAndroid)
+              Container(
+                padding: EdgeInsets.only(
+                    top: distanceBetweenTitleAndTextField*2
+                ),
+                child: InkWell(
+                  child: Center(
+                    child: Container(
+                        alignment: Alignment.centerRight,
+                        width: screenWidth*0.9,
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.all(
+                              Radius.circular(10)
+                          ),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 15
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+
+                            SvgPicture.string(
+                                googleIconSVG,
+                                width: 15,
+                                height: 15
+                            ),
+
+                            InkWell(
+                              child: Text(
+                                "   Mit Google anmelden",
+                                style: customStyleClass.getFontStyle5Black(),
+                              ),
+                              onTap: () => clickEventGoogleRegistration(),
+                            )
+                          ],
+                        )
+                    ),
+                  ),
+                  onTap: () => clickEventGoogleRegistration(),
+                ),
+              ),
+
+            SizedBox(
+              height: screenHeight*0.01,
+            ),
+
+            const Divider(
+              indent: 60,
+              endIndent: 60,
+              color: Colors.grey,
+            ),
+
+            // ALready an account
+            Container(
+                width: screenWidth*0.9,
+                child: Center(
+                  child: RichText(
+                      text: TextSpan(
+                          children: [
+                            TextSpan(
+                                text: "Du hast bereits einen Account?  ",
+                                style: customStyleClass.getFontStyle5()
+                            ),
+                            TextSpan(
+                                text: "Anmelden",
+                                style: customStyleClass.getFontStyle5BoldPrimeColor(),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () => clickEventForgotPassword()
+                            ),
+                          ]
+                      )
+                  ),
+                )
+            ),
+
+            Container(
+                padding: EdgeInsets.only(
+                    top: distanceBetweenTitleAndTextField
+                ),
+                width: screenWidth*0.9,
+                child: Center(
+                  child: RichText(
+                      text: TextSpan(
+                          children: [
+                            TextSpan(
+                                text: "Du willst dich als Club anmelden?  ",
+                                style: customStyleClass.getFontStyle5()
+                            ),
+                            TextSpan(
+                                text: "Anmelden",
+                                style: customStyleClass.getFontStyle5BoldPrimeColor(),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () => clickEventProceedAsClub()
+                            ),
+                          ]
+                      )
+                  ),
+                )
+            ),
+
+
+            SizedBox(
+              height: screenHeight*0.1,
+            )
+
+          ],
+        ),
+      ),
+    );
+  }
+
   void checkIfTutorialSeen() async{
 
     bool tutorialSeen = await _hiveService.getTutorialSeen();
@@ -364,7 +883,7 @@ class _RegisterViewState extends State<RegisterView>
       }else{
         switch(progressIndex){
           case(0):
-            return _buildChooseRegistrationMethod();
+            return _buildNewRegisterView();
           case(1):
             return _buildRegisterAsUser();
           case(3):
@@ -1800,9 +2319,15 @@ class _RegisterViewState extends State<RegisterView>
 
     switch(progressIndex){
       case(0):return Container(
-        color: customStyleClass.backgroundColorMain,
+
         width: screenWidth,
-        height: 40,
+        decoration: BoxDecoration(
+          color: customStyleClass.backgroundColorMain,
+          border: Border(
+            top: BorderSide(color: Colors.grey, width: 1.0),
+          )
+        ),
+        height: 70,
         alignment: Alignment.bottomCenter,
         child: Center(
           child: Image.asset(

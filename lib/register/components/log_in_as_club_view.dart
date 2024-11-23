@@ -364,6 +364,24 @@ class _LogInAsClubViewState extends State<LogInAsClubView> {
               )
           )
       ),
+      bottomNavigationBar: Container(
+        // color: Colors.red,
+        width: screenWidth,
+        decoration: BoxDecoration(
+            color: customStyleClass.backgroundColorMain,
+            border: Border(
+              top: BorderSide(color: Colors.grey, width: 1.0),
+            )
+        ),
+        height: 70,
+        alignment: Alignment.bottomCenter,
+        child: Center(
+          child: Image.asset(
+            "assets/images/runes_footer.PNG",
+            width: 100,
+          ),
+        ),
+      ),
     );
   }
 }
