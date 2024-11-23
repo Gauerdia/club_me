@@ -140,8 +140,15 @@ class SupabaseService{
       var data = await supabase
           .from('club_me_events')
           .select('*')
-          .lte('event_date', concatInTwoWeeks)
           .gte('event_date', concatYesterday);
+
+      // We thought about 14 days but maybe a few people would like to plan
+      // their clubbing ahead of time.
+      // var data = await supabase
+      //     .from('club_me_events')
+      //     .select('*')
+      //     .lte('event_date', concatInTwoWeeks)
+      //     .gte('event_date', concatYesterday);
       List<String> titles = [];
       for(var element in data){
         titles.add(element['event_title']);

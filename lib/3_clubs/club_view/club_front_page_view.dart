@@ -46,8 +46,9 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
 
   bool bannerImageFetched = false;
 
-  List<ClubMeEvent> pastEvents = [];
-  List<ClubMeEvent> upcomingEvents = [];
+  bool noEventsAvailable = false;
+  // List<ClubMeEvent> pastEvents = [];
+  List<ClubMeEvent> eventsToDisplay = [];
   List<String> priceListString = ["Aktionen"];
   List<String> mehrEventsString = ["Mehr Events!", "Get more events"];
   List<String> mehrPhotosButtonString = ["Mehr Fotos!", "Explore more photos"];
@@ -528,9 +529,9 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
         SizedBox(height: screenHeight*0.01,),
 
         // First Event
-        upcomingEvents.isNotEmpty ?
+        eventsToDisplay.isNotEmpty ?
         EventCard(
-            clubMeEvent: upcomingEvents[0],
+            clubMeEvent: eventsToDisplay[0],
           accessedEventDetailFrom: 8,
           backgroundColorIndex: 1,
         )
@@ -540,16 +541,16 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
         SizedBox(height: screenHeight*0.01,),
 
         // Second Event
-        upcomingEvents.length > 1 ?
+        eventsToDisplay.length > 1 ?
         EventCard(
-            clubMeEvent: upcomingEvents[1],
+            clubMeEvent: eventsToDisplay[1],
           accessedEventDetailFrom: 8,
           backgroundColorIndex: 1,
         )
             : Container(),
 
         // Text, when no event available
-        upcomingEvents.isEmpty ?
+        eventsToDisplay.isEmpty ?
         Text(
           "Keine neuen Events.",
           style: customStyleClass.getFontStyle3(),
@@ -1271,49 +1272,134 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
 
   // FILTER
   void checkIfFilteringIsNecessary(){
-    if(upcomingEvents.isEmpty && pastEvents.isEmpty){
+    if(eventsToDisplay.isEmpty){
       filterEventsFromProvider(stateProvider);
     }
   }
-  void filterEventsFromProvider(StateProvider stateProvider){
-    for(var currentEvent in fetchedContentProvider.getFetchedEvents()){
+  bool checkIfIsEventIsAfterToday(ClubMeEvent currentEvent){
 
-      DateTime eventTimestamp = currentEvent.getEventDate();
+    // Assumption: Every event until 4:59 started the day before.
+    // Assumption: There are no official opening times for events between 5 and 12.
+    // We'll just add 6 hours to it.
 
-      // Filter the events
-      if(eventTimestamp.isAfter(stateProvider.getBerlinTime())){
-        if(currentEvent.getClubId() == userDataProvider.getUserClubId()){
-          upcomingEvents.add(currentEvent);
-        }
-      }else{
-        if(currentEvent.getClubId() == userDataProvider.getUserClubId()){
-          pastEvents.add(currentEvent);
-        }
-      }
+    Days? clubOpeningTimesForThisDay;
+    DateTime closingHourToCompare;
+
+    var eventWeekDay = currentEvent.getEventDate().hour <= 4 ?
+    currentEvent.getEventDate().weekday -1 :
+    currentEvent.getEventDate().weekday;
+
+    // Get regular opening times
+    try{
+      // first where is enough because we assume that there is only one regular time each day.
+      clubOpeningTimesForThisDay = userDataProvider.getUserClub().getOpeningTimes().days?.firstWhereOrNull(
+              (days) => days.day == eventWeekDay);
+    }catch(e){
+      print("ClubEventsView. Error in checkIfUpcomingEvent, clubOpeningTimesForThisDay: $e");
+      clubOpeningTimesForThisDay = null;
     }
+
+    // Easies case: With closing data, we know exactly when to stop displaying.
+    if(currentEvent.getClosingDate() != null){
+
+
+      closingHourToCompare = DateTime(
+        currentEvent.getClosingDate()!.year,
+        currentEvent.getClosingDate()!.month,
+        currentEvent.getClosingDate()!.day,
+        currentEvent.getClosingDate()!.hour,
+        currentEvent.getClosingDate()!.minute,
+      );
+
+      if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
+          closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
+        return true;
+      }
+      return false;
+    }
+
+    // Second case: the event aligns with the opening hours
+    if(clubOpeningTimesForThisDay != null){
+
+      // If there is an event during the day and we look at the app during the day but
+      // there is also a regular opening in the evening.
+      if(currentEvent.getEventDate().hour < clubOpeningTimesForThisDay.openingHour!){
+
+        // We don't have any guideline for this case. So 6 hours it is.
+        closingHourToCompare = DateTime(
+            currentEvent.getEventDate().year,
+            currentEvent.getEventDate().month,
+            currentEvent.getEventDate().day,
+            currentEvent.getEventDate().hour+6,
+            currentEvent.getEventDate().minute
+        );
+
+      }
+      else{
+
+        closingHourToCompare = DateTime(
+            currentEvent.getEventDate().year,
+            currentEvent.getEventDate().month,
+            currentEvent.getEventDate().day+1,
+            clubOpeningTimesForThisDay.closingHour!,
+            clubOpeningTimesForThisDay.closingHalfAnHour == 1 ? 30 :
+            clubOpeningTimesForThisDay.closingHalfAnHour == 2 ? 59 : 0
+        );
+
+      }
+
+      if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
+          closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
+        return true;
+      }
+      return false;
+
+    }
+
+    // Third case: event is out of general opening times and no closing hour.
+    // We don't have any guideline for this case. So 6 hours it is.
+    closingHourToCompare = DateTime(
+      currentEvent.getEventDate().year,
+      currentEvent.getEventDate().month,
+      currentEvent.getEventDate().day,
+      currentEvent.getEventDate().hour+6,
+      currentEvent.getEventDate().minute,
+    );
+
+    if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
+        closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
+      return true;
+    }
+    return false;
+
+  }
+  void filterEventsFromProvider(StateProvider stateProvider){
+    checkForUpcomingEventsAndSetList();
   }
   void filterEventsFromQuery(var data, StateProvider stateProvider){
     for(var element in data){
       ClubMeEvent currentEvent = parseClubMeEvent(element);
 
-      DateTime eventTimestamp = currentEvent.getEventDate();
-
-      // Filter the events
-      if(eventTimestamp.isAfter(stateProvider.getBerlinTime())){
-        if(currentEvent.getClubId() == userDataProvider.getUserClubId()){
-          upcomingEvents.add(currentEvent);
-        }
-      }else{
-        if(currentEvent.getClubId() == userDataProvider.getUserClubId()){
-          pastEvents.add(currentEvent);
-        }
-      }
-
       // Add to provider so that we dont need to call them from the db again
       fetchedContentProvider.addEventToFetchedEvents(currentEvent);
     }
-  }
 
+    checkForUpcomingEventsAndSetList();
+
+  }
+  void checkForUpcomingEventsAndSetList(){
+
+    eventsToDisplay = fetchedContentProvider.getFetchedEvents()
+        .where((event){
+      return (
+          event.getClubId() == userDataProvider.getUserClub().getClubId() &&
+              checkIfIsEventIsAfterToday(event));
+    }).toList();
+
+    if(eventsToDisplay.isEmpty){
+      noEventsAvailable = true;
+    }
+  }
 
   // CLICK
   void toggleShowVideoIsActive(){

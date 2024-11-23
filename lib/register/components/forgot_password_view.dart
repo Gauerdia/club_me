@@ -39,26 +39,36 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
 
     if(_forgotPasswordEMailController.text.isEmpty || _forgotPasswordNameController.text.isEmpty){
 
-      showModalBottomSheet(
-        context: context,
-        builder: (BuildContext context) {
-          return Container(
-            height: 100,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 30
-            ),
-            width: screenWidth,
-            color: customStyleClass.backgroundColorEventTile,
-            child: Center(
-              child: Text(
-                'Bitte gib einen Namen und eine E-Mail-Adresse an.',
-                style: customStyleClass.getFontStyle3(),
-                textAlign: TextAlign.center,
+      showDialog(context: context, builder: (BuildContext context){
+        return AlertDialog(
+          backgroundColor: customStyleClass.backgroundColorMain,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          title: Text(
+            "Leere/s Feld/er",
+            style: customStyleClass.getFontStyle1Bold(),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+
+              // Question text
+              Text(
+                "Bitte fülle beide Felder aus, um weiterzuverfahren.",
+                textAlign: TextAlign.left,
+                style: customStyleClass.getFontStyle4(),
               ),
-            ),
-          );
-        },
-      );
+
+              // Spacer
+              SizedBox(
+                height: screenHeight*0.03,
+              ),
+
+            ],
+          ),
+        );
+      });
 
     }else{
 
@@ -104,9 +114,10 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
 
     UserDataProvider userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
 
-    _supabaseService.checkOneTimePassword(_oneTimePasswordCOntroller.text).then((response){
-      if(response.isNotEmpty){
-        ClubMeUserData clubMeUserData = ClubMeUserData(
+    if(_oneTimePasswordCOntroller.text.isNotEmpty){
+      _supabaseService.checkOneTimePassword(_oneTimePasswordCOntroller.text).then((response){
+        if(response.isNotEmpty){
+          ClubMeUserData clubMeUserData = ClubMeUserData(
             firstName: response.first['first_name'],
             lastName: response.first['last_name'],
             birthDate: DateTime.parse(response.first['birth_date']),
@@ -116,15 +127,49 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
             profileType: 0,
             lastTimeLoggedIn: response.first['last_time_logged_in']  != null ?
             DateTime.parse(response.first['last_time_logged_in']): response.first['last_time_logged_in'],
-          clubId: "", userProfileAsClub: false,
+            clubId: "", userProfileAsClub: false,
 
+          );
+          _hiveService.addUserData(clubMeUserData);
+          userDataProvider.setUserData(clubMeUserData);
+
+          context.go("/user_events");
+        }
+      });
+    }else{
+      showDialog(context: context, builder: (BuildContext context){
+        return AlertDialog(
+          backgroundColor: customStyleClass.backgroundColorMain,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          title: Text(
+            "Leeres Passwortfeld",
+            style: customStyleClass.getFontStyle1Bold(),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+
+              // Question text
+              Text(
+                "Bitte gib ein Passwort ein, bevor du weitergehst.",
+                textAlign: TextAlign.left,
+                style: customStyleClass.getFontStyle4(),
+              ),
+
+              // Spacer
+              SizedBox(
+                height: screenHeight*0.03,
+              ),
+
+            ],
+          ),
         );
-        _hiveService.addUserData(clubMeUserData);
-        userDataProvider.setUserData(clubMeUserData);
+      });
+    }
 
-        context.go("/user_events");
-      }
-    });
+
   }
 
 
@@ -138,64 +183,38 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
     screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      appBar: AppBar(
+      appBar:AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: customStyleClass.backgroundColorMain,
         surfaceTintColor: customStyleClass.backgroundColorMain,
-          title: SizedBox(
-            width: screenWidth,
-            child: Stack(
-              children: [
+        title: Container(
+          // color: Colors.red,
+            width: screenWidth*0.9,
+            height: 100,
+            child: Center(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
 
-                // TEXT
-                Container(
-                  // color: Colors.red,
-                  height: 50,
-                  width: screenWidth,
-                  alignment: Alignment.centerRight,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                              "ClubMe",
-                              textAlign: TextAlign.center,
-                              style: customStyleClass.getFontStyleHeadline1Bold()
-                          ),
-                          if(showVIP)
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  bottom: 15
-                              ),
-                              child: Text(
-                                "VIP",
-                                style: customStyleClass.getFontStyleVIPGold(),
-                              ),
-                            )
-                        ],
-                      )
-                    ],
-                  ),
-                ),
-
-                Container(
-                  height: 50,
-                  width: screenWidth,
-                  alignment: Alignment.centerLeft,
-                  child: InkWell(
+                  InkWell(
                     child: const Icon(
                       Icons.arrow_back_ios,
                       color: Colors.white,
                     ),
                     onTap: () => Navigator.pop(context),
                   ),
-                ),
 
-              ],
-            ),
-          )
-      ),
+                  Container(
+                    child: Image.asset(
+                      "assets/images/clubme_logo_1.png",
+                      width: 150,
+                    ),
+                  )
+                ],
+              ),
+            )
+        )
+    ),
         body: showSuccessfullySent ?
           Container(
             height: screenHeight,
@@ -251,13 +270,12 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
                     // Question headline
                     Container(
                       width: screenWidth*0.9,
-                      padding: EdgeInsets.symmetric(
-                          vertical: screenHeight*0.04,
-                          horizontal: screenWidth*0.02
+                      padding: EdgeInsets.only(
+                          top: screenHeight*0.04,
                       ),
                       child: Text(
-                        "Kommst du nicht mehr in deinen Account? Lass dir jetzt ein Zugangspasswort schicken!",
-                        textAlign: TextAlign.center,
+                        "Account zurücksetzen",
+                        textAlign: TextAlign.left,
                         style: customStyleClass.getFontStyle2Bold(),
                       ),
                     ),
@@ -265,19 +283,30 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
                     // Text: Title
                     Container(
                       width: screenWidth*0.9,
+                      padding: EdgeInsets.only(
+                        top: 15,
+                      ),
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        "Dein Name",
-                        style: customStyleClass.getFontStyle3(),
+                        "Du kommst nicht mehr in deinen Account ?",
+                        style: customStyleClass.getFontStyle5(),
+                      ),
+                    ),
+                    Container(
+                      width: screenWidth*0.9,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "Lass dir ein Zugangspasswort schicken.",
+                        style: customStyleClass.getFontStyle5(),
                       ),
                     ),
 
                     // Textfield email
                     Container(
-                      height: screenHeight*0.12,
+                      // height: screenHeight*0.12,
                       width: screenWidth*0.9,
                       padding:  EdgeInsets.only(
-                          top: distanceBetweenTitleAndTextField
+                          top: 20
                       ),
                       child: TextField(
                         controller: _forgotPasswordNameController,
@@ -295,28 +324,21 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
                               top:20,
                               bottom:20
                           ),
+                          label: Text(
+                            "Dein Name",
+                            style: customStyleClass.getFontStyle4Grey2(),
+                          ),
                         ),
                         style: customStyleClass.getFontStyle4(),
-                        maxLength: 35,
-                      ),
-                    ),
-
-                    // Text: Title
-                    Container(
-                      width: screenWidth*0.9,
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        "Deine E-Mail-Adresse",
-                        style: customStyleClass.getFontStyle3(),
                       ),
                     ),
 
                     // Textfield email
                     Container(
-                      height: screenHeight*0.12,
+                      // height: screenHeight*0.12,
                       width: screenWidth*0.9,
                       padding:  EdgeInsets.only(
-                          top: distanceBetweenTitleAndTextField
+                          top: 20
                       ),
                       child: TextField(
                         controller: _forgotPasswordEMailController,
@@ -334,48 +356,57 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
                               top:20,
                               bottom:20
                           ),
+                          label: Text(
+                            "Deine E-Mail-Adresse",
+                            style: customStyleClass.getFontStyle4Grey2(),
+                          ),
                         ),
                         style: customStyleClass.getFontStyle4(),
-                        maxLength: 35,
                       ),
                     ),
 
-                    // ABSCHICKEN
                     Container(
                       width: screenWidth*0.9,
                       alignment: Alignment.centerRight,
+                      padding: const EdgeInsets.only(
+                        top: 10
+                      ),
                       child: InkWell(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text(
-                              "Abschicken",
-                              style: customStyleClass.getFontStyle3BoldPrimeColor(),
-                            ),
-                            Icon(
-                              Icons.arrow_forward_outlined,
+                        child: Container(
+                          width: 150,
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 10,
+                              horizontal: 10
+                          ),
+                          decoration: BoxDecoration(
                               color: customStyleClass.primeColor,
-                            )
-                          ],
+                              borderRadius: BorderRadius.circular(15)
+                          ),
+                          child: Center(
+                            child: Text(
+                              "Abschicken",
+                              style: customStyleClass.getFontStyle4Bold(),
+                            ),
+                          ),
                         ),
                         onTap: () => clickEventSendEMailForAccountRecovery(),
                       ),
                     ),
 
+
                     const SizedBox(
-                      height: 50,
+                      height: 20,
                     ),
 
                     // Question headline
                     Container(
                       width: screenWidth*0.9,
-                      padding: EdgeInsets.symmetric(
-                          vertical: screenHeight*0.04,
-                          horizontal: screenWidth*0.02
+                      padding: EdgeInsets.only(
+                        top: screenHeight*0.04,
                       ),
                       child: Text(
-                        "Du hast bereits ein Passwort erhalten? Logge dich jetzt in deinen Account ein!",
-                        textAlign: TextAlign.center,
+                        "Erneut anmelden",
+                        textAlign: TextAlign.left,
                         style: customStyleClass.getFontStyle2Bold(),
                       ),
                     ),
@@ -383,16 +414,27 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
                     // Text: Title
                     Container(
                       width: screenWidth*0.9,
+                      padding: EdgeInsets.only(
+                        top: 15,
+                      ),
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        "Dein Einmal-Passwort",
-                        style: customStyleClass.getFontStyle3(),
+                        "Du hast ein Zugangspasswort erhalten?",
+                        style: customStyleClass.getFontStyle5(),
+                      ),
+                    ),
+                    Container(
+                      width: screenWidth*0.9,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "Melde dich erneut in deinem Accoutn an.",
+                        style: customStyleClass.getFontStyle5(),
                       ),
                     ),
 
                     // Textfield last name
                     Container(
-                      height: screenHeight*0.12,
+                      // height: screenHeight*0.12,
                       width: screenWidth*0.9,
                       padding:  EdgeInsets.only(
                           top: distanceBetweenTitleAndTextField
@@ -413,34 +455,42 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
                               top:20,
                               bottom:20
                           ),
+                          label: Text(
+                            "Deine Passwort",
+                            style: customStyleClass.getFontStyle4Grey2(),
+                          ),
                         ),
                         style: customStyleClass.getFontStyle4(),
-                        maxLength: 35,
                       ),
                     ),
 
-                    // ABSCHICKEN
                     Container(
                       width: screenWidth*0.9,
                       alignment: Alignment.centerRight,
+                      padding: const EdgeInsets.only(
+                          top: 10
+                      ),
                       child: InkWell(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text(
-                              "Abschicken",
-                              style: customStyleClass.getFontStyle3BoldPrimeColor(),
-                            ),
-                            Icon(
-                              Icons.arrow_forward_outlined,
+                        child: Container(
+                          width: 150,
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 10,
+                              horizontal: 10
+                          ),
+                          decoration: BoxDecoration(
                               color: customStyleClass.primeColor,
-                            )
-                          ],
+                              borderRadius: BorderRadius.circular(15)
+                          ),
+                          child: Center(
+                            child: Text(
+                              "Anmelden",
+                              style: customStyleClass.getFontStyle4Bold(),
+                            ),
+                          ),
                         ),
                         onTap: () => clickEventCheckPasswordForAccountRecovery(),
                       ),
                     ),
-
 
                   ]
               ),

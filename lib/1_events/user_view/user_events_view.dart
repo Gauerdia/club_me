@@ -1075,6 +1075,17 @@ class _UserEventsViewState extends State<UserEventsView> {
 
     eventsToDisplay.sort((a,b) {
 
+      // Currently, we want to give absolute priority to high life
+      if(a.getClubId() == "2733b675-d574-4580-90c8-5fe371007b70" &&
+          b.getClubId() != "2733b675-d574-4580-90c8-5fe371007b70"){
+        return -1;
+      }
+      if(b.getClubId() == "2733b675-d574-4580-90c8-5fe371007b70" &&
+          a.getClubId() != "2733b675-d574-4580-90c8-5fe371007b70"){
+        return 1;
+      }
+
+
       DateTime firstDate = DateTime(a.getEventDate().year, a.getEventDate().month, a.getEventDate().day);
       DateTime secondDate = DateTime(b.getEventDate().year, b.getEventDate().month, b.getEventDate().day);
 
@@ -1174,11 +1185,12 @@ class _UserEventsViewState extends State<UserEventsView> {
         "Error in UserEventsView. No corresponding club found. "
             "Event: ${currentEvent.getEventTitle()} ${currentEvent.getEventId()}, its clubId: ${currentEvent.getClubId()}"
       );
+      return false;
     }
 
     // Get regular opening times
     try{
-      clubOpeningTimesForThisDay = currentClub?.getOpeningTimes().days?.firstWhereOrNull(
+      clubOpeningTimesForThisDay = currentClub.getOpeningTimes().days?.firstWhereOrNull(
               (days) => days.day == eventWeekDay);
     }catch(e){
       print("UserEventsView. Error in checkIfUpcomingEvent, clubOpeningTimesForThisDay: $e");

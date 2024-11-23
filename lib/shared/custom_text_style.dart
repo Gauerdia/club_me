@@ -202,6 +202,14 @@ class CustomStyleClass{
         )
     );
   }
+  TextStyle getFontStyle3Black(){
+    return GoogleFonts.inter(
+        textStyle: TextStyle(
+            fontSize: fontSize3,
+            color: Colors.black
+        )
+    );
+  }
 
   double getFontSize4(){
     return fontSize4;
@@ -314,6 +322,14 @@ class CustomStyleClass{
           color: primeColor,
           fontSize: fontSize5,
           fontWeight: FontWeight.bold,
+        )
+    );
+  }
+  TextStyle getFontStyle5Black(){
+    return GoogleFonts.inter(
+        textStyle: TextStyle(
+            fontSize: fontSize5,
+            color: Colors.black
         )
     );
   }

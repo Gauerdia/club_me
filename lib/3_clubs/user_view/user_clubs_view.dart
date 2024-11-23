@@ -649,9 +649,6 @@ class _UserClubsViewState extends State<UserClubsView>
     filterClubs();
 
   }
-  void processClubsFromProvider(){
-
-  }
 
 
   // CLICKED
@@ -780,10 +777,14 @@ class _UserClubsViewState extends State<UserClubsView>
   }
   bool checkIfIsEventIsAfterToday(ClubMeEvent currentEvent, ClubMeClub currentClub){
 
+    // Assumption: Every event until 4:59 started the day before.
+    // Assumption: There are no official opening times for events between 5 and 12.
+    // We'll just add 6 hours to it.
+
     Days? clubOpeningTimesForThisDay;
     DateTime closingHourToCompare;
 
-    var eventWeekDay = currentEvent.getEventDate().hour <= 6 ?
+    var eventWeekDay = currentEvent.getEventDate().hour <= 4 ?
     currentEvent.getEventDate().weekday -1 :
     currentEvent.getEventDate().weekday;
 

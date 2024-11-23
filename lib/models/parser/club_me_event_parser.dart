@@ -26,7 +26,8 @@ ClubMeEvent parseClubMeEvent(var data){
       bannerImageFileName: data['banner_image_file_name'],
       closingDate: data['closing_date'] != null ? DateTime.tryParse(data['closing_date']): null,
       showEventInApp: data['show_event_in_app'],
-    specialOccasionActive: data['special_occasion_active']
+    specialOccasionActive: data['special_occasion_active'],
+    specialOccasionIndex: data['special_occasion_index']
   );
 
   return clubMeEvent;

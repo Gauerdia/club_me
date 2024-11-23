@@ -1663,7 +1663,8 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
       isRepeatedDays: isRepeated != 0 ? daysToRepeat : 0,
       closingDate: closingTimeWasChanged ? concatenatedClosingDate : null,
       showEventInApp: userDataProvider.getUserClub().getClubId() == "9876-1234-5684" ? false : true,
-      specialOccasionActive: false
+      specialOccasionActive: false,
+      specialOccasionIndex: 0
 
     );
 

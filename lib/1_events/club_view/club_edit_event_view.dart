@@ -1611,7 +1611,8 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
 
       closingDate: closingTimeWasChanged ? concatenatedClosingDate : null,
       showEventInApp: currentAndLikedElementsProvider.currentClubMeEvent.getShowEventInApp(),
-      specialOccasionActive: false
+      specialOccasionActive: false,
+      specialOccasionIndex: currentAndLikedElementsProvider.currentClubMeEvent.getSpecialOccasionIndex()
 
     );
 

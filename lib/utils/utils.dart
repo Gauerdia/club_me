@@ -1,6 +1,12 @@
 class Utils{
 
 
+  static List<String> monthsForPicking = [
+    "Januar", "Februar", "März", "April", "Mai",
+    "Juni", "Juli", "August", "September", "Oktober",
+    "November", "Dezember"
+  ];
+
   static List<String> weekDaysForFiltering = [
     "Alle", "Montag", "Dienstag", "Mittwoch", "Donnerstag",
     "Freitag", "Samstag", "Sonntag"

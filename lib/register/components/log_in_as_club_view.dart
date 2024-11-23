@@ -2,6 +2,7 @@ import 'package:club_me/provider/fetched_content_provider.dart';
 import 'package:club_me/provider/state_provider.dart';
 import 'package:club_me/shared/dialogs/TitleAndContentDialog.dart';
 import 'package:club_me/shared/dialogs/title_content_and_button_dialog.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -87,58 +88,32 @@ class _LogInAsClubViewState extends State<LogInAsClubView> {
         automaticallyImplyLeading: false,
         backgroundColor: customStyleClass.backgroundColorMain,
         surfaceTintColor: customStyleClass.backgroundColorMain,
-        title: SizedBox(
-          width: screenWidth,
-          child: Stack(
-            children: [
+        title: Container(
+          // color: Colors.red,
+          width: screenWidth*0.9,
+          height: 100,
+          child: Center(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
 
-              // TEXT
-              Container(
-                // color: Colors.red,
-                height: 50,
-                width: screenWidth,
-                alignment: Alignment.centerRight,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                            headLine,
-                            textAlign: TextAlign.center,
-                            style: customStyleClass.getFontStyleHeadline1Bold()
-                        ),
-                        if(showVIP)
-                        Padding(
-                          padding: const EdgeInsets.only(
-                              bottom: 15
-                          ),
-                          child: Text(
-                            "VIP",
-                            style: customStyleClass.getFontStyleVIPGold(),
-                          ),
-                        )
-                      ],
-                    )
-                  ],
-                ),
-              ),
-
-              Container(
-                height: 50,
-                width: screenWidth,
-                alignment: Alignment.centerLeft,
-                child: InkWell(
+                InkWell(
                   child: const Icon(
                     Icons.arrow_back_ios,
                     color: Colors.white,
                   ),
                   onTap: () => Navigator.pop(context),
                 ),
-              ),
 
-            ],
-          ),
+                Container(
+                  child: Image.asset(
+                    "assets/images/clubme_logo_1.png",
+                    width: 150,
+                  ),
+                )
+              ],
+            ),
+          )
         )
     );
   }
@@ -159,7 +134,7 @@ class _LogInAsClubViewState extends State<LogInAsClubView> {
       isLoading = true;
     });
 
-    if(!agbAccepted || !privacyAccepted){
+    if(!privacyAccepted){
       showDialog(context: context, builder: (BuildContext context){
         return TitleAndContentDialog(
             titleToDisplay: "Konditionen akzeptieren",
@@ -178,28 +153,33 @@ class _LogInAsClubViewState extends State<LogInAsClubView> {
 
             ClubMePassword clubMePassword = parseClubMePassword(value[0]);
 
-            ClubMeUserData newUserData = ClubMeUserData(
-                firstName: "...",
-                lastName: "...",
-                birthDate: DateTime.now(),
-                eMail: "...",
-                gender: 0,
-                userId: clubMePassword.clubId,
-                profileType: 1,
-                lastTimeLoggedIn: DateTime.now(),
-                userProfileAsClub: false,
-                clubId: clubMePassword.clubId
-            );
-            _hiveService.addUserData(newUserData).then((value){
+            if(clubMePassword.clubId == "1234"){
+              stateProvider.setUsingTheAppAsADeveloper(true);
+              context.go("/log_in");
+            }else{
+              ClubMeUserData newUserData = ClubMeUserData(
+                  firstName: "...",
+                  lastName: "...",
+                  birthDate: DateTime.now(),
+                  eMail: "...",
+                  gender: 0,
+                  userId: clubMePassword.clubId,
+                  profileType: 1,
+                  lastTimeLoggedIn: DateTime.now(),
+                  userProfileAsClub: false,
+                  clubId: clubMePassword.clubId
+              );
+              _hiveService.addUserData(newUserData).then((value){
 
-              fetchedContentProvider.setFetchedEvents([]);
-              fetchedContentProvider.setFetchedDiscounts([]);
+                fetchedContentProvider.setFetchedEvents([]);
+                fetchedContentProvider.setFetchedDiscounts([]);
 
-              stateProvider.setClubUiActive(true);
+                stateProvider.setClubUiActive(true);
 
-              userDataProvider.setUserData(newUserData);
-              context.go("/club_events");
-            });
+                userDataProvider.setUserData(newUserData);
+                context.go("/club_events");
+              });
+            }
           }
           setState(() {
             isLoading = false;
@@ -236,21 +216,34 @@ class _LogInAsClubViewState extends State<LogInAsClubView> {
 
                     // Question headline
                     Container(
-                      width: screenWidth,
-                      padding: EdgeInsets.symmetric(
-                          vertical: screenHeight*0.04,
-                          horizontal: screenWidth*0.02
+                      width: screenWidth*0.8,
+                      padding: EdgeInsets.only(
+                        top: 10,
                       ),
                       child: Text(
-                        "Gib bitte dein Club-Passwort ein!",
-                        textAlign: TextAlign.center,
+                        "Als Club registrieren",
+                        textAlign: TextAlign.left,
                         style: customStyleClass.getFontStyle1Bold(),
                       ),
                     ),
 
+                    Container(
+                      width: screenWidth*0.8,
+                      padding: EdgeInsets.only(
+                        top: 10
+                      ),
+                      child: Text(
+                        "Hier kannst du dein Club-Passwort eingeben.",
+                        textAlign: TextAlign.left,
+                        style: customStyleClass.getFontStyle5(),
+                      ),
+                    ),
+
                     // Textfield email
-                    SizedBox(
-                      // height: screenHeight*0.15,
+                    Container(
+                      padding: EdgeInsets.only(
+                          top: 10
+                      ),
                       width: screenWidth*0.8,
                       child: TextField(
                         controller: _clubPasswordController,
@@ -272,109 +265,20 @@ class _LogInAsClubViewState extends State<LogInAsClubView> {
 
                     // SPACER
                     SizedBox(
-                      height: screenHeight*0.05,
-                    ),
-
-                    Container(
-                      width: screenWidth*0.9,
-                      alignment: Alignment.centerLeft,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "AGB",
-                            style: customStyleClass.getFontStyle3(),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // SPACER
-                    SizedBox(
-                      height: screenHeight*0.02,
-                    ),
-
-                    // AGB ROW
-                    SizedBox(
-                      width: screenWidth*0.9,
-                      child: Row(
-                        children: [
-                          Checkbox(
-                              activeColor: customStyleClass.primeColor,
-                              value: agbAccepted,
-                              onChanged: (bool? newValue){
-                                setState(() {
-                                  agbAccepted = newValue!;
-                                });
-                              }
-                          ),
-                          SizedBox(
-                            width: screenWidth*0.75,
-                            child: Text(
-                              "Ich habe die Allgemeinen Geschäftsbedingungen gelesen und akzeptiert.",
-                              style: customStyleClass.getFontStyle3(),
-                              textAlign: TextAlign.left,
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-
-                    // SPACER
-                    SizedBox(
-                      height: screenHeight*0.02,
-                    ),
-
-                    // AGB LINK
-                    Container(
-                      width: screenWidth*0.9,
-                      child: InkWell(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text(
-                              "Link zu den AGB",
-                              style: customStyleClass.getFontStyle5BoldPrimeColor(),
-                            ),
-                            Icon(
-                              Icons.arrow_forward_outlined,
-                              color: customStyleClass.primeColor,
-                            )
-                          ],
-                        ),
-                        onTap: () => clickEventAGB(),
-                      ),
-                    ),
-
-                    // SPACER
-                    SizedBox(
-                      height: screenHeight*0.05,
-                    ),
-
-                    Container(
-                      width: screenWidth*0.9,
-                      alignment: Alignment.centerLeft,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Datenschutz",
-                            style: customStyleClass.getFontStyle3(),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // SPACER
-                    SizedBox(
                       height: screenHeight*0.02,
                     ),
 
                     // DATENSCHUTZ
-                    SizedBox(
-                      width: screenWidth*0.9,
+                    Container(
+                      padding: EdgeInsets.only(
+                          top: 10,
+                      ),
+                      width: screenWidth,
                       child: Row(
                         children: [
+                          SizedBox(
+                            width: screenWidth*0.07,
+                          ),
                           Checkbox(
                               activeColor: customStyleClass.primeColor,
                               value: privacyAccepted,
@@ -385,39 +289,39 @@ class _LogInAsClubViewState extends State<LogInAsClubView> {
                               }
                           ),
                           SizedBox(
-                            width: screenWidth*0.75,
-                            child: Text(
-                              "Ich habe die Datenschutzerklärung gelesen und akzeptiert.",
-                              style: customStyleClass.getFontStyle3(),
+                            width: screenWidth*0.7,
+                            child: RichText(
+                                text: TextSpan(
+                                    children: [
+                                      TextSpan(
+                                          text: "Ich habe die",
+                                          style: customStyleClass.getFontStyle5()
+                                      ),
+                                      TextSpan(
+                                          text: " allgemeinen Geschäftsbedingungen ",
+                                          style: customStyleClass.getFontStyle5BoldPrimeColor(),
+                                          recognizer: TapGestureRecognizer()
+                                            ..onTap = () => clickEventAGB()
+                                      ),
+                                      TextSpan(
+                                          text: "und die",
+                                          style: customStyleClass.getFontStyle5()
+                                      ),
+                                      TextSpan(
+                                          text: " Datenschutzerklärung ",
+                                          style: customStyleClass.getFontStyle5BoldPrimeColor(),
+                                          recognizer: TapGestureRecognizer()
+                                            ..onTap = () => clickEventPrivacy()
+                                      ),
+                                      TextSpan(
+                                          text: "gelesen und akzeptiert.",
+                                          style: customStyleClass.getFontStyle5()
+                                      )
+                                    ]
+                                )
                             ),
                           )
                         ],
-                      ),
-                    ),
-
-                    // SPACER
-                    SizedBox(
-                      height: screenHeight*0.02,
-                    ),
-
-                    // LINK DATENSCHUTZ
-                    SizedBox(
-                      width: screenWidth*0.9,
-                      child: InkWell(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text(
-                              "Link zu der Datenschutzerklärung",
-                              style: customStyleClass.getFontStyle5BoldPrimeColor(),
-                            ),
-                            Icon(
-                              Icons.arrow_forward_outlined,
-                              color: customStyleClass.primeColor,
-                            )
-                          ],
-                        ),
-                        onTap: () => clickEventPrivacy(),
                       ),
                     ),
 
@@ -432,24 +336,28 @@ class _LogInAsClubViewState extends State<LogInAsClubView> {
                       ),
                       width: screenWidth*0.9,
                       alignment: Alignment.centerRight,
-                      child: isLoading ?
-                      Center(child: CircularProgressIndicator(color: customStyleClass.primeColor)):
-                      InkWell(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text(
-                              "Abschicken",
-                              style: customStyleClass.getFontStyle3BoldPrimeColor(),
-                            ),
-                            Icon(
-                              Icons.arrow_forward_outlined,
-                              color: customStyleClass.primeColor,
-                            )
-                          ],
+                      child: Container(
+                        width: 150,
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10,
+                            horizontal: 10
                         ),
-                        onTap: () => checkPassWord(),
-                      ),
+                        decoration: BoxDecoration(
+                            color: customStyleClass.primeColor,
+                            borderRadius: BorderRadius.circular(15)
+                        ),
+                        child: isLoading ?
+                        Center(child: CircularProgressIndicator(color: customStyleClass.primeColor)):
+                        InkWell(
+                          child: Center(
+                            child: Text(
+                              "Registrieren",
+                              style: customStyleClass.getFontStyle3Bold(),
+                            ),
+                          ),
+                          onTap: () => checkPassWord(),
+                        ),
+                      )
                     )
 
                   ]

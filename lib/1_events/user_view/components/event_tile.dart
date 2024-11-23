@@ -299,6 +299,446 @@ class EventTile extends StatelessWidget {
           ),
         ),
 
+        if(clubMeEvent.getSpecialOccasionIndex() == 1)
+          Center(
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                  vertical: 3
+              ),
+              width: screenWidth*0.91,
+              decoration: BoxDecoration(
+                color: Colors.green,
+                borderRadius: BorderRadius.circular(
+                    15
+                ),
+                gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    stops: [
+                      0.1,
+                      0.9
+                    ], colors: [
+                  Colors.pinkAccent,
+                  Colors.blueAccent
+                ]),
+              ),
+              child: Column(
+                children: [
+
+                  Container(
+                      height: topHeight,
+                      decoration: BoxDecoration(
+                        // color: customStyleClass.backgroundColorMain,
+                        // border: Border.all(
+                        //     color: customStyleClass.backgroundColorEventTile
+                        // ),
+                        borderRadius: const BorderRadius.only(
+                            topRight: Radius.circular(15),
+                            topLeft: Radius.circular(15)
+                        ),
+                      ),
+                      child: Stack(
+                        children: [
+
+                          // Image or loading indicator
+                          fetchedContentProvider.getFetchedBannerImageIds().contains(clubMeEvent.getBannerImageFileName())?
+                          SizedBox(
+                              height: topHeight,
+                              width: screenWidth,
+                              child: ClipRRect(
+                                  borderRadius: const BorderRadius.only(
+                                      topRight: Radius.circular(15),
+                                      topLeft: Radius.circular(15)
+                                  ),
+                                  child: Image(
+                                    image: FileImage(
+                                        File(
+                                            "${stateProvider.appDocumentsDir.path}/${clubMeEvent.getBannerImageFileName()}"
+                                        )
+                                    ),
+                                    fit: BoxFit.cover,
+                                  )
+                              )):
+                          SizedBox(
+                              width: screenWidth,
+                              height: topHeight,
+                              child: Center(
+                                child: SizedBox(
+                                  height: topHeight*0.5,
+                                  width: screenWidth*0.2,
+                                  child: CircularProgressIndicator(
+                                    color: customStyleClass.primeColor,
+                                  ),
+                                ),
+                              )
+                          ),
+
+                          // Display logo, when content is available
+                          // clubMeEvent.getEventMarketingFileName().isNotEmpty && showMaterialButton ?
+                          //     InkWell(
+                          //       child: Container(
+                          //         height: topHeight,
+                          //         width: screenWidth,
+                          //         alignment: Alignment.topRight,
+                          //         child: ClipRRect(
+                          //           borderRadius: const BorderRadius.only(
+                          //               topRight: Radius.circular(15),
+                          //               topLeft: Radius.circular(15)
+                          //           ),
+                          //           child: Image.asset(
+                          //             "assets/images/ClubMe_Logo_weiß.png",
+                          //             height: 60,
+                          //             width: 60,
+                          //             // fit: BoxFit.cover,
+                          //           ),
+                          //         ),
+                          //       ),
+                          //     ): Container(),
+
+                        ],
+                      )
+                  ),
+
+                  Container(
+                    width: screenWidth*0.85,
+                    padding: const EdgeInsets.only(
+                        top: 8,
+                        bottom: 4
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+
+                        Flexible(
+                            child: Text(
+                              eventTitleCut,
+                              textAlign: TextAlign.left,
+                              style: customStyleClass.getFontStyle3Bold(),
+                            )
+                        ),
+
+
+                        SizedBox(
+                            width: screenWidth*0.18,
+                            child: Text(
+                                clubMeEvent.getEventPrice() != 0 ?
+                                priceFormatted : " ",
+                                textAlign: TextAlign.center,
+                                style: customStyleClass.getFontStyle3Bold()
+                            )
+                        )
+
+                      ],
+                    ),
+                  ),
+
+                  SizedBox(
+                    width: screenWidth*0.85,
+                    child: Text(
+                        clubMeEvent.getClubName(),
+                        style:customStyleClass.getFontStyle5()
+                    ),
+                  ),
+
+
+                  SizedBox(
+                    width: screenWidth*0.85,
+                    child:Text(
+                        eventDjCut,
+                        textAlign: TextAlign.left,
+                        style: customStyleClass.getFontStyle6Bold()
+                    ),
+                  ),
+
+                  if(eventDjCut.isNotEmpty)
+                    const SizedBox(
+                      height: 20,
+                    ),
+
+
+                  Container(
+                    padding: const EdgeInsets.only(
+                        bottom: 4
+                    ),
+                    width: screenWidth*0.85,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+
+                        Text(
+                          weekDayToDisplay,
+                          style: customStyleClass.getFontStyle5BoldPrimeColor(),
+                        ),
+
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+
+                            // Info
+                            if(clubMeEvent.getTicketLink().isNotEmpty)
+                              GestureDetector(
+                                child: Column(
+                                  children: [
+                                    Icon(
+                                      CupertinoIcons.ticket,
+                                      color: customStyleClass.primeColor,
+                                    ),
+                                  ],
+                                ),
+                                onTap: () => clickEventTicket(context),
+                              ),
+                            SizedBox(
+                              width: screenWidth*0.02,
+                            ),
+
+                            // Like
+                            InkWell(
+                              child: Icon(
+                                isLiked ? Icons.star_outlined : Icons.star_border,
+                                color: customStyleClass.primeColor,
+                              ),
+                              onTap: () => clickEventLike(stateProvider, clubMeEvent.getEventId()),
+                            ),
+
+                            // SizedBox(
+                            //   width: screenWidth*0.02,
+                            // ),
+                          ],
+                        )
+
+                      ],
+                    ),
+                  )
+
+
+
+
+
+                ],
+              ),
+            ),
+          ),
+
+        if(clubMeEvent.getClubId() ==  "2733b675-d574-4580-90c8-5fe371007b70")
+          Center(
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                  vertical: 3
+              ),
+              width: screenWidth*0.91,
+              decoration: BoxDecoration(
+                // color: Colors.green,
+                borderRadius: BorderRadius.circular(
+                    15
+                ),
+                gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    stops: [
+                      0.1,
+                      0.9
+                    ], colors: [
+                  customStyleClass.primeColor,
+                  customStyleClass.primeColorDark,
+                ]),
+              ),
+              child: Column(
+                children: [
+
+                  Container(
+                      height: topHeight,
+                      decoration: BoxDecoration(
+                        // color: customStyleClass.backgroundColorMain,
+                        // border: Border.all(
+                        //     color: customStyleClass.backgroundColorEventTile
+                        // ),
+                        borderRadius: const BorderRadius.only(
+                            topRight: Radius.circular(15),
+                            topLeft: Radius.circular(15)
+                        ),
+                      ),
+                      child: Stack(
+                        children: [
+
+                          // Image or loading indicator
+                          fetchedContentProvider.getFetchedBannerImageIds().contains(clubMeEvent.getBannerImageFileName())?
+                          SizedBox(
+                              height: topHeight,
+                              width: screenWidth,
+                              child: ClipRRect(
+                                  borderRadius: const BorderRadius.only(
+                                      topRight: Radius.circular(15),
+                                      topLeft: Radius.circular(15)
+                                  ),
+                                  child: Image(
+                                    image: FileImage(
+                                        File(
+                                            "${stateProvider.appDocumentsDir.path}/${clubMeEvent.getBannerImageFileName()}"
+                                        )
+                                    ),
+                                    fit: BoxFit.cover,
+                                  )
+                              )):
+                          SizedBox(
+                              width: screenWidth,
+                              height: topHeight,
+                              child: Center(
+                                child: SizedBox(
+                                  height: topHeight*0.5,
+                                  width: screenWidth*0.2,
+                                  child: CircularProgressIndicator(
+                                    color: customStyleClass.primeColor,
+                                  ),
+                                ),
+                              )
+                          ),
+
+                          // Display logo, when content is available
+                          // clubMeEvent.getEventMarketingFileName().isNotEmpty && showMaterialButton ?
+                          //     InkWell(
+                          //       child: Container(
+                          //         height: topHeight,
+                          //         width: screenWidth,
+                          //         alignment: Alignment.topRight,
+                          //         child: ClipRRect(
+                          //           borderRadius: const BorderRadius.only(
+                          //               topRight: Radius.circular(15),
+                          //               topLeft: Radius.circular(15)
+                          //           ),
+                          //           child: Image.asset(
+                          //             "assets/images/ClubMe_Logo_weiß.png",
+                          //             height: 60,
+                          //             width: 60,
+                          //             // fit: BoxFit.cover,
+                          //           ),
+                          //         ),
+                          //       ),
+                          //     ): Container(),
+
+                        ],
+                      )
+                  ),
+
+                  Container(
+                    width: screenWidth*0.85,
+                    padding: const EdgeInsets.only(
+                        top: 8,
+                        bottom: 4
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+
+                        Flexible(
+                            child: Text(
+                              eventTitleCut,
+                              textAlign: TextAlign.left,
+                              style: customStyleClass.getFontStyle3Bold(),
+                            )
+                        ),
+
+
+                        SizedBox(
+                            width: screenWidth*0.18,
+                            child: Text(
+                                clubMeEvent.getEventPrice() != 0 ?
+                                priceFormatted : " ",
+                                textAlign: TextAlign.center,
+                                style: customStyleClass.getFontStyle3Bold()
+                            )
+                        )
+
+                      ],
+                    ),
+                  ),
+
+                  SizedBox(
+                    width: screenWidth*0.85,
+                    child: Text(
+                        clubMeEvent.getClubName(),
+                        style:customStyleClass.getFontStyle5()
+                    ),
+                  ),
+
+
+                  SizedBox(
+                    width: screenWidth*0.85,
+                    child:Text(
+                        eventDjCut,
+                        textAlign: TextAlign.left,
+                        style: customStyleClass.getFontStyle6Bold()
+                    ),
+                  ),
+
+                  if(eventDjCut.isNotEmpty)
+                    const SizedBox(
+                      height: 20,
+                    ),
+
+
+                  Container(
+                    padding: const EdgeInsets.only(
+                        bottom: 4
+                    ),
+                    width: screenWidth*0.85,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+
+                        Text(
+                          weekDayToDisplay,
+                          style: customStyleClass.getFontStyle5BoldPrimeColor(),
+                        ),
+
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+
+                            // Info
+                            if(clubMeEvent.getTicketLink().isNotEmpty)
+                              GestureDetector(
+                                child: Column(
+                                  children: [
+                                    Icon(
+                                      CupertinoIcons.ticket,
+                                      color: customStyleClass.primeColor,
+                                    ),
+                                  ],
+                                ),
+                                onTap: () => clickEventTicket(context),
+                              ),
+                            SizedBox(
+                              width: screenWidth*0.02,
+                            ),
+
+                            // Like
+                            InkWell(
+                              child: Icon(
+                                isLiked ? Icons.star_outlined : Icons.star_border,
+                                color: customStyleClass.primeColor,
+                              ),
+                              onTap: () => clickEventLike(stateProvider, clubMeEvent.getEventId()),
+                            ),
+
+                            // SizedBox(
+                            //   width: screenWidth*0.02,
+                            // ),
+                          ],
+                        )
+
+                      ],
+                    ),
+                  )
+
+
+
+
+
+                ],
+              ),
+            ),
+          ),
+
         // Main Tile
         Padding(
           padding: const EdgeInsets.only(
