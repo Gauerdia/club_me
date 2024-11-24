@@ -107,7 +107,7 @@ class _LogInAsClubViewState extends State<LogInAsClubView> {
 
                 Container(
                   child: Image.asset(
-                    "assets/images/clubme_logo_1.png",
+                    "assets/images/club_me_logo_name_1.png",
                     width: 150,
                   ),
                 )
@@ -150,6 +150,8 @@ class _LogInAsClubViewState extends State<LogInAsClubView> {
           if(value.isEmpty){
             showErrorDialog();
           }else{
+
+            stateProvider.resetUsingWithoutRegistration();
 
             ClubMePassword clubMePassword = parseClubMePassword(value[0]);
 
@@ -369,7 +371,7 @@ class _LogInAsClubViewState extends State<LogInAsClubView> {
         width: screenWidth,
         decoration: BoxDecoration(
             color: customStyleClass.backgroundColorMain,
-            border: Border(
+            border: const Border(
               top: BorderSide(color: Colors.grey, width: 1.0),
             )
         ),

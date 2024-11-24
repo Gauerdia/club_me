@@ -206,7 +206,7 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
 
                   Container(
                     child: Image.asset(
-                      "assets/images/clubme_logo_1.png",
+                      "assets/images/club_me_logo_name_1.png",
                       width: 150,
                     ),
                   )

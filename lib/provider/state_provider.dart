@@ -82,6 +82,7 @@ class StateProvider extends ChangeNotifier{
   }
   void resetUsingWithoutRegistration(){
     usingWithoutRegistration = false;
+    notifyListeners();
   }
 
 

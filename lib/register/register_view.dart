@@ -788,9 +788,14 @@ class _RegisterViewState extends State<RegisterView>
 
               Container(
                 child: Image.asset(
-                  "assets/images/clubme_logo_1.png",
-                  width: 150,
-                ),
+                    "assets/images/club_me_logo_name_1.png",
+                    width: 150,
+                  ),
+
+                // Image.asset(
+                //   "assets/images/clubme_logo_1.png",
+                //   width: 150,
+                // ),
               )
 
             ],
