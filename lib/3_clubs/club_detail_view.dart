@@ -1602,6 +1602,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
     // If not, we signal our algo that we don't know, aka 99
     else{
       specialDayClosingHourToDisplay.add(99);
+      specialDayClosingMinuteToDisplay.add(99);
     }
 
     // Save the weekday to display the written weekday
