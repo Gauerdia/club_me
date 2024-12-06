@@ -4,7 +4,6 @@ import 'package:club_me/models/special_opening_times.dart';
 
 import '../club.dart';
 import '../hive_models/6_opening_times.dart';
-import '../opening_times.dart';
 
 ClubMeClub parseClubMeClub(var data){
 
@@ -25,6 +24,7 @@ ClubMeClub parseClubMeClub(var data){
       clubContactZip: data['contact_zip_code'],
       clubInstagramLink: data['instagram_link'],
       clubWebsiteLink: data['website_link'],
+      clubFacebookLink: data['facebook_link'],
       priorityScore: data['priority_score'],
       openingTimes: OpeningTimes.fromJson(data['opening_times']),
       frontPageGalleryImages: FrontPageGalleryImages.fromJson(data['front_page_images']),

@@ -5,7 +5,6 @@ import 'package:club_me/models/special_opening_times.dart';
 import '../models/club.dart';
 import '../models/hive_models/0_club_me_user_data.dart';
 import '../models/hive_models/6_opening_times.dart';
-import '../models/opening_times.dart';
 
 ClubMeClub mockUpClub = ClubMeClub(
     clubId: "12345",
@@ -24,6 +23,7 @@ ClubMeClub mockUpClub = ClubMeClub(
     clubContactStreetNumber: "101",
     clubContactZip: "12345",
     clubInstagramLink: "https://www.instagram.com",
+    clubFacebookLink: "https://www.facebook.com",
     clubWebsiteLink: "https://google.de",
     // clubFrontpageBackgroundColorId: 0,
     priorityScore: 0,

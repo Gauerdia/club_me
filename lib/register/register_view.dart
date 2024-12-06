@@ -9,11 +9,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -30,7 +28,6 @@ import '../shared/dialogs/title_content_and_button_dialog.dart';
 import '../shared/logger.util.dart';
 
 import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/people/v1.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -102,15 +99,7 @@ class _RegisterViewState extends State<RegisterView>
   late TabController _tabController;
   late PageController _pageViewController;
 
-  String googleIconSVG = '''
-  <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" xmlns:xlink="http://www.w3.org/1999/xlink" style="display: block;">
-        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
-        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
-        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
-        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
-        <path fill="none" d="M0 0h48v48H0z"></path>
-      </svg>
-  ''';
+
 
 
   // INIT
@@ -515,7 +504,7 @@ class _RegisterViewState extends State<RegisterView>
                   InkWell(
                     child: Container(
                       width: 150,
-                      padding: EdgeInsets.symmetric(
+                      padding: const EdgeInsets.symmetric(
                           vertical: 10,
                           horizontal: 10
                       ),
@@ -563,7 +552,7 @@ class _RegisterViewState extends State<RegisterView>
                           children: [
 
                             SvgPicture.string(
-                                googleIconSVG,
+                                Utils.googleIconSVG,
                                 width: 15,
                                 height: 15
                             ),
@@ -643,7 +632,7 @@ class _RegisterViewState extends State<RegisterView>
 
 
             SizedBox(
-              height: screenHeight*0.1,
+              height: screenHeight*0.15,
             )
 
           ],
@@ -952,523 +941,6 @@ class _RegisterViewState extends State<RegisterView>
     setState(() {
       tutorialPageIndex = currentPageIndex;
     });
-  }
-
-
-  // main window
-  Widget _buildChooseRegistrationMethod(){
-    return Container(
-      height: screenHeight,
-      color: customStyleClass.backgroundColorMain,
-      child: SingleChildScrollView(
-        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-
-
-            // Text: Saludations
-            Container(
-              width: screenWidth*0.9,
-              padding: EdgeInsets.only(
-                top: distanceBetweenTitleAndTextField
-              ),
-              child: Text(
-                "Wir freuen uns, dich in unserer Club-Community begrüßen zu dürfen!",
-                textAlign: TextAlign.center,
-                style: customStyleClass.getFontStyle5(),
-              ),
-            ),
-
-            // Textfield: First name
-            Container(
-              // height: screenHeight*0.12,
-              width: screenWidth*0.9,
-              padding:  EdgeInsets.only(
-                  top: distanceBetweenTitleAndTextField*1
-              ),
-              child: TextField(
-                focusNode: firstNameFocusNode,
-                controller: _firstNameController,
-                cursorColor: customStyleClass.primeColor,
-                decoration: InputDecoration(
-                  focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                          color: customStyleClass.primeColor
-                      )
-                  ),
-                  hintText: "z.B. Max",
-                  border: const OutlineInputBorder(),
-                  contentPadding: const EdgeInsets.only(
-                      left: 20,
-                      top:10,
-                      bottom:10
-                  ),
-                    labelText: 'Vorname',
-                  labelStyle: TextStyle(
-                    color: Colors.grey
-                  )
-                ),
-                style: customStyleClass.getFontStyle5(),
-                // onTap: _requestFocus,
-              ),
-            ),
-
-            // Textfield_ last name
-            Container(
-              // height: screenHeight*0.12,
-              width: screenWidth*0.9,
-              padding:  EdgeInsets.only(
-                  top: distanceBetweenTitleAndTextField*2
-              ),
-              child: TextField(
-                focusNode: lastNameFocusNode,
-                controller: _lastNameController,
-                cursorColor: customStyleClass.primeColor,
-                decoration: InputDecoration(
-                  focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                          color: customStyleClass.primeColor
-                      )
-                  ),
-                  hintText: "z.B. Mustermann",
-                  border: const OutlineInputBorder(),
-                  contentPadding: const EdgeInsets.only(
-                      left: 20,
-                      top:10,
-                      bottom:10
-                  ),
-                    labelText: 'Nachname',
-                    labelStyle: TextStyle(
-                        color: Colors.grey
-                    )
-                ),
-                style: customStyleClass.getFontStyle4(),
-                // onTap: _requestFocus,
-              ),
-            ),
-
-            // Textfield: email
-            Container(
-              // height: screenHeight*0.12,
-              width: screenWidth*0.9,
-              padding:  EdgeInsets.only(
-                  top: distanceBetweenTitleAndTextField*2
-              ),
-              child: TextFormField(
-                controller: _eMailController,
-                cursorColor: customStyleClass.primeColor,
-                decoration: InputDecoration(
-                  focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                          color: customStyleClass.primeColor
-                      )
-                  ),
-                  hintText: "z.B. max.mustermann@gmx.de",
-                  border: const OutlineInputBorder(),
-                  contentPadding: const EdgeInsets.only(
-                      left: 20,
-                      top:10,
-                      bottom:10
-                  ),
-                    labelText: 'E-Mail-Adresse',
-                    labelStyle: TextStyle(
-                        color: Colors.grey
-                    )
-                ),
-                style: customStyleClass.getFontStyle4(),
-              ),
-            ),
-
-            // Text: Title
-            Container(
-              padding: EdgeInsets.only(
-                  top: distanceBetweenTitleAndTextField*2
-              ),
-              width: screenWidth*0.9,
-              alignment: Alignment.centerLeft,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Geschlecht",
-                    style: customStyleClass.getFontStyle3(),
-                  ),
-                  InkWell(
-                    child: Icon(
-                        Icons.info_outlined,
-                        color: customStyleClass.primeColor
-                    ),
-                    onTap: () => clickEventShowInfo(1),
-                  )
-                ],
-              ),
-            ),
-
-            // toggle man, woman, diverse
-            Container(
-              width: screenWidth*0.9,
-              padding:  EdgeInsets.only(
-                  top: distanceBetweenTitleAndTextField
-              ),
-              child:  Center(
-                child: ToggleSwitch(
-                  initialLabelIndex: gender,
-                  totalSwitches: 3,
-                  activeBgColor: [customStyleClass.primeColor],
-                  activeFgColor: Colors.white,
-                  inactiveFgColor: customStyleClass.primeColor,
-                  inactiveBgColor: customStyleClass.backgroundColorEventTile,
-                  labels: const [
-                    'Männlich',
-                    'Weiblich',
-                    "Divers"
-                  ],
-                  minWidth: screenWidth*0.9,
-                  minHeight: screenHeight*0.05,
-                  onToggle: (index) {
-                    setState(() {
-                      gender = index!;
-                    });
-                  },
-                ),
-              ),
-            ),
-
-            // Text: Date
-            Container(
-              padding:  EdgeInsets.only(
-                  top: distanceBetweenTitleAndTextField
-              ),
-              width: screenWidth*0.9,
-              alignment: Alignment.centerLeft,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Geburtsdatum",
-                    style: customStyleClass.getFontStyle3(),
-                  ),
-                  InkWell(
-                    child: Icon(
-                      Icons.info_outlined,
-                      color: customStyleClass.primeColor,
-                    ),
-                    onTap: () => clickEventShowInfo(2),
-                  )
-                ],
-              ),
-            ),
-
-            // Birth date picking
-            Container(
-                // padding:  EdgeInsets.only(
-                //     top: distanceBetweenTitleAndTextField
-                // ),
-                width: screenWidth*0.9,
-                height: screenHeight*0.12,
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children:[
-
-                      Row(
-                        children: [
-                          // day
-                          SizedBox(
-                            width: screenWidth*0.2,
-                            child: CupertinoPicker(
-                                scrollController: _dayController,
-                                itemExtent: 50,
-                                onSelectedItemChanged: (int index){
-                                  setState(() {
-                                    selectedDay = index+1;
-                                  });
-                                },
-                                children: List<Widget>.generate(31, (index){
-                                  return Center(
-                                    child: Text(
-                                      index < 9 ?
-                                      "0${(index+1).toString()}" :
-                                      (index+1).toString(),
-                                      style: customStyleClass.getFontStyle3(),
-                                    ),
-                                  );
-                                })
-                            ),
-                          ),
-
-
-                          // month
-                          SizedBox(
-                            width: screenWidth*0.4,
-                            child: CupertinoPicker(
-                                scrollController: _monthController,
-                                itemExtent: 50,
-                                onSelectedItemChanged: (int index){
-                                  setState(() {
-                                    selectedMonth = index+1;
-                                  });
-                                },
-                                children:
-                                Utils.monthsForPicking.map((item){
-                                  return Padding(
-                                    padding: const EdgeInsets.only(
-                                      top: 15
-                                    ),
-                                    child: Text(
-                                      item,
-                                      style: customStyleClass.getFontStyle2(),
-                                    ),
-                                  );
-                                }).toList(),
-                                // List<Widget>.generate(12, (index){
-                                //   return Center(
-                                //     child: Text(
-                                //       index < 9 ?
-                                //       "0${(index+1).toString()}" :
-                                //       (index+1).toString(),
-                                //       style: customStyleClass.getFontStyle3(),
-                                //     ),
-                                //   );
-                                // })
-                            ),
-                          ),
-
-
-                          // year
-                          SizedBox(
-                            width: screenWidth*0.2,
-                            child: CupertinoPicker(
-                                scrollController: _yearController,
-                                itemExtent: 50,
-                                onSelectedItemChanged: (int index){
-                                  setState(() {
-                                    selectedYear = (2024-index);
-                                  });
-                                },
-                                children: List<Widget>.generate(100, (index){
-                                  return Center(
-                                    child: Text(
-                                      (2024-index).toString(),
-                                      style: customStyleClass.getFontStyle3(),
-                                    ),
-                                  );
-                                })
-                            ),
-                          ),
-                        ],
-                      )
-
-                    ]
-                )
-            ),
-
-            // DATENSCHUTZ
-            Container(
-              padding: EdgeInsets.only(
-                  top: distanceBetweenTitleAndTextField*2
-              ),
-              width: screenWidth*0.95,
-              child: Row(
-                children: [
-                  Checkbox(
-                      activeColor: customStyleClass.primeColor,
-                      value: privacyAccepted,
-                      onChanged: (bool? newValue){
-                        setState(() {
-                          privacyAccepted = newValue!;
-                        });
-                      }
-                  ),
-                  SizedBox(
-                    width: screenWidth*0.8,
-                    child: RichText(
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "Ich habe die",
-                            style: customStyleClass.getFontStyle5()
-                          ),
-                          TextSpan(
-                            text: " allgemeinen Geschäftsbedingungen ",
-                              style: customStyleClass.getFontStyle5BoldPrimeColor(),
-                            recognizer: TapGestureRecognizer()
-                              ..onTap = () => clickEventAGB()
-                          ),
-                          TextSpan(
-                            text: "und die",
-                              style: customStyleClass.getFontStyle5()
-                          ),
-                          TextSpan(
-                            text: " Datenschutzerklärung ",
-                              style: customStyleClass.getFontStyle5BoldPrimeColor(),
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = () => clickEventPrivacy()
-                          ),
-                          TextSpan(
-                            text: "gelesen und akzeptiert.",
-                              style: customStyleClass.getFontStyle5()
-                          )
-                        ]
-                      )
-                    ),
-                  )
-                ],
-              ),
-            ),
-
-            // Register buttons
-            Container(
-              width: screenWidth*0.9,
-              padding: EdgeInsets.only(
-                top: distanceBetweenTitleAndTextField
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-
-                  InkWell(
-                    child: Text(
-                      "Weiter ohne Registrierung",
-                      style: customStyleClass.getFontStyle4Bold(),
-                    ),
-                    onTap: () => clickEventProceedWithoutRegistration(),
-                  ),
-
-                  InkWell(
-                    child: Container(
-                      width: 150,
-                      padding: EdgeInsets.symmetric(
-                          vertical: 10,
-                          horizontal: 10
-                      ),
-                      decoration: BoxDecoration(
-                          color: customStyleClass.primeColor,
-                          borderRadius: BorderRadius.circular(15)
-                      ),
-                      child: Center(
-                        child: Text(
-                          "Registrieren",
-                          style: customStyleClass.getFontStyle4Bold(),
-                        ),
-                      ),
-                    ),
-                    onTap: () => checkIfRegistrationIsLegit(),
-                  )
-
-                ],
-              ),
-            ),
-
-
-            // Google
-            if(Platform.isAndroid)
-              Container(
-                padding: EdgeInsets.only(
-                  top: distanceBetweenTitleAndTextField*2
-                ),
-                child: InkWell(
-                  child: Center(
-                    child: Container(
-                        alignment: Alignment.centerRight,
-                        width: screenWidth*0.9,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.all(
-                              Radius.circular(10)
-                          ),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 15
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-
-                            SvgPicture.string(
-                                googleIconSVG,
-                                width: 15,
-                                height: 15
-                            ),
-
-                            InkWell(
-                              child: Text(
-                                "   Mit Google anmelden",
-                                style: customStyleClass.getFontStyle5Black(),
-                              ),
-                              onTap: () => clickEventGoogleRegistration(),
-                            )
-                          ],
-                        )
-                    ),
-                  ),
-                  onTap: () => clickEventGoogleRegistration(),
-                ),
-              ),
-
-            SizedBox(
-              height: screenHeight*0.01,
-            ),
-
-            const Divider(
-              indent: 60,
-              endIndent: 60,
-              color: Colors.grey,
-            ),
-
-            // ALready an account
-            Container(
-              width: screenWidth*0.9,
-              child: Center(
-                child: RichText(
-                    text: TextSpan(
-                        children: [
-                          TextSpan(
-                              text: "Du hast bereits einen Account?  ",
-                              style: customStyleClass.getFontStyle4()
-                          ),
-                          TextSpan(
-                              text: "Anmelden",
-                              style: customStyleClass.getFontStyle4BoldPrimeColor(),
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = () => clickEventForgotPassword()
-                          ),
-                        ]
-                    )
-                ),
-              )
-            ),
-
-            Container(
-              padding: EdgeInsets.only(
-                top: distanceBetweenTitleAndTextField
-              ),
-                width: screenWidth*0.9,
-                child: Center(
-                  child: RichText(
-                      text: TextSpan(
-                          children: [
-                            TextSpan(
-                                text: "Du willst dich als Club anmelden?  ",
-                                style: customStyleClass.getFontStyle4()
-                            ),
-                            TextSpan(
-                                text: "Anmelden",
-                                style: customStyleClass.getFontStyle4BoldPrimeColor(),
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () => clickEventProceedAsClub()
-                            ),
-                          ]
-                      )
-                  ),
-                )
-            ),
-
-
-          ],
-        ),
-      ),
-    );
   }
 
   // The first registration type
@@ -2389,13 +1861,6 @@ class _RegisterViewState extends State<RegisterView>
       default: return Container();
 
     }
-  }
-
-  void _requestFocus(){
-    setState(() {
-      FocusScope.of(context).requestFocus(firstNameFocusNode);
-      FocusScope.of(context).requestFocus(lastNameFocusNode);
-    });
   }
 
   void processContinue(){

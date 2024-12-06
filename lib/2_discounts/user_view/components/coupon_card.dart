@@ -8,7 +8,6 @@ import 'package:club_me/shared/dialogs/title_content_and_button_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import '../../../models/discount.dart';
 import '../../../models/hive_models/2_club_me_discount.dart';
 import '../../../provider/current_and_liked_elements_provider.dart';
 import '../../../provider/fetched_content_provider.dart';
@@ -83,7 +82,7 @@ class CouponCard extends StatelessWidget {
         if(clubMeDiscount.getIsRedeemable())
           Container(
               width: screenWidth*0.91,
-              height: screenHeight*0.56,
+              height: screenHeight*0.565,
               decoration:const BoxDecoration(
                 gradient: LinearGradient(
                     begin: Alignment.topLeft,
@@ -116,7 +115,7 @@ class CouponCard extends StatelessWidget {
           ),
           child: Container(
             width: screenWidth*0.9,
-            height: screenHeight*0.555,
+            height: screenHeight*0.56, //0.555,
             decoration: BoxDecoration(
                 gradient: LinearGradient(
                     begin: Alignment.topLeft,

@@ -1,6 +1,7 @@
+import 'package:club_me/models/genres_to_display.dart';
+
 import '../event.dart';
 import '../hive_models/6_opening_times.dart';
-import '../opening_times.dart';
 
 ClubMeEvent parseClubMeEvent(var data){
 
@@ -14,7 +15,11 @@ ClubMeEvent parseClubMeEvent(var data){
       eventDate: DateTime.tryParse(data["event_date"])!,
       eventPrice: data["event_price"].toDouble(),
       eventDescription: data["event_description"],
+
       musicGenres: data["music_genres"],
+      musicGenresToFilter: data['music_genres_to_filter'],
+      musicGenresToDisplay: GenresToDisplay.fromJson(data['music_genres_to_display']),
+
       clubId: data["club_id"],
       eventMarketingFileName: data['event_marketing_file_name'],
       eventMarketingCreatedAt: data['event_marketing_created_at'] != null ?

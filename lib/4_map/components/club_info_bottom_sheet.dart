@@ -201,192 +201,184 @@ class _ClubInfoBottomSheetState extends State<ClubInfoBottomSheet> {
             )
         ),
 
-        // Content container
-        SizedBox(
-          height: bottomHeight-2,
-          child: Column(
-            children: [
+        Stack(
+          children: [
 
-              // Event Card
-              Container(
-                height: screenHeight*0.16,
-                // color: Colors.green,
-                padding: const EdgeInsets.only(
-                    top: 15
-                ),
-                child: noEventAvailable ?
-                SizedBox(
-                  height: bottomHeight-45,
-                  child: Center(
-                    child: Text(
-                      "Derzeit kein Event geplant!",
-                      style: customStyleClass.getFontStyle3(),
+            // Content container
+            SizedBox(
+              // height: bottomHeight-2,
+              child: Column(
+                children: [
+
+                  // Event Card
+                  Container(
+                    // height: screenHeight*0.18,
+                    // color: Colors.green,
+                    padding: const EdgeInsets.only(
+                        top: 15
                     ),
-                  ),
-                ):GestureDetector(
-                  child: EventCard(
-                    clubMeEvent: clubMeEvent!,
-                    accessedEventDetailFrom: 3,
-                    backgroundColorIndex: 0,
-                  ),
-                  onTap: (){
-                    currentAndLikedElementsProvider.setCurrentEvent(clubMeEvent!);
-                    stateProvider.setAccessedEventDetailFrom(3);
-                    context.push("/event_details");
-                  },
-                ),
-              ),
-
-              // BottomSheet
-              Container(
-                // height: screenHeight*0.01,
-                width: screenWidth*0.9,
-                padding: const EdgeInsets.only(
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-
-                    // Info, Like, Share
+                    child: noEventAvailable ?
                     Container(
-
-                      decoration: const BoxDecoration(
-                        borderRadius: BorderRadius.all(
-                            Radius.circular(12)
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 40
+                      ),
+                      // height: bottomHeight-45,
+                      child: Center(
+                        child: Text(
+                          "Derzeit kein Event geplant!",
+                          style: customStyleClass.getFontStyle3(),
                         ),
                       ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-
-                              // Info icon
-                              Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 4,
-                                      vertical: 4
-                                  ),
-                                  child: GestureDetector(
-                                    child: Icon(
-                                      Icons.info_outline,
-                                      color: customStyleClass.primeColor,
-                                    ),
-                                    onTap: () => clickEventInfo(),
-                                  )
-                              ),
-
-                              // Spacer
-                              const SizedBox(width: 15,),
-
-                              // star
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 4,
-                                    vertical: 4
-                                ),
-                                child: GestureDetector(
-                                  child: Icon(
-                                    currentAndLikedElementsProvider.checkIfSpecificCLubIsAlreadyLiked(currentAndLikedElementsProvider.currentClubMeClub.getClubId())
-                                        ? Icons.star_outlined
-                                        : Icons.star_border,
-                                    color: customStyleClass.primeColor,
-                                  ),
-                                  onTap: () => clickEventLike(),
-                                ),
-                              ),
-
-                              // Spacer
-                              const SizedBox(width: 15,),
-
-                              // share
-                              // Container(
-                              //   padding: const EdgeInsets.symmetric(
-                              //       horizontal: 4,
-                              //       vertical: 4
-                              //   ),
-                              //   child: GestureDetector(
-                              //     child: Icon(
-                              //       Icons.share,
-                              //       color: customStyleClass.primeColor,
-                              //       size: screenWidth*iconWidthFactor,
-                              //     ),
-                              //     onTap: () => clickEventShare(),
-                              //   ),
-                              // ),
-                            ],
-                          ),
-                        ],
+                    ):GestureDetector(
+                      child: EventCard(
+                        clubMeEvent: clubMeEvent!,
+                        accessedEventDetailFrom: 3,
+                        backgroundColorIndex: 0,
                       ),
+                      onTap: (){
+                        currentAndLikedElementsProvider.setCurrentEvent(clubMeEvent!);
+                        stateProvider.setAccessedEventDetailFrom(3);
+                        context.push("/event_details");
+                      },
                     ),
+                  ),
 
-                    // Icon Row
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          right: 50
-                      ),
-                      child: Align(
-                        alignment: Alignment.bottomRight,
-                        child: Container(
-                          decoration: const BoxDecoration(
-                            // color: Color(0xff11181f),
-                            borderRadius: BorderRadius.all(
-                                Radius.circular(12)
-                            ),
-                          ),
-                          child: Row(
-                            children: [
 
-                              // Icon distance
-                              Container(
-                                padding: const EdgeInsets.all(4),
-                                child:  Icon(
-                                  Icons.location_on_outlined,
-                                  color: customStyleClass.primeColor,
-                                ),
-                              ),
-
-                              // Text distance
-                              Container(
-                                padding: const EdgeInsets.all(4),
-                                child: Text(
-                                  "${calculateDistanceToClub().toStringAsFixed(2)} km",
-                                  style: customStyleClass.getFontStyle6BoldGrey(),
-                                ),
-                              ),
-
-                              // Spacer
-                              const SizedBox(width: 2,),
-
-                              // Icon genre
-                              Container(
-                                padding: const EdgeInsets.all(4),
-                                child:  Icon(
-                                  Icons.library_music_outlined,
-                                  color: customStyleClass.primeColor,
-                                ),
-                              ),
-
-                              // Text Genre
-                              Container(
-                                padding: const EdgeInsets.only(left: 5),
-                                child: Text(
-                                  getAndFormatMusicGenre(),
-                                  style: customStyleClass.getFontStyle6BoldGrey(),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                ],
               ),
-            ],
-          ),
-        )
+            ),
+
+            // Icon Row
+            Container(
+              // color: Colors.red,
+              height: bottomHeight-5,
+              width: screenWidth*0.9,
+              // alignment: Alignment.center,
+              padding: const EdgeInsets.only(
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+
+                  // ICONS: Info, Like, Share
+                  Container(
+                    alignment: Alignment.bottomLeft,
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.all(
+                          Radius.circular(12)
+                      ),
+                    ),
+                    padding: const EdgeInsets.only(
+                      left:10
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+
+                        // Info icon
+                        Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 4,
+                                vertical: 4
+                            ),
+                            child: GestureDetector(
+                              child: Icon(
+                                Icons.info_outline,
+                                color: customStyleClass.primeColor,
+                              ),
+                              onTap: () => clickEventInfo(),
+                            )
+                        ),
+
+                        // Spacer
+                        const SizedBox(width: 15,),
+
+                        // star
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 4,
+                              vertical: 4
+                          ),
+                          child: GestureDetector(
+                            child: Icon(
+                              currentAndLikedElementsProvider.checkIfSpecificCLubIsAlreadyLiked(currentAndLikedElementsProvider.currentClubMeClub.getClubId())
+                                  ? Icons.star_outlined
+                                  : Icons.star_border,
+                              color: customStyleClass.primeColor,
+                            ),
+                            onTap: () => clickEventLike(),
+                          ),
+                        ),
+
+                        // Spacer
+                        const SizedBox(width: 15,),
+                      ],
+                    ),
+                  ),
+
+                  //  ICONS: MAP, GENRE
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        // right: 10
+                    ),
+                    child: Align(
+                      alignment: Alignment.bottomRight,
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          // color: Color(0xff11181f),
+                          borderRadius: BorderRadius.all(
+                              Radius.circular(12)
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+
+                            // Icon distance
+                            Container(
+                              padding: const EdgeInsets.only(right:4),
+                              child:  Icon(
+                                Icons.location_on_outlined,
+                                color: customStyleClass.primeColor,
+                              ),
+                            ),
+
+                            // Text distance
+                            Container(
+                              padding: const EdgeInsets.only(right:4),
+                              child: Text(
+                                "${calculateDistanceToClub().toStringAsFixed(2)} km",
+                                style: customStyleClass.getFontStyle6BoldGrey(),
+                              ),
+                            ),
+
+                            // Spacer
+                            const SizedBox(width: 2,),
+
+                            // Icon genre
+                            Container(
+                              padding: const EdgeInsets.only(right:4),
+                              child:  Icon(
+                                Icons.library_music_outlined,
+                                color: customStyleClass.primeColor,
+                              ),
+                            ),
+
+                            // Text Genre
+                            Text(
+                              getAndFormatMusicGenre(),
+                              style: customStyleClass.getFontStyle6BoldGrey(),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+          ],
+        ),
       ],
     );
   }

@@ -1,5 +1,11 @@
 # club_me
 
+
+# Deploying
+
+- pubspec.yaml: change version
+- services/
+
 # Allgemeines Design
 in der main macht `scaffoldBackgroundColor: Colors.black` den appbar hintergrund schwarz
 

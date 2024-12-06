@@ -1,7 +1,6 @@
-import '../discount.dart';
 import '../hive_models/2_club_me_discount.dart';
 import '../hive_models/6_opening_times.dart';
-import '../opening_times.dart';
+
 
 ClubMeDiscount parseClubMeDiscount(var data){
 

@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:club_me/4_map/components/club_info_bottom_sheet.dart';
-import 'package:club_me/4_map/components/widget_to_map_icon.dart';
 import 'package:club_me/models/club.dart';
 import 'package:club_me/models/event.dart';
 import 'package:club_me/services/check_and_fetch_service.dart';
@@ -40,17 +38,11 @@ class UserMapView extends StatefulWidget {
 
 class _UserMapViewState extends State<UserMapView>{
 
-  List<String> headline = ["Karte", "Liste"];
-
-  late GoogleMapController mapController;
-
-  late String weekDayDropDownValue;
-
-  bool showVIP = false;
 
   var log = Logger();
-
-
+  late String weekDayDropDownValue;
+  late GoogleMapController mapController;
+  List<String> headline = ["Karte", "Liste"];
 
   BitmapDescriptor customIcon = BitmapDescriptor.defaultMarker;
 
@@ -70,23 +62,21 @@ class _UserMapViewState extends State<UserMapView>{
   final SupabaseService _supabaseService = SupabaseService();
   final CheckAndFetchService _checkAndFetchService = CheckAndFetchService();
 
+  bool showMap = false;
+  bool showVIP = false;
+  bool allPinsLoaded = false;
+  bool showFilterMenu = false;
   bool isClubsFetched = false;
   bool showBottomSheet = false;
   bool showListIsActive = false;
   bool noEventAvailable = false;
-
-  bool allPinsLoaded = false;
-  bool showFilterMenu = false;
   bool isAnyFilterActive = false;
-
 
   List<String> alreadySetPins = [];
   List<ClubMeClub> clubsToDisplay = [];
   List<Widget> listWidgetsToDisplay = [];
 
   late Map<String, Marker> _markers = {};
-
-  bool showMap = false;
 
   int lastMarkerLength = 0;
 
@@ -102,8 +92,6 @@ class _UserMapViewState extends State<UserMapView>{
     checkAndFetchClubs();
 
   }
-
-
   void initGeneralSettings(){
     stateProvider = Provider.of<StateProvider>(context);
     customStyleClass = CustomStyleClass(context: context);
@@ -112,87 +100,6 @@ class _UserMapViewState extends State<UserMapView>{
     screenHeight = MediaQuery.of(context).size.height;
     currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context);
     userDataProvider = Provider.of<UserDataProvider>(context);
-
-  }
-
-
-  Future<void> checkAndFetchClubs() async{
-
-    stateProvider = Provider.of<StateProvider>(context, listen: false);
-    fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
-
-    // Sounds strange but if I skip this, the first opening of the map
-    // wont show any markers
-    /// TODO: WHYYYYYYYYYY
-    fetchedContentProvider.setFetchedClubs([]);
-
-    // Do we need to fetch?
-    if(fetchedContentProvider.getFetchedClubs().isEmpty){
-
-      var data = await _supabaseService.getAllClubs();
-
-      for(var element in data){
-
-        ClubMeClub currentClub = parseClubMeClub(element);
-
-
-        // Don't save the clubs that are only for development purposes
-        if(stateProvider.getUsingTheAppAsADeveloper()){
-
-          if(!fetchedContentProvider.getFetchedClubs().contains(currentClub)){
-            fetchedContentProvider.addClubToFetchedClubs(currentClub);
-            clubsToDisplay.add(currentClub);
-            setBasicMarker(currentClub);
-          }
-
-        }else if(!fetchedContentProvider.getFetchedClubs().contains(currentClub) && currentClub.getShowClubInApp()){
-          fetchedContentProvider.addClubToFetchedClubs(currentClub);
-          clubsToDisplay.add(currentClub);
-          setBasicMarker(currentClub);
-        }
-
-      }
-
-      // Check if we need to download the corresponding images
-      _checkAndFetchService.checkAndFetchClubImages(
-          fetchedContentProvider.getFetchedClubs(),
-          stateProvider,
-          fetchedContentProvider,
-          false
-      );
-
-      setUserLocationMarker();
-
-    }
-    // Have we already fetched?
-    else{
-      for(var currentClub in fetchedContentProvider.getFetchedClubs()){
-
-        if(stateProvider.getUsingTheAppAsADeveloper()){
-          clubsToDisplay.add(currentClub);
-          setBasicMarker(currentClub);
-        }else if(currentClub.getShowClubInApp()){
-          clubsToDisplay.add(currentClub);
-          setBasicMarker(currentClub);
-        }
-      }
-
-      // Check if we need to download the corresponding images
-      _checkAndFetchService.checkAndFetchClubImages(
-          fetchedContentProvider.getFetchedClubs(),
-          stateProvider,
-          fetchedContentProvider,
-          false
-      );
-      setUserLocationMarker();
-    }
-
-    filterClubs();
-
-    setState(() {
-      showMap = true;
-    });
-
   }
 
 
@@ -310,7 +217,7 @@ class _UserMapViewState extends State<UserMapView>{
             // Filter menu
             if(showFilterMenu)
               Container(
-                height: screenHeight*0.14,
+                height:110,
                 width: screenWidth,
                 color: customStyleClass.backgroundColorMain,
                 child: Row(
@@ -539,7 +446,7 @@ class _UserMapViewState extends State<UserMapView>{
 
     }catch(e){
       print("Error in UserMapView. Fct: setBasicMarker. Error: $e. Platform: ${Platform.isIOS? "iOS" : "Android"}");
-      _supabaseService.createErrorLog("Error in UserMapView. Fct: setBasicMarker. Error: $e. Platform: ${Platform.isIOS? "iOS" : "Android"}");
+      // _supabaseService.createErrorLog("Error in UserMapView. Fct: setBasicMarker. Error: $e. Platform: ${Platform.isIOS? "iOS" : "Android"}");
     }
 
   }
@@ -614,100 +521,6 @@ class _UserMapViewState extends State<UserMapView>{
 
   }
 
-  bool checkIfIsEventIsAfterToday(ClubMeEvent currentEvent, ClubMeClub currentClub){
-
-    Days? clubOpeningTimesForThisDay;
-    DateTime closingHourToCompare;
-
-    var eventWeekDay = currentEvent.getEventDate().hour <= 6 ?
-    currentEvent.getEventDate().weekday -1 :
-    currentEvent.getEventDate().weekday;
-
-    // Get regular opening times
-    try{
-      // first where is enough because we assume that there is only one regular time each day.
-      clubOpeningTimesForThisDay = currentClub.getOpeningTimes().days?.firstWhereOrNull(
-              (days) => days.day == eventWeekDay);
-    }catch(e){
-      print("ClubEventsView. Error in checkIfUpcomingEvent, clubOpeningTimesForThisDay: $e");
-      clubOpeningTimesForThisDay = null;
-    }
-
-    // Easies case: With closing data, we know exactly when to stop displaying.
-    if(currentEvent.getClosingDate() != null){
-
-
-      closingHourToCompare = DateTime(
-        currentEvent.getClosingDate()!.year,
-        currentEvent.getClosingDate()!.month,
-        currentEvent.getClosingDate()!.day,
-        currentEvent.getClosingDate()!.hour,
-        currentEvent.getClosingDate()!.minute,
-      );
-
-      if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
-          closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
-        return true;
-      }
-      return false;
-    }
-
-    // Second case: the event aligns with the opening hours
-    if(clubOpeningTimesForThisDay != null){
-
-      // If there is an event during the day and we look at the app during the day but
-      // there is also a regular opening in the evening.
-      if(currentEvent.getEventDate().hour < clubOpeningTimesForThisDay.openingHour!){
-
-        // We don't have any guideline for this case. So 6 hours it is.
-        closingHourToCompare = DateTime(
-            currentEvent.getEventDate().year,
-            currentEvent.getEventDate().month,
-            currentEvent.getEventDate().day,
-            currentEvent.getEventDate().hour+6,
-            currentEvent.getEventDate().minute
-        );
-
-      }
-      else{
-
-        closingHourToCompare = DateTime(
-            currentEvent.getEventDate().year,
-            currentEvent.getEventDate().month,
-            currentEvent.getEventDate().day+1,
-            clubOpeningTimesForThisDay.closingHour!,
-            clubOpeningTimesForThisDay.closingHalfAnHour == 1 ? 30 :
-            clubOpeningTimesForThisDay.closingHalfAnHour == 2 ? 59 : 0
-        );
-
-      }
-
-      if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
-          closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
-        return true;
-      }
-      return false;
-
-    }
-
-    // Third case: event is out of general opening times and no closing hour.
-    // We don't have any guideline for this case. So 6 hours it is.
-    closingHourToCompare = DateTime(
-      currentEvent.getEventDate().year,
-      currentEvent.getEventDate().month,
-      currentEvent.getEventDate().day,
-      currentEvent.getEventDate().hour+6,
-      currentEvent.getEventDate().minute,
-    );
-
-    if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
-        closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
-      return true;
-    }
-    return false;
-
-  }
-
 
   // TOGGLE
   void toggleShowBottomSheet(){
@@ -727,7 +540,7 @@ class _UserMapViewState extends State<UserMapView>{
   }
 
 
-  // Geo location services
+  // GEO LOCATION SERVICES
   void startPeriodicGeoLocatorStream(){
     Timer.periodic(const Duration(seconds: 10), (timer){
 
@@ -844,6 +657,178 @@ class _UserMapViewState extends State<UserMapView>{
     setState(() {});
 
   }
+  Future<void> checkAndFetchClubs() async{
+
+    stateProvider = Provider.of<StateProvider>(context, listen: false);
+    fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
+
+    // Sounds strange but if I skip this, the first opening of the map
+    // wont show any markers
+    /// TODO: WHYYYYYYYYYY
+    fetchedContentProvider.setFetchedClubs([]);
+
+    // Do we need to fetch?
+    if(fetchedContentProvider.getFetchedClubs().isEmpty){
+
+      var data = await _supabaseService.getAllClubs();
+
+      for(var element in data){
+
+        ClubMeClub currentClub = parseClubMeClub(element);
+
+
+        // Don't save the clubs that are only for development purposes
+        if(stateProvider.getUsingTheAppAsADeveloper()){
+
+          if(!fetchedContentProvider.getFetchedClubs().contains(currentClub)){
+            fetchedContentProvider.addClubToFetchedClubs(currentClub);
+            clubsToDisplay.add(currentClub);
+            setBasicMarker(currentClub);
+          }
+
+        }else if(!fetchedContentProvider.getFetchedClubs().contains(currentClub) && currentClub.getShowClubInApp()){
+          fetchedContentProvider.addClubToFetchedClubs(currentClub);
+          clubsToDisplay.add(currentClub);
+          setBasicMarker(currentClub);
+        }
+
+      }
+
+      // Check if we need to download the corresponding images
+      _checkAndFetchService.checkAndFetchClubImages(
+          fetchedContentProvider.getFetchedClubs(),
+          stateProvider,
+          fetchedContentProvider,
+          false
+      );
+
+      setUserLocationMarker();
+
+    }
+    // Have we already fetched?
+    else{
+      for(var currentClub in fetchedContentProvider.getFetchedClubs()){
+
+        if(stateProvider.getUsingTheAppAsADeveloper()){
+          clubsToDisplay.add(currentClub);
+          setBasicMarker(currentClub);
+        }else if(currentClub.getShowClubInApp()){
+          clubsToDisplay.add(currentClub);
+          setBasicMarker(currentClub);
+        }
+      }
+
+      // Check if we need to download the corresponding images
+      _checkAndFetchService.checkAndFetchClubImages(
+          fetchedContentProvider.getFetchedClubs(),
+          stateProvider,
+          fetchedContentProvider,
+          false
+      );
+      setUserLocationMarker();
+    }
+
+    filterClubs();
+
+    setState(() {
+      showMap = true;
+    });
+
+  }
+  bool checkIfIsEventIsAfterToday(ClubMeEvent currentEvent, ClubMeClub currentClub){
+
+    Days? clubOpeningTimesForThisDay;
+    DateTime closingHourToCompare;
+
+    var eventWeekDay = currentEvent.getEventDate().hour <= 6 ?
+    currentEvent.getEventDate().weekday -1 :
+    currentEvent.getEventDate().weekday;
+
+    // Get regular opening times
+    try{
+      // first where is enough because we assume that there is only one regular time each day.
+      clubOpeningTimesForThisDay = currentClub.getOpeningTimes().days?.firstWhereOrNull(
+              (days) => days.day == eventWeekDay);
+    }catch(e){
+      print("ClubEventsView. Error in checkIfUpcomingEvent, clubOpeningTimesForThisDay: $e");
+      clubOpeningTimesForThisDay = null;
+    }
+
+    // Easies case: With closing data, we know exactly when to stop displaying.
+    if(currentEvent.getClosingDate() != null){
+
+
+      closingHourToCompare = DateTime(
+        currentEvent.getClosingDate()!.year,
+        currentEvent.getClosingDate()!.month,
+        currentEvent.getClosingDate()!.day,
+        currentEvent.getClosingDate()!.hour,
+        currentEvent.getClosingDate()!.minute,
+      );
+
+      if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
+          closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
+        return true;
+      }
+      return false;
+    }
+
+    // Second case: the event aligns with the opening hours
+    if(clubOpeningTimesForThisDay != null){
+
+      // If there is an event during the day and we look at the app during the day but
+      // there is also a regular opening in the evening.
+      if(currentEvent.getEventDate().hour < clubOpeningTimesForThisDay.openingHour!){
+
+        // We don't have any guideline for this case. So 6 hours it is.
+        closingHourToCompare = DateTime(
+            currentEvent.getEventDate().year,
+            currentEvent.getEventDate().month,
+            currentEvent.getEventDate().day,
+            currentEvent.getEventDate().hour+6,
+            currentEvent.getEventDate().minute
+        );
+
+      }
+      else{
+
+        closingHourToCompare = DateTime(
+            currentEvent.getEventDate().year,
+            currentEvent.getEventDate().month,
+            currentEvent.getEventDate().day+1,
+            clubOpeningTimesForThisDay.closingHour!,
+            clubOpeningTimesForThisDay.closingHalfAnHour == 1 ? 30 :
+            clubOpeningTimesForThisDay.closingHalfAnHour == 2 ? 59 : 0
+        );
+
+      }
+
+      if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
+          closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
+        return true;
+      }
+      return false;
+
+    }
+
+    // Third case: event is out of general opening times and no closing hour.
+    // We don't have any guideline for this case. So 6 hours it is.
+    closingHourToCompare = DateTime(
+      currentEvent.getEventDate().year,
+      currentEvent.getEventDate().month,
+      currentEvent.getEventDate().day,
+      currentEvent.getEventDate().hour+6,
+      currentEvent.getEventDate().minute,
+    );
+
+    if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
+        closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
+      return true;
+    }
+    return false;
+
+  }
+
 
   @override
   Widget build(BuildContext context) {

@@ -1,11 +1,9 @@
 import 'package:club_me/2_discounts/club_view/components/cover_image_card.dart';
-import 'package:club_me/models/discount.dart';
 import 'package:club_me/provider/fetched_content_provider.dart';
 import 'package:club_me/services/check_and_fetch_service.dart';
 import 'package:club_me/services/hive_service.dart';
 import 'package:club_me/shared/dialogs/TitleAndContentDialog.dart';
 import 'package:club_me/shared/dialogs/title_content_and_button_dialog.dart';
-import 'package:club_me/shared/dialogs/title_content_and_two_buttons_dialog.dart';
 import 'package:club_me/utils/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -42,7 +40,6 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
   late UserDataProvider userDataProvider;
   late FetchedContentProvider fetchedContentProvider;
 
-
   late double screenWidth, screenHeight;
 
   final HiveService _hiveService = HiveService();
@@ -73,11 +70,11 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
     "0", "15", "30", "45", "59"
   ];
 
-  int hasTimeLimit = 0;
 
   int hasAgeLimit = 0;
-  int creationIndex = 0;
+  int hasTimeLimit = 0;
   int targetGender = 0;
+  int creationIndex = 0;
   int ageLimitIsUpperLimit = 0;
 
   int selectedHour = 0;
@@ -207,8 +204,8 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
     }
   }
 
-  // BUILD
 
+  // BUILD
   AppBar _buildAppBar(){
     return AppBar(
       automaticallyImplyLeading: false,
@@ -743,7 +740,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
 
                                   // Text: UsageLimit
                                   Container(
-                                    width: screenWidth*0.65,
+                                    width: screenWidth*0.9,
                                     alignment: Alignment.centerLeft,
                                     child: Text(
                                       "Nutzungsbeschränkung",
@@ -1384,6 +1381,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
     );
   }
 
+
   // DB
   void buildNewDiscount(
       StateProvider stateProvider,
@@ -1540,7 +1538,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
               buttonToDisplay: TextButton(
                 child: Text(
                   "Ja",
-                  style: customStyleClass.getFontStyle3(),
+                  style: customStyleClass.getFontStyle3BoldPrimeColor(),
                 ),
                 onPressed: (){
                   stateProvider.resetCurrentDiscountTemplate();

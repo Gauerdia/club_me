@@ -1,9 +1,5 @@
 import 'dart:async';
-import 'dart:io';
-import 'package:club_me/1_events/club_view/club_events_view.dart';
-import 'package:club_me/main.dart';
 import 'package:club_me/models/hive_models/0_club_me_user_data.dart';
-import 'package:club_me/models/parser/special_days_to_days_parser.dart';
 import 'package:club_me/provider/user_data_provider.dart';
 import 'package:club_me/services/check_and_fetch_service.dart';
 import 'package:club_me/services/hive_service.dart';
@@ -18,20 +14,15 @@ import 'package:go_router/go_router.dart';
 import 'package:logger/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
-// import 'package:workmanager/workmanager.dart';
 import '../../models/club.dart';
 import '../../models/event.dart';
 import '../../models/hive_models/7_days.dart';
-import '../../models/opening_times.dart';
 import '../../models/parser/club_me_club_parser.dart';
 import '../../models/parser/club_me_event_parser.dart';
 import '../../provider/current_and_liked_elements_provider.dart';
 import '../../provider/fetched_content_provider.dart';
 import '../../provider/state_provider.dart';
 import '../../shared/custom_bottom_navigation_bar.dart';
-import 'package:intl/intl.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
-
 import 'components/event_tile.dart';
 
 import 'package:collection/collection.dart';
@@ -58,6 +49,7 @@ class _UserEventsViewState extends State<UserEventsView> {
 
   late StateProvider stateProvider;
   late FetchedContentProvider fetchedContentProvider;
+  late UserDataProvider userDataProvider;
   late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
 
 
@@ -92,13 +84,14 @@ class _UserEventsViewState extends State<UserEventsView> {
     dropdownValue = Utils.genreListForFiltering.first;
     weekDayDropDownValue = Utils.weekDaysForFiltering.first;
 
-    final stateProvider = Provider.of<StateProvider>(context, listen: false);
-    final userDataProvider = Provider.of<UserDataProvider>(context, listen:  false);
-    final fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
+    stateProvider = Provider.of<StateProvider>(context, listen: false);
+    userDataProvider = Provider.of<UserDataProvider>(context, listen:  false);
+    fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
 
-    // Get and set geo location
+    // GEO LOCATION
     _determinePosition().then((value) => setPositionLocallyAndInSupabase(value));
 
+    // INFO SCREEN
     checkForInfoScreen();
 
     // FETCHING CLUBS, THEN EVENTS
@@ -329,20 +322,17 @@ class _UserEventsViewState extends State<UserEventsView> {
                         color: onlyFavoritesIsActive ? customStyleClass.primeColor : Colors.white,
                       )
                   ),
-                  Padding(
-                      padding: const EdgeInsets.only(right: 0),
-                      child: GestureDetector(
-                        child: Container(
-                            padding: const EdgeInsets.all(7),
-                            child: Icon(
-                              Icons.filter_alt_outlined,
-                              color: isAnyFilterActive || isFilterMenuActive ? customStyleClass.primeColor : Colors.white,
-                            )
-                        ),
-                        onTap: (){
-                          toggleIsFilterMenuActive();
-                        },
-                      )
+                  GestureDetector(
+                    child: Container(
+                      // padding: const EdgeInsets.all(7),
+                        child: Icon(
+                          Icons.filter_alt_outlined,
+                          color: isAnyFilterActive || isFilterMenuActive ? customStyleClass.primeColor : Colors.white,
+                        )
+                    ),
+                    onTap: (){
+                      toggleIsFilterMenuActive();
+                    },
                   )
                 ],
               ),
@@ -672,7 +662,7 @@ class _UserEventsViewState extends State<UserEventsView> {
               )
           )
       ),
-      height: screenHeight*0.24,
+      height: 210,
       width: screenWidth,
       child: Container(
         child: Center(
@@ -1270,7 +1260,8 @@ class _UserEventsViewState extends State<UserEventsView> {
     // If the code proceeded until this point and has not returned nothing yet,
     // we have an odd case and shouldn't display anything.
       _supabaseService.createErrorLog(
-          "UserEventsView. Fct: checkIfUpcomingEvent. Reached last else. Is not supposed to happen.");
+          "UserEventsView. Fct: checkIfUpcomingEvent. "
+              "Reached last else. Is not supposed to happen. Element title: ${currentEvent.getEventTitle()}, userID: ${userDataProvider.getUserData().getUserId()}");
       return false;
 
   }

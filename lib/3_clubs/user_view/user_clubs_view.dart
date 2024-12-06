@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:club_me/models/club.dart';
 import 'package:club_me/models/event.dart';
@@ -32,7 +31,7 @@ class _UserClubsViewState extends State<UserClubsView>
   var log = Logger();
   String headline = "Clubs";
 
-  late String dropdownValue;
+  late String genreDropdownValue;
   late String weekDayDropDownValue;
 
   bool showVIP = false;
@@ -60,24 +59,19 @@ class _UserClubsViewState extends State<UserClubsView>
   bool isFilterMenuActive = false;
   bool onlyFavoritesIsActive = false;
 
-  List<String> genresDropdownList = [
-    "Alle", "Latin", "Rock", "Hip-Hop", "Electronic", "Pop", "Reggaeton", "Afrobeats",
-    "R&B", "House", "Techno", "Rap", "90er", "80er", "2000er",
-    "Heavy Metal", "Psychedelic", "Balkan"
-  ];
   List<ClubMeClub> clubsToDisplay = [];
 
 
   @override
   void initState() {
 
-    dropdownValue = genresDropdownList.first;
+    genreDropdownValue = Utils.weekDaysForFiltering.first;
     weekDayDropDownValue = Utils.weekDaysForFiltering.first;
 
     _pageViewController = PageController();
     _tabController = TabController(length: 3, vsync: this);
 
-    final stateProvider = Provider.of<StateProvider>(context, listen:  false);
+    stateProvider = Provider.of<StateProvider>(context, listen:  false);
     final fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
     if(fetchedContentProvider.getFetchedClubs().isEmpty) {
       _supabaseService.getAllClubs().then((data) => processClubsFromQuery(data));
@@ -94,84 +88,6 @@ class _UserClubsViewState extends State<UserClubsView>
 
 
   // BUILD
-  Widget _buildMainView(){
-   return Container(
-       width: screenWidth,
-       height: screenHeight,
-       color: customStyleClass.backgroundColorMain,
-       child: Stack(
-         children: [
-
-           // Pageview of the club cards
-
-           SizedBox(
-               height: screenHeight*1,
-               width: screenWidth,
-               child: clubsToDisplay.isNotEmpty?
-               _buildPageView() :  (isAnyFilterActive || isSearchbarActive) ?
-               SizedBox(
-                 width: screenWidth,
-                 height: screenHeight*0.8,
-                 child: Center(
-                   child: Text(
-                     textAlign: TextAlign.center,
-                     "Entschuldigung, im Rahmen dieser Filter sind keine Events verfügbar.",
-                     style: customStyleClass.getFontStyle3(),
-                   ),
-                 ),
-               ): onlyFavoritesIsActive ?
-               SizedBox(
-                 width: screenWidth,
-                 height: screenHeight*0.8,
-                 child: Center(
-                   child: Text(
-                     textAlign: TextAlign.center,
-                     "Derzeit sind keine Events als Favoriten markiert.",
-                     style: customStyleClass.getFontStyle3(),
-                   ),
-                 ),
-               ):
-               Center(
-                 child: CircularProgressIndicator(
-                   color: customStyleClass.primeColor,
-                 ),
-               )
-           ),
-
-           // Progress marker
-           if(clubsToDisplay.isNotEmpty)
-             Container(
-               height: screenHeight*0.775,
-               alignment: Alignment.bottomCenter,
-               child: Row(
-                 mainAxisAlignment: MainAxisAlignment.center,
-                 children: [
-                   InkWell(
-                     child: Icon(
-                       Icons.keyboard_arrow_left_sharp,
-                       size: customStyleClass.navigationArrowSize,
-                       color: _currentPageIndex > 0 ? customStyleClass.primeColor: Colors.grey,
-                     ),
-                     onTap: () => deiterateView(),
-                   ),
-                   InkWell(
-                     child: Icon(
-                       Icons.keyboard_arrow_right_sharp,
-                       size:  customStyleClass.navigationArrowSize,
-                       color: _currentPageIndex < (clubsToDisplay.length-1) ? customStyleClass.primeColor: Colors.grey,
-                     ),
-                     onTap: () => iterateView(),
-                   ),
-                 ],
-               ),
-             ),
-
-           // Filter menu
-           if(isFilterMenuActive)_buildFilterMenu()
-         ],
-       )
-   );
-  }
   AppBar _buildAppBar(){
 
     return isSearchbarActive ?
@@ -354,24 +270,16 @@ class _UserClubsViewState extends State<UserClubsView>
                         color: onlyFavoritesIsActive ? customStyleClass.primeColor : Colors.white,
                       )
                   ),
-                  Padding(
-                      padding: const EdgeInsets.only(right: 0),
-                      child: GestureDetector(
-                        child: Container(
-                            padding: const EdgeInsets.all(7),
-                            // decoration: BoxDecoration(
-                            //   color: const Color(0xff11181f),
-                            //   borderRadius: BorderRadius.circular(45),
-                            // ),
-                            child: Icon(
-                              Icons.filter_alt_outlined,
-                              color: isAnyFilterActive || isFilterMenuActive ? customStyleClass.primeColor : Colors.white,
-                            )
-                        ),
-                        onTap: (){
-                          toggleIsFilterMenuActive();
-                        },
-                      )
+                  GestureDetector(
+                    child: Container(
+                        child: Icon(
+                          Icons.filter_alt_outlined,
+                          color: isAnyFilterActive || isFilterMenuActive ? customStyleClass.primeColor : Colors.white,
+                        )
+                    ),
+                    onTap: (){
+                      toggleIsFilterMenuActive();
+                    },
                   )
                 ],
               ),
@@ -381,6 +289,83 @@ class _UserClubsViewState extends State<UserClubsView>
         ),
       ),
     );
+  }
+  Widget _buildMainView(){
+   return Container(
+       width: screenWidth,
+       height: screenHeight,
+       color: customStyleClass.backgroundColorMain,
+       child: Stack(
+         children: [
+
+           // Pageview of the club cards
+           SizedBox(
+               height: screenHeight*1,
+               width: screenWidth,
+               child: clubsToDisplay.isNotEmpty?
+               _buildPageView() :  (isAnyFilterActive || isSearchbarActive) ?
+               SizedBox(
+                 width: screenWidth,
+                 height: screenHeight*0.8,
+                 child: Center(
+                   child: Text(
+                     textAlign: TextAlign.center,
+                     "Entschuldigung, im Rahmen dieser Filter sind keine Events verfügbar.",
+                     style: customStyleClass.getFontStyle3(),
+                   ),
+                 ),
+               ): onlyFavoritesIsActive ?
+               SizedBox(
+                 width: screenWidth,
+                 height: screenHeight*0.8,
+                 child: Center(
+                   child: Text(
+                     textAlign: TextAlign.center,
+                     "Derzeit sind keine Events als Favoriten markiert.",
+                     style: customStyleClass.getFontStyle3(),
+                   ),
+                 ),
+               ):
+               Center(
+                 child: CircularProgressIndicator(
+                   color: customStyleClass.primeColor,
+                 ),
+               )
+           ),
+
+           // Progress marker
+           if(clubsToDisplay.isNotEmpty)
+             Container(
+               height: screenHeight*0.775,
+               alignment: Alignment.bottomCenter,
+               child: Row(
+                 mainAxisAlignment: MainAxisAlignment.center,
+                 children: [
+                   InkWell(
+                     child: Icon(
+                       Icons.keyboard_arrow_left_sharp,
+                       size: customStyleClass.navigationArrowSize,
+                       color: _currentPageIndex > 0 ? customStyleClass.primeColor: Colors.grey,
+                     ),
+                     onTap: () => clickEventDeiterateView(),
+                   ),
+                   InkWell(
+                     child: Icon(
+                       Icons.keyboard_arrow_right_sharp,
+                       size:  customStyleClass.navigationArrowSize,
+                       color: _currentPageIndex < (clubsToDisplay.length-1) ? customStyleClass.primeColor: Colors.grey,
+                     ),
+                     onTap: () => clickEventIterateView(),
+                   ),
+                 ],
+               ),
+             ),
+
+           // Filter menu
+           if(isFilterMenuActive)_buildFilterMenu()
+         ],
+       )
+   );
   }
   Widget _buildPageView(){
     return SingleChildScrollView(
@@ -426,14 +411,6 @@ class _UserClubsViewState extends State<UserClubsView>
       ),
     );
   }
-
-  List<ClubMeEvent> getUpcomingClubEvents(String clubId, ClubMeClub club){
-
-    return fetchedContentProvider.getFetchedEvents().where((event){
-      return (event.getClubId() == club.getClubId() && checkIfIsEventIsAfterToday(event, club));
-    }).toList();
-  }
-
   Widget _buildFilterMenu(){
     return Container(
       padding: EdgeInsets.only(
@@ -448,7 +425,7 @@ class _UserClubsViewState extends State<UserClubsView>
               )
           )
       ),
-      height: screenHeight*0.12,
+      height: 120,
       width: screenWidth,
 
       child: Row(
@@ -471,42 +448,42 @@ class _UserClubsViewState extends State<UserClubsView>
 
                 // Dropdown
                 Theme(
-                  data: Theme.of(context).copyWith(
-                      canvasColor: customStyleClass.backgroundColorMain
-                  ),
-                  child:
+                    data: Theme.of(context).copyWith(
+                        canvasColor: customStyleClass.backgroundColorMain
+                    ),
+                    child:
 
-                  DropdownMenu<String>(
-                    width: 160,
-                    initialSelection: weekDayDropDownValue,
-                    onSelected: (String? value){
-                      setState(() {
-                        weekDayDropDownValue = value!;
-                        filterClubs();
-                      });
-                    },
-                    textStyle: const TextStyle(
-                        color: Colors.white
-                    ),
-                    menuStyle: MenuStyle(
-                      surfaceTintColor: WidgetStateProperty.all<Color>(customStyleClass.backgroundColorEventTile),
-                      backgroundColor: WidgetStateProperty.all<Color>(customStyleClass.backgroundColorEventTile),
-                      alignment: Alignment.bottomLeft,
-                      maximumSize: const WidgetStatePropertyAll(
-                        Size.fromHeight(300),
+                    DropdownMenu<String>(
+                      width: 160,
+                      initialSelection: weekDayDropDownValue,
+                      onSelected: (String? value){
+                        setState(() {
+                          weekDayDropDownValue = value!;
+                          filterClubs();
+                        });
+                      },
+                      textStyle: const TextStyle(
+                          color: Colors.white
                       ),
-                    ),
-                    dropdownMenuEntries: Utils.weekDaysForFiltering
-                        .map<DropdownMenuEntry<String>>((String value){
-                      return DropdownMenuEntry(
-                          value: value,
-                          label: value,
-                          style: ButtonStyle(
-                              foregroundColor: WidgetStateProperty.all<Color>(Colors.white)
-                          )
-                      );
-                    }).toList(),
-                  )
+                      menuStyle: MenuStyle(
+                        surfaceTintColor: WidgetStateProperty.all<Color>(customStyleClass.backgroundColorEventTile),
+                        backgroundColor: WidgetStateProperty.all<Color>(customStyleClass.backgroundColorEventTile),
+                        alignment: Alignment.bottomLeft,
+                        maximumSize: const WidgetStatePropertyAll(
+                          Size.fromHeight(300),
+                        ),
+                      ),
+                      dropdownMenuEntries: Utils.weekDaysForFiltering
+                          .map<DropdownMenuEntry<String>>((String value){
+                        return DropdownMenuEntry(
+                            value: value,
+                            label: value,
+                            style: ButtonStyle(
+                                foregroundColor: WidgetStateProperty.all<Color>(Colors.white)
+                            )
+                        );
+                      }).toList(),
+                    )
 
                   // DropdownButton(
                   //     value: weekDayDropDownValue,
@@ -556,10 +533,10 @@ class _UserClubsViewState extends State<UserClubsView>
 
                     DropdownMenu<String>(
                       width: 160,
-                      initialSelection: dropdownValue,
+                      initialSelection: genreDropdownValue,
                       onSelected: (String? value){
                         setState(() {
-                          dropdownValue = value!;
+                          genreDropdownValue = value!;
                           filterClubs();
                         });
                       },
@@ -586,27 +563,27 @@ class _UserClubsViewState extends State<UserClubsView>
                       }).toList(),
                     )
 
-                    // DropdownButton(
-                    //     value: dropdownValue,
-                    //     menuMaxHeight: 200,
-                    //     items: genresDropdownList.map<DropdownMenuItem<String>>(
-                    //             (String value) {
-                    //           return DropdownMenuItem(
-                    //               value: value,
-                    //               child: Text(
-                    //                 value,
-                    //                 style: customStyleClass.getFontStyle4Grey2(),
-                    //               )
-                    //           );
-                    //         }
-                    //     ).toList(),
-                    //     onChanged: (String? value){
-                    //       setState(() {
-                    //         dropdownValue = value!;
-                    //         filterClubs();
-                    //       });
-                    //     }
-                    // )
+                  // DropdownButton(
+                  //     value: dropdownValue,
+                  //     menuMaxHeight: 200,
+                  //     items: genresDropdownList.map<DropdownMenuItem<String>>(
+                  //             (String value) {
+                  //           return DropdownMenuItem(
+                  //               value: value,
+                  //               child: Text(
+                  //                 value,
+                  //                 style: customStyleClass.getFontStyle4Grey2(),
+                  //               )
+                  //           );
+                  //         }
+                  //     ).toList(),
+                  //     onChanged: (String? value){
+                  //       setState(() {
+                  //         dropdownValue = value!;
+                  //         filterClubs();
+                  //       });
+                  //     }
+                  // )
                 )
 
               ],
@@ -674,19 +651,37 @@ class _UserClubsViewState extends State<UserClubsView>
       isFilterMenuActive = !isFilterMenuActive;
     });
   }
+  void clickEventIterateView(){
+    if(_currentPageIndex < (clubsToDisplay.length-1)){
+      setState(() {
+        _pageViewController.animateToPage( _currentPageIndex+1, duration: const Duration(milliseconds: 250), curve: Curves.bounceInOut);
+      });
+    }
+
+  }
+  void clickEventDeiterateView(){
+    if(_currentPageIndex > 0 ){
+      setState(() {
+        _pageViewController.animateToPage(  _currentPageIndex-1, duration: const Duration(milliseconds: 250), curve: Curves.bounceInOut);
+      });
+    }
+  }
 
 
   // FILTER
   void filterClubs(){
 
     if(
-    searchValue != "" ||
-        dropdownValue != genresDropdownList[0] ||
+        searchValue != "" ||
+        genreDropdownValue != Utils.weekDaysForFiltering.first ||
         weekDayDropDownValue != Utils.weekDaysForFiltering[0] ||
-        onlyFavoritesIsActive){
+        onlyFavoritesIsActive
+    ){
 
       // set for coloring
-      if(dropdownValue != genresDropdownList[0] || weekDayDropDownValue != Utils.weekDaysForFiltering[0]){
+      if(
+        genreDropdownValue != Utils.weekDaysForFiltering.first ||
+        weekDayDropDownValue != Utils.weekDaysForFiltering[0]){
         isAnyFilterActive = true;
       }else{
         isAnyFilterActive = false;
@@ -710,8 +705,8 @@ class _UserClubsViewState extends State<UserClubsView>
         }
 
         // music genre doenst match? filter
-        if(dropdownValue != genresDropdownList[0] ){
-          if(!club.getMusicGenres().toLowerCase().contains(dropdownValue.toLowerCase())){
+        if(genreDropdownValue != Utils.weekDaysForFiltering.first){
+          if(!club.getMusicGenres().toLowerCase().contains(genreDropdownValue.toLowerCase())){
             fitsCriteria = false;
           }
         }
@@ -872,22 +867,13 @@ class _UserClubsViewState extends State<UserClubsView>
     return false;
 
   }
+  List<ClubMeEvent> getUpcomingClubEvents(String clubId, ClubMeClub club){
 
-  void iterateView(){
-    if(_currentPageIndex < (clubsToDisplay.length-1)){
-      setState(() {
-        _pageViewController.animateToPage( _currentPageIndex+1, duration: Duration(milliseconds: 250), curve: Curves.bounceInOut);
-      });
-    }
+    return fetchedContentProvider.getFetchedEvents().where((event){
+      return (event.getClubId() == club.getClubId() && checkIfIsEventIsAfterToday(event, club));
+    }).toList();
+  }
 
-  }
-  void deiterateView(){
-    if(_currentPageIndex > 0 ){
-      setState(() {
-        _pageViewController.animateToPage(  _currentPageIndex-1, duration: Duration(milliseconds: 250), curve: Curves.bounceInOut);
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {

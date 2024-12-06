@@ -1,8 +1,6 @@
-import 'package:club_me/models/discount.dart';
 import 'package:club_me/provider/fetched_content_provider.dart';
 import 'package:club_me/shared/dialogs/TitleAndContentDialog.dart';
 import 'package:club_me/shared/dialogs/title_content_and_button_dialog.dart';
-import 'package:club_me/shared/dialogs/title_content_and_two_buttons_dialog.dart';
 import 'package:club_me/utils/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -33,30 +31,28 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
 
   late int hasTimeLimit;
   late DateTime newSelectedDate;
-  late FetchedContentProvider fetchedContentProvider;
-  late StateProvider stateProvider;
-  late CustomStyleClass customStyleClass;
-  late double screenWidth, screenHeight;
-  late TextEditingController _discountTitleController;
-  late TextEditingController _discountDescriptionController;
 
+  late double screenWidth, screenHeight;
+  late CustomStyleClass customStyleClass;
+
+  late StateProvider stateProvider;
+  late FetchedContentProvider fetchedContentProvider;
+  late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
+
+  late TextEditingController _discountTitleController;
+  late FixedExtentScrollController _isRepeatedController;
+  late TextEditingController _ageLimitLowerLimitController;
+  late TextEditingController _ageLimitUpperLimitController;
+  late TextEditingController _discountDescriptionController;
+  late FixedExtentScrollController _usageLimitPickerController;
   late FixedExtentScrollController _fixedExtentScrollController1;
   late FixedExtentScrollController _fixedExtentScrollController2;
 
-  late FixedExtentScrollController _usageLimitPickerController;
-
-  late TextEditingController _ageLimitLowerLimitController;
-  late TextEditingController _ageLimitUpperLimitController;
-
-  late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
-
-  late FixedExtentScrollController _isRepeatedController;
-
-  int selectedHour = 0;
-  int selectedMinute = 0;
   int hasAgeLimit = 0;
-  int creationIndex = 0;
+  int selectedHour = 0;
   int targetGender = 0;
+  int creationIndex = 0;
+  int selectedMinute = 0;
   int ageLimitIsUpperLimit = 0;
 
   bool isUploading = false;
@@ -65,12 +61,10 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
   bool firstElementChanged = false;
   bool secondElementChanged = false;
 
-  int isRedeemable = 0;
-
   int isRepeated = 0;
-  int isRepeatedIndex = 0;
-
+  int isRedeemable = 0;
   int hasUsageLimit = 0;
+  int isRepeatedIndex = 0;
   int hasUsageLimitIndex = 0;
 
   bool pickHourAndMinuteIsActive = false;
@@ -1375,7 +1369,7 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
               buttonToDisplay: TextButton(
                 child: Text(
                   "Ja",
-                  style: customStyleClass.getFontStyle3(),
+                  style: customStyleClass.getFontStyle3BoldPrimeColor(),
                 ),
                 onPressed: () => context.go("/club_coupons"),
               ));
@@ -1388,7 +1382,6 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
       showGallery = false;
     });
   }
-
   void finishUpdateDiscount() async{
 
     late DateTime concatenatedDate;

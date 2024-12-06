@@ -1,24 +1,18 @@
 import 'dart:io';
-
-import 'package:club_me/1_events/club_view/club_events_view.dart';
 import 'package:club_me/provider/user_data_provider.dart';
 import 'package:club_me/services/check_and_fetch_service.dart';
 import 'package:club_me/shared/dialogs/TitleAndContentDialog.dart';
-import 'package:club_me/stories/show_story_chewie.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:logger/logger.dart';
 import '../models/hive_models/7_days.dart';
-import '../models/opening_times.dart';
 import 'user_view/components/event_card.dart';
 import '../provider/current_and_liked_elements_provider.dart';
 import '../provider/fetched_content_provider.dart';
-import '../services/supabase_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:club_me/shared/map_utils.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-
 import '../shared/custom_bottom_navigation_bar.dart';
 import '../provider/state_provider.dart';
 import '../shared/custom_text_style.dart';
@@ -43,11 +37,9 @@ class _ClubDetailViewState extends State<ClubDetailView> {
   late FetchedContentProvider fetchedContentProvider;
   late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
 
-
-  late CustomStyleClass customStyleClass;
   late double screenHeight, screenWidth;
+  late CustomStyleClass customStyleClass;
 
-  final SupabaseService _supabaseService = SupabaseService();
   final CheckAndFetchService _checkAndFetchService = CheckAndFetchService();
 
   List<String> alreadyFetchedFrontPageImages = [];
@@ -59,8 +51,10 @@ class _ClubDetailViewState extends State<ClubDetailView> {
 
   List<String> specialDayToDisplay = [];
   List<int> specialDayWeekdayToDisplay = [];
-  List<int> specialDayOpeningTimeToDisplay = [];
-  List<int> specialDayClosingTimeToDisplay = [];
+  List<int> specialDayOpeningHourToDisplay = [];
+  List<int> specialDayOpeningMinuteToDisplay = [];
+  List<int> specialDayClosingHourToDisplay = [];
+  List<int> specialDayClosingMinuteToDisplay = [];
 
   int galleryImageToShowIndex = 0;
   bool showGalleryImageFullScreen = false;
@@ -82,202 +76,6 @@ class _ClubDetailViewState extends State<ClubDetailView> {
   @override
   void dispose() {
     super.dispose();
-  }
-
-
-  void checkIfSpecialOpeningTimesApply(){
-
-    final stateProvider = Provider.of<StateProvider>(context, listen: false);
-    final userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
-    final fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
-
-    // Get all current events of the club we display
-    List<ClubMeEvent> eventsOfCurrentClub = fetchedContentProvider.getFetchedEvents().where(
-            (event) => event.getClubId() == currentAndLikedElementsProvider.currentClubMeClub.getClubId()
-    ).toList();
-
-    // Only use the ones that are in the future
-    List<ClubMeEvent> eventsInTheFuture = eventsOfCurrentClub.where(
-            (event){
-          DateTime eventWithEstimatedLength = DateTime(
-            event.getEventDate().year,
-            event.getEventDate().month,
-            event.getEventDate().day,
-            event.getEventDate().hour+6,
-            event.getEventDate().minute,
-          );
-          DateTime berlinTimeWithoutTZ = DateTime(
-              stateProvider.getBerlinTime().year,
-              stateProvider.getBerlinTime().month,
-              stateProvider.getBerlinTime().day,
-              stateProvider.getBerlinTime().hour,
-              stateProvider.getBerlinTime().month
-          );
-          if(eventWithEstimatedLength.isAfter(berlinTimeWithoutTZ)){
-            return true;
-          }else{
-            return false;
-          }
-        }
-    ).toList();
-
-
-
-    // Check if any is outside of regular opening hours
-    for(var event in eventsInTheFuture){
-
-      int eventWeekDay = event.getEventDate().weekday;
-
-      var yesterdayOpeningTime = currentAndLikedElementsProvider.currentClubMeClub
-          .getOpeningTimes().days?.firstWhereOrNull(
-              (days) => days.day == eventWeekDay-1);
-
-      var todayOpeningTime = currentAndLikedElementsProvider.currentClubMeClub
-          .getOpeningTimes().days?.firstWhereOrNull(
-              (days) => days.day == eventWeekDay);
-
-
-      // First case: Only an event from yesterday might influence our decision
-      if(yesterdayOpeningTime != null && todayOpeningTime == null){
-
-        DateTime yesterdayClosing = DateTime(
-            event.getEventDate().year,
-            event.getEventDate().month,
-            event.getEventDate().day,
-            yesterdayOpeningTime.closingHour!,
-            yesterdayOpeningTime.closingHalfAnHour == 2 ?
-            59 : yesterdayOpeningTime.closingHalfAnHour == 1 ? 30:0
-        );
-
-        // If we are already past the closing time, than it is out of line
-        if(event.getEventDate().isAfter(yesterdayClosing)){
-          formatAndSaveSpecialDayToDisplay(event.getEventDate(), event.getClosingDate());
-        }
-
-      }
-      // Second case: Both days are to consider
-      else if(yesterdayOpeningTime != null && todayOpeningTime != null){
-
-        DateTime yesterdayOpening = DateTime(
-            event.getEventDate().year,
-            event.getEventDate().month,
-            event.getEventDate().day-1,
-            yesterdayOpeningTime.openingHour!,
-            yesterdayOpeningTime.openingHalfAnHour == 2 ?
-            59 : yesterdayOpeningTime.openingHalfAnHour == 1 ? 30:0
-        );
-
-        DateTime todayOpening = DateTime(
-            event.getEventDate().year,
-            event.getEventDate().month,
-            event.getEventDate().day,
-            todayOpeningTime.openingHour!,
-            todayOpeningTime.openingHalfAnHour == 2 ?
-            59 : todayOpeningTime.openingHalfAnHour == 1 ? 30:0
-        );
-
-        if(event.getEventDate().isAfter(yesterdayOpening) && event.getEventDate().isBefore(todayOpening)){
-          formatAndSaveSpecialDayToDisplay(event.getEventDate(), event.getClosingDate());
-        }
-
-      }
-      // Third case: Nothing yesterday, but something today
-      else if(yesterdayOpeningTime == null && todayOpeningTime != null){
-
-        DateTime todayOpening = DateTime(
-            event.getEventDate().year,
-            event.getEventDate().month,
-            event.getEventDate().day,
-            todayOpeningTime.openingHour!,
-            todayOpeningTime.openingHalfAnHour == 2 ?
-            59 : todayOpeningTime.openingHalfAnHour == 1 ? 30:0
-        );
-
-        if(event.getEventDate().isBefore(todayOpening)){
-          formatAndSaveSpecialDayToDisplay(event.getEventDate(), event.getClosingDate());
-        }
-
-
-      }
-      // There are no opening times yesterday or today? Definitely a special opening time
-      else if(yesterdayOpeningTime == null && todayOpeningTime == null){
-        formatAndSaveSpecialDayToDisplay(
-            event.getEventDate(),
-            event.getClosingDate()
-        );
-      }
-
-    }
-  }
-
-  void formatAndSaveSpecialDayToDisplay(DateTime eventDate, DateTime? closingDate){
-
-    // format the string to display
-    String dayToAdd = eventDate.day < 10 ?
-    "0${eventDate.day}": eventDate.day.toString();
-    String monthToAdd = eventDate.month < 10 ?
-    "0${eventDate.month}": eventDate.month.toString();
-
-    // Add the date to display
-    specialDayToDisplay.add(
-        "$dayToAdd.$monthToAdd.${eventDate.year}"
-    );
-
-    // Save the opening hour
-    specialDayOpeningTimeToDisplay.add(eventDate.hour);
-
-    // If we have a closing hour, we know the exact hour to display
-    if(closingDate != null){
-      specialDayClosingTimeToDisplay.add(closingDate.hour);
-    }
-    // If not, we signal our algo that we don't know, aka 99
-    else{
-      specialDayClosingTimeToDisplay.add(99);
-    }
-
-    // Save the weekday to display the written weekday
-    specialDayWeekdayToDisplay.add(eventDate.weekday);
-  }
-
-
-  // CLICKED
-  void clickEventOfferList(double screenHeight, double screenWidth){
-
-    if(currentAndLikedElementsProvider.currentClubMeClub.clubOffers.offers.isNotEmpty){
-      context.push("/user_offers");
-    }else{
-      _showDialogWithTitleAndText(
-          "Aktionen",
-          "Dieser Club verfügt derzeit über keine speziellen Aktionen in der App."
-      );
-    }
-
-
-  }
-  void clickEventDiscoverMoreEvents(double screenHeight, double screenWidth){
-    stateProvider.toggleWentFromCLubDetailToEventDetail();
-    context.push("/user_upcoming_events");
-  }
-  void clickEventStoryButton(BuildContext context, double screenHeight, double screenWidth, StateProvider stateProvider){
-
-    if(currentAndLikedElementsProvider.getCurrentClubStoryId().isNotEmpty){
-
-      context.push("/show_story");
-
-      // Didn't use router because it was easier like this with the
-      // Navigator.of(context).push(
-      //   MaterialPageRoute(
-      //     builder: (context) => ShowStoryChewie(
-      //     ),
-      //   ),
-      // );
-    }
-  }
-  void clickEventLounge(){
-    _showDialogWithTitleAndText(
-        "Lounges",
-        "Die Buchung von Lounges ist derzeit noch nicht möglich, wird aber bald verfügbar sein. Wir bitten um Entschuldigung."
-    );
   }
 
 
@@ -643,6 +441,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
         // Spacer
         SizedBox(height: screenHeight*0.01,),
 
+        // First event card
         noEventsAvailable?
         Container(
           height: screenHeight*0.1,
@@ -663,6 +462,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
         // Spacer
         SizedBox(height: screenHeight*0.01,),
 
+        // second event card
         noEventsAvailable?
         Container() : eventsToDisplay.length > 1?
         EventCard(
@@ -671,6 +471,32 @@ class _ClubDetailViewState extends State<ClubDetailView> {
             wentFromClubDetailToEventDetail: true,
           backgroundColorIndex: 1,
         ):Container(),
+
+        noEventsAvailable?
+        Container() :
+            Container(
+              width: screenWidth,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  InkWell(
+                    child: Row(
+                      children: [
+                        Text(
+                          "Mehr Events",
+                          style: customStyleClass.getFontStyle3BoldPrimeColor(),
+                        ),
+                        Icon(
+                          Icons.arrow_forward_outlined,
+                          color: customStyleClass.primeColor,
+                        )
+                      ],
+                    ),
+                    onTap: () => context.push("/user_upcoming_events"),
+                  )
+                ],
+              ),
+            ),
 
         // Spacer
         SizedBox(
@@ -737,7 +563,8 @@ class _ClubDetailViewState extends State<ClubDetailView> {
         for(int i = 0; i<specialDayToDisplay.length;i++)
           formatSpecialOpeningTime(
               specialDayWeekdayToDisplay[i], specialDayToDisplay[i],
-              specialDayOpeningTimeToDisplay[i], specialDayClosingTimeToDisplay[i]),
+              specialDayOpeningHourToDisplay[i], specialDayOpeningMinuteToDisplay[i],
+              specialDayClosingHourToDisplay[i], specialDayClosingMinuteToDisplay[i]),
 
         // Spacer
         SizedBox(
@@ -938,37 +765,38 @@ class _ClubDetailViewState extends State<ClubDetailView> {
 
         // Insta Icon
         Container(
-          width: screenWidth*0.3,
+          width: screenWidth*0.5,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
 
-              Padding(
-                padding: EdgeInsets.only(
-                    // left: screenWidth*0.03
-                ),
-                child: IconButton(
+              if(currentAndLikedElementsProvider.currentClubMeClub.getInstagramLink().isNotEmpty)
+                IconButton(
                     onPressed: () => goToSocialMedia(currentAndLikedElementsProvider.currentClubMeClub.getInstagramLink()),
                     icon: Icon(
                         FontAwesomeIcons.instagram,
                         color: customStyleClass.primeColor
                     )
                 ),
-              ),
 
-              Padding(
-                padding: EdgeInsets.only(
-                    // left: screenWidth*0.03
-                ),
-                child: IconButton(
-                    onPressed: () => goToSocialMedia(
-                        currentAndLikedElementsProvider.currentClubMeClub.getWebsiteLink()
-                    ),
+              if(currentAndLikedElementsProvider.currentClubMeClub.getFacebookLink().isNotEmpty)
+                IconButton(
+                    onPressed: () => goToSocialMedia(currentAndLikedElementsProvider.currentClubMeClub.getFacebookLink()),
                     icon: Icon(
-                      Icons.home_filled,
-                      color: customStyleClass.primeColor,
+                        FontAwesomeIcons.facebook,
+                        color: customStyleClass.primeColor
                     )
                 ),
+
+              if(currentAndLikedElementsProvider.currentClubMeClub.getWebsiteLink().isNotEmpty)
+              IconButton(
+                  onPressed: () => goToSocialMedia(
+                      currentAndLikedElementsProvider.currentClubMeClub.getWebsiteLink()
+                  ),
+                  icon: Icon(
+                    Icons.home_filled,
+                    color: customStyleClass.primeColor,
+                  )
               ),
 
             ],
@@ -1268,198 +1096,35 @@ class _ClubDetailViewState extends State<ClubDetailView> {
   }
 
 
-  // MISC FUNCTS
-  Container formatOpeningTime(Days days){
+  // CLICKED
+  void clickEventOfferList(double screenHeight, double screenWidth){
 
-    String dayToDisplay = "";
-    String openingHourToDisplay = "";
-    String closingHourToDisplay = "";
-
-    switch(days.day){
-      case(1):dayToDisplay = "Montag";break;
-      case(2):dayToDisplay = "Dienstag";break;
-      case(3):dayToDisplay = "Mittwoch";break;
-      case(4):dayToDisplay = "Donnerstag";break;
-      case(5):dayToDisplay = "Freitag";break;
-      case(6):dayToDisplay = "Samstag";break;
-      case(7):dayToDisplay = "Sonntag";break;
-    }
-
-    if(days.openingHalfAnHour == 1){
-      openingHourToDisplay = days.openingHour! < 10 ? "0${days.openingHour}:30": "${days.openingHour}:30";
-    }else if(days.openingHalfAnHour == 2){
-      openingHourToDisplay = days.openingHour! < 10 ? "0${days.openingHour}:59": "${days.openingHour}:59";
-    }
-    else{
-      openingHourToDisplay = days.openingHour! < 10 ? "0${days.openingHour}:00": "${days.openingHour}:00";
-    }
-
-    if(days.closingHalfAnHour == 1){
-      closingHourToDisplay = days.closingHour! < 10 ?  "0${days.closingHour}:30": "${days.closingHour}:30";
-    }else if(days.closingHalfAnHour == 2){
-      closingHourToDisplay = days.closingHour! < 10 ?  "0${days.closingHour}:59": "${days.closingHour}:59";
-    }
-    else{
-      closingHourToDisplay = days.closingHour! < 10 ?  "0${days.closingHour}:00": "${days.closingHour}:00";
-    }
-
-    return Container(
-      width: screenWidth*0.9,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            dayToDisplay,
-            style: customStyleClass.getFontStyle3(),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-
-              SizedBox(
-                // width: screenWidth*0.15,
-                child: Text(
-                  openingHourToDisplay,
-                  style: customStyleClass.getFontStyle3(),
-                ),
-              ),
-
-              Container(
-                // color: Colors.red,
-                width: screenWidth*0.07,
-                child: Center(
-                  child: Text(
-                    "-",
-                    style: customStyleClass.getFontStyle3(),
-                  ),
-                ),
-              ),
-
-              Container(
-                // color: Colors.green,
-                alignment: Alignment.centerRight,
-                width: screenWidth*0.12,
-                child: Text(
-                  closingHourToDisplay,
-                  style: customStyleClass.getFontStyle3(),
-                )
-              ),
-
-              // Text(
-              //   openingHourToDisplay,
-              //   style: customStyleClass.getFontStyle3(),
-              // ),
-              // Padding(
-              //   padding: const EdgeInsets.symmetric(
-              //       horizontal: 10
-              //   ),
-              //   child: Text(
-              //     "-",
-              //     style: customStyleClass.getFontStyle3(),
-              //   ),
-              // ),
-              // Text(
-              //   closingHourToDisplay,
-              //   style: customStyleClass.getFontStyle3(),
-              // )
-            ],
-          )
-        ],
-      ),
-    );
-
-  }
-  Container formatSpecialOpeningTime(int weekDay, String textToDisplay, int openingHourToDisplay, int closingHourToDisplay){
-
-    String dayToDisplay = "";
-
-    switch(weekDay){
-      case(1):dayToDisplay = "Montag";break;
-      case(2):dayToDisplay = "Dienstag";break;
-      case(3):dayToDisplay = "Mittwoch";break;
-      case(4):dayToDisplay = "Donnerstag";break;
-      case(5):dayToDisplay = "Freitag";break;
-      case(6):dayToDisplay = "Samstag";break;
-      case(7):dayToDisplay = "Sonntag";break;
-    }
-
-    dayToDisplay = "$dayToDisplay, $textToDisplay";
-
-    return Container(
-      width: screenWidth*0.9,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-
-          // Weekday + date
-          Text(
-            dayToDisplay,
-            style: customStyleClass.getFontStyle3BoldPrimeColor(),
-          ),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-
-              // Opening hour
-              SizedBox(
-                child: Text(
-                  openingHourToDisplay < 10 ?
-                  "0${openingHourToDisplay.toString()}:00" :
-                  "${openingHourToDisplay.toString()}:00",
-                  style: customStyleClass.getFontStyle3(),
-                ),
-              ),
-
-              Container(
-                // color: Colors.red,
-                width: screenWidth*0.07,
-                child: Center(
-                  child: Text(
-                    "-",
-                    style: customStyleClass.getFontStyle3(),
-                  ),
-                ),
-              ),
-
-              // Closing hour
-              Container(
-                // color: Colors.green,
-                  alignment: Alignment.centerRight,
-                  width: screenWidth*0.12,
-                  child: Text(
-                    closingHourToDisplay !=99 ?
-                    closingHourToDisplay < 10 ?
-                    "0${closingHourToDisplay.toString()}:00":
-                    "${closingHourToDisplay.toString()}:00"
-                        : "--.--",
-                    style: customStyleClass.getFontStyle3(),
-                  )
-              ),
-
-            ],
-          )
-        ],
-      ),
-    );
-
-
-  }
-  void _showDialogWithTitleAndText(String titleToDisplay, String contentToDisplay){
-    showDialog(context: context, builder: (BuildContext context){
-      return TitleAndContentDialog(
-          titleToDisplay: titleToDisplay,
-          contentToDisplay: contentToDisplay
+    if(currentAndLikedElementsProvider.currentClubMeClub.clubOffers.offers.isNotEmpty){
+      context.push("/user_offers");
+    }else{
+      _showDialogWithTitleAndText(
+          "Aktionen",
+          "Dieser Club verfügt derzeit über keine speziellen Aktionen in der App."
       );
-    });
+    }
+
+
   }
-  static Future<void> goToSocialMedia(String socialMediaLink) async{
+  void clickEventDiscoverMoreEvents(double screenHeight, double screenWidth){
+    stateProvider.toggleWentFromCLubDetailToEventDetail();
+    context.push("/user_upcoming_events");
+  }
+  void clickEventStoryButton(BuildContext context, double screenHeight, double screenWidth, StateProvider stateProvider){
 
-    Uri googleUrl = Uri.parse(socialMediaLink);
-
-    await canLaunchUrl(googleUrl)
-        ? await launchUrl(googleUrl)
-        : print("Error");
+    if(currentAndLikedElementsProvider.getCurrentClubStoryId().isNotEmpty){
+      context.push("/show_story");
+    }
+  }
+  void clickEventLounge(){
+    _showDialogWithTitleAndText(
+        "Lounges",
+        "Die Buchung von Lounges ist derzeit noch nicht möglich, wird aber bald verfügbar sein. Wir bitten um Entschuldigung."
+    );
   }
 
 
@@ -1561,7 +1226,130 @@ class _ClubDetailViewState extends State<ClubDetailView> {
     return false;
 
   }
+  void checkIfSpecialOpeningTimesApply(){
 
+    final stateProvider = Provider.of<StateProvider>(context, listen: false);
+    //final userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
+    final fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
+
+    // Get all current events of the club we display
+    List<ClubMeEvent> eventsOfCurrentClub = fetchedContentProvider.getFetchedEvents().where(
+            (event) => event.getClubId() == currentAndLikedElementsProvider.currentClubMeClub.getClubId()
+    ).toList();
+
+    // Only use the ones that are in the future
+    List<ClubMeEvent> eventsInTheFuture = eventsOfCurrentClub.where(
+            (event){
+          DateTime eventWithEstimatedLength = DateTime(
+            event.getEventDate().year,
+            event.getEventDate().month,
+            event.getEventDate().day,
+            event.getEventDate().hour+6,
+            event.getEventDate().minute,
+          );
+          DateTime berlinTimeWithoutTZ = DateTime(
+              stateProvider.getBerlinTime().year,
+              stateProvider.getBerlinTime().month,
+              stateProvider.getBerlinTime().day,
+              stateProvider.getBerlinTime().hour,
+              stateProvider.getBerlinTime().month
+          );
+          if(eventWithEstimatedLength.isAfter(berlinTimeWithoutTZ)){
+            return true;
+          }else{
+            return false;
+          }
+        }
+    ).toList();
+
+
+
+    // Check if any is outside of regular opening hours
+    for(var event in eventsInTheFuture){
+
+      int eventWeekDay = event.getEventDate().weekday;
+
+      var yesterdayOpeningTime = currentAndLikedElementsProvider.currentClubMeClub
+          .getOpeningTimes().days?.firstWhereOrNull(
+              (days) => days.day == eventWeekDay-1);
+
+      var todayOpeningTime = currentAndLikedElementsProvider.currentClubMeClub
+          .getOpeningTimes().days?.firstWhereOrNull(
+              (days) => days.day == eventWeekDay);
+
+
+      // First case: Only an event from yesterday might influence our decision
+      if(yesterdayOpeningTime != null && todayOpeningTime == null){
+
+        DateTime yesterdayClosing = DateTime(
+            event.getEventDate().year,
+            event.getEventDate().month,
+            event.getEventDate().day,
+            yesterdayOpeningTime.closingHour!,
+            yesterdayOpeningTime.closingHalfAnHour == 2 ?
+            59 : yesterdayOpeningTime.closingHalfAnHour == 1 ? 30:0
+        );
+
+        // If we are already past the closing time, than it is out of line
+        if(event.getEventDate().isAfter(yesterdayClosing)){
+          formatAndSaveSpecialDayToDisplay(event.getEventDate(), event.getClosingDate());
+        }
+
+      }
+      // Second case: Both days are to consider
+      else if(yesterdayOpeningTime != null && todayOpeningTime != null){
+
+        DateTime yesterdayOpening = DateTime(
+            event.getEventDate().year,
+            event.getEventDate().month,
+            event.getEventDate().day-1,
+            yesterdayOpeningTime.openingHour!,
+            yesterdayOpeningTime.openingHalfAnHour == 2 ?
+            59 : yesterdayOpeningTime.openingHalfAnHour == 1 ? 30:0
+        );
+
+        DateTime todayOpening = DateTime(
+            event.getEventDate().year,
+            event.getEventDate().month,
+            event.getEventDate().day,
+            todayOpeningTime.openingHour!,
+            todayOpeningTime.openingHalfAnHour == 2 ?
+            59 : todayOpeningTime.openingHalfAnHour == 1 ? 30:0
+        );
+
+        if(event.getEventDate().isAfter(yesterdayOpening) && event.getEventDate().isBefore(todayOpening)){
+          formatAndSaveSpecialDayToDisplay(event.getEventDate(), event.getClosingDate());
+        }
+
+      }
+      // Third case: Nothing yesterday, but something today
+      else if(yesterdayOpeningTime == null && todayOpeningTime != null){
+
+        DateTime todayOpening = DateTime(
+            event.getEventDate().year,
+            event.getEventDate().month,
+            event.getEventDate().day,
+            todayOpeningTime.openingHour!,
+            todayOpeningTime.openingHalfAnHour == 2 ?
+            59 : todayOpeningTime.openingHalfAnHour == 1 ? 30:0
+        );
+
+        if(event.getEventDate().isBefore(todayOpening)){
+          formatAndSaveSpecialDayToDisplay(event.getEventDate(), event.getClosingDate());
+        }
+
+
+      }
+      // There are no opening times yesterday or today? Definitely a special opening time
+      else if(yesterdayOpeningTime == null && todayOpeningTime == null){
+        formatAndSaveSpecialDayToDisplay(
+            event.getEventDate(),
+            event.getClosingDate()
+        );
+      }
+
+    }
+  }
   void checkForUpcomingEventsAndSetList(){
 
     eventsToDisplay = fetchedContentProvider.getFetchedEvents()
@@ -1577,18 +1365,12 @@ class _ClubDetailViewState extends State<ClubDetailView> {
   }
   void checkForGalleryImages(){
 
-    print("checkForGalleryImages");
-
     // Check if there is anything to consider and if yes, if we still need to do anything
     if(currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images!.isNotEmpty &&
-    alreadyFetchedFrontPageImages.length != currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images!.length){
-
-      print("first if");
+        alreadyFetchedFrontPageImages.length != currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images!.length){
 
       // Go through all gallery images that are supposed to be displayed
       for(int i = 0; i< currentAndLikedElementsProvider.currentClubMeClub.getFrontPageGalleryImages().images!.length; i++){
-
-        print("loop: $i");
 
         // Does this image already exist in our provider?
         if(fetchedContentProvider.getFetchedBannerImageIds()
@@ -1607,6 +1389,223 @@ class _ClubDetailViewState extends State<ClubDetailView> {
         }
       }
     }
+  }
+
+
+  // MISC FUNCTS
+  Container formatOpeningTime(Days days){
+
+    String dayToDisplay = "";
+    String openingHourToDisplay = "";
+    String closingHourToDisplay = "";
+
+    switch(days.day){
+      case(1):dayToDisplay = "Montag";break;
+      case(2):dayToDisplay = "Dienstag";break;
+      case(3):dayToDisplay = "Mittwoch";break;
+      case(4):dayToDisplay = "Donnerstag";break;
+      case(5):dayToDisplay = "Freitag";break;
+      case(6):dayToDisplay = "Samstag";break;
+      case(7):dayToDisplay = "Sonntag";break;
+    }
+
+    if(days.openingHalfAnHour == 1){
+      openingHourToDisplay = days.openingHour! < 10 ? "0${days.openingHour}:30": "${days.openingHour}:30";
+    }else if(days.openingHalfAnHour == 2){
+      openingHourToDisplay = days.openingHour! < 10 ? "0${days.openingHour}:59": "${days.openingHour}:59";
+    }
+    else{
+      openingHourToDisplay = days.openingHour! < 10 ? "0${days.openingHour}:00": "${days.openingHour}:00";
+    }
+
+    if(days.closingHalfAnHour == 1){
+      closingHourToDisplay = days.closingHour! < 10 ?  "0${days.closingHour}:30": "${days.closingHour}:30";
+    }else if(days.closingHalfAnHour == 2){
+      closingHourToDisplay = days.closingHour! < 10 ?  "0${days.closingHour}:59": "${days.closingHour}:59";
+    }
+    else{
+      closingHourToDisplay = days.closingHour! < 10 ?  "0${days.closingHour}:00": "${days.closingHour}:00";
+    }
+
+    return Container(
+      width: screenWidth*0.9,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            dayToDisplay,
+            style: customStyleClass.getFontStyle3(),
+          ),
+          Row(
+            children: [
+              SizedBox(
+                child: Text(
+                  openingHourToDisplay,
+                  style: customStyleClass.getFontStyle3(),
+                ),
+              ),
+              Container(
+                // color: Colors.red,
+                // width: screenWidth*0.07,
+                child: Center(
+                  child: Text(
+                    " - ",
+                    style: customStyleClass.getFontStyle3(),
+                  ),
+                ),
+              ),
+
+              Container(
+                // color: Colors.green,
+                  alignment: Alignment.centerRight,
+                  // width: screenWidth*0.12,
+                  child: Text(
+                    closingHourToDisplay,
+                    style: customStyleClass.getFontStyle3(),
+                  )
+              ),
+
+            ],
+          )
+        ],
+      ),
+    );
+
+  }
+  Container formatSpecialOpeningTime(
+      int weekDay, String textToDisplay,
+      int openingHourToDisplay, int openingMinuteToDisplay,
+      int closingHourToDisplay, int closingMinuteToDisplay){
+
+    String dayToDisplay = "";
+
+    switch(weekDay){
+      case(1):dayToDisplay = "Montag";break;
+      case(2):dayToDisplay = "Dienstag";break;
+      case(3):dayToDisplay = "Mittwoch";break;
+      case(4):dayToDisplay = "Donnerstag";break;
+      case(5):dayToDisplay = "Freitag";break;
+      case(6):dayToDisplay = "Samstag";break;
+      case(7):dayToDisplay = "Sonntag";break;
+    }
+
+    dayToDisplay = "$dayToDisplay, $textToDisplay";
+
+    var openingHourString = openingHourToDisplay < 10 ? "0${openingHourToDisplay.toString()}" : openingHourToDisplay.toString();
+    var openingMinuteString = openingMinuteToDisplay < 10  ? "0${openingMinuteToDisplay.toString()}" : openingMinuteToDisplay.toString();
+
+    return Container(
+      width: screenWidth*0.9,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            dayToDisplay,
+            style: customStyleClass.getFontStyle3BoldPrimeColor(),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+
+              // Opening hour
+              SizedBox(
+                child: Text(
+                  "$openingHourString:$openingMinuteString",
+                  style: customStyleClass.getFontStyle3(),
+                ),
+              ),
+
+
+              Container(
+                child: Center(
+                  child: Text(
+                    " - ",
+                    style: customStyleClass.getFontStyle3(),
+                  ),
+                ),
+              ),
+
+              Container(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    closingHourToDisplay != 99 ?
+                    closingHourToDisplay < 10 ?
+                    "0${closingHourToDisplay.toString()}:00" :
+                    "${closingHourToDisplay.toString()}:00"
+                        : "  --.--",
+                    style: customStyleClass.getFontStyle3(),
+                  )
+              ),
+
+              // Text(
+              //   openingHourToDisplay,
+              //   style: customStyleClass.getFontStyle3(),
+              // ),
+              // Padding(
+              //   padding: const EdgeInsets.symmetric(
+              //       horizontal: 10
+              //   ),
+              //   child: Text(
+              //     "-",
+              //     style: customStyleClass.getFontStyle3(),
+              //   ),
+              // ),
+              // Text(
+              //   closingHourToDisplay,
+              //   style: customStyleClass.getFontStyle3(),
+              // )
+            ],
+          )
+        ],
+      ),
+    );
+
+
+  }void _showDialogWithTitleAndText(String titleToDisplay, String contentToDisplay){
+    showDialog(context: context, builder: (BuildContext context){
+      return TitleAndContentDialog(
+          titleToDisplay: titleToDisplay,
+          contentToDisplay: contentToDisplay
+      );
+    });
+  }
+  static Future<void> goToSocialMedia(String socialMediaLink) async{
+
+    Uri googleUrl = Uri.parse(socialMediaLink);
+
+    await canLaunchUrl(googleUrl)
+        ? await launchUrl(googleUrl)
+        : print("Error");
+  }
+  void formatAndSaveSpecialDayToDisplay(DateTime eventDate, DateTime? closingDate){
+
+    // format the string to display
+    String dayToAdd = eventDate.day < 10 ?
+    "0${eventDate.day}": eventDate.day.toString();
+    String monthToAdd = eventDate.month < 10 ?
+    "0${eventDate.month}": eventDate.month.toString();
+
+    // Add the date to display
+    specialDayToDisplay.add(
+        "$dayToAdd.$monthToAdd.${eventDate.year}"
+    );
+
+    // Save the opening hour
+    specialDayOpeningHourToDisplay.add(eventDate.hour);
+    specialDayOpeningMinuteToDisplay.add(eventDate.minute);
+
+    // If we have a closing hour, we know the exact hour to display
+    if(closingDate != null){
+      specialDayClosingHourToDisplay.add(closingDate.hour);
+      specialDayClosingMinuteToDisplay.add(closingDate.minute);
+    }
+    // If not, we signal our algo that we don't know, aka 99
+    else{
+      specialDayClosingHourToDisplay.add(99);
+    }
+
+    // Save the weekday to display the written weekday
+    specialDayWeekdayToDisplay.add(eventDate.weekday);
   }
 
 

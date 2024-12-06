@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:club_me/models/club.dart';
 import 'package:club_me/models/event.dart';
 import 'package:club_me/models/parser/club_me_club_parser.dart';
@@ -45,7 +44,6 @@ class _ClubEventsViewState extends State<ClubEventsView> {
   late double screenHeight, screenWidth;
   late CustomStyleClass customStyleClass;
 
-
   final HiveService _hiveService = HiveService();
   final SupabaseService _supabaseService = SupabaseService();
   final CheckAndFetchService _checkAndFetchService = CheckAndFetchService();
@@ -53,9 +51,7 @@ class _ClubEventsViewState extends State<ClubEventsView> {
   List<ClubMeEvent> pastEvents = [];
   List<ClubMeEvent> upcomingEvents = [];
 
-
   bool isDeleting = false;
-
 
   //  INIT
   @override
@@ -92,7 +88,10 @@ class _ClubEventsViewState extends State<ClubEventsView> {
 
     // Update last log in
     if(!stateProvider.updatedLastLogInForNow){
-      _supabaseService.updateClubLastLogInApp(userDataProvider.getUserData().getClubId()).then(
+      _supabaseService.updateClubLastLogInApp(
+          userDataProvider.getUserData().getClubId(),
+          stateProvider.getUsingTheAppAsADeveloper()
+      ).then(
           (result) => {
             if(result == 0){
               stateProvider.toggleUpdatedLastLogInForNow()
@@ -618,7 +617,6 @@ class _ClubEventsViewState extends State<ClubEventsView> {
     setState(() {});
 
   }
-
 
 
   // CLICK

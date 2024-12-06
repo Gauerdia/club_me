@@ -87,6 +87,7 @@ class _EventDetailViewState extends State<EventDetailView>{
     stateProvider = Provider.of<StateProvider>(context, listen:  false);
     if(stateProvider.openEventDetailContentDirectly){
       isContentShown = true;
+      stateProvider.resetOpenEventDetailContentDirectly();
     }
     prepareContent();
 
@@ -984,11 +985,18 @@ class _EventDetailViewState extends State<EventDetailView>{
   }
   void clickEventContent(){
     setState(() {
-      isContentShown = !isContentShown;
+
       stateProvider.resetOpenEventDetailContentDirectly();
-      if(isVideo){
+
+      if(isVideo && isContentShown){
         _controller.pause();
+      }else if(isVideo){
+        _controller.play();
       }
+      isContentShown = !isContentShown;
+      // if(isVideo){
+      //   _controller.pause();
+      // }
     });
   }
   void clickEventBack(){
@@ -1141,19 +1149,29 @@ class _EventDetailViewState extends State<EventDetailView>{
   }
   void formatEventGenres(){
 
-    if(currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenres().isNotEmpty){
 
+    /// TODO: Checking is only for the transition phase. Erase later on.
+    if(currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenresToDisplay().genres.isNotEmpty ||
+    currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenres().isNotEmpty){
 
       if(genresToDisplay.isEmpty){
 
-        final splitNames = currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenres().split(',');
+        if(currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenresToDisplay().genres.isNotEmpty){
 
-        for(int i=0; i<splitNames.length;i++){
+          for(var element in currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenresToDisplay().genres){
+            genresToDisplay.add("${element.displayGenre},");
+          }
 
-          if(i==splitNames.length-1){
-            genresToDisplay.add(splitNames[i]);
-          }else{
-            genresToDisplay.add("${splitNames[i]},");
+        }else{
+          final splitNames = currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenres().split(',');
+
+          for(int i=0; i<splitNames.length;i++){
+
+            if(i==splitNames.length-1){
+              genresToDisplay.add(splitNames[i]);
+            }else{
+              genresToDisplay.add("${splitNames[i]},");
+            }
           }
         }
       }
@@ -1166,7 +1184,7 @@ class _EventDetailViewState extends State<EventDetailView>{
 
 
   // MISC
-  _createChewieController() {
+  _createChewieControllerWithoutAutoplay() {
     _chewieController = ChewieController(
       videoPlayerController: _controller,
       looping: true,
@@ -1176,6 +1194,18 @@ class _EventDetailViewState extends State<EventDetailView>{
       allowFullScreen: true,
     );
   }
+
+  _createChewieControllerWithAutoplay() {
+    _chewieController = ChewieController(
+      videoPlayerController: _controller,
+      looping: true,
+      autoPlay: true,
+      showOptions: true,
+      autoInitialize: true,
+      allowFullScreen: true,
+    );
+  }
+
   Future<void> prepareContent() async{
 
     late String filePath;
@@ -1220,7 +1250,12 @@ class _EventDetailViewState extends State<EventDetailView>{
           // INIT VIDEO CONTROLLER
           _controller = VideoPlayerController.file(file);
           await _controller.initialize();
-          _createChewieController();
+
+          if(isContentShown){
+            _createChewieControllerWithAutoplay();
+          }else{
+            _createChewieControllerWithoutAutoplay();
+          }
 
           // CREATE THUMBNAIL
           await VideoThumbnail.thumbnailData(

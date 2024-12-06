@@ -3,7 +3,7 @@ description: "The first draft of the ClubMe app."
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.0.139
+version: 1.0.140
 
 environment:
   sdk: '>=3.2.6 <4.0.0'
@@ -142,6 +142,8 @@ dependencies:
 
   flutter_svg: ^2.0.15
 
+  purchases_flutter: ^6.0.0
+
 flutter_localizations:
   sdk: flutter
 
@@ -164,11 +166,17 @@ flutter_native_splash:
   android: true
   ios: true
 
+# In android/.../res/mipmap-anydpi-v26/ you can adjust the inset so that the icon is not cropped
 flutter_launcher_icons:
-  image_path: "assets/images/club_me_icon_round.png"
+  image_path: "assets/images/club_me_logo_512x512.png"
   android: "launcher_icon"
   ios: true
   remove_alpha_ios: true
+  adaptive_icon_background: "#000000"
+  adaptive_icon_foreground: "assets/images/club_me_logo_512x512.png"
+  #adaptive_icon_foreground_inset: 32
+  background_color_ios: "#000000"
+
 
 
 

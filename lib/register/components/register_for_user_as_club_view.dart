@@ -1,10 +1,13 @@
 import 'package:club_me/provider/fetched_content_provider.dart';
 import 'package:club_me/shared/dialogs/TitleAndContentDialog.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:toggle_switch/toggle_switch.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../models/hive_models/0_club_me_user_data.dart';
@@ -13,7 +16,9 @@ import '../../provider/user_data_provider.dart';
 import '../../services/hive_service.dart';
 import '../../services/supabase_service.dart';
 import '../../shared/custom_text_style.dart';
+import '../../shared/dialogs/title_content_and_button_dialog.dart';
 import '../../shared/logger.util.dart';
+import '../../utils/utils.dart';
 
 class RegisterForUserAsClubView extends StatefulWidget {
   const RegisterForUserAsClubView({super.key});
@@ -44,19 +49,29 @@ class _RegisterForUserAsClubViewState extends State<RegisterForUserAsClubView> {
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _eMailController = TextEditingController();
-  final TextEditingController _clubPasswordController = TextEditingController();
+  // final TextEditingController _clubPasswordController = TextEditingController();
 
   int gender = 0;
 
 
   late DateTime newSelectedDate;
 
+  late FixedExtentScrollController _dayController;
+  late FixedExtentScrollController _monthController;
+  late FixedExtentScrollController _yearController;
+  int selectedDay = 1, selectedMonth = 1, selectedYear = 2000;
+  bool privacyAccepted = false;
 
   // INIT
   @override
   void initState() {
     super.initState();
     newSelectedDate = DateTime(2000, 1, 1);
+
+    _dayController = FixedExtentScrollController(initialItem: 0);
+    _monthController = FixedExtentScrollController(initialItem: 0);
+    _yearController = FixedExtentScrollController(initialItem: 24);
+
   }
 
 
@@ -189,7 +204,7 @@ class _RegisterForUserAsClubViewState extends State<RegisterForUserAsClubView> {
               )
             ],
           ),
-          onTap: () => clickEventRegister(),
+          onTap: () => checkIfRegistrationIsLegit(), //clickEventRegister(),
         ),
       );
 
@@ -212,10 +227,17 @@ class _RegisterForUserAsClubViewState extends State<RegisterForUserAsClubView> {
 
       var uuid = const Uuid();
 
+      DateTime birthDateTime = DateTime(
+          selectedYear,
+          selectedMonth,
+          selectedDay
+      );
+
+
       ClubMeUserData newUserData = ClubMeUserData(
           firstName: _firstNameController.text,
           lastName: _lastNameController.text,
-          birthDate: newSelectedDate,
+          birthDate: birthDateTime,
           eMail: _eMailController.text,
           gender: gender,
           userId: uuid.v4(),
@@ -247,45 +269,45 @@ class _RegisterForUserAsClubViewState extends State<RegisterForUserAsClubView> {
       }
   }
 
-  void clickEventRegister() async{
-
-    setState(() {
-      isLoading = true;
-    });
-
-    if(RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9-]+\.[a-zA-Z]+").hasMatch(_eMailController.text)){
-
-      await _supabaseService.getUserByEMail(_eMailController.text).then(
-              (response) {
-            if(response.isNotEmpty){
-              showDialog(context: context, builder: (BuildContext context){
-                return TitleAndContentDialog(
-                    titleToDisplay: "E-Mail-Adresse existiert bereits",
-                    contentToDisplay: "Diese E-Mail-Adresse ist leider bereits vergeben. Wenn du dich erneut anmelden möchtest, nutze bitte den dazu gehörigen Button auf der Registrierungsseite."
-                );
-              });
-            }else{
-              transferToHiveAndDB();
-            }
-          }
-      );
-      }else{
-        setState(() {
-          isLoading = false;
-        });
-        showDialog(context: context, builder: (BuildContext context){
-          return AlertDialog(
-              title: const Text("E-Mail Adresse"),
-              content: Text(
-                "Bitte gib eine gültige E-Mail-Adresse ein!",
-                textAlign: TextAlign.left,
-                style: customStyleClass.getFontStyle4(),
-              )
-          );
-        });
-      }
-
-  }
+  // void clickEventRegister() async{
+  //
+  //   setState(() {
+  //     isLoading = true;
+  //   });
+  //
+  //   if(RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9-]+\.[a-zA-Z]+").hasMatch(_eMailController.text)){
+  //
+  //     await _supabaseService.getUserByEMail(_eMailController.text).then(
+  //             (response) {
+  //           if(response.isNotEmpty){
+  //             showDialog(context: context, builder: (BuildContext context){
+  //               return TitleAndContentDialog(
+  //                   titleToDisplay: "E-Mail-Adresse existiert bereits",
+  //                   contentToDisplay: "Diese E-Mail-Adresse ist leider bereits vergeben. Wenn du dich erneut anmelden möchtest, nutze bitte den dazu gehörigen Button auf der Registrierungsseite."
+  //               );
+  //             });
+  //           }else{
+  //             transferToHiveAndDB();
+  //           }
+  //         }
+  //     );
+  //     }else{
+  //       setState(() {
+  //         isLoading = false;
+  //       });
+  //       showDialog(context: context, builder: (BuildContext context){
+  //         return AlertDialog(
+  //             title: const Text("E-Mail Adresse"),
+  //             content: Text(
+  //               "Bitte gib eine gültige E-Mail-Adresse ein!",
+  //               textAlign: TextAlign.left,
+  //               style: customStyleClass.getFontStyle4(),
+  //             )
+  //         );
+  //       });
+  //     }
+  //
+  // }
 
   void clickEventShowInfo(int index){
 
@@ -334,7 +356,6 @@ class _RegisterForUserAsClubViewState extends State<RegisterForUserAsClubView> {
 
   Widget _buildMainView(){
     return Container(
-      // height: screenHeight,
         width: screenWidth,
         color: customStyleClass.backgroundColorMain,
         child: SingleChildScrollView(
@@ -356,59 +377,41 @@ class _RegisterForUserAsClubViewState extends State<RegisterForUserAsClubView> {
                     ),
                   ),
 
-                  // Text: Title
                   Container(
-                    width: screenWidth*0.9,
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      "Vorname",
-                      style: customStyleClass.getFontStyle3(),
-                    ),
-                  ),
-
-                  // Textfield first name
-                  Container(
-                    height: screenHeight*0.12,
+                    // height: screenHeight*0.12,
                     width: screenWidth*0.9,
                     padding:  EdgeInsets.only(
-                        top: distanceBetweenTitleAndTextField
+                        top: distanceBetweenTitleAndTextField*0.5
                     ),
                     child: TextField(
                       controller: _firstNameController,
                       cursorColor: customStyleClass.primeColor,
                       decoration: InputDecoration(
-                        focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                                color: customStyleClass.primeColor
-                            )
-                        ),
-                        hintText: "z.B. Max",
-                        border: const OutlineInputBorder(),
-                        contentPadding: const EdgeInsets.only(
-                            left: 20,
-                            top:20,
-                            bottom:20
-                        ),
+                          focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: customStyleClass.primeColor
+                              )
+                          ),
+                          hintText: "z.B. Max",
+                          border: const OutlineInputBorder(),
+                          contentPadding: const EdgeInsets.only(
+                              left: 20,
+                              top:10,
+                              bottom:10
+                          ),
+                          labelText: 'Vorname',
+                          labelStyle: TextStyle(
+                              color: Colors.grey
+                          )
                       ),
-                      style: customStyleClass.getFontStyle4(),
-                      autofocus: true,
-                      maxLength: 35,
+                      style: customStyleClass.getFontStyle5(),
+                      // onTap: _requestFocus,
                     ),
                   ),
 
-                  // Text: Title
+                  // Textfield_ last name
                   Container(
-                    width: screenWidth*0.9,
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      "Nachname",
-                      style: customStyleClass.getFontStyle3(),
-                    ),
-                  ),
-
-                  // Textfield last name
-                  Container(
-                    height: screenHeight*0.12,
+                    // height: screenHeight*0.12,
                     width: screenWidth*0.9,
                     padding:  EdgeInsets.only(
                         top: distanceBetweenTitleAndTextField
@@ -417,50 +420,31 @@ class _RegisterForUserAsClubViewState extends State<RegisterForUserAsClubView> {
                       controller: _lastNameController,
                       cursorColor: customStyleClass.primeColor,
                       decoration: InputDecoration(
-                        focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                                color: customStyleClass.primeColor
-                            )
-                        ),
-                        hintText: "z.B. Mustermann",
-                        border: const OutlineInputBorder(),
-                        contentPadding: const EdgeInsets.only(
-                            left: 20,
-                            top:20,
-                            bottom:20
-                        ),
+                          focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: customStyleClass.primeColor
+                              )
+                          ),
+                          hintText: "z.B. Mustermann",
+                          border: const OutlineInputBorder(),
+                          contentPadding: const EdgeInsets.only(
+                              left: 20,
+                              top:10,
+                              bottom:10
+                          ),
+                          labelText: 'Nachname',
+                          labelStyle: TextStyle(
+                              color: Colors.grey
+                          )
                       ),
                       style: customStyleClass.getFontStyle4(),
-                      autofocus: true,
-                      maxLength: 35,
+                      // onTap: _requestFocus,
                     ),
                   ),
 
-                  // Text: Title
+                  // Textfield: email
                   Container(
-                    width: screenWidth*0.9,
-                    alignment: Alignment.centerLeft,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "E-Mail",
-                          style: customStyleClass.getFontStyle3(),
-                        ),
-                        InkWell(
-                          child: Icon(
-                              Icons.info_outlined,
-                              color: customStyleClass.primeColor
-                          ),
-                          onTap:() => clickEventShowInfo(0),
-                        )
-                      ],
-                    ),
-                  ),
-
-                  // Textfield email
-                  Container(
-                    height: screenHeight*0.12,
+                    // height: screenHeight*0.12,
                     width: screenWidth*0.9,
                     padding:  EdgeInsets.only(
                         top: distanceBetweenTitleAndTextField
@@ -469,27 +453,33 @@ class _RegisterForUserAsClubViewState extends State<RegisterForUserAsClubView> {
                       controller: _eMailController,
                       cursorColor: customStyleClass.primeColor,
                       decoration: InputDecoration(
-                        focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                                color: customStyleClass.primeColor
-                            )
-                        ),
-                        hintText: "z.B. max.mustermann@gmx.de",
-                        border: const OutlineInputBorder(),
-                        contentPadding: const EdgeInsets.only(
-                            left: 20,
-                            top:20,
-                            bottom:20
-                        ),
+                          focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: customStyleClass.primeColor
+                              )
+                          ),
+                          hintText: "z.B. max.mustermann@gmx.de",
+                          border: const OutlineInputBorder(),
+                          contentPadding: const EdgeInsets.only(
+                              left: 20,
+                              top:10,
+                              bottom:10
+                          ),
+                          labelText: 'E-Mail-Adresse',
+                          labelStyle: TextStyle(
+                              color: Colors.grey
+                          )
                       ),
                       style: customStyleClass.getFontStyle4(),
-                      autofocus: true,
-                      maxLength: 35,
                     ),
                   ),
 
+
                   // Text: Title
                   Container(
+                    padding: EdgeInsets.only(
+                        top: distanceBetweenTitleAndTextField*2
+                    ),
                     width: screenWidth*0.9,
                     alignment: Alignment.centerLeft,
                     child: Row(
@@ -525,12 +515,12 @@ class _RegisterForUserAsClubViewState extends State<RegisterForUserAsClubView> {
                         inactiveFgColor: customStyleClass.primeColor,
                         inactiveBgColor: customStyleClass.backgroundColorEventTile,
                         labels: const [
-                          'Mann',
-                          'Frau',
+                          'Männlich',
+                          'Weiblich',
                           "Divers"
                         ],
                         minWidth: screenWidth*0.9,
-                        minHeight: screenHeight*0.07,
+                        minHeight: screenHeight*0.05,
                         onToggle: (index) {
                           setState(() {
                             gender = index!;
@@ -540,12 +530,12 @@ class _RegisterForUserAsClubViewState extends State<RegisterForUserAsClubView> {
                     ),
                   ),
 
-                  SizedBox(
-                    height: screenHeight*0.05,
-                  ),
 
-                  // Text: Title
+                  // Text: Date
                   Container(
+                    padding:  EdgeInsets.only(
+                        top: distanceBetweenTitleAndTextField
+                    ),
                     width: screenWidth*0.9,
                     alignment: Alignment.centerLeft,
                     child: Row(
@@ -566,57 +556,157 @@ class _RegisterForUserAsClubViewState extends State<RegisterForUserAsClubView> {
                     ),
                   ),
 
+                  // Birth date picking
                   Container(
-                    padding:  EdgeInsets.only(
-                        top: distanceBetweenTitleAndTextField
-                    ),
-                    height: screenHeight*0.12,
-                    width: screenWidth*0.9,
-                    child: Column(
-                      children: [
+                    // padding:  EdgeInsets.only(
+                    //     top: distanceBetweenTitleAndTextField
+                    // ),
+                      width: screenWidth*0.9,
+                      height: screenHeight*0.12,
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children:[
 
-                        // BUTTON
-                        Container(
-                          width: screenWidth*0.9,
-                          alignment: Alignment.centerLeft,
-                          child: SizedBox(
-                            width: screenWidth*0.32,
-                            child:OutlinedButton(
-                                onPressed: (){
-                                  showDatePicker(
-                                      context: context,
-                                      locale: const Locale("de", "DE"),
-                                      initialDate: DateTime(2000),
-                                      firstDate: DateTime(1949),
-                                      lastDate: DateTime(2010),
-                                      builder: (BuildContext context, Widget? child) {
-                                        return Theme(
-                                          data: ThemeData.dark(),
-                                          child: child!,
+                            Row(
+                              children: [
+                                // day
+                                SizedBox(
+                                  width: screenWidth*0.2,
+                                  child: CupertinoPicker(
+                                      scrollController: _dayController,
+                                      itemExtent: 50,
+                                      onSelectedItemChanged: (int index){
+                                        setState(() {
+                                          selectedDay = index+1;
+                                        });
+                                      },
+                                      children: List<Widget>.generate(31, (index){
+                                        return Center(
+                                          child: Text(
+                                            index < 9 ?
+                                            "0${(index+1).toString()}" :
+                                            (index+1).toString(),
+                                            style: customStyleClass.getFontStyle3(),
+                                          ),
                                         );
-                                      }).then((pickedDate){
-                                    if( pickedDate == null){
-                                      return;
-                                    }
-                                    setState(() {
-                                      newSelectedDate = pickedDate;
-                                    });
-                                  });
-                                },
-                                style: OutlinedButton.styleFrom(
-                                    minimumSize: Size(
-                                        screenHeight*0.05,
-                                        screenHeight*0.07
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(5.0)
-                                    )
+                                      })
+                                  ),
                                 ),
-                                child: Text(
-                                  formatSelectedDate(),
-                                  style: customStyleClass.getFontStyle4(),
-                                )
-                            ),
+
+
+                                // month
+                                SizedBox(
+                                  width: screenWidth*0.4,
+                                  child: CupertinoPicker(
+                                    scrollController: _monthController,
+                                    itemExtent: 50,
+                                    onSelectedItemChanged: (int index){
+                                      setState(() {
+                                        selectedMonth = index+1;
+                                      });
+                                    },
+                                    children:
+                                    Utils.monthsForPicking.map((item){
+                                      return Padding(
+                                        padding: const EdgeInsets.only(
+                                            top: 15
+                                        ),
+                                        child: Text(
+                                          item,
+                                          style: customStyleClass.getFontStyle2(),
+                                        ),
+                                      );
+                                    }).toList(),
+                                    // List<Widget>.generate(12, (index){
+                                    //   return Center(
+                                    //     child: Text(
+                                    //       index < 9 ?
+                                    //       "0${(index+1).toString()}" :
+                                    //       (index+1).toString(),
+                                    //       style: customStyleClass.getFontStyle3(),
+                                    //     ),
+                                    //   );
+                                    // })
+                                  ),
+                                ),
+
+
+                                // year
+                                SizedBox(
+                                  width: screenWidth*0.2,
+                                  child: CupertinoPicker(
+                                      scrollController: _yearController,
+                                      itemExtent: 50,
+                                      onSelectedItemChanged: (int index){
+                                        setState(() {
+                                          selectedYear = (2024-index);
+                                        });
+                                      },
+                                      children: List<Widget>.generate(100, (index){
+                                        return Center(
+                                          child: Text(
+                                            (2024-index).toString(),
+                                            style: customStyleClass.getFontStyle3(),
+                                          ),
+                                        );
+                                      })
+                                  ),
+                                ),
+                              ],
+                            )
+
+                          ]
+                      )
+                  ),
+
+                  // DATENSCHUTZ
+                  Container(
+                    padding: EdgeInsets.only(
+                        top: distanceBetweenTitleAndTextField*2
+                    ),
+                    width: screenWidth*0.95,
+                    child: Row(
+                      children: [
+                        Checkbox(
+                            activeColor: customStyleClass.primeColor,
+                            value: privacyAccepted,
+                            onChanged: (bool? newValue){
+                              setState(() {
+                                privacyAccepted = newValue!;
+                              });
+                            }
+                        ),
+                        SizedBox(
+                          width: screenWidth*0.8,
+                          child: RichText(
+                              text: TextSpan(
+                                  children: [
+                                    TextSpan(
+                                        text: "Ich habe die",
+                                        style: customStyleClass.getFontStyle5()
+                                    ),
+                                    TextSpan(
+                                        text: " allgemeinen Geschäftsbedingungen ",
+                                        style: customStyleClass.getFontStyle5BoldPrimeColor(),
+                                        recognizer: TapGestureRecognizer()
+                                          ..onTap = () => clickEventAGB()
+                                    ),
+                                    TextSpan(
+                                        text: "und die",
+                                        style: customStyleClass.getFontStyle5()
+                                    ),
+                                    TextSpan(
+                                        text: " Datenschutzerklärung ",
+                                        style: customStyleClass.getFontStyle5BoldPrimeColor(),
+                                        recognizer: TapGestureRecognizer()
+                                          ..onTap = () => clickEventPrivacy()
+                                    ),
+                                    TextSpan(
+                                        text: "gelesen und akzeptiert.",
+                                        style: customStyleClass.getFontStyle5()
+                                    )
+                                  ]
+                              )
                           ),
                         )
                       ],
@@ -632,6 +722,88 @@ class _RegisterForUserAsClubViewState extends State<RegisterForUserAsClubView> {
             )
         )
     );
+  }
+
+  void clickEventAGB(){
+    showDialog(
+        context: context,
+        builder: (BuildContext context){
+          return TitleContentAndButtonDialog(
+              titleToDisplay: "AGB",
+              contentToDisplay: "Dieser Link führt zu unserer Website. Möchten Sie fortfahren?",
+              buttonToDisplay: TextButton(onPressed: () async {
+                final Uri url = Uri.parse("https://club-me-web-interface.pages.dev/agb");
+                if (!await launchUrl(url)) {
+                  throw Exception('Could not launch $url');
+                }
+              }, child: Text("Ja", style: customStyleClass.getFontStyle3BoldPrimeColor(),)));
+
+        }
+    );
+  }
+  void clickEventPrivacy(){
+    showDialog(
+        context: context,
+        builder: (BuildContext context){
+          return TitleContentAndButtonDialog(
+              titleToDisplay: "Datenschutz",
+              contentToDisplay: "Dieser Link führt zu unserer Website. Möchten Sie fortfahren?",
+              buttonToDisplay: TextButton(onPressed: () async {
+                final Uri url = Uri.parse("https://club-me-web-interface.pages.dev/datenschutz");
+                if (!await launchUrl(url)) {
+                  throw Exception('Could not launch $url');
+                }
+              }, child: Text("Ja", style: customStyleClass.getFontStyle3BoldPrimeColor(),)));
+
+        }
+    );
+  }
+
+  void checkIfRegistrationIsLegit() async {
+
+    setState(() {
+      isLoading = true;
+    });
+
+    if(!privacyAccepted){
+      showDialog(context: context, builder: (BuildContext context){
+        return TitleAndContentDialog(
+            titleToDisplay: "Konditionen akzeptieren",
+            contentToDisplay: "Bitte bestätigen Sie die AGB und die Datenschutzerklärung, um fortzufahren."
+        );
+      });
+    }else{
+      if(RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9-]+\.[a-zA-Z]+").hasMatch(_eMailController.text)){
+        await _supabaseService.getUserByEMail(_eMailController.text).then(
+                (response) {
+              if(response.isNotEmpty){
+                showDialog(context: context, builder: (BuildContext context){
+                  return TitleAndContentDialog(
+                      titleToDisplay: "E-Mail-Adresse existiert bereits",
+                      contentToDisplay: "Diese E-Mail-Adresse ist leider bereits vergeben. Wenn du dich erneut anmelden möchtest, nutze bitte den dazu gehörigen Button auf der Registrierungsseite."
+                  );
+                });
+              }else{
+                setState(() {
+                  isLoading = false;
+                });
+                transferToHiveAndDB();
+              }
+            }
+        );
+      }
+      else{
+        setState(() {
+          isLoading = false;
+        });
+        showDialog(context: context, builder: (BuildContext context){
+          return TitleAndContentDialog(
+              titleToDisplay: "Ungültige E-Mail-Adresse",
+              contentToDisplay: "Bitte gib eine gültige E-Mail-Adresse an."
+          );
+        });
+      }
+    }
   }
 
   @override

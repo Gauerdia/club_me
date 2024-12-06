@@ -62,8 +62,11 @@ class StateProvider extends ChangeNotifier{
 
 
 
+
   final SupabaseService _supabaseService = SupabaseService();
   final log = getLogger();
+
+
 
   void activateAccessedTutorialFromSettings(){
     accessedTutorialFromSettings = true;
@@ -92,6 +95,7 @@ class StateProvider extends ChangeNotifier{
 
   void resetOpenEventDetailContentDirectly(){
     openEventDetailContentDirectly = false;
+    notifyListeners();
   }
 
   void toggleUpdatedLastLogInForNow(){

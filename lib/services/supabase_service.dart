@@ -6,17 +6,13 @@ import 'package:club_me/models/hive_models/0_club_me_user_data.dart';
 import 'package:club_me/models/club_offers.dart';
 import 'package:club_me/models/event.dart';
 import 'package:club_me/models/front_page_images.dart';
-import 'package:club_me/models/price_list.dart';
 import 'package:club_me/models/special_opening_times.dart';
 import 'package:club_me/provider/state_provider.dart';
 import 'package:club_me/provider/user_data_provider.dart';
 import 'package:club_me/shared/logger.util.dart';
-import 'package:googleapis/connectors/v1.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
-import 'package:uuid/v4.dart';
 import '../models/club.dart';
-import '../models/discount.dart';
 import '../models/hive_models/2_club_me_discount.dart';
 
 class SupabaseService{
@@ -135,7 +131,7 @@ class SupabaseService{
       );
 
       var concatYesterday = '${yesterday.year}-${yesterday.month}-${yesterday.day}';
-      var concatInTwoWeeks = '${inTwoWeeks.year}-${inTwoWeeks.month}-${inTwoWeeks.day}';
+      // var concatInTwoWeeks = '${inTwoWeeks.year}-${inTwoWeeks.month}-${inTwoWeeks.day}';
 
       var data = await supabase
           .from('club_me_events')
@@ -203,6 +199,8 @@ class SupabaseService{
 
         'banner_image_file_name': clubMeEvent.getBannerImageFileName(),
         "music_genres" : clubMeEvent.getMusicGenres(),
+        'music_genres_to_filter': clubMeEvent.getMusicGenresToFilter(),
+        'music_genres_to_display': clubMeEvent.getMusicGenresToDisplay(),
 
         "event_marketing_file_name": clubMeEvent.getEventMarketingFileName(),
         "event_marketing_created_at": clubMeEvent.getEventMarketingFileName().isNotEmpty ? DateTime.now().toString() : null,
@@ -262,6 +260,8 @@ class SupabaseService{
           'event_price': updatedEvent.getEventPrice(),
 
           'music_genres': updatedEvent.getMusicGenres(),
+          'music_genres_to_filter': updatedEvent.getMusicGenresToFilter(),
+          'music_genres_to_display': updatedEvent.getMusicGenresToDisplay(),
 
           'event_marketing_file_name': updatedEvent.getEventMarketingFileName(),
           'event_marketing_created_at': updatedEvent.getEventMarketingFileName().isNotEmpty ? DateTime.now().toString() : null,
@@ -520,15 +520,29 @@ class SupabaseService{
       return 1;
     }
   }
-  Future<int> updateClubLastLogInApp(String clubId) async{
+  Future<int> updateClubLastLogInApp(String clubId, bool loggedInAsAdmin) async{
     try{
-      var data = await supabase
-          .from('club_me_clubs')
-          .update({
-        "last_log_in_app" : DateTime.now().toString(),
-      }).match({
-        'club_id' :clubId
-      });
+
+      var data;
+
+      if(loggedInAsAdmin){
+        data = await supabase
+            .from('club_me_clubs')
+            .update({
+          "last_log_in_app_admin" : DateTime.now().toString(),
+        }).match({
+          'club_id' :clubId
+        });
+      }else{
+        data = await supabase
+            .from('club_me_clubs')
+            .update({
+          "last_log_in_app" : DateTime.now().toString(),
+        }).match({
+          'club_id' :clubId
+        });
+      }
+
       log.d("updateLastLogInApp: Finished successfully. Response: $data");
       return 0;
     }catch(e){

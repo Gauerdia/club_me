@@ -1,5 +1,6 @@
 import 'package:chewie/chewie.dart';
 import 'package:club_me/models/event.dart';
+import 'package:club_me/models/genres_to_display.dart';
 import 'package:club_me/services/hive_service.dart';
 import 'package:club_me/shared/dialogs/TitleAndContentDialog.dart';
 import 'package:club_me/shared/dialogs/title_content_and_button_dialog.dart';
@@ -54,11 +55,9 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
   late TextEditingController _eventDJController;
   late TextEditingController _eventTitleController;
   late TextEditingController _eventPriceController;
-  late TextEditingController _eventMusicGenresController;
   late TextEditingController _eventDescriptionController;
   late TextEditingController _eventTicketLinkController;
   late FixedExtentScrollController _fixedExtentScrollController1;
-  late FixedExtentScrollController _fixedExtentScrollController2;
 
   late FixedExtentScrollController _startingHourController;
   late FixedExtentScrollController _startingMinuteController;
@@ -96,9 +95,10 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
 
   double originalFoldHeightFactor = 0.08;
 
-  List<String> musicGenresChosen = [];
   List<String> musicGenresOffer = [];
-
+  List<String> musicGenresChosen = [];
+  List<String> musicGenresToDisplay = [];
+  
 
   File? file;
   String fileExtension = "";
@@ -113,6 +113,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
   bool timePickEndActive = false;
   bool pickHourAndMinuteIsActive = false;
   bool pickGenreIsActive = false;
+  bool closingTimeWasChanged = false;
 
   String pickedFileNameToDisplay = "";
 
@@ -121,8 +122,6 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
   ByteData? screenshot;
 
   double distanceBetweenTitleAndTextField = 10;
-
-  bool closingTimeWasChanged = false;
 
 
 
@@ -160,7 +159,6 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
       );
 
       // GENRES
-      _eventMusicGenresController = TextEditingController();
       final split = stateProvider.getCurrentEventTemplate()!.getMusicGenres().split(',');
       for(int i=0; i< split.length; i++){
         musicGenresChosen.add(split[i]);
@@ -222,11 +220,9 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
       _eventTitleController = TextEditingController();
       _eventPriceController = TextEditingController();
       _eventTicketLinkController = TextEditingController();
-      _eventMusicGenresController = TextEditingController();
       _eventDescriptionController = TextEditingController();
       _eventTicketLinkController = TextEditingController();
       _fixedExtentScrollController1 = FixedExtentScrollController(initialItem: 0);
-      _fixedExtentScrollController2 = FixedExtentScrollController(initialItem: 0);
 
       _startingHourController = FixedExtentScrollController(initialItem: selectedStartingHour);
       _startingMinuteController = FixedExtentScrollController(initialItem: selectedStartingMinute);
@@ -315,14 +311,14 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
                 "Abbrechen",
                 style: customStyleClass.getFontStyle3BoldPrimeColor(),
               ),
-              onTap: () => deselectContent(),
+              onTap: () => clickEventDeselectContent(),
             ),
             GestureDetector(
               child: Text(
                 "Übernehmen",
                 style: customStyleClass.getFontStyle3BoldPrimeColor(),
               ),
-              onTap: () => selectContent(),
+              onTap: () => clickEventSelectContent(),
             ),
           ],
         ),
@@ -347,7 +343,30 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
           bottom: 10
       ),
       child: isUploading ? CircularProgressIndicator(color: customStyleClass.primeColor)
-      : GestureDetector(
+      : pickGenreIsActive ?
+      GestureDetector(
+        child: Container(
+          height: 80,
+          alignment: Alignment.center,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text(
+                "Fertig",
+                style: customStyleClass.getFontStyle3BoldPrimeColor(),
+              ),
+              Icon(
+                Icons.arrow_forward_outlined,
+                color: customStyleClass.primeColor,
+              )
+            ],
+          ),
+        ),
+        onTap: () => setState(() {
+          pickGenreIsActive = false;
+        }),
+      ):
+      GestureDetector(
         child: Container(
           height: 80,
           alignment: Alignment.center,
@@ -369,7 +388,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
       ),
     );
   }
-  Widget _buildMainView(){
+  Widget _buildSwitchBetweenImageVideoAndForm(){
     return Container(
         color: customStyleClass.backgroundColorMain,
         width: screenWidth,
@@ -378,711 +397,19 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
           child: isImage ?
           _buildImagePreview()
               : isVideo ?
-          _buildVideoPreview()
-              :_buildCheckOverview(),
+          _buildVideoPreview() :
+          _buildMainStack(),
         )
 
     );
   }
-  Widget _buildCheckOverview(){
-
+  Widget _buildMainStack(){
     return SizedBox(
         height: screenHeight,
         child: Stack(
           children: [
 
-            // Main view
-            SingleChildScrollView(
-                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                child: Column(
-                    children: [
-
-                      // Spacer
-                      SizedBox(
-                        height: screenHeight*0.05,
-                      ),
-
-                      // Text: Please insert
-                      SizedBox(
-                        width: screenWidth*0.9,
-                        child: Text(
-                          "Bitte gib die passenden Daten zu deinem Event ein!",
-                          textAlign: TextAlign.center,
-                          style: customStyleClass.getFontStyle1Bold(),
-                        ),
-                      ),
-
-                      // Spacer
-                      SizedBox(
-                        height: screenHeight*0.05,
-                      ),
-
-                      // Text: Title
-                      Container(
-                        width: screenWidth*0.9,
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          "Titel des Events",
-                          style: customStyleClass.getFontStyle3(),
-                        ),
-                      ),
-
-                      // Textfield: Title
-                      Container(
-                        width: screenWidth*0.9,
-                        padding:  EdgeInsets.only(
-                            top: distanceBetweenTitleAndTextField
-                        ),
-                        child: TextField(
-                          controller: _eventTitleController,
-                          cursorColor: customStyleClass.primeColor,
-                          decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.only(
-                                left: 20,
-                                top:20,
-                                bottom:20
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: customStyleClass.primeColor
-                                )
-                            ),
-                            hintText: "z.B. Mixed Music",
-                            border: const OutlineInputBorder(),
-                          ),
-                          style: customStyleClass.getFontStyle4(),
-                          maxLength: 35,
-                        ),
-                      ),
-
-                      // Title: DJ
-                      Container(
-                        width: screenWidth*0.9,
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          "DJ des Events",
-                          style: customStyleClass.getFontStyle3(),
-                        ),
-                      ),
-
-                      // Textfield: DJ
-                      Center(
-                        child: Container(
-                          padding:  EdgeInsets.only(
-                              top: distanceBetweenTitleAndTextField
-                          ),
-                          width: screenWidth*0.9,
-                          child: TextField(
-                            controller: _eventDJController,
-                            cursorColor: customStyleClass.primeColor,
-                            decoration: InputDecoration(
-                              contentPadding: const EdgeInsets.only(
-                                  left: 20,
-                                top:20,
-                                bottom:20
-                              ),
-                              hintText: "z.B. DJ David Guetta",
-                              border: const OutlineInputBorder(),
-                              focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: customStyleClass.primeColor
-                                  )
-                              ),
-                            ),
-                            style: customStyleClass.getFontStyle4(),
-                            maxLength: 35,
-                          ),
-                        ),
-                      ),
-
-                      // Row: Datepicker,
-                      Container(
-                        width: screenWidth*0.9,
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 10
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-
-                            // Datepicker
-                            SizedBox(
-                              height: screenHeight*0.12,
-                              child: Column(
-                                children: [
-
-                                  // Text: Date
-                                  SizedBox(
-                                    width: screenWidth*0.4,
-                                    child: Text(
-                                      "Datum",
-                                      style: customStyleClass.getFontStyle3(),
-                                      textAlign: TextAlign.left,
-                                    ),
-                                  ),
-
-                                  // OutlinedButton
-                                  Container(
-                                    padding:  EdgeInsets.only(
-                                        top: distanceBetweenTitleAndTextField
-                                    ),
-                                    width: screenWidth*0.4,
-                                    child:OutlinedButton(
-                                        onPressed: (){
-                                          showDatePicker(
-                                              context: context,
-                                              locale: const Locale("de", "DE"),
-                                              initialDate: newSelectedDate,
-                                              firstDate: DateTime(2018),
-                                              lastDate: DateTime(2030),
-                                              builder: (BuildContext context, Widget? child) {
-                                                return Theme(
-                                                  data: ThemeData.dark(),
-                                                  child: child!,
-                                                );
-                                              }).then((pickedDate){
-                                            if( pickedDate == null){return;}
-                                            setState(() {
-                                              newSelectedDate = pickedDate;
-                                            });
-                                          });
-                                        },
-                                        style: OutlinedButton.styleFrom(
-                                            minimumSize: Size(screenHeight*0.05,screenHeight*0.07),
-                                            shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(5.0)
-                                            )
-                                        ),
-                                        child: Text(
-                                          formatSelectedDate(),
-                                          style: customStyleClass.getFontStyle4(),
-                                        )
-                                    ),
-                                  )
-
-                                ],
-                              ),
-                            ),
-
-                          ],
-                        ),
-                      ),
-
-                      // Row: closing Hours/Minutes
-                      Container(
-
-                        width: screenWidth*0.9,
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 10
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-
-                            // Hour and minute
-                            SizedBox(
-                              height: screenHeight*0.12,
-                              child: Column(
-                                children: [
-
-                                  // Text: Time
-                                  SizedBox(
-                                    width: screenWidth*0.4,
-                                    child: Text(
-                                      "Start-Uhrzeit",
-                                      style: customStyleClass.getFontStyle3(),
-                                      textAlign: TextAlign.left,
-                                    ),
-                                  ),
-
-                                  // OutlinedButton
-                                  Container(
-                                    padding:  EdgeInsets.only(
-                                        top: distanceBetweenTitleAndTextField
-                                    ),
-                                    width: screenWidth*0.4,
-                                    child: OutlinedButton(
-                                        onPressed: () => setState(() {
-                                          pickHourAndMinuteIsActive = true;
-                                        }),
-                                        style: OutlinedButton.styleFrom(
-                                            minimumSize: Size(screenHeight*0.05,screenHeight*0.07),
-                                            shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(5.0)
-                                            )
-                                        ),
-                                        child: Text(
-                                          formatSelectedHourAndMinute(selectedStartingHour, selectedStartingMinute),
-                                          style: customStyleClass.getFontStyle4(),
-                                        )
-                                    ),
-                                  )
-
-                                ],
-                              ),
-                            ),
-
-                            // Hour and minute
-                            SizedBox(
-                              height: screenHeight*0.12,
-                              child: Column(
-                                children: [
-
-                                  // Text: Time
-                                  SizedBox(
-                                    width: screenWidth*0.4,
-                                    child: Text(
-                                      "End-Uhrzeit",
-                                      style: customStyleClass.getFontStyle3(),
-                                      textAlign: TextAlign.left,
-                                    ),
-                                  ),
-
-                                  // OutlinedButton
-                                  Container(
-                                    padding:  EdgeInsets.only(
-                                        top: distanceBetweenTitleAndTextField
-                                    ),
-                                    width: screenWidth*0.4,
-                                    child: OutlinedButton(
-                                        onPressed: () => setState(() {
-                                          pickHourAndMinuteIsActive = true;
-                                          timePickEndActive = true;
-                                        }),
-                                        style: OutlinedButton.styleFrom(
-                                            minimumSize: Size(screenHeight*0.05,screenHeight*0.07),
-                                            shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(5.0)
-                                            )
-                                        ),
-                                        child: Text(
-                                          closingTimeWasChanged ? formatSelectedHourAndMinute(selectedClosingHour, selectedClosingMinute)
-                                          : "--.--",
-                                          style: customStyleClass.getFontStyle4(),
-                                        )
-                                    ),
-                                  )
-
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      // Price text field
-                      Column(
-                        children: [
-
-                          // Text: Price
-                          SizedBox(
-                            width: screenWidth*0.9,
-                            child: Text(
-                              "Eintrittspreis",
-                              style: customStyleClass.getFontStyle3(),
-                              textAlign: TextAlign.left,
-                            ),
-                          ),
-
-                          // Spacer
-                          SizedBox(
-                            height: screenHeight*0.007,
-                          ),
-
-                          // Textfield: Price
-                          Container(
-                            width: screenWidth*0.9,
-                            alignment: Alignment.centerLeft,
-                            child: SizedBox(
-                              width: screenWidth*0.3,
-                              child: TextField(
-                                controller: _eventPriceController,
-                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                cursorColor: customStyleClass.primeColor,
-                                decoration: InputDecoration(
-                                  hintText: "z.B. 10",
-                                  contentPadding: const EdgeInsets.only(
-                                      left: 20,
-                                      top:20,
-                                      bottom:20
-                                  ),
-                                  border: const OutlineInputBorder(),
-                                  focusedBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: customStyleClass.primeColor
-                                      )
-                                  ),
-                                ),
-                                style: customStyleClass.getFontStyle4(),
-                                maxLength: 5,
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-
-                      // Text: Description
-                      Container(
-                        padding: const EdgeInsets.only(
-                          top: 10
-                        ),
-                        width: screenWidth*0.9,
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          "Beschreibung des Events",
-                          style: customStyleClass.getFontStyle3(),
-                        ),
-                      ),
-
-                      // Textfield: Description
-                      Container(
-                        padding:  EdgeInsets.only(
-                            top: distanceBetweenTitleAndTextField
-                        ),
-                        width: screenWidth*0.9,
-                        child: TextField(
-                          controller: _eventDescriptionController,
-                          keyboardType: TextInputType.multiline,
-                          maxLines: null,
-                          cursorColor: customStyleClass.primeColor,
-                          decoration: InputDecoration(
-                            border: const OutlineInputBorder(),
-                            hintText: "Erzähe deinen Kunden etwas über das Event...",
-                            focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: customStyleClass.primeColor
-                                )
-                            ),
-                          ),
-                          maxLength: 300,
-                          minLines: 10,
-                          style:customStyleClass.getFontStyle4(),
-                        ),
-                      ),
-
-                      // Text: Genres
-                      Container(
-                        width: screenWidth*0.9,
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          "Musikrichtungen",
-                          style: customStyleClass.getFontStyle3(),
-                        ),
-                      ),
-
-                      // Wrap: Genres
-                      Container(
-                        width: screenWidth*0.9,
-                        alignment: Alignment.centerLeft,
-                        child: Wrap(
-                          children: [
-                            for(String genre in musicGenresChosen)
-                              InkWell(
-                                child: Padding(
-                                  padding:const EdgeInsets.only(
-                                      right: 5,
-                                      top: 12
-                                  ),
-                                  child: Text(
-                                    genre,
-                                    style: customStyleClass.getFontStyle3BoldPrimeColor(),
-                                  ),
-                                ),
-                                onTap: () => removeGenresFromList(genre),
-                              ),
-                            IconButton(
-                                onPressed: () => showDialogToAddGenres(),
-                                icon: Icon(
-                                  Icons.add,
-                                  size: 30,
-                                  color: customStyleClass.primeColor,
-                                )
-                            )
-                          ],
-                        ),
-                      ),
-
-                      // Text: Image or Video
-                      Container(
-                        width: screenWidth*0.9,
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          "Bild oder Video",
-                          style: customStyleClass.getFontStyle3(),
-                        ),
-                      ),
-
-                      // Show icon, name and erase-icon when file selected
-                      if(file != null)
-                        SizedBox(
-                          width: screenWidth*0.9,
-                          height: screenHeight*0.1,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              SizedBox(
-                                width: screenWidth*0.1,
-                                child: Icon(
-                                  Icons.file_present,
-                                  size: 32,
-                                  color: customStyleClass.primeColor,
-                                ),
-                              ),
-                              SizedBox(
-                                width: screenWidth*0.6,
-                                child: Text(
-                                  pickedFileNameToDisplay,
-                                  style: customStyleClass.getFontStyle3(),
-                                ),
-                              ),
-                              SizedBox(
-                                width: screenWidth*0.1,
-                                child: InkWell(
-                                  child: Icon(
-                                    Icons.delete,
-                                    size: 32,
-                                    color: customStyleClass.primeColor,
-                                  ),
-                                  onTap: () => setState(() {file = null;}),
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-
-                      // Show 'add' icon when no file selected
-                      if(file == null)
-                        Container(
-                          width: screenWidth*0.9,
-                          alignment: Alignment.centerLeft,
-                          child: IconButton(
-                              onPressed: () => clickEventChooseContent(),
-                              icon: Icon(
-                                Icons.add,
-                                size: 30,
-                                color: customStyleClass.primeColor,
-                              )
-                          ),
-                        ),
-
-                      // Text: Ticket Link
-                      Container(
-                        width: screenWidth*0.9,
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          "Link zu Tickets",
-                          style: customStyleClass.getFontStyle3(),
-                        ),
-                      ),
-
-                      // TextField: Ticket
-                      Container(
-                        padding:  EdgeInsets.only(
-                            top: distanceBetweenTitleAndTextField
-                        ),
-                        width: screenWidth*0.9,
-                        child: TextField(
-                          controller: _eventTicketLinkController,
-                          cursorColor: customStyleClass.primeColor,
-                          decoration: InputDecoration(
-                            hintText: " z.B. https://www.eventbrite.com",
-                            contentPadding: const EdgeInsets.only(
-                                left: 20,
-                                top:20,
-                                bottom:20
-                            ),
-                            border: const OutlineInputBorder(),
-                            focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: customStyleClass.primeColor
-                                )
-                            ),
-                          ),
-                          style: customStyleClass.getFontStyle4(),
-                        ),
-                      ),
-
-                      // Text: 'Repeat event'
-                      Container(
-                        padding: const EdgeInsets.only(
-                          top: 15
-                        ),
-                        width: screenWidth*0.9,
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          "Event wiederholen",
-                          style: customStyleClass.getFontStyle3(),
-                        ),
-                      ),
-
-                      // ToggleSwitch: isRepeated
-                      Container(
-                        width: screenWidth*0.9,
-                        height: screenHeight*0.09,
-                        alignment: Alignment.centerLeft,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            SizedBox(
-                                width: screenWidth*0.3,
-                                child: ToggleSwitch(
-                                  minHeight: screenHeight*0.06,
-                                  initialLabelIndex: isRepeated,
-                                  totalSwitches: 2,
-                                  activeBgColor: [customStyleClass.primeColor],
-                                  activeFgColor: Colors.white,
-                                  inactiveFgColor: Colors.white,
-                                  inactiveBgColor: customStyleClass.backgroundColorEventTile,
-                                  labels: const [
-                                    'Nein',
-                                    'Ja',
-                                  ],
-                                  onToggle: (index) {
-                                    setState(() {
-                                      isRepeated == 0 ? isRepeated = 1 : isRepeated = 0;
-                                    });
-                                  },
-                                )
-                            ),
-
-                            // CupertinoPicker
-                            if(isRepeated != 0)
-                              Container(
-                                padding: const EdgeInsets.only(
-                                  top: 10
-                                ),
-                                width: screenWidth*0.4,
-                                height: screenHeight*0.1,
-                                child: CupertinoPicker(
-                                    scrollController: _fixedExtentScrollController1,
-                                    itemExtent: 50,
-                                    onSelectedItemChanged: (int index){
-                                      setState(() {
-                                        isRepeatedIndex = index;
-                                      });
-                                    },
-                                    children: List<Widget>.generate(repetitionAnswers.length, (index){
-                                      return Center(
-                                        child: Text(
-                                          repetitionAnswers[index],
-                                          style: customStyleClass.getFontStyle3(),
-                                        ),
-                                      );
-                                    })
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-
-                      // Text: Template
-                      if(isTemplate == 0)
-                        Container(
-                          width: screenWidth*0.9,
-                          alignment: Alignment.centerLeft,
-                          padding:  EdgeInsets.only(
-                              top: distanceBetweenTitleAndTextField
-                          ),
-                          child: SizedBox(
-                            width: screenWidth*0.45,
-                            child: Text(
-                              "Als Vorlage speichern",
-                              style: customStyleClass.getFontStyle3(),
-                              textAlign: TextAlign.left,
-                            ),
-                          ),
-                        ),
-
-                      // ToggleSwitch isTemplate
-                      if(isTemplate == 0)
-                        Container(
-                        width: screenWidth*0.9,
-                        height: screenHeight*0.1,
-                        alignment: Alignment.centerLeft,
-                        child: Container(
-                          width: screenWidth*0.45,
-                          alignment: Alignment.centerLeft,
-                          child: SizedBox(
-                              width: screenWidth*0.3,
-                              child: ToggleSwitch(
-                                minHeight: screenHeight*0.06,
-                                initialLabelIndex: isSupposedToBeTemplate,
-                                totalSwitches: 2,
-                                activeBgColor: [customStyleClass.primeColor],
-                                activeFgColor: Colors.white,
-                                inactiveFgColor: Colors.white,
-                                inactiveBgColor: customStyleClass.backgroundColorEventTile,
-                                labels: const [
-                                  'Nein',
-                                  'Ja',
-                                ],
-                                onToggle: (index) {
-                                  setState(() {
-                                    isSupposedToBeTemplate == 0 ? isSupposedToBeTemplate = 1 : isSupposedToBeTemplate = 0;
-                                  });
-                                },
-                              )
-                          ),
-                        ),
-                      ),
-
-                      if(isTemplate == 0 && isSupposedToBeTemplate != 0 && file != null)
-                        Container(
-                          width: screenWidth*0.9,
-                          alignment: Alignment.centerLeft,
-                          padding:  EdgeInsets.only(
-                              top: distanceBetweenTitleAndTextField
-                          ),
-                          child: SizedBox(
-                            width: screenWidth*0.45,
-                            child: Text(
-                              "Bild/Video auch als Vorlage speichern",
-                              style: customStyleClass.getFontStyle3(),
-                              textAlign: TextAlign.left,
-                            ),
-                          ),
-                        ),
-
-                      if(isTemplate == 0 && isSupposedToBeTemplate != 0 && file != null)
-                        Container(
-                          width: screenWidth*0.9,
-                          height: screenHeight*0.1,
-                          alignment: Alignment.centerLeft,
-                          child: Container(
-                            width: screenWidth*0.45,
-                            alignment: Alignment.centerLeft,
-                            child: SizedBox(
-                                width: screenWidth*0.3,
-                                child: ToggleSwitch(
-                                  minHeight: screenHeight*0.06,
-                                  initialLabelIndex: isSupposedToSaveFile,
-                                  totalSwitches: 2,
-                                  activeBgColor: [customStyleClass.primeColor],
-                                  activeFgColor: Colors.white,
-                                  inactiveFgColor: Colors.white,
-                                  inactiveBgColor: customStyleClass.backgroundColorEventTile,
-                                  labels: const [
-                                    'Nein',
-                                    'Ja',
-                                  ],
-                                  onToggle: (index) {
-                                    setState(() {
-                                      isSupposedToSaveFile == 0 ? isSupposedToSaveFile = 1 : isSupposedToSaveFile = 0;
-                                    });
-                                  },
-                                )
-                            ),
-                          ),
-                        ),
-
-                      // Spacer
-                      SizedBox(
-                        height: screenHeight*0.15,
-                      ),
-
-                    ]
-                )
-            ),
+            _buildCreateEventForm(),
 
             // opacity blocker
             if(pickHourAndMinuteIsActive || pickGenreIsActive)
@@ -1103,296 +430,706 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
 
             // window to ask for hours and minutes
             if(pickHourAndMinuteIsActive)
+              _buildPickHourAndMinuteScreen(),
+
+            // window to pick genres
+            if(pickGenreIsActive)
+              _buildPickGenresScreen()
+
+          ],
+        )
+    );
+  }
+  Widget _buildCreateEventForm(){
+    return SingleChildScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        child: Column(
+            children: [
+
+              // Spacer
+              SizedBox(
+                height: screenHeight*0.05,
+              ),
+
+              // Text: Please insert
+              SizedBox(
+                width: screenWidth*0.9,
+                child: Text(
+                  "Bitte gib die passenden Daten zu deinem Event ein!",
+                  textAlign: TextAlign.center,
+                  style: customStyleClass.getFontStyle1Bold(),
+                ),
+              ),
+
+              // Spacer
+              SizedBox(
+                height: screenHeight*0.05,
+              ),
+
+              // Text: Title
+              Container(
+                width: screenWidth*0.9,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "Titel des Events",
+                  style: customStyleClass.getFontStyle3(),
+                ),
+              ),
+
+              // Textfield: Title
+              Container(
+                width: screenWidth*0.9,
+                padding:  EdgeInsets.only(
+                    top: distanceBetweenTitleAndTextField
+                ),
+                child: TextField(
+                  controller: _eventTitleController,
+                  cursorColor: customStyleClass.primeColor,
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.only(
+                        left: 20,
+                        top:20,
+                        bottom:20
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                            color: customStyleClass.primeColor
+                        )
+                    ),
+                    hintText: "z.B. Mixed Music",
+                    border: const OutlineInputBorder(),
+                  ),
+                  style: customStyleClass.getFontStyle4(),
+                  maxLength: 35,
+                ),
+              ),
+
+              // Title: DJ
+              Container(
+                width: screenWidth*0.9,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "DJ des Events",
+                  style: customStyleClass.getFontStyle3(),
+                ),
+              ),
+
+              // Textfield: DJ
               Center(
                 child: Container(
+                  padding:  EdgeInsets.only(
+                      top: distanceBetweenTitleAndTextField
+                  ),
                   width: screenWidth*0.9,
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 20,
-                      horizontal: 20
-                  ),
-                  decoration: BoxDecoration(
-                      color: Colors.black,
-                      border: Border.all(
-                          color: Colors.grey[200]!
-                      )
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-
-                      // Text: Starting time
-                      Text(
-                        "Startuhrzeit",
-                        textAlign: TextAlign.left,
-                        style: customStyleClass.getFontStyle1(),
+                  child: TextField(
+                    controller: _eventDJController,
+                    cursorColor: customStyleClass.primeColor,
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.only(
+                          left: 20,
+                          top:20,
+                          bottom:20
                       ),
-
-                      // Text: Please insert
-                      Text(
-                        "Bitte trage mit Hoch- und Herunterwischen die Uhrzeit ein, zu der das Event beginnt.",
-                        textAlign: TextAlign.left,
-                        style: customStyleClass.getFontStyle4(),
-                      ),
-
-                      // Spacer
-                      SizedBox(
-                        height: screenHeight*0.03,
-                      ),
-
-                      // Cupertino Picker
-                      SizedBox(
-                        height: screenHeight*0.1,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-
-                            SizedBox(
-                              width: screenWidth*0.2,
-                              child: CupertinoPicker(
-                                  scrollController:
-                                  timePickEndActive ?
-                                  _closingHourController :
-                                  _startingHourController,
-                                  itemExtent: 50,
-                                  onSelectedItemChanged: (int index){
-                                    setState(() {
-                                      if(timePickEndActive){
-                                        selectedClosingHour = index;
-                                        closingTimeWasChanged = true;
-                                      }else{
-                                        selectedStartingHour = index;
-                                      }
-                                    });
-                                  },
-                                  children: List<Widget>.generate(24, (index){
-                                    return Center(
-                                      child: Text(
-                                        index < 10 ?
-                                        "0${index.toString()}" :
-                                        index.toString(),
-                                        style: customStyleClass.getFontStyle3(),
-                                      ),
-                                    );
-                                  })
-                              ),
-                            ),
-                            Text(
-                              ":",
-                              style: customStyleClass.getFontStyle3(),
-                            ),
-                            SizedBox(
-                              width: screenWidth*0.2,
-                              child: CupertinoPicker(
-                                  scrollController: timePickEndActive? _closingMinuteController : _startingMinuteController,
-                                  itemExtent: 50,
-                                  onSelectedItemChanged: (int index){
-                                    setState(() {
-                                      if(timePickEndActive){
-                                        selectedClosingMinute = int.parse(minuteValuesToChoose[index]);
-                                        closingTimeWasChanged = true;
-                                      }else{
-                                        selectedStartingMinute = int.parse(minuteValuesToChoose[index]);
-                                      }
-                                    });
-                                  },
-                                  children: List<Widget>.generate(5, (index){
-                                    return Center(
-                                      child: Text(
-                                        index == 0
-                                            ? "00"
-                                            :(minuteValuesToChoose[index]).toString(),
-                                        style: customStyleClass.getFontStyle3(),
-                                      ),
-                                    );
-                                  })
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      // Button: "Finished"
-                      Container(
-                          width: screenWidth*0.9,
-                          alignment: Alignment.bottomRight,
-                          child: GestureDetector(
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: screenHeight*0.015,
-                                  horizontal: screenWidth*0.03
-                              ),
-                              decoration: BoxDecoration(
-                                  color: Colors.black54,
-                                  border: Border.all(
-                                      color: customStyleClass.primeColor
-                                  ),
-                                  borderRadius: const BorderRadius.all(Radius.circular(10))
-                              ),
-                              child: Text(
-                                "Fertig",
-                                textAlign: TextAlign.center,
-                                style: customStyleClass.getFontStyle4BoldPrimeColor(),
-                              ),
-                            ),
-                            onTap: () => setState(() {pickHourAndMinuteIsActive = false; timePickEndActive = false;}),
+                      hintText: "z.B. DJ David Guetta",
+                      border: const OutlineInputBorder(),
+                      focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                              color: customStyleClass.primeColor
                           )
                       ),
-
-                    ],
+                    ),
+                    style: customStyleClass.getFontStyle4(),
+                    maxLength: 35,
                   ),
                 ),
               ),
 
-            // window to pick genres
-            if(pickGenreIsActive)
-              Center(
-                child: Container(
-                  width: screenWidth*0.9,
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 20,
-                      horizontal: 20
-                  ),
-                  decoration: BoxDecoration(
-                      color: customStyleClass.backgroundColorMain,
-                      border: Border.all(
-                          color: Colors.grey[200]!
-                      )
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
+              // Row: Datepicker,
+              Container(
+                width: screenWidth*0.9,
+                padding: const EdgeInsets.symmetric(
+                    vertical: 10
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
 
-                      // Text: Genres
-                      Text(
-                        "Musikrichtungen",
-                        textAlign: TextAlign.left,
-                        style: customStyleClass.getFontStyle1(),
-                      ),
-
-                      // Text: Please insert
-                      Text(
-                        "Füge Musikrichtungen hinzu oder lösche sie per einfachem Klick!",
-                        textAlign: TextAlign.left,
-                        style: customStyleClass.getFontStyle4(),
-                      ),
-
-                      // Spacer
-                      SizedBox(
-                        height: screenHeight*0.03,
-                      ),
-
-                      // dynamic elements
-                      Column(
+                    // Datepicker
+                    SizedBox(
+                      height: screenHeight*0.12,
+                      child: Column(
                         children: [
 
-                          // Text: Proposed genres
-                          Text(
-                            "Vorgeschlagene Musikrichtungen",
-                            style: customStyleClass.getFontStyle4Bold(),
-                          ),
-
-                          // Wrap: Proposed genres
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 10
-                            ),
-                            child: Wrap(
-                              children: [
-                                for(var element in musicGenresOffer)
-                                  GestureDetector(
-                                    child: Container(
-                                      padding: const EdgeInsets.only(
-                                          right: 10
-                                      ),
-                                      child: Text(
-                                        element,
-                                        style: customStyleClass.getFontStyle3BoldPrimeColor(),
-                                      ),
-                                    ),
-                                    onTap: () => addGenreToChosenGenres(element),
-                                  )
-                              ],
+                          // Text: Date
+                          SizedBox(
+                            width: screenWidth*0.4,
+                            child: Text(
+                              "Datum",
+                              style: customStyleClass.getFontStyle3(),
+                              textAlign: TextAlign.left,
                             ),
                           ),
 
-                          // Text: Chosen genres
-                          Text(
-                            "Ausgewählte Musikrichtungen",
-                            style: customStyleClass.getFontStyle4Bold(),
-                          ),
-
-                          // Wrap: Chosen genres
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 10
+                          // OutlinedButton
+                          Container(
+                            padding:  EdgeInsets.only(
+                                top: distanceBetweenTitleAndTextField
                             ),
-                            child: Wrap(
-                              children: [
-                                for(var element in musicGenresChosen)
-                                  GestureDetector(
-                                    child: Container(
-                                      padding: const EdgeInsets.only(
-                                          right: 10
-                                      ),
-                                      child: Text(
-                                        element,
-                                        style: customStyleClass.getFontStyle3BoldPrimeColor(),
-                                      ),
-                                    ),
-                                    onTap: () => removeGenresFromList(element),
-                                  ),
-                              ],
+                            width: screenWidth*0.4,
+                            child:OutlinedButton(
+                                onPressed: (){
+                                  showDatePicker(
+                                      context: context,
+                                      locale: const Locale("de", "DE"),
+                                      initialDate: newSelectedDate,
+                                      firstDate: DateTime(2018),
+                                      lastDate: DateTime(2030),
+                                      builder: (BuildContext context, Widget? child) {
+                                        return Theme(
+                                          data: ThemeData.dark(),
+                                          child: child!,
+                                        );
+                                      }).then((pickedDate){
+                                    if( pickedDate == null){return;}
+                                    setState(() {
+                                      newSelectedDate = pickedDate;
+                                    });
+                                  });
+                                },
+                                style: OutlinedButton.styleFrom(
+                                    minimumSize: Size(screenHeight*0.05,screenHeight*0.07),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(5.0)
+                                    )
+                                ),
+                                child: Text(
+                                  formatSelectedDate(),
+                                  style: customStyleClass.getFontStyle4(),
+                                )
                             ),
-                          ),
-
-                          // Text: Nothing picked
-                          if(musicGenresChosen.isEmpty)
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  bottom: 15
-                              ),
-                              child: Text(
-                                "Noch keine Musikrichtungen ausgewählt",
-                                style: customStyleClass.getFontStyle5(),
-                              ),
-                            ),
+                          )
 
                         ],
                       ),
+                    ),
 
-                      // Button: "Finished"
-                      Container(
-                          width: screenWidth*0.9,
-                          alignment: Alignment.bottomRight,
-                          child: GestureDetector(
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: screenHeight*0.015,
-                                  horizontal: screenWidth*0.03
-                              ),
-                              decoration: BoxDecoration(
-                                  color: Colors.black54,
-                                  border: Border.all(
-                                      color: customStyleClass.primeColor
-                                  ),
-                                  borderRadius: const BorderRadius.all(Radius.circular(10))
-                              ),
-                              child: Text(
-                                "Fertig",
-                                textAlign: TextAlign.center,
-                                style: customStyleClass.getFontStyle4BoldPrimeColor(),
-                              ),
+                  ],
+                ),
+              ),
+
+              // Row: closing Hours/Minutes
+              Container(
+
+                width: screenWidth*0.9,
+                padding: const EdgeInsets.symmetric(
+                    vertical: 10
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+
+                    // Hour and minute
+                    SizedBox(
+                      height: screenHeight*0.12,
+                      child: Column(
+                        children: [
+
+                          // Text: Time
+                          SizedBox(
+                            width: screenWidth*0.4,
+                            child: Text(
+                              "Start-Uhrzeit",
+                              style: customStyleClass.getFontStyle3(),
+                              textAlign: TextAlign.left,
                             ),
-                            onTap: () => setState(() {pickGenreIsActive = false;}),
-                          )
-                      ),
+                          ),
 
+                          // OutlinedButton
+                          Container(
+                            padding:  EdgeInsets.only(
+                                top: distanceBetweenTitleAndTextField
+                            ),
+                            width: screenWidth*0.4,
+                            child: OutlinedButton(
+                                onPressed: () => setState(() {
+                                  pickHourAndMinuteIsActive = true;
+                                }),
+                                style: OutlinedButton.styleFrom(
+                                    minimumSize: Size(screenHeight*0.05,screenHeight*0.07),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(5.0)
+                                    )
+                                ),
+                                child: Text(
+                                  formatSelectedHourAndMinute(selectedStartingHour, selectedStartingMinute),
+                                  style: customStyleClass.getFontStyle4(),
+                                )
+                            ),
+                          )
+
+                        ],
+                      ),
+                    ),
+
+                    // Hour and minute
+                    SizedBox(
+                      height: screenHeight*0.12,
+                      child: Column(
+                        children: [
+
+                          // Text: Time
+                          SizedBox(
+                            width: screenWidth*0.4,
+                            child: Text(
+                              "End-Uhrzeit",
+                              style: customStyleClass.getFontStyle3(),
+                              textAlign: TextAlign.left,
+                            ),
+                          ),
+
+                          // OutlinedButton
+                          Container(
+                            padding:  EdgeInsets.only(
+                                top: distanceBetweenTitleAndTextField
+                            ),
+                            width: screenWidth*0.4,
+                            child: OutlinedButton(
+                                onPressed: () => setState(() {
+                                  pickHourAndMinuteIsActive = true;
+                                  timePickEndActive = true;
+                                }),
+                                style: OutlinedButton.styleFrom(
+                                    minimumSize: Size(screenHeight*0.05,screenHeight*0.07),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(5.0)
+                                    )
+                                ),
+                                child: Text(
+                                  closingTimeWasChanged ? formatSelectedHourAndMinute(selectedClosingHour, selectedClosingMinute)
+                                      : "--.--",
+                                  style: customStyleClass.getFontStyle4(),
+                                )
+                            ),
+                          )
+
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Price text field
+              Column(
+                children: [
+
+                  // Text: Price
+                  SizedBox(
+                    width: screenWidth*0.9,
+                    child: Text(
+                      "Eintrittspreis",
+                      style: customStyleClass.getFontStyle3(),
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+
+                  // Spacer
+                  SizedBox(
+                    height: screenHeight*0.007,
+                  ),
+
+                  // Textfield: Price
+                  Container(
+                    width: screenWidth*0.9,
+                    alignment: Alignment.centerLeft,
+                    child: SizedBox(
+                      width: screenWidth*0.3,
+                      child: TextField(
+                        controller: _eventPriceController,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        cursorColor: customStyleClass.primeColor,
+                        decoration: InputDecoration(
+                          hintText: "z.B. 10",
+                          contentPadding: const EdgeInsets.only(
+                              left: 20,
+                              top:20,
+                              bottom:20
+                          ),
+                          border: const OutlineInputBorder(),
+                          focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: customStyleClass.primeColor
+                              )
+                          ),
+                        ),
+                        style: customStyleClass.getFontStyle4(),
+                        maxLength: 5,
+                      ),
+                    ),
+                  )
+                ],
+              ),
+
+              // Text: Description
+              Container(
+                padding: const EdgeInsets.only(
+                    top: 10
+                ),
+                width: screenWidth*0.9,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "Beschreibung des Events",
+                  style: customStyleClass.getFontStyle3(),
+                ),
+              ),
+
+              // Textfield: Description
+              Container(
+                padding:  EdgeInsets.only(
+                    top: distanceBetweenTitleAndTextField
+                ),
+                width: screenWidth*0.9,
+                child: TextField(
+                  controller: _eventDescriptionController,
+                  keyboardType: TextInputType.multiline,
+                  maxLines: null,
+                  cursorColor: customStyleClass.primeColor,
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    hintText: "Erzähe deinen Kunden etwas über das Event...",
+                    focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                            color: customStyleClass.primeColor
+                        )
+                    ),
+                  ),
+                  maxLength: 300,
+                  minLines: 10,
+                  style:customStyleClass.getFontStyle4(),
+                ),
+              ),
+
+              // Text: Genres
+              Container(
+                width: screenWidth*0.9,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "Musikrichtungen",
+                  style: customStyleClass.getFontStyle3(),
+                ),
+              ),
+
+              // Wrap: Genres
+              Container(
+                width: screenWidth*0.9,
+                alignment: Alignment.centerLeft,
+                child: Wrap(
+                  children: [
+                    for(String genre in musicGenresChosen)
+                      InkWell(
+                        child: Padding(
+                          padding:const EdgeInsets.only(
+                              right: 5,
+                              top: 12
+                          ),
+                          child: Text(
+                            genre,
+                            style: customStyleClass.getFontStyle3BoldPrimeColor(),
+                          ),
+                        ),
+                        // onTap: () => removeGenresFromList(genre),
+                      ),
+                    IconButton(
+                        onPressed: () => clickEventShowDialogToAddGenres(),
+                        icon: Icon(
+                          musicGenresChosen.isEmpty ? Icons.add : Icons.edit,
+                          size: 30,
+                          color: customStyleClass.primeColor,
+                        )
+                    )
+                  ],
+                ),
+              ),
+
+              // Text: Image or Video
+              Container(
+                width: screenWidth*0.9,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "Bild oder Video",
+                  style: customStyleClass.getFontStyle3(),
+                ),
+              ),
+
+              // Show icon, name and erase-icon when file selected
+              if(file != null)
+                SizedBox(
+                  width: screenWidth*0.9,
+                  height: screenHeight*0.1,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedBox(
+                        width: screenWidth*0.1,
+                        child: Icon(
+                          Icons.file_present,
+                          size: 32,
+                          color: customStyleClass.primeColor,
+                        ),
+                      ),
+                      SizedBox(
+                        width: screenWidth*0.6,
+                        child: Text(
+                          pickedFileNameToDisplay,
+                          style: customStyleClass.getFontStyle3(),
+                        ),
+                      ),
+                      SizedBox(
+                        width: screenWidth*0.1,
+                        child: InkWell(
+                          child: Icon(
+                            Icons.delete,
+                            size: 32,
+                            color: customStyleClass.primeColor,
+                          ),
+                          onTap: () => setState(() {file = null;}),
+                        ),
+                      )
                     ],
                   ),
                 ),
-              )
 
-          ],
+              // Show 'add' icon when no file selected
+              if(file == null)
+                Container(
+                  width: screenWidth*0.9,
+                  alignment: Alignment.centerLeft,
+                  child: IconButton(
+                      onPressed: () => clickEventChooseContent(),
+                      icon: Icon(
+                        Icons.add,
+                        size: 30,
+                        color: customStyleClass.primeColor,
+                      )
+                  ),
+                ),
+
+              // Text: Ticket Link
+              Container(
+                width: screenWidth*0.9,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "Link zu Tickets",
+                  style: customStyleClass.getFontStyle3(),
+                ),
+              ),
+
+              // TextField: Ticket
+              Container(
+                padding:  EdgeInsets.only(
+                    top: distanceBetweenTitleAndTextField
+                ),
+                width: screenWidth*0.9,
+                child: TextField(
+                  controller: _eventTicketLinkController,
+                  cursorColor: customStyleClass.primeColor,
+                  decoration: InputDecoration(
+                    hintText: " z.B. https://www.eventbrite.com",
+                    contentPadding: const EdgeInsets.only(
+                        left: 20,
+                        top:20,
+                        bottom:20
+                    ),
+                    border: const OutlineInputBorder(),
+                    focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                            color: customStyleClass.primeColor
+                        )
+                    ),
+                  ),
+                  style: customStyleClass.getFontStyle4(),
+                ),
+              ),
+
+              // Text: 'Repeat event'
+              Container(
+                padding: const EdgeInsets.only(
+                    top: 15
+                ),
+                width: screenWidth*0.9,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "Event wiederholen",
+                  style: customStyleClass.getFontStyle3(),
+                ),
+              ),
+
+              // ToggleSwitch: isRepeated
+              Container(
+                width: screenWidth*0.9,
+                height: screenHeight*0.09,
+                alignment: Alignment.centerLeft,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    SizedBox(
+                        width: screenWidth*0.3,
+                        child: ToggleSwitch(
+                          minHeight: screenHeight*0.06,
+                          initialLabelIndex: isRepeated,
+                          totalSwitches: 2,
+                          activeBgColor: [customStyleClass.primeColor],
+                          activeFgColor: Colors.white,
+                          inactiveFgColor: Colors.white,
+                          inactiveBgColor: customStyleClass.backgroundColorEventTile,
+                          labels: const [
+                            'Nein',
+                            'Ja',
+                          ],
+                          onToggle: (index) {
+                            setState(() {
+                              isRepeated == 0 ? isRepeated = 1 : isRepeated = 0;
+                            });
+                          },
+                        )
+                    ),
+
+                    // CupertinoPicker
+                    if(isRepeated != 0)
+                      Container(
+                        padding: const EdgeInsets.only(
+                            top: 10
+                        ),
+                        width: screenWidth*0.4,
+                        height: screenHeight*0.1,
+                        child: CupertinoPicker(
+                            scrollController: _fixedExtentScrollController1,
+                            itemExtent: 50,
+                            onSelectedItemChanged: (int index){
+                              setState(() {
+                                isRepeatedIndex = index;
+                              });
+                            },
+                            children: List<Widget>.generate(repetitionAnswers.length, (index){
+                              return Center(
+                                child: Text(
+                                  repetitionAnswers[index],
+                                  style: customStyleClass.getFontStyle3(),
+                                ),
+                              );
+                            })
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+
+              // Text: Template
+              if(isTemplate == 0)
+                Container(
+                  width: screenWidth*0.9,
+                  alignment: Alignment.centerLeft,
+                  padding:  EdgeInsets.only(
+                      top: distanceBetweenTitleAndTextField
+                  ),
+                  child: SizedBox(
+                    width: screenWidth*0.45,
+                    child: Text(
+                      "Als Vorlage speichern",
+                      style: customStyleClass.getFontStyle3(),
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+                ),
+
+              // ToggleSwitch isTemplate
+              if(isTemplate == 0)
+                Container(
+                  width: screenWidth*0.9,
+                  height: screenHeight*0.1,
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    width: screenWidth*0.45,
+                    alignment: Alignment.centerLeft,
+                    child: SizedBox(
+                        width: screenWidth*0.3,
+                        child: ToggleSwitch(
+                          minHeight: screenHeight*0.06,
+                          initialLabelIndex: isSupposedToBeTemplate,
+                          totalSwitches: 2,
+                          activeBgColor: [customStyleClass.primeColor],
+                          activeFgColor: Colors.white,
+                          inactiveFgColor: Colors.white,
+                          inactiveBgColor: customStyleClass.backgroundColorEventTile,
+                          labels: const [
+                            'Nein',
+                            'Ja',
+                          ],
+                          onToggle: (index) {
+                            setState(() {
+                              isSupposedToBeTemplate == 0 ? isSupposedToBeTemplate = 1 : isSupposedToBeTemplate = 0;
+                            });
+                          },
+                        )
+                    ),
+                  ),
+                ),
+
+              if(isTemplate == 0 && isSupposedToBeTemplate != 0 && file != null)
+                Container(
+                  width: screenWidth*0.9,
+                  alignment: Alignment.centerLeft,
+                  padding:  EdgeInsets.only(
+                      top: distanceBetweenTitleAndTextField
+                  ),
+                  child: SizedBox(
+                    width: screenWidth*0.45,
+                    child: Text(
+                      "Bild/Video auch als Vorlage speichern",
+                      style: customStyleClass.getFontStyle3(),
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+                ),
+
+              if(isTemplate == 0 && isSupposedToBeTemplate != 0 && file != null)
+                Container(
+                  width: screenWidth*0.9,
+                  height: screenHeight*0.1,
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    width: screenWidth*0.45,
+                    alignment: Alignment.centerLeft,
+                    child: SizedBox(
+                        width: screenWidth*0.3,
+                        child: ToggleSwitch(
+                          minHeight: screenHeight*0.06,
+                          initialLabelIndex: isSupposedToSaveFile,
+                          totalSwitches: 2,
+                          activeBgColor: [customStyleClass.primeColor],
+                          activeFgColor: Colors.white,
+                          inactiveFgColor: Colors.white,
+                          inactiveBgColor: customStyleClass.backgroundColorEventTile,
+                          labels: const [
+                            'Nein',
+                            'Ja',
+                          ],
+                          onToggle: (index) {
+                            setState(() {
+                              isSupposedToSaveFile == 0 ? isSupposedToSaveFile = 1 : isSupposedToSaveFile = 0;
+                            });
+                          },
+                        )
+                    ),
+                  ),
+                ),
+
+              // Spacer
+              SizedBox(
+                height: screenHeight*0.15,
+              ),
+
+            ]
         )
     );
   }
@@ -1411,15 +1148,13 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
       child: SizedBox(
         width: screenWidth,
         height: screenHeight*0.75,
-        child: _chewieController != null &&
-            _chewieController!
-                .videoPlayerController.value.isInitialized
-            ? SizedBox(
-          width: screenWidth,
-          height: screenHeight*0.95,
-          child: Chewie(
-            controller: _chewieController!,
-          ),
+        child: _chewieController != null && _chewieController!.videoPlayerController.value.isInitialized ?
+          SizedBox(
+            width: screenWidth,
+            height: screenHeight*0.95,
+            child: Chewie(
+              controller: _chewieController!,
+            ),
         ) :
         SizedBox(
           width: screenWidth,
@@ -1431,45 +1166,316 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
       ),
     );
   }
+  Widget _buildPickGenresScreen(){
+    return Container(
+      width: screenWidth,
+      height: screenHeight,
+      color: customStyleClass.backgroundColorMain,
+      padding: const EdgeInsets.symmetric(
+          vertical: 20,
+          horizontal: 20
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+
+            // Text: Genres
+            Text(
+              "Musikrichtungen",
+              textAlign: TextAlign.left,
+              style: customStyleClass.getFontStyle1(),
+            ),
+
+            // Text: Please insert
+            Text(
+              "Füge Musikrichtungen hinzu oder lösche sie per einfachem Klick!",
+              textAlign: TextAlign.left,
+              style: customStyleClass.getFontStyle4(),
+            ),
+
+            // Spacer
+            SizedBox(
+              height: screenHeight*0.03,
+            ),
+
+            // dynamic elements
+            Column(
+              children: [
+
+                // Text: Proposed genres
+                Text(
+                  "Vorgeschlagene Musikrichtungen",
+                  style: customStyleClass.getFontStyle4Bold(),
+                ),
+
+                // Wrap: Proposed genres
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 10
+                  ),
+                  child: Wrap(
+                    children: [
+                      for(var element in musicGenresOffer)
+                        GestureDetector(
+                          child: Container(
+                            padding: const EdgeInsets.only(
+                                right: 10
+                            ),
+                            child: Text(
+                              element,
+                              style: customStyleClass.getFontStyle3BoldPrimeColor(),
+                            ),
+                          ),
+                          onTap: () => clickEventAddGenreToChosenGenres(element),
+                        )
+                    ],
+                  ),
+                ),
+
+                // Text: Chosen genres
+                Stack(
+                  children: [
+                    Container(
+                      alignment: Alignment.center,
+                      child: Text(
+                        "Ausgewählte Musikrichtungen",
+                        style: customStyleClass.getFontStyle4Bold(),
+                      ),
+                    ),
+
+                    if(musicGenresChosen.isNotEmpty)
+                      Container(
+                        alignment: Alignment.centerRight,
+                        child: InkWell(
+                          child: Icon(
+                            Icons.info,
+                            color: customStyleClass.primeColor,
+                          ),
+                          onTap: () =>clickEventInfoFromChosenList(),
+                        ),
+                      )
+                  ],
+                ),
+
+                // Wrap: Chosen genres
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 10
+                  ),
+                  child: Wrap(
+                    children: [
+                      for(var element in musicGenresChosen)
+                        _buildChosenGenreTile(element)
+                    ],
+
+                  ),
+                ),
+
+                // Text: Nothing picked
+                if(musicGenresChosen.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        bottom: 15
+                    ),
+                    child: Text(
+                      "Noch keine Musikrichtungen ausgewählt",
+                      style: customStyleClass.getFontStyle5(),
+                    ),
+                  ),
+
+              ],
+            ),
+
+            SizedBox(
+              height: screenHeight*0.15,
+            )
+
+          ],
+        ),
+      ),
+    );
+  }
+  Widget _buildPickHourAndMinuteScreen(){
+    return  Center(
+      child: Container(
+        width: screenWidth*0.9,
+        padding: const EdgeInsets.symmetric(
+            vertical: 20,
+            horizontal: 20
+        ),
+        decoration: BoxDecoration(
+            color: Colors.black,
+            border: Border.all(
+                color: Colors.grey[200]!
+            )
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+
+            // Text: Starting time
+            Text(
+              "Startuhrzeit",
+              textAlign: TextAlign.left,
+              style: customStyleClass.getFontStyle1(),
+            ),
+
+            // Text: Please insert
+            Text(
+              "Bitte trage mit Hoch- und Herunterwischen die Uhrzeit ein, zu der das Event beginnt.",
+              textAlign: TextAlign.left,
+              style: customStyleClass.getFontStyle4(),
+            ),
+
+            // Spacer
+            SizedBox(
+              height: screenHeight*0.03,
+            ),
+
+            // Cupertino Picker
+            SizedBox(
+              height: screenHeight*0.1,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+
+                  SizedBox(
+                    width: screenWidth*0.2,
+                    child: CupertinoPicker(
+                        scrollController:
+                        timePickEndActive ?
+                        _closingHourController :
+                        _startingHourController,
+                        itemExtent: 50,
+                        onSelectedItemChanged: (int index){
+                          setState(() {
+                            if(timePickEndActive){
+                              selectedClosingHour = index;
+                              closingTimeWasChanged = true;
+                            }else{
+                              selectedStartingHour = index;
+                            }
+                          });
+                        },
+                        children: List<Widget>.generate(24, (index){
+                          return Center(
+                            child: Text(
+                              index < 10 ?
+                              "0${index.toString()}" :
+                              index.toString(),
+                              style: customStyleClass.getFontStyle3(),
+                            ),
+                          );
+                        })
+                    ),
+                  ),
+                  Text(
+                    ":",
+                    style: customStyleClass.getFontStyle3(),
+                  ),
+                  SizedBox(
+                    width: screenWidth*0.2,
+                    child: CupertinoPicker(
+                        scrollController: timePickEndActive? _closingMinuteController : _startingMinuteController,
+                        itemExtent: 50,
+                        onSelectedItemChanged: (int index){
+                          setState(() {
+                            if(timePickEndActive){
+                              selectedClosingMinute = int.parse(minuteValuesToChoose[index]);
+                              closingTimeWasChanged = true;
+                            }else{
+                              selectedStartingMinute = int.parse(minuteValuesToChoose[index]);
+                            }
+                          });
+                        },
+                        children: List<Widget>.generate(5, (index){
+                          return Center(
+                            child: Text(
+                              index == 0
+                                  ? "00"
+                                  :(minuteValuesToChoose[index]).toString(),
+                              style: customStyleClass.getFontStyle3(),
+                            ),
+                          );
+                        })
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Button: "Finished"
+            Container(
+                width: screenWidth*0.9,
+                alignment: Alignment.bottomRight,
+                child: GestureDetector(
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                        vertical: screenHeight*0.015,
+                        horizontal: screenWidth*0.03
+                    ),
+                    decoration: BoxDecoration(
+                        color: Colors.black54,
+                        border: Border.all(
+                            color: customStyleClass.primeColor
+                        ),
+                        borderRadius: const BorderRadius.all(Radius.circular(10))
+                    ),
+                    child: Text(
+                      "Fertig",
+                      textAlign: TextAlign.center,
+                      style: customStyleClass.getFontStyle4BoldPrimeColor(),
+                    ),
+                  ),
+                  onTap: () => setState(() {pickHourAndMinuteIsActive = false; timePickEndActive = false;}),
+                )
+            ),
+
+          ],
+        ),
+      ),
+    );
+  }
+  Widget _buildChosenGenreTile(String genreToDisplay){
+
+    var index = musicGenresChosen.indexWhere((element) => element == genreToDisplay);
+
+    return Card(
+      color: customStyleClass.backgroundColorEventTile,
+      child: ListTile(
+        title: Text(
+          genreToDisplay,
+          style: customStyleClass.getFontStyle3BoldPrimeColor(),
+        ),
+        subtitle: Text(
+          musicGenresToDisplay[index],
+          style: customStyleClass.getFontStyle5(),
+        ),
+        trailing: Wrap(
+          children: [
+            InkWell(
+              child: Icon(
+                Icons.edit,
+                color: customStyleClass.primeColor,
+              ),
+              onTap: () => clickEventEditGenreFromChosenList(genreToDisplay),
+            ),
+            InkWell(
+              child: Icon(
+                Icons.delete,
+                color: customStyleClass.primeColor,
+              ),
+              onTap: () => clickEventRemoveGenreFromChosenList(genreToDisplay),
+            )
+          ],
+        ),
+      ),
+    );
+  }
 
   // Clicks
-  void removeGenresFromList(String genreToRemove){
-    setState(() {
-      musicGenresChosen.removeWhere((element) => element == genreToRemove);
-      if(Utils.genreListForCreating.contains(genreToRemove) && !musicGenresOffer.contains(genreToRemove)){
-        musicGenresOffer.add(genreToRemove);
-      }
-    });
-  }
-  void addOwnGenreToChosenGenres(){
-    setState(() {
-      musicGenresChosen.add(_eventMusicGenresController.text);
-      _eventMusicGenresController.text = "";
-    });
-  }
-  void addGenreToChosenGenres(String genreToAdd){
-    setState(() {
-      musicGenresChosen.add(genreToAdd);
-        musicGenresOffer.remove(genreToAdd);
-    });
-  }
-  void showDialogToAddGenres(){
-    setState(() {
-      pickGenreIsActive = true;
-    });
-  }
-  void clickEventCreateEvent(){
-    if(_eventTitleController.text != "" ){
-      setState(() {
-        isUploading = true;
-        createNewEvent();
-      });
-    }else{
-      showDialogOfMissingValue();
-    }
-  }
   void clickEventClose(){
-
     showDialog(
         context: context,
         builder: (BuildContext context){
@@ -1492,6 +1498,53 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
               )
           );
         });
+  }
+  void clickEventCreateEvent(){
+    if(_eventTitleController.text != "" ){
+      setState(() {
+        isUploading = true;
+        createNewEvent();
+      });
+    }else{
+      showDialogOfMissingValue();
+    }
+  }
+  void clickEventSelectContent() async{
+
+    if(isVideo){
+      contentType = 2;
+    }
+    if(isImage){
+      contentType = 1;
+    }
+
+    setState(() {
+
+      var uuid = const Uuid();
+      var uuidV4 = uuid.v4();
+
+      contentFileName = "$uuidV4.$fileExtension";
+
+      if(_controller != null){
+        _controller!.pause();
+      }
+      if(_chewieController != null){
+        _chewieController!.pause();
+        _chewieController!.setVolume(0.0);
+      }
+
+      isImage = false;
+      isVideo = false;
+    });
+  }
+  void clickEventDeselectContent(){
+    setState(() {
+      file = null;
+      isImage = false;
+      isVideo = false;
+      contentType = 0;
+      contentFileName = "";
+    });
   }
   void clickEventChooseContent() async{
 
@@ -1532,49 +1585,205 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
     }
 
   }
+  void clickEventInfoFromChosenList(){
+    showDialog(
+        context: context,
+        builder: (BuildContext context){
+          return TitleAndContentDialog(
+              titleToDisplay: "Information",
+              contentToDisplay: "Der türkise Titel zeigt die Musikrichtung an, nach der die Nutzer suchen können.\n\n"
+                  " Die weiße Schrift darunter wird innerhalb der Events angezeigt. Diese kannst du frei anpassen, wenn"
+                  " du zum Beispiel detailliertere Angaben zu den Musikrichtungen des Events machen möchtest.",
+          );
+        });
+  }
+  void clickEventEditGenreFromChosenList(String genreToEdit){
+
+
+    var genreToDisplayController = TextEditingController(
+        text: genreToEdit
+    );
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context){
+
+          return AlertDialog(
+            backgroundColor: customStyleClass.backgroundColorMain,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+                side: const BorderSide(color: Colors.white)
+            ),
+            title: Text(
+              "Angezeigte Musikrichtung ändern",
+              style: customStyleClass.getFontStyle3Bold(),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+
+                Text(
+                  "Möchtest du den Text anpassen, der als Musikrichtung angezeigt wird?",
+                  style: customStyleClass.getFontStyle3(),
+                ),
+
+                const SizedBox(
+                  height: 30,
+                ),
+
+                TextField(
+                  autofocus: true,
+                  controller:genreToDisplayController,
+                  cursorColor: customStyleClass.primeColor,
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.only(
+                        left: 20,
+                        top:20,
+                        bottom:20
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                            color: customStyleClass.primeColor
+                        )
+                    ),
+                    hintText: "z.B. Mixed Music",
+                    border: const OutlineInputBorder(),
+                  ),
+                  style: customStyleClass.getFontStyle4(),
+                ),
+
+              ],
+            ),
+            actions: [
+              TextButton(
+                  onPressed: (){
+
+                    // If they delete everything, ignore them
+                    if(genreToDisplayController.text.isNotEmpty){
+                      setState(() {
+                        var index = musicGenresChosen.indexWhere((element) => element == genreToEdit);
+                        musicGenresToDisplay[index] = genreToDisplayController.text;
+                      });
+                    }
+
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    "Fertig",
+                    style: customStyleClass.getFontStyle3BoldPrimeColor(),
+                  )
+              )
+            ],
+          );
+
+        });
+  }
+  void clickEventRemoveGenreFromChosenList(String genreToRemove){
+    showDialog(
+        context: context,
+        builder: (BuildContext context){
+          return TitleContentAndButtonDialog(
+              titleToDisplay: "Abbrechen",
+              contentToDisplay: "Bist du sicher, dass du diese Musikrichtung löschen möchtest?",
+              buttonToDisplay: TextButton(
+                child: Text(
+                  "Ja",
+                  style: customStyleClass.getFontStyle3BoldPrimeColor(),
+                ),
+                onPressed: (){
+                  clickEventRemoveGenresFromList(genreToRemove);
+                  Navigator.pop(context);
+                },
+              )
+          );
+        }
+    );
+  }
+  void clickEventShowDialogToAddGenres(){
+    setState(() {
+      pickGenreIsActive = true;
+    });
+  }
+  void clickEventRemoveGenresFromList(String genreToRemove){
+    setState(() {
+
+      var index = musicGenresChosen.indexWhere((element) => element == genreToRemove);
+
+      musicGenresChosen.removeAt(index);
+      musicGenresToDisplay.removeAt(index);
+
+      if(Utils.genreListForCreating.contains(genreToRemove) && !musicGenresOffer.contains(genreToRemove)){
+        var index2 = Utils.genreListForCreating.indexWhere((element) => element == genreToRemove);
+        musicGenresOffer.insert(index2, genreToRemove);
+      }
+    });
+  }
+  void clickEventAddGenreToChosenGenres(String genreToAdd){
+    setState(() {
+      musicGenresChosen.add(genreToAdd);
+      musicGenresToDisplay.add(genreToAdd);
+      musicGenresOffer.remove(genreToAdd);
+
+    });
+  }
 
   // MISC
-  void selectContent() async{
-
-    if(isVideo){
-      contentType = 2;
-    }
-    if(isImage){
-      contentType = 1;
-    }
-
-    setState(() {
-
-      var uuid = const Uuid();
-      var uuidV4 = uuid.v4();
-
-      contentFileName = "$uuidV4.$fileExtension";
-
-      if(_controller != null){
-        _controller!.pause();
-      }
-      if(_chewieController != null){
-        _chewieController!.pause();
-        _chewieController!.setVolume(0.0);
-      }
-
-      isImage = false;
-      isVideo = false;
-    });
+  void _createChewieController() {
+    _chewieController = ChewieController(
+      videoPlayerController: _controller!,
+      looping: true,
+      autoPlay: true,
+      showOptions: true,
+      autoInitialize: true,
+      allowFullScreen: true,
+    );
   }
-  void deselectContent(){
-    setState(() {
-      file = null;
-      isImage = false;
-      isVideo = false;
-      contentType = 0;
-      contentFileName = "";
-    });
+  String formatSelectedDate(){
+
+    String tempDay = "";
+    String tempMonth = "";
+    String tempYear = "";
+
+    if(newSelectedDate.day.toString().length == 1){
+      tempDay = "0${newSelectedDate.day}";
+    }else{
+      tempDay = "${newSelectedDate.day}";
+    }
+
+    if(newSelectedDate.month.toString().length == 1){
+      tempMonth = "0${newSelectedDate.month}";
+    }else{
+      tempMonth = "${newSelectedDate.month}";
+    }
+
+    if(newSelectedDate.year.toString().length == 1){
+      tempYear = "0${newSelectedDate.year}";
+    }else{
+      tempYear = "${newSelectedDate.year}";
+    }
+
+    return "$tempDay.$tempMonth.$tempYear";
+  }
+  String formatSelectedHourAndMinute(int selectedHour, int selectedMinute){
+
+    String hourToDisplay = "", minuteToDisplay = "";
+
+    if(selectedHour < 10){
+      hourToDisplay = "0$selectedHour";
+    }else{
+      hourToDisplay = selectedHour.toString();
+    }
+    if(selectedMinute < 10){
+      minuteToDisplay = "0$selectedMinute";
+    }else{
+      minuteToDisplay = selectedMinute.toString();
+    }
+
+    return "$hourToDisplay:$minuteToDisplay";
   }
 
 
-
-
+  // DB FUNCTIONS
   void createNewEvent(){
 
     // Get an unique id for the element
@@ -1583,21 +1792,42 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
 
     // Start to format the genres
     String musicGenresString = "";
+    String musicGenresToDisplayToSave = "";
+
     // Add the genres to a string
-    for(String item in musicGenresChosen){
+    for(int i = 0; i<musicGenresChosen.length; i++){
       if(musicGenresString == ""){
-        musicGenresString = "$item,";
+        musicGenresString = "${musicGenresChosen[i]},";
+        musicGenresToDisplayToSave = "${musicGenresToDisplay[i]},";
       }else{
-        musicGenresString = "$musicGenresString $item,";
+        musicGenresString = "$musicGenresString ${musicGenresChosen[i]},";
+        musicGenresToDisplayToSave = "$musicGenresToDisplayToSave ${musicGenresToDisplay[i]},";
       }
     }
     // Cut the last comma
     if (musicGenresString.isNotEmpty) {
       musicGenresString = musicGenresString.substring(0, musicGenresString.length - 1);
     }
+    if(musicGenresToDisplayToSave.isNotEmpty){
+      musicGenresToDisplayToSave = musicGenresToDisplayToSave.substring(0, musicGenresToDisplayToSave.length - 1);
+    }
     // Cut the occasional first comma
     if(musicGenresString.isNotEmpty && musicGenresString[0] == ","){
       musicGenresString = musicGenresString.substring(1, musicGenresString.length);
+    }
+    if(musicGenresToDisplayToSave.isNotEmpty && musicGenresToDisplayToSave[0] == ","){
+      musicGenresToDisplayToSave = musicGenresToDisplayToSave.substring(1, musicGenresToDisplayToSave.length);
+    }
+
+    GenresToDisplay genresToDisplay = GenresToDisplay();
+
+    for(int i=0;i<musicGenresToDisplay.length;i++){
+
+      Genres currentGenre = Genres(
+          filterGenre: musicGenresChosen[i],
+          displayGenre: musicGenresToDisplay[i]
+      );
+      genresToDisplay.genres.add(currentGenre);
     }
 
     // Format the starting Date
@@ -1645,7 +1875,12 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
       eventId: uuidV4,
       priorityScore: userDataProvider.getUserClub().getPriorityScore().toDouble(),
       eventDate: concatenatedDate,
+
       musicGenres: musicGenresString,
+      musicGenresToDisplay: genresToDisplay,
+      musicGenresToFilter: musicGenresString,
+
+
       eventMarketingCreatedAt: file != null ? DateTime.now(): null,
       eventMarketingFileName: file != null ? contentFileName : "",
 
@@ -1765,6 +2000,8 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
     );
   }
 
+
+  // DIALOG/ BOTTOM SHEET
   void showErrorBottomSheet(int errorCode){
     showModalBottomSheet(
         context: context,
@@ -1794,62 +2031,6 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
   }
 
 
-  _createChewieController() {
-    _chewieController = ChewieController(
-      videoPlayerController: _controller!,
-      looping: true,
-      autoPlay: true,
-      showOptions: true,
-      autoInitialize: true,
-      allowFullScreen: true,
-    );
-  }
-
-  String formatSelectedDate(){
-
-    String tempDay = "";
-    String tempMonth = "";
-    String tempYear = "";
-
-    if(newSelectedDate.day.toString().length == 1){
-      tempDay = "0${newSelectedDate.day}";
-    }else{
-      tempDay = "${newSelectedDate.day}";
-    }
-
-    if(newSelectedDate.month.toString().length == 1){
-      tempMonth = "0${newSelectedDate.month}";
-    }else{
-      tempMonth = "${newSelectedDate.month}";
-    }
-
-    if(newSelectedDate.year.toString().length == 1){
-      tempYear = "0${newSelectedDate.year}";
-    }else{
-      tempYear = "${newSelectedDate.year}";
-    }
-
-    return "$tempDay.$tempMonth.$tempYear";
-  }
-  String formatSelectedHourAndMinute(int selectedHour, int selectedMinute){
-
-      String hourToDisplay = "", minuteToDisplay = "";
-
-      if(selectedHour < 10){
-        hourToDisplay = "0$selectedHour";
-      }else{
-        hourToDisplay = selectedHour.toString();
-      }
-      if(selectedMinute < 10){
-        minuteToDisplay = "0$selectedMinute";
-      }else{
-        minuteToDisplay = selectedMinute.toString();
-      }
-
-      return "$hourToDisplay:$minuteToDisplay";
-    }
-
-
   @override
   Widget build(BuildContext context) {
 
@@ -1866,9 +2047,9 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
 
       extendBody: true,
 
-      bottomNavigationBar: _buildNavigationBar(),
       appBar: _buildAppBar(),
-      body: _buildMainView(),
+      body: _buildSwitchBetweenImageVideoAndForm(),
+      bottomNavigationBar: _buildNavigationBar(),
     );
   }
 

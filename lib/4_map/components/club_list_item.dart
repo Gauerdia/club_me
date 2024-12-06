@@ -14,7 +14,6 @@ import '../../provider/current_and_liked_elements_provider.dart';
 import '../../provider/user_data_provider.dart';
 import '../../shared/custom_text_style.dart';
 import '../../shared/map_utils.dart';
-import '../../stories/show_story_chewie.dart';
 
 class ClubListItem extends StatelessWidget {
   ClubListItem({
@@ -174,7 +173,7 @@ class ClubListItem extends StatelessWidget {
                             // Genre
                             Container(
                               // color: Colors.grey,
-                              width: screenWidth*0.26,
+                              width: screenWidth*0.27,
                               padding:  const EdgeInsets.only(right: 10),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.start,

@@ -1,14 +1,9 @@
-import 'package:club_me/1_events/club_view/club_events_view.dart';
 import 'package:club_me/models/club_offers.dart';
 import 'package:club_me/models/club_open_status.dart';
 import 'package:club_me/models/event.dart';
 import 'package:club_me/models/front_page_images.dart';
-import 'package:club_me/models/opening_times.dart';
 import 'package:club_me/models/special_opening_times.dart';
-import 'package:club_me/provider/fetched_content_provider.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:timezone/standalone.dart' as tz;
-
 import 'hive_models/6_opening_times.dart';
 import 'hive_models/7_days.dart';
 import 'package:collection/collection.dart';
@@ -35,6 +30,7 @@ class ClubMeClub{
 
     required this.clubWebsiteLink,
     required this.clubInstagramLink,
+    required this.clubFacebookLink,
 
     required this.priorityScore,
     required this.openingTimes,
@@ -74,6 +70,7 @@ class ClubMeClub{
 
   String clubInstagramLink;
   String clubWebsiteLink;
+  String clubFacebookLink;
 
   int priorityScore;
 
@@ -1179,6 +1176,10 @@ class ClubMeClub{
   // int getBackgroundColorId(){
   //   return clubFrontpageBackgroundColorId;
   // }
+
+  String getFacebookLink(){
+    return clubFacebookLink;
+  }
 
   String getInstagramLink(){
     return clubInstagramLink;

@@ -86,8 +86,6 @@ class _OffersListClubViewState extends State<OffersListClubView> {
   }
   Widget _buildView(){
 
-    print("buildView: ${titleControllers.length}");
-
     return ListView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
@@ -226,10 +224,6 @@ class _OffersListClubViewState extends State<OffersListClubView> {
   }
   void deleteOffer(int index){
 
-    print("index: $index");
-
-    print("titlecontrollers: $titleControllers");
-    print("titlecontrollers length: ${titleControllers.length}");
 
     setState(() {
       if(titleControllers.length == 1){
@@ -244,8 +238,6 @@ class _OffersListClubViewState extends State<OffersListClubView> {
     });
 
 
-
-    print("titlecontrollers length: ${titleControllers.length}");
   }
   void addNewOffer(){
     setState(() {

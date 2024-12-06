@@ -1,9 +1,4 @@
-import 'dart:io';
 import 'package:club_me/models/club.dart';
-import 'package:club_me/models/discount.dart';
-import 'package:club_me/models/hive_models/5_club_me_used_discount.dart';
-import 'package:club_me/models/parser/local_discount_to_discount_parser.dart';
-import 'package:club_me/models/parser/special_days_to_days_parser.dart';
 import 'package:club_me/services/check_and_fetch_service.dart';
 import 'package:club_me/shared/dialogs/TitleAndContentDialog.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +7,6 @@ import 'package:provider/provider.dart';
 import '../../models/hive_models/2_club_me_discount.dart';
 import '../../models/hive_models/7_days.dart';
 import '../../models/parser/club_me_discount_parser.dart';
-import '../../models/special_opening_times.dart';
 import '../../provider/current_and_liked_elements_provider.dart';
 import '../../provider/fetched_content_provider.dart';
 import '../../provider/state_provider.dart';
@@ -23,7 +17,6 @@ import '../../shared/custom_bottom_navigation_bar.dart';
 import '../../shared/custom_text_style.dart';
 import '../../utils/utils.dart';
 import 'components/coupon_card.dart';
-import 'package:intl/intl.dart';
 
 class UserCouponsView extends StatefulWidget {
   const UserCouponsView({Key? key}) : super(key: key);
@@ -38,26 +31,28 @@ class _UserCouponsViewState extends State<UserCouponsView>
   var log = Logger();
 
   String headline = "Angebote";
-  late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
-  late FetchedContentProvider fetchedContentProvider;
+
+
   late Future getDiscounts;
   late StateProvider stateProvider;
   late TabController _tabController;
-  late CustomStyleClass customStyleClass;
-  late PageController _pageViewController;
   late double screenWidth, screenHeight;
   late UserDataProvider userDataProvider;
+  late CustomStyleClass customStyleClass;
+  late PageController _pageViewController;
+  late FetchedContentProvider fetchedContentProvider;
+  late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
 
   final HiveService _hiveService = HiveService();
   final SupabaseService _supabaseService = SupabaseService();
   final CheckAndFetchService _checkAndFetchService = CheckAndFetchService();
-
   final TextEditingController _textEditingController = TextEditingController();
 
   bool showVIP = false;
-
-  bool dbFetchComplete = false;
   bool isSearchActive = false;
+  bool dbFetchComplete = false;
+  bool isFilterMenuActive = false;
+  bool processingComplete = false;
   bool onlyFavoritesIsActive = false;
 
   String searchValue = "";
@@ -66,8 +61,7 @@ class _UserCouponsViewState extends State<UserCouponsView>
   // A dynamic array that considers all filters.
   List<ClubMeDiscount> discountsToDisplay = [];
 
-  bool processingComplete = false;
-
+  late String offerTypeValue;
 
   // INIT
   @override
@@ -77,6 +71,8 @@ class _UserCouponsViewState extends State<UserCouponsView>
     // Controllers for the swipe view
     _pageViewController = PageController();
     _tabController = TabController(length: 3, vsync: this);
+
+    offerTypeValue = Utils.offerTypeFiltering.first;
 
     final fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
 
@@ -108,7 +104,6 @@ class _UserCouponsViewState extends State<UserCouponsView>
     _pageViewController.dispose();
     _tabController.dispose();
   }
-
   void initGeneralSettings(){
     stateProvider = Provider.of<StateProvider>(context);
     userDataProvider = Provider.of<UserDataProvider>(context);
@@ -124,6 +119,135 @@ class _UserCouponsViewState extends State<UserCouponsView>
 
 
   // BUILD
+  AppBar _buildAppBar(){
+
+    return AppBar(
+      backgroundColor: customStyleClass.backgroundColorMain,
+      surfaceTintColor: customStyleClass.backgroundColorMain,
+      title: Container(
+        width: screenWidth,
+        child: Stack(
+          children: [
+
+            // Headline
+            if(!isSearchActive)
+              Container(
+                  alignment: Alignment.bottomCenter,
+                  height: 50,
+                  width: screenWidth,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                  headline,
+                                  textAlign: TextAlign.center,
+                                  style: customStyleClass.getFontStyleHeadline1Bold()
+                              ),
+                              if(showVIP)
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      bottom: 15
+                                  ),
+                                  child: Text(
+                                    "VIP",
+                                    style: customStyleClass.getFontStyleVIPGold(),
+                                  ),
+                                )
+                            ],
+                          ),
+                        ],
+                      )
+                    ],
+                  )
+              ),
+
+            if(isSearchActive)
+              Container(
+                alignment: Alignment.bottomCenter,
+                height: 50,
+                width: screenWidth,
+                child: SizedBox(
+                  width: screenWidth*0.65,
+                  child: TextField(
+                    autofocus: true,
+                    controller: _textEditingController,
+                    onChanged: (text){
+                      _textEditingController.text = text;
+                      searchValue = text;
+                      setState(() {
+                        filterDiscounts();
+                      });
+                    },
+                    decoration: InputDecoration(
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: customStyleClass.primeColor),
+                      ),
+                      hintStyle: TextStyle(
+                          color: customStyleClass.primeColor
+                      ),
+                    ),
+                    style: const TextStyle(
+                        color: Colors.white
+                    ),
+                    cursorColor: customStyleClass.primeColor,
+                  ),
+                ),
+              ),
+
+            // ICON: SEARCH
+            Container(
+                alignment: Alignment.centerLeft,
+                width: screenWidth,
+                height: 50,
+                child: IconButton(
+                    onPressed: () => toggleIsSearchActive(),
+                    icon: Icon(
+                      Icons.search,
+                      color: searchValue != "" ? customStyleClass.primeColor : Colors.white,
+                      // size: 20,
+                    )
+                )
+            ),
+
+            // ICONS: FAV, FILTER
+            Container(
+                width: screenWidth,
+                alignment: Alignment.centerRight,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+
+                    IconButton(
+                        onPressed: () => filterForFavorites(),
+                        icon: Icon(
+                          onlyFavoritesIsActive ? Icons.star : Icons.star_border,
+                          color: onlyFavoritesIsActive ? customStyleClass.primeColor : Colors.white,
+                        )
+                    ),
+
+                    InkWell(
+                      child: Icon(
+                        Icons.filter_alt_outlined,
+                        color: isFilterMenuActive || offerTypeValue != Utils.offerTypeFiltering.first ?
+                        customStyleClass.primeColor : Colors.white,
+                      ),
+                      onTap: () => clickEventShowFilterMenu(),
+                    ),
+
+                  ],
+                )
+            )
+
+          ],
+        ),
+      ),
+    );
+  }
   Widget _buildSwipeView(){
 
     // If the provider has fetched elements so that the main function in _buildSupabaseDiscounts
@@ -176,122 +300,86 @@ class _UserCouponsViewState extends State<UserCouponsView>
       },
     );
   }
+  Widget _buildFilterMenu(){
+    return Container(
+      padding: EdgeInsets.only(
+          top: screenHeight*0.02
+      ),
+      decoration: BoxDecoration(
+          color: customStyleClass.backgroundColorMain,
+          border: Border(
+              bottom: BorderSide(
+                  color: Colors.grey[900]!,
+                  width: 1
+              )
+          )
+      ),
+      height: 110,
+      width: screenWidth,
 
-  AppBar _buildAppBar(){
+      child: Row(
+        children: [
 
-    return AppBar(
-      backgroundColor: customStyleClass.backgroundColorMain,
-      surfaceTintColor: customStyleClass.backgroundColorMain,
-      title: Container(
-        width: screenWidth,
-        child: Stack(
-          children: [
+          SizedBox(
+            width: screenWidth,
+            child: Column(
+              children: [
 
-            // Headline
-            if(!isSearchActive)
-            Container(
-                alignment: Alignment.bottomCenter,
-                height: 50,
-                width: screenWidth,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                                headline,
-                                textAlign: TextAlign.center,
-                                style: customStyleClass.getFontStyleHeadline1Bold()
-                            ),
-                            if(showVIP)
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  bottom: 15
-                              ),
-                              child: Text(
-                                "VIP",
-                                style: customStyleClass.getFontStyleVIPGold(),
-                              ),
-                            )
-                          ],
-                        ),
-                      ],
-                    )
-                  ],
-                )
-            ),
-
-            if(isSearchActive)
-              Container(
-                alignment: Alignment.bottomCenter,
-                height: 50,
-                width: screenWidth,
-                child: SizedBox(
-                  width: screenWidth*0.65,
-                  child: TextField(
-                    autofocus: true,
-                    controller: _textEditingController,
-                    onChanged: (text){
-                      _textEditingController.text = text;
-                      searchValue = text;
-                      setState(() {
-                        filterDiscounts();
-                      });
-                    },
-                    decoration: InputDecoration(
-                      focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: customStyleClass.primeColor),
-                      ),
-                      hintStyle: TextStyle(
-                          color: customStyleClass.primeColor
-                      ),
-                    ),
-                    style: const TextStyle(
-                        color: Colors.white
-                    ),
-                    cursorColor: customStyleClass.primeColor,
+                // Genre
+                SizedBox(
+                  // width: screenWidth*0.5,
+                  child: Text(
+                    "Angebotstyp",
+                    textAlign: TextAlign.left,
+                    style: customStyleClass.getFontStyle3(),
                   ),
                 ),
-              ),
 
-
-            Container(
-                alignment: Alignment.centerLeft,
-                width: screenWidth,
-                height: 50,
-                child: IconButton(
-                    onPressed: () => toggleIsSearchActive(),
-                    icon: Icon(
-                      Icons.search,
-                      color: searchValue != "" ? customStyleClass.primeColor : Colors.white,
-                      // size: 20,
+                // Dropdown
+                Theme(
+                    data: Theme.of(context).copyWith(
+                        canvasColor: customStyleClass.backgroundColorMain
+                    ),
+                    child: DropdownMenu<String>(
+                      width: screenWidth*0.5,
+                      initialSelection: offerTypeValue,
+                      onSelected: (String? value){
+                        setState(() {
+                          offerTypeValue = value!;
+                          filterDiscounts();
+                        });
+                      },
+                      textStyle: const TextStyle(
+                          color: Colors.white
+                      ),
+                      menuStyle: MenuStyle(
+                        surfaceTintColor: WidgetStateProperty.all<Color>(customStyleClass.backgroundColorEventTile),
+                        backgroundColor: WidgetStateProperty.all<Color>(customStyleClass.backgroundColorEventTile),
+                        alignment: Alignment.bottomLeft,
+                        maximumSize: const WidgetStatePropertyAll(
+                          Size.fromHeight(300),
+                        ),
+                      ),
+                      dropdownMenuEntries: Utils.offerTypeFiltering
+                          .map<DropdownMenuEntry<String>>((String value){
+                        return DropdownMenuEntry(
+                            value: value,
+                            label: value,
+                            style: ButtonStyle(
+                                foregroundColor: WidgetStateProperty.all<Color>(Colors.white)
+                            )
+                        );
+                      }).toList(),
                     )
                 )
+              ],
             ),
+          ),
 
-            Container(
-                width: screenWidth,
-                height: 50,
-                alignment: Alignment.centerRight,
-                child: IconButton(
-                    onPressed: () => filterForFavorites(),
-                    icon: Icon(
-                      onlyFavoritesIsActive ? Icons.star : Icons.star_border,
-                      color: onlyFavoritesIsActive ? customStyleClass.primeColor : Colors.white,
-                    )
-                )
-            )
-
-          ],
-        ),
+        ],
       ),
     );
-
   }
-
   Widget _buildNothingToDisplay(){
 
     return isSearchActive ?
@@ -429,11 +517,6 @@ class _UserCouponsViewState extends State<UserCouponsView>
 
 
   // CLICKED
-  toggleIsSearchActive(){
-    setState(() {
-      isSearchActive = !isSearchActive;
-    });
-  }
   void clickEventShare(){
     showDialog<String>(
         context: context,
@@ -443,6 +526,31 @@ class _UserCouponsViewState extends State<UserCouponsView>
                 contentToDisplay: "Das Teilen von Inhalten aus der App ist derzeit noch nicht möglich. Wir bitten um Entschuldigung."
             )
     );
+  }
+  void toggleIsSearchActive(){
+    setState(() {
+      isSearchActive = !isSearchActive;
+    });
+  }
+  void clickEventIterateView(){
+    if(_currentPageIndex < (discountsToDisplay.length-1)){
+      setState(() {
+        _pageViewController.animateToPage( _currentPageIndex+1, duration: Duration(milliseconds: 250), curve: Curves.bounceInOut);
+      });
+    }
+
+  }
+  void clickEventDeiterateView(){
+    if(_currentPageIndex > 0 ){
+      setState(() {
+        _pageViewController.animateToPage(  _currentPageIndex-1, duration: Duration(milliseconds: 250), curve: Curves.bounceInOut);
+      });
+    }
+  }
+  void clickEventShowFilterMenu(){
+    setState(() {
+      isFilterMenuActive = !isFilterMenuActive;
+    });
   }
   void clickEventLike(String discountId){
     setState(() {
@@ -470,58 +578,102 @@ class _UserCouponsViewState extends State<UserCouponsView>
     fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen: false);
 
     // Check if we need any filtering at all
-    if(searchValue != "" || onlyFavoritesIsActive){
+    if(
+      searchValue != "" ||
+      onlyFavoritesIsActive ||
+      offerTypeValue != Utils.offerTypeFiltering.first
+    ){
 
-      // Allocate space
-      List<ClubMeDiscount> favoritesToDisplay = [];
-      discountsToDisplay = [];
+      // Get all elements available and pop one each time it doesn't fit
+      // If i assign getFetchedDiscount to this array, I get the error:
+      // Concurrent modification during iteration: Instance(length:20) of '_GrowableList'.
+      // Maybe its because its not a copy but a pointer. So we do it like this.
+      List<ClubMeDiscount> discountsAfterFiltering = [];
+      for(var element in fetchedContentProvider.getFetchedDiscounts()){
+        discountsAfterFiltering.add(element);
+      }
 
-      // Fetch favorites
-      for(var discount in fetchedContentProvider.getFetchedDiscounts()){
-        if(checkIfIsLiked(discount)){
-          favoritesToDisplay.add(discount);
+      // Check for favourites
+      if(onlyFavoritesIsActive){
+        for(var discount in fetchedContentProvider.getFetchedDiscounts()){
+          if(!checkIfIsLiked(discount)){
+            discountsAfterFiltering.removeWhere((discountToCheck) => discountToCheck == discount);
+          }
         }
       }
 
       // Check, if we are using the search bar
       if(searchValue != ""){
 
-        // Check if we have to combine favorites and search
-        if(onlyFavoritesIsActive){
-          for(var discount in favoritesToDisplay){
+        for(var discount in fetchedContentProvider.getFetchedDiscounts()){
 
-            String allInformationLowerCase = "${discount.getDiscountTitle()} ${discount
-                .getClubName()}".toLowerCase();
+          String allInformationLowerCase = "${discount.getDiscountTitle()} ${discount
+              .getClubName()}".toLowerCase();
 
-            if (allInformationLowerCase.contains(
-                searchValue.toLowerCase())) {
-              discountsToDisplay.add(discount);
-            }
+          if (!allInformationLowerCase.contains(
+              searchValue.toLowerCase())) {
+            discountsAfterFiltering.removeWhere((discountToCheck) => discountToCheck == discount);
           }
-          // If not: Fill the other array
-        }else{
-          for(var discount in fetchedContentProvider.getFetchedDiscounts()){
+        }
+      }
 
-            String allInformationLowerCase = "${discount.getDiscountTitle()} ${discount
-                .getClubName()}".toLowerCase();
+      // Check for offer type filtering
+      if(offerTypeValue != Utils.offerTypeFiltering.first){
 
-            if (allInformationLowerCase.contains(
-                searchValue.toLowerCase())) {
-              discountsToDisplay.add(discount);
+        // Get all current discounts to filter
+        for(var discount in fetchedContentProvider.getFetchedDiscounts()){
+
+          /// TODO: Would be smoother with indices instead of text comparison
+          // Depending on the filter value, we display only some discounts
+          if(offerTypeValue == "Informationen"){
+            if(discount.getIsRedeemable()){
+              discountsAfterFiltering.removeWhere((discountToCheck) => discountToCheck == discount);
+            }
+          }else{
+            if(!discount.getIsRedeemable()){
+              discountsAfterFiltering.removeWhere((discountToCheck) => discountToCheck == discount);
             }
           }
         }
-
-        // If we are only looking for fav's we are done
-      }else{
-        discountsToDisplay = favoritesToDisplay;
       }
-      // If no fav's and no search results are wanted, we are done already
+
+      // After filtering, assign to the array to be displayed
+      discountsToDisplay = discountsAfterFiltering;
+
     }else{
+
+      // No filters applied? Show all the discounts
       discountsToDisplay = fetchedContentProvider.getFetchedDiscounts();
     }
 
-    discountsToDisplay.sort((a,b) => b.priorityScore.compareTo(a.priorityScore));
+    // Sort by priority
+    discountsToDisplay.sort((a,b){
+
+      DateTime firstDate = DateTime(
+          a.getDiscountDate().year,
+          a.getDiscountDate().month,
+          a.getDiscountDate().hour < 5 ? a.getDiscountDate().day-1 : a.getDiscountDate().day);
+      DateTime secondDate = DateTime(
+          b.getDiscountDate().year,
+          b.getDiscountDate().month,
+          b.getDiscountDate().hour < 5 ? b.getDiscountDate().day-1 : b.getDiscountDate().day);
+
+      int cmp = firstDate.compareTo(secondDate);
+      if (cmp != 0) return cmp;
+
+      if(a.getIsRedeemable() &&
+          !b.getIsRedeemable()){
+        return -1;
+      }
+      if(b.getIsRedeemable() &&
+          !a.getIsRedeemable()){
+        return 1;
+      }
+
+      return b.getPriorityScore().compareTo(a.getPriorityScore());
+
+      // return b.priorityScore.compareTo(a.priorityScore);
+    });
 
   }
   void filterForFavorites(){
@@ -626,7 +778,6 @@ class _UserCouponsViewState extends State<UserCouponsView>
 
       return false;
   }
-
   bool checkIfIsUpcomingDiscount(ClubMeDiscount currentDiscount){
 
     Days? clubOpeningTimesForThisDay;
@@ -698,34 +849,17 @@ class _UserCouponsViewState extends State<UserCouponsView>
       currentDiscount.getDiscountDate().minute,
     );
 
-    // If the code proceeded until this point and has not returned nothing yet,
-    // we have an odd case and shouldn't display anything.
-    _supabaseService.createErrorLog(
-          "UserEventsView. Fct: checkIfUpcomingEvent. Reached last else. Is not supposed to happen.");
+    if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
+        closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
+      return true;
+    }
     return false;
 
-  }
-
-  void iterateView(){
-    if(_currentPageIndex < (discountsToDisplay.length-1)){
-      setState(() {
-        _pageViewController.animateToPage( _currentPageIndex+1, duration: Duration(milliseconds: 250), curve: Curves.bounceInOut);
-      });
-    }
-
-  }
-  void deiterateView(){
-    if(_currentPageIndex > 0 ){
-      setState(() {
-        _pageViewController.animateToPage(  _currentPageIndex-1, duration: Duration(milliseconds: 250), curve: Curves.bounceInOut);
-      });
-    }
   }
 
 
   @override
   Widget build(BuildContext context) {
-
 
     initGeneralSettings();
 
@@ -733,8 +867,6 @@ class _UserCouponsViewState extends State<UserCouponsView>
     if(discountsToDisplay.isEmpty){
       filterDiscounts();
     }
-
-
 
     return Scaffold(
 
@@ -747,40 +879,49 @@ class _UserCouponsViewState extends State<UserCouponsView>
           width: screenWidth,
           height: screenHeight,
           color: customStyleClass.backgroundColorMain,
-          child: Column(
+          child: Stack(
             children: [
 
-              // Spacer
-              SizedBox(height: screenHeight*0.05,),
+              Column(
+                children: [
 
-              discountsToDisplay.isNotEmpty ?
-                _buildSwipeView() :
-                _buildNothingToDisplay(),
+                  // Spacer
+                  SizedBox(height: screenHeight*0.05,),
 
+                  // Swipe View
+                  discountsToDisplay.isNotEmpty ?
+                  _buildSwipeView() :
+                  _buildNothingToDisplay(),
 
-              // Page arrows
-              if(discountsToDisplay.isNotEmpty)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    InkWell(
-                      child: Icon(
-                        Icons.keyboard_arrow_left_sharp,
-                        size: customStyleClass.navigationArrowSize,
-                        color: _currentPageIndex > 0 ? customStyleClass.primeColor : Colors.grey,
-                      ),
-                      onTap: () => deiterateView(),
+                  // Page arrows
+                  if(discountsToDisplay.isNotEmpty)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        InkWell(
+                          child: Icon(
+                            Icons.keyboard_arrow_left_sharp,
+                            size: customStyleClass.navigationArrowSize,
+                            color: _currentPageIndex > 0 ? customStyleClass.primeColor : Colors.grey,
+                          ),
+                          onTap: () => clickEventDeiterateView(),
+                        ),
+                        InkWell(
+                          child: Icon(
+                            Icons.keyboard_arrow_right_sharp,
+                            size: customStyleClass.navigationArrowSize,
+                            color: _currentPageIndex < (discountsToDisplay.length-1) ? customStyleClass.primeColor : Colors.grey,
+                          ),
+                          onTap: () => clickEventIterateView(),
+                        ),
+                      ],
                     ),
-                    InkWell(
-                      child: Icon(
-                        Icons.keyboard_arrow_right_sharp,
-                        size: customStyleClass.navigationArrowSize,
-                        color: _currentPageIndex < (discountsToDisplay.length-1) ? customStyleClass.primeColor : Colors.grey,
-                      ),
-                      onTap: () => iterateView(),
-                    ),
-                  ],
-                ),
+                ],
+              ),
+
+              if(isFilterMenuActive)
+                _buildFilterMenu()
+
             ],
           )
         )

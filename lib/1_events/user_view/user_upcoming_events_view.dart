@@ -66,7 +66,7 @@ class _UserUpcomingEventsViewState extends State<UserUpcomingEventsView> {
                         children: [
                           Text(headline,
                               textAlign: TextAlign.center,
-                              style: customStyleClass.getFontStyle1()
+                              style: customStyleClass.getFontStyleHeadline1Bold()
                           ),
                         ],
                       )

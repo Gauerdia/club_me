@@ -1,8 +1,5 @@
 import 'dart:io';
-
-import 'package:club_me/mock_ups/class_mock_ups.dart';
 import 'package:club_me/models/club.dart';
-import 'package:club_me/models/opening_times.dart';
 import 'package:club_me/models/parser/club_me_club_parser.dart';
 import 'package:club_me/provider/current_and_liked_elements_provider.dart';
 import 'package:club_me/services/check_and_fetch_service.dart';
@@ -10,7 +7,6 @@ import 'package:club_me/shared/dialogs/TitleAndContentDialog.dart';
 import 'package:club_me/shared/dialogs/title_content_and_button_dialog.dart';
 import 'package:club_me/shared/dialogs/title_content_and_two_buttons_dialog.dart';
 import 'package:club_me/shared/map_utils.dart';
-import 'package:club_me/stories/show_story_chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
@@ -55,8 +51,10 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
 
   List<String> specialDayToDisplay = [];
   List<int> specialDayWeekdayToDisplay = [];
-  List<int> specialDayOpeningTimeToDisplay = [];
-  List<int> specialDayClosingTimeToDisplay = [];
+  List<int> specialDayOpeningHourToDisplay = [];
+  List<int> specialDayOpeningMinuteToDisplay = [];
+  List<int> specialDayClosingHourToDisplay = [];
+  List<int> specialDayClosingMinuteToDisplay = [];
 
   bool isLoading = false;
   bool showVideoIsActive = false;
@@ -129,7 +127,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
             (event) => event.getClubId() == userDataProvider.getUserClub().getClubId()
     ).toList();
 
-    // Only use the ones that are in the future
+    // Assumption: We show events until 6 hours after the start
     List<ClubMeEvent> eventsInTheFuture = eventsOfCurrentClub.where(
             (event){
               DateTime eventWithEstimatedLength = DateTime(
@@ -256,15 +254,17 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
     );
 
     // Save the opening hour
-    specialDayOpeningTimeToDisplay.add(eventDate.hour);
+    specialDayOpeningHourToDisplay.add(eventDate.hour);
+    specialDayOpeningMinuteToDisplay.add(eventDate.minute);
 
     // If we have a closing hour, we know the exact hour to display
     if(closingDate != null){
-      specialDayClosingTimeToDisplay.add(closingDate.hour);
+      specialDayClosingHourToDisplay.add(closingDate.hour);
+      specialDayClosingMinuteToDisplay.add(closingDate.minute);
     }
     // If not, we signal our algo that we don't know, aka 99
     else{
-      specialDayClosingTimeToDisplay.add(99);
+      specialDayClosingHourToDisplay.add(99);
     }
 
     // Save the weekday to display the written weekday
@@ -925,29 +925,32 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
 
         // Insta Icon
         Container(
-          width: screenWidth*0.3,
+          width: screenWidth*0.5,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               // Social media
-              Padding(
-                padding: EdgeInsets.only(
-                    // left: screenWidth*0.03
-                ),
-                child: IconButton(
+
+              if(userDataProvider.getUserClubInstaLink().isNotEmpty)
+                IconButton(
                     onPressed: () => goToSocialMedia(userDataProvider.getUserClubInstaLink()),
                     icon: Icon(
                       FontAwesomeIcons.instagram,
                       color: customStyleClass.primeColor,
                     )
                 ),
-              ),
 
-              Padding(
-                padding: EdgeInsets.only(
-                    // left: screenWidth*0.03
+              if(userDataProvider.getUserClubFacebookLink().isNotEmpty)
+                IconButton(
+                    onPressed: () => goToSocialMedia(userDataProvider.getUserClubFacebookLink()),
+                    icon: Icon(
+                      FontAwesomeIcons.facebook,
+                      color: customStyleClass.primeColor,
+                    )
                 ),
-                child: IconButton(
+
+              if(userDataProvider.getUserClubWebsiteLink().isNotEmpty)
+                IconButton(
                     onPressed: () => goToSocialMedia(
                         userDataProvider.getUserClubWebsiteLink()
                     ),
@@ -956,7 +959,6 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                       color: customStyleClass.primeColor,
                     )
                 ),
-              ),
 
             ],
           ),
@@ -1074,7 +1076,8 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
         for(int i = 0; i<specialDayToDisplay.length;i++)
           formatSpecialOpeningTime(
               specialDayWeekdayToDisplay[i], specialDayToDisplay[i],
-              specialDayOpeningTimeToDisplay[i], specialDayClosingTimeToDisplay[i]),
+              specialDayOpeningHourToDisplay[i], specialDayOpeningMinuteToDisplay[i],
+              specialDayClosingHourToDisplay[i], specialDayClosingMinuteToDisplay[i]),
 
         // Spacer
         SizedBox(
@@ -1939,7 +1942,8 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
   }
   Container formatSpecialOpeningTime(
       int weekDay, String textToDisplay,
-      int openingHourToDisplay, int closingHourToDisplay){
+      int openingHourToDisplay, int openingMinuteToDisplay,
+      int closingHourToDisplay, int closingMinuteToDisplay){
 
     String dayToDisplay = "";
 
@@ -1954,6 +1958,9 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
     }
 
     dayToDisplay = "$dayToDisplay, $textToDisplay";
+
+    var openingHourString = openingHourToDisplay < 10 ? "0${openingHourToDisplay.toString()}" : openingHourToDisplay.toString();
+    var openingMinuteString = openingMinuteToDisplay < 10  ? "0${openingMinuteToDisplay.toString()}" : openingMinuteToDisplay.toString();
 
     return Container(
       width: screenWidth*0.9,
@@ -1971,9 +1978,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
               // Opening hour
               SizedBox(
                 child: Text(
-                  openingHourToDisplay < 10 ?
-                  "0${openingHourToDisplay.toString()}:00" :
-                  "${openingHourToDisplay.toString()}:00",
+                  "$openingHourString:$openingMinuteString",
                   style: customStyleClass.getFontStyle3(),
                 ),
               ),

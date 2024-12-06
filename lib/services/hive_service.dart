@@ -1,9 +1,5 @@
-import 'package:club_me/models/discount.dart';
 import 'package:club_me/models/hive_models/5_club_me_used_discount.dart';
-import 'package:club_me/models/parser/discount_to_local_discount_parser.dart';
-import 'package:club_me/provider/state_provider.dart';
 import 'package:club_me/services/supabase_service.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:hive/hive.dart';
 import '../models/hive_models/0_club_me_user_data.dart';
 import '../models/hive_models/1_club_me_discount_template.dart';
@@ -80,7 +76,7 @@ class HiveService{
       return box.values.toList().first;
     }catch(e){
       log.d("HiveService. Function: getLatestInfoScreenDate. Error: $e");
-      _supabaseService.createErrorLog("HiveService. Function: getLatestInfoScreenDate. Error: $e");
+      _supabaseService.createErrorLog("HiveService. Function: getLatestInfoScreenDate. Error: $e. Returning 1/1/2000");
       return DateTime(
         2000,
         1,
@@ -276,6 +272,8 @@ class HiveService{
       return [];
     }
   }
+
+
   Future<void> addUserData(ClubMeUserData clubMeUserData) async {
     try{
       var box = await _clubMeUserClubBox;

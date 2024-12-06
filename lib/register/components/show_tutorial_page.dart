@@ -42,7 +42,10 @@ class _ShowTutorialPageState extends State<ShowTutorialPage>
       child: Stack(
         children: [
 
-          Image.asset("assets/images/1_willkommen_ohne_V2.png"),
+          Container(
+            width: screenWidth,
+            child: Image.asset("assets/images/1_willkommen_ohne_V2.png"),
+          ),
 
           Container(
               padding: const EdgeInsets.symmetric(
@@ -84,7 +87,12 @@ class _ShowTutorialPageState extends State<ShowTutorialPage>
       child: Stack(
       children: [
 
-        Image.asset("assets/images/2_event-detailansicht_ohne_V2.png"),
+       Container(
+         width: screenWidth,
+         child:  Center(
+           child: Image.asset("assets/images/2_event-detailansicht_ohne_V2.png"),
+         ),
+       ),
 
         Container(
             padding: const EdgeInsets.symmetric(
@@ -129,7 +137,10 @@ class _ShowTutorialPageState extends State<ShowTutorialPage>
     Stack(
       children: [
 
-        Image.asset("assets/images/3_externe_ticketlinks_ohne_V2.png"),
+        Container(
+          width: screenWidth,
+          child: Image.asset("assets/images/3_externe_ticketlinks_ohne_V2.png"),
+        ),
 
         Container(
             padding: const EdgeInsets.symmetric(
@@ -172,7 +183,10 @@ class _ShowTutorialPageState extends State<ShowTutorialPage>
     child: Stack(
       children: [
 
-        Image.asset("assets/images/4_angehaengte_bilder_ohne_V2.png"),
+       Container(
+         width: screenWidth,
+         child:  Image.asset("assets/images/4_angehaengte_bilder_ohne_V2.png"),
+       ),
 
         Container(
             padding: const EdgeInsets.symmetric(
@@ -211,7 +225,10 @@ class _ShowTutorialPageState extends State<ShowTutorialPage>
     return Stack(
       children: [
 
-        Image.asset("assets/images/5_club-detailansicht_ohne_V2.png"),
+        Container(
+          width: screenWidth,
+          child: Image.asset("assets/images/5_club-detailansicht_ohne_V2.png"),
+        ),
 
         Container(
             padding: const EdgeInsets.symmetric(
@@ -250,7 +267,10 @@ class _ShowTutorialPageState extends State<ShowTutorialPage>
     return Stack(
       children: [
 
-        Image.asset("assets/images/6_live-story_clubs_ohne_V2.png"),
+       Container(
+         width: screenWidth,
+         child:  Image.asset("assets/images/6_live-story_clubs_ohne_V2.png"),
+       ),
 
         Container(
             padding: const EdgeInsets.symmetric(
@@ -289,7 +309,10 @@ class _ShowTutorialPageState extends State<ShowTutorialPage>
     return Stack(
       children: [
 
-        Image.asset("assets/images/7_club-liste_ohne_V2.png"),
+        Container(
+          width: screenWidth,
+          child: Image.asset("assets/images/7_club-liste_ohne_V2.png"),
+        ),
 
         Container(
             padding: const EdgeInsets.symmetric(
@@ -328,7 +351,10 @@ class _ShowTutorialPageState extends State<ShowTutorialPage>
     return Stack(
       children: [
 
-        Image.asset("assets/images/8_live-story_clubs_ohne_V2.png"),
+        Container(
+          width: screenWidth,
+          child: Image.asset("assets/images/8_live-story_clubs_ohne_V2.png"),
+        ),
 
         Container(
             padding: const EdgeInsets.symmetric(
@@ -367,7 +393,10 @@ class _ShowTutorialPageState extends State<ShowTutorialPage>
     return Stack(
       children: [
 
-        Image.asset("assets/images/9_coupons_einloesen_ohne_V2.png"),
+        Container(
+          width: screenWidth,
+          child: Image.asset("assets/images/9_coupons_einloesen_ohne_V2.png"),
+        ),
 
         Container(
             padding: const EdgeInsets.symmetric(

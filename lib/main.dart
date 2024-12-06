@@ -39,7 +39,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
@@ -82,11 +81,6 @@ import 'models/hive_models/2_club_me_discount.dart';
 import 'models/hive_models/3_club_me_event_template.dart';
 import 'models/hive_models/4_temp_geo_location_data.dart';
 
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
-
-const rescheduledTaskKey = "be.szymendera.workmanager.rescheduledTask";
-
 Future<void> main() async {
 
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -111,10 +105,6 @@ Future<void> main() async {
   await Supabase.initialize(
     url: 'https://mssfbflgzkgxyhkkfukh.supabase.co',
     anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zc2ZiZmxnemtneHloa2tmdWtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTUyNTM2MzUsImV4cCI6MjAzMDgyOTYzNX0.aG3TR8A3UrpZNW65qDZ1BXyasQEo65NzgS03FcTebs0'
-  );
-
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
   );
 
   // Get the directory of the app to save images and videos
@@ -434,7 +424,6 @@ final GoRouter _router = GoRouter(
         )
     ),
 
-
     GoRoute(
         path: '/show_story',
         pageBuilder: (context, state) => buildPageWithoutTransition(
@@ -443,7 +432,6 @@ final GoRouter _router = GoRouter(
             child: ShowStoryChewie()
         )
     ),
-
 
     GoRoute(
         path: '/club_edit_event',
@@ -502,12 +490,10 @@ final GoRouter _router = GoRouter(
         builder: (context, state) => const FaqClubView()
     ),
 
-
     GoRoute(
         path: '/user_faq',
         builder: (context, state) => const FaqUserView()
     ),
-
 
     GoRoute(
         path: '/user_sponsors',
@@ -616,16 +602,19 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           scaffoldBackgroundColor: const Color(0xff121111),
 
-          textTheme: TextTheme(
-              displayLarge: const TextStyle(
+          textSelectionTheme: const TextSelectionThemeData(
+            selectionColor: Color(0xFF249e9f),
+            selectionHandleColor: Color(0xFF249e9f),
+            cursorColor: Color(0xFF249e9f)
+          ),
+
+          textTheme: const TextTheme(
+              displayLarge: TextStyle(
                   fontSize: 72,
                   fontWeight: FontWeight.bold
               ),
-              // titleLarge: GoogleFonts.oswald(
-              // ),
-              // bodyMedium: GoogleFonts.merriweather(),
-              // displaySmall: GoogleFonts.pacifico()
           ),
+
         ),
       ),
     );

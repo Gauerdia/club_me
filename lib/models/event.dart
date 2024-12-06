@@ -1,6 +1,4 @@
-import 'package:club_me/models/opening_times.dart';
-import 'package:flutter/material.dart';
-
+import 'package:club_me/models/genres_to_display.dart';
 import 'hive_models/6_opening_times.dart';
 
 class ClubMeEvent{
@@ -18,6 +16,9 @@ class ClubMeEvent{
 
     required this.eventDescription,
     required this.musicGenres,
+    required this.musicGenresToDisplay,
+    required this.musicGenresToFilter,
+
     required this.clubId,
     required this.eventMarketingFileName,
     required this.eventMarketingCreatedAt,
@@ -48,6 +49,8 @@ class ClubMeEvent{
   String bannerImageFileName;
 
   String musicGenres;
+  String musicGenresToFilter;
+  GenresToDisplay musicGenresToDisplay;
 
   String eventMarketingFileName;
   DateTime? eventMarketingCreatedAt;
@@ -69,6 +72,15 @@ class ClubMeEvent{
   bool specialOccasionActive;
 
   int specialOccasionIndex;
+
+
+  String getMusicGenresToFilter(){
+    return musicGenresToFilter;
+  }
+
+  GenresToDisplay getMusicGenresToDisplay(){
+    return musicGenresToDisplay;
+  }
 
   int getSpecialOccasionIndex(){
     return specialOccasionIndex;

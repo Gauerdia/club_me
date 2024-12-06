@@ -25,7 +25,7 @@ class CustomStyleClass{
   Color backgroundColorEventTile = const Color(0xff222222);
 
   Color primeColorDark = Colors.teal;
-  Color primeColor = Color(0xFF249e9f);  //Colors.tealAccent.shade400;
+  Color primeColor = const Color(0xFF249e9f);
 
   double fontSizeHeadline1 = 24;
 
