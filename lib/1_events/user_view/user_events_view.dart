@@ -80,7 +80,7 @@ class _UserEventsViewState extends State<UserEventsView> {
   void initState(){
 
     super.initState();
-    requestStoragePermission();
+    //requestStoragePermission();
     dropdownValue = Utils.genreListForFiltering.first;
     weekDayDropDownValue = Utils.weekDaysForFiltering.first;
 
@@ -1133,22 +1133,22 @@ class _UserEventsViewState extends State<UserEventsView> {
 
 
   // MISC
-  void requestStoragePermission() async {
-    // Check if the platform is not web, as web has no permissions
-    if (!kIsWeb) {
-      // Request storage permission
-      var status = await Permission.storage.status;
-      if (!status.isGranted) {
-        await Permission.storage.request();
-      }
-
-      // Request camera permission
-      var cameraStatus = await Permission.camera.status;
-      if (!cameraStatus.isGranted) {
-        await Permission.camera.request();
-      }
-    }
-  }
+  // void requestStoragePermission() async {
+  //   // Check if the platform is not web, as web has no permissions
+  //   if (!kIsWeb) {
+  //     // Request storage permission
+  //     var status = await Permission.storage.status;
+  //     if (!status.isGranted) {
+  //       await Permission.storage.request();
+  //     }
+  //
+  //     // Request camera permission
+  //     var cameraStatus = await Permission.camera.status;
+  //     if (!cameraStatus.isGranted) {
+  //       await Permission.camera.request();
+  //     }
+  //   }
+  // }
   bool checkIfUpcomingEvent(ClubMeEvent currentEvent){
 
 

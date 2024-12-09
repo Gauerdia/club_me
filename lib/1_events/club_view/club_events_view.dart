@@ -22,7 +22,7 @@ import 'club_edit_event_view.dart';
 import 'components/small_event_tile.dart';
 
 import 'package:collection/collection.dart';
-
+import 'package:permission_handler/permission_handler.dart';
 class ClubEventsView extends StatefulWidget {
   const ClubEventsView({Key? key}) : super(key: key);
 
@@ -57,6 +57,8 @@ class _ClubEventsViewState extends State<ClubEventsView> {
   @override
   void initState(){
     super.initState();
+
+    requestStoragePermission();
 
     // Get providers needed for fetching
     stateProvider = Provider.of<StateProvider>(context,listen: false);
@@ -679,6 +681,22 @@ class _ClubEventsViewState extends State<ClubEventsView> {
     }catch(e){
       _supabaseService.createErrorLog("ClubEventsView, getAllEventTemplates: $e");
     }
+  }
+
+  void requestStoragePermission() async {
+    // Check if the platform is not web, as web has no permissions
+
+      // Request storage permission
+      var status = await Permission.storage.status;
+      if (!status.isGranted) {
+        await Permission.storage.request();
+      }
+
+      // Request camera permission
+      var cameraStatus = await Permission.camera.status;
+      if (!cameraStatus.isGranted) {
+        await Permission.camera.request();
+      }
   }
 
   @override

@@ -31,7 +31,6 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
 
   late double screenHeight, screenWidth;
 
-  AdvCameraController? cameraController;
   List<String> pictureSizes = <String>[];
   String? imagePath;
 

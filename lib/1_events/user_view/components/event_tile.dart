@@ -1052,6 +1052,7 @@ class EventTile extends StatelessWidget {
           (club) => club.getClubId() == clubId
       ).first
     );
+    stateProvider.setPageIndex(1);
     stateProvider.setAccessedEventDetailFrom(0);
     context.push('/club_details');
 

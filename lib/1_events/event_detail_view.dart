@@ -1072,6 +1072,7 @@ class _EventDetailViewState extends State<EventDetailView>{
                 (club) => club.getClubId() == clubId
         ).first
     );
+    stateProvider.setPageIndex(1);
     stateProvider.setAccessedEventDetailFrom(0);
     context.push('/club_details');
 
