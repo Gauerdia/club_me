@@ -31,6 +31,7 @@ class HiveService{
   final String _clubMeUsedDiscountsBoxName = "clubMeUsedDiscountsBox";
 
   final String _latestInfoScreenBoxName = "latestInfoScreenBox";
+  final String _latestInfoScreenNameBoxName = "latestInfoScreenNameBox";
 
   final String _tutorialSeenBoxName = "tutorialSeenBox";
 
@@ -46,6 +47,7 @@ class HiveService{
   Future<Box<ClubMeUsedDiscount>> get _clubMeUsedDiscountsBox async => await Hive.openBox<ClubMeUsedDiscount>(_clubMeUsedDiscountsBoxName);
   Future<Box<DateTime>> get _latestInfoScreenBox async => await Hive.openBox<DateTime>(_latestInfoScreenBoxName);
   Future<Box<bool>> get _tutorialSeenBox async => await Hive.openBox<bool>(_tutorialSeenBoxName);
+  Future<Box<String>> get _latestInfoScreenNameBox async => await Hive.openBox<String>(_latestInfoScreenNameBoxName);
 
   Future<bool> getTutorialSeen() async{
     try{
@@ -70,6 +72,26 @@ class HiveService{
     }
   }
 
+  Future<void> insertLatestInfoScreenNames(String name) async{
+    try{
+      var box = await _latestInfoScreenNameBox;
+      await box.add(name);
+    }catch(e){
+      log.d("HiveService. Function: insertLatestInfoScreenNames. Error: $e");
+      _supabaseService.createErrorLog("HiveService. Function: insertLatestInfoScreenNames. Error: $e");
+    }
+  }
+  Future<List<String>> getLatestInfoScreenNames() async {
+    try{
+      var box = await _latestInfoScreenNameBox;
+      return box.values.toList();
+    }catch(e){
+      log.d("HiveService. Function: getLatestInfoScreenNames. Error: $e");
+      _supabaseService.createErrorLog("HiveService. Function: getLatestInfoScreenNames. Error: $e.");
+      return [];
+    }
+  }
+
   Future<DateTime?> getLatestInfoScreenDate() async{
     try{
       var box = await _latestInfoScreenBox;
@@ -90,7 +112,12 @@ class HiveService{
 
       final berlin = tz.getLocation('Europe/Berlin');
       final todayTimestamp = tz.TZDateTime.from(DateTime.now(), berlin);
-      DateTime newTimeStamp = DateTime(todayTimestamp.year, todayTimestamp.month, todayTimestamp.day, todayTimestamp.hour, todayTimestamp.minute);
+      DateTime newTimeStamp = DateTime(
+          todayTimestamp.year,
+          todayTimestamp.month,
+          todayTimestamp.day,
+          todayTimestamp.hour,
+          todayTimestamp.minute);
 
       var box = await _latestInfoScreenBox;
       var boxContent = box.values.toList();

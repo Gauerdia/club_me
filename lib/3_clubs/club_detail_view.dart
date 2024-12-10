@@ -85,8 +85,8 @@ class _ClubDetailViewState extends State<ClubDetailView> {
         surfaceTintColor: customStyleClass.backgroundColorMain,
         automaticallyImplyLeading: false,
         backgroundColor: customStyleClass.backgroundColorMain,
-        title: Container(
-          // width: screenWidth*0.67,
+        title: SizedBox(
+          width: screenWidth,
           child: Stack(
             children: [
 
@@ -133,7 +133,6 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                 width: screenWidth,
                 child: IconButton(
                     onPressed: (){
-
                       switch(stateProvider.pageIndex){
                         case(0):context.go("/user_events");break;
                         case(1):context.go("/user_clubs");break;
@@ -141,8 +140,6 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                         case(3):context.go("/user_coupons");break;
                         default:context.go("/user_clubs");break;
                       }
-
-
                     },
                     icon: const Icon(
                       Icons.arrow_back_ios,
@@ -475,7 +472,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
         noEventsAvailable?
         Container() :
             Container(
-              width: screenWidth,
+              width: screenWidth*0.9,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [

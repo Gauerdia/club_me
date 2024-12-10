@@ -1184,13 +1184,17 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
             Text(
               "Musikrichtungen",
               textAlign: TextAlign.left,
-              style: customStyleClass.getFontStyle1(),
+              style: customStyleClass.getFontStyle1Bold(),
+            ),
+
+            SizedBox(
+              height: 20,
             ),
 
             // Text: Please insert
             Text(
               "Füge Musikrichtungen hinzu oder lösche sie per einfachem Klick!",
-              textAlign: TextAlign.left,
+              textAlign: TextAlign.center,
               style: customStyleClass.getFontStyle4(),
             ),
 

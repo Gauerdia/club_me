@@ -48,9 +48,9 @@ class _UserUpcomingEventsViewState extends State<UserUpcomingEventsView> {
 
   AppBar _buildAppBar(){
     return AppBar(
-        surfaceTintColor: Colors.black,
+        surfaceTintColor: customStyleClass.backgroundColorMain,
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.transparent,
+        backgroundColor: customStyleClass.backgroundColorMain,
         title: SizedBox(
               width: screenWidth,
               child: Stack(
@@ -64,6 +64,7 @@ class _UserUpcomingEventsViewState extends State<UserUpcomingEventsView> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
+
                           Text(headline,
                               textAlign: TextAlign.center,
                               style: customStyleClass.getFontStyleHeadline1Bold()
@@ -75,19 +76,15 @@ class _UserUpcomingEventsViewState extends State<UserUpcomingEventsView> {
                   // Icon: Back
                   Container(
                       width: screenWidth,
+                      height: 50,
                       alignment: Alignment.centerLeft,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          IconButton(
-                            onPressed: () => clickEventBack(),
-                            icon: const Icon(
-                              Icons.arrow_back_ios_new_outlined,
-                              color: Colors.grey,
-                              // size: 20,
-                            ),
-                          )
-                        ],
+                      child:IconButton(
+                        onPressed: () => clickEventBack(),
+                        icon: const Icon(
+                            Icons.arrow_back_ios,
+                            color: Colors.white
+                          // size: 20,
+                        ),
                       )
                   ),
                 ],

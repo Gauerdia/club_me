@@ -175,34 +175,45 @@ class _UserEventsViewState extends State<UserEventsView> {
 
     final stateProvider = Provider.of<StateProvider>(context, listen: false);
 
+    String currentInfoScreenName = "";
+
     try{
       if(!stateProvider.alreadyCheckedForInfoScreen){
 
-        List<DateTime> lastInfoScreenDate = await _supabaseService.getLatestInfoScreenDate();
-        DateTime? localLastInfoScreenDate = await _hiveService.getLatestInfoScreenDate();
+        List<String> lastInfoScreenNames = await _hiveService.getLatestInfoScreenNames();
+
+        //List<DateTime> lastInfoScreenDate = await _supabaseService.getLatestInfoScreenDate();
+        //DateTime? localLastInfoScreenDate = await _hiveService.getLatestInfoScreenDate();
 
         // Only relevant if we are before the expiration date.
-        if( stateProvider.getBerlinTime().isBefore(lastInfoScreenDate[1]) ){
+        // if( stateProvider.getBerlinTime().isBefore(lastInfoScreenDate[1]) ){
+        //
+        //   // If we have seen the ad already, let's see if there was an update.
+        //   if(localLastInfoScreenDate != null){
+        //
+        //     // Have we already seen the recent ad?
+        //     if(localLastInfoScreenDate.isAfter(lastInfoScreenDate[0])){
+        //       noInfoScreenToShow = true;
+        //     }else{
+        //       noInfoScreenToShow = false;
+        //     }
+        //
+        //   }else{
+        //     noInfoScreenToShow = false;
+        //   }
+        //
+        // }else{
+        //   noInfoScreenToShow = true;
+        // }
 
-          // If we have seen the ad already, let's see if there was an update.
-          if(localLastInfoScreenDate != null){
-
-            // Have we already seen the recent ad?
-            if(localLastInfoScreenDate.isAfter(lastInfoScreenDate[0])){
-              noInfoScreenToShow = true;
-            }else{
-              noInfoScreenToShow = false;
-            }
-
-          }else{
-            noInfoScreenToShow = false;
-          }
-
-        }else{
+        if(lastInfoScreenNames.contains(currentInfoScreenName)){
           noInfoScreenToShow = true;
+        }else{
+          noInfoScreenToShow = false;
+          await _hiveService.insertLatestInfoScreenNames(currentInfoScreenName);
         }
 
-        await _hiveService.updateLatestInfoScreenDate();
+        //await _hiveService.updateLatestInfoScreenDate();
 
         setState(() {
           checkedForInfoScreen = true;
@@ -628,10 +639,48 @@ class _UserEventsViewState extends State<UserEventsView> {
     return Container(
       width: screenWidth,
       height: screenHeight,
-      child: Center(
-        child: Image.asset(
-          "assets/images/lange_nacht.png"
-        ),
+      child: Stack(
+        children: [
+
+          Center(
+            child: Image.asset(
+                "assets/images/info_screen_09_12_24.jpg"
+            ),
+          ),
+
+          Container(
+            width: screenHeight*0.9,
+            alignment: Alignment.bottomCenter,
+            padding: const EdgeInsets.only(
+              bottom: 100
+            ),
+            child: InkWell(
+              child: Container(
+                width: 200,
+                height: 60,
+                padding: const EdgeInsets.symmetric(
+                    vertical: 10,
+                    horizontal: 10
+                ),
+                decoration: BoxDecoration(
+                    color: Color(0xffad9430),
+                    borderRadius: BorderRadius.circular(15)
+                ),
+                child: Center(
+                  child: Text(
+                    "Jetzt entdecken",
+                    style: customStyleClass.getFontStyle2Bold(),
+                  ),
+                ),
+              ),
+              onTap: (){
+                stateProvider.setPageIndex(3);
+                context.go("/user_coupons");
+              },
+            ),
+          )
+
+        ],
       ),
     );
   }
