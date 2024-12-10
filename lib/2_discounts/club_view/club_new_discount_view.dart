@@ -724,6 +724,16 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
                         ),
                       ),
 
+                      // Text: UsageLimit
+                      Container(
+                        width: screenWidth*0.9,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          "Nutzungsbeschränkung",
+                          style: customStyleClass.getFontStyle3(),
+                        ),
+                      ),
+
                       // Row: ToggleSwitch, TextField - UsageLimit
                       SizedBox(
                         width: screenWidth*0.9,
@@ -733,56 +743,44 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
                           children: [
 
 
-                            SizedBox(
+                            AnimatedContainer(
+
+                              duration: Duration(seconds: 1),
+                              curve: Curves.fastOutSlowIn,
+
+                              padding:  EdgeInsets.only(
+                                  top: hasUsageLimit != 0 ? distanceBetweenTitleAndTextField*3.5 : distanceBetweenTitleAndTextField
+                              ),
+                              // color: Colors.red,
                               width: screenWidth*0.45,
-                              child: Column(
-                                children: [
+                              // height: screenHeight*0.02,
+                              alignment: Alignment.topLeft,
 
-                                  // Text: UsageLimit
-                                  Container(
-                                    width: screenWidth*0.9,
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      "Nutzungsbeschränkung",
-                                      style: customStyleClass.getFontStyle3(),
-                                    ),
-                                  ),
-
-                                  Container(
-                                    padding:  EdgeInsets.only(
-                                        top: distanceBetweenTitleAndTextField
-                                    ),
-                                    width: screenWidth*0.45,
-                                    // height: screenHeight*0.12,
-                                    alignment: Alignment.centerLeft,
-                                    child: ToggleSwitch(
-                                      minHeight: screenHeight*0.07,
-                                      initialLabelIndex: hasUsageLimit,
-                                      totalSwitches: 2,
-                                      activeBgColor: [customStyleClass.primeColor],
-                                      activeFgColor: Colors.white,
-                                      inactiveFgColor: Colors.white,
-                                      inactiveBgColor:customStyleClass.backgroundColorEventTile,
-                                      labels: const [
-                                        'Nein',
-                                        'Ja',
-                                      ],
-                                      onToggle: (index) {
-                                        setState(() {
-                                          if(hasUsageLimit == 0){
-                                            setState(() {
-                                              hasUsageLimit = 1;
-                                            });
-                                          }else{
-                                            setState(() {
-                                              hasUsageLimit = 0;
-                                            });
-                                          }
-                                        });
-                                      },
-                                    ),
-                                  ),
+                              child: ToggleSwitch(
+                                minHeight: screenHeight*0.07,
+                                initialLabelIndex: hasUsageLimit,
+                                totalSwitches: 2,
+                                activeBgColor: [customStyleClass.primeColor],
+                                activeFgColor: Colors.white,
+                                inactiveFgColor: Colors.white,
+                                inactiveBgColor:customStyleClass.backgroundColorEventTile,
+                                labels: const [
+                                  'Nein',
+                                  'Ja',
                                 ],
+                                onToggle: (index) {
+                                  setState(() {
+                                    if(hasUsageLimit == 0){
+                                      setState(() {
+                                        hasUsageLimit = 1;
+                                      });
+                                    }else{
+                                      setState(() {
+                                        hasUsageLimit = 0;
+                                      });
+                                    }
+                                  });
+                                },
                               ),
                             ),
 
@@ -1067,6 +1065,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
                                       alignment: Alignment.centerLeft,
                                       child: ToggleSwitch(
                                         minHeight: screenHeight*0.07,
+                                        minWidth: screenWidth*0.2,
                                         initialLabelIndex: isRedeemable,
                                         totalSwitches: 2,
                                         activeBgColor: [customStyleClass.primeColor],

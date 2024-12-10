@@ -50,7 +50,7 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
   int selectedSecondMinute = 0;
 
   List<String> minuteValuesToChoose = [
-    "0", "15", "30", "59"
+    "0", "15", "30", "45", "59"
   ];
 
   bool isUploading = false;
@@ -251,12 +251,8 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
     );
   }
   Widget _buildNavigationBar(){
-
-
-    return
-
-      // Displaying either an image or a video?
-      (isVideo || isImage) ? Container(
+    return (isVideo || isImage) ?
+    Container(
       width: screenWidth,
       height: 80,
       alignment: Alignment.center,
@@ -267,6 +263,9 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
                   color: Colors.grey[900]!
               )
           )
+      ),
+      padding: const EdgeInsets.only(
+        right: 10,
       ),
       child: Container(
         width: screenWidth*0.9,
@@ -294,11 +293,10 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
       ),
     ):
 
-    // No image nor video?
+    // No image, no video
     Container(
       width: screenWidth,
       height: 80,
-      alignment: Alignment.centerRight,
       decoration: BoxDecoration(
           color: customStyleClass.backgroundColorMain,
           border: Border(
@@ -307,28 +305,52 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
               )
           )
       ),
+      alignment: Alignment.bottomRight,
       padding: const EdgeInsets.only(
           right: 10,
+          bottom: 10
       ),
-      child:
-      // Currently uploading?
-      isUploading ?
-      const CircularProgressIndicator() :
-
-      // Waiting for request to upload
+      child: isUploading ? CircularProgressIndicator(color: customStyleClass.primeColor)
+          : pickGenreIsActive ?
       GestureDetector(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Text(
-              "Abschicken",
-              style: customStyleClass.getFontStyle3BoldPrimeColor(),
-            ),
-            Icon(
-              Icons.arrow_forward_outlined,
-              color: customStyleClass.primeColor,
-            )
-          ],
+        child: Container(
+          height: 80,
+          alignment: Alignment.center,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text(
+                "Fertig",
+                style: customStyleClass.getFontStyle3BoldPrimeColor(),
+              ),
+              Icon(
+                Icons.arrow_forward_outlined,
+                color: customStyleClass.primeColor,
+              )
+            ],
+          ),
+        ),
+        onTap: () => setState(() {
+          pickGenreIsActive = false;
+        }),
+      ):
+      GestureDetector(
+        child: Container(
+          height: 80,
+          alignment: Alignment.center,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text(
+                "Erstellen",
+                style: customStyleClass.getFontStyle3BoldPrimeColor(),
+              ),
+              Icon(
+                Icons.arrow_forward_outlined,
+                color: customStyleClass.primeColor,
+              )
+            ],
+          ),
         ),
         onTap: () => clickEventUpdateEvent(),
       ),
@@ -1080,13 +1102,17 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
             Text(
               "Musikrichtungen",
               textAlign: TextAlign.left,
-              style: customStyleClass.getFontStyle1(),
+              style: customStyleClass.getFontStyle1Bold(),
+            ),
+
+            SizedBox(
+              height: 20,
             ),
 
             // Text: Please insert
             Text(
               "Füge Musikrichtungen hinzu oder lösche sie per einfachem Klick!",
-              textAlign: TextAlign.left,
+              textAlign: TextAlign.center,
               style: customStyleClass.getFontStyle4(),
             ),
 
@@ -1435,10 +1461,14 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
     }
   }
   void clickEventUpdateEvent(){
-    setState(() {
-      isUploading = true;
-      finishUpdateEvent();
-    });
+    if(_eventTitleController.text != "" ){
+      setState(() {
+        isUploading = true;
+        finishUpdateEvent();
+      });
+    }else{
+      showDialogOfMissingValue();
+    }
   }
   void resetAndGoBackToEvents(){
     stateProvider.resetCurrentEventTemplate();
@@ -1872,7 +1902,14 @@ class _ClubEditEventViewState extends State<ClubEditEventView> {
   void showDialogToAddGenres(){
     setState(() {pickGenreIsActive = true;});
   }
-
+  void showDialogOfMissingValue(){
+    showDialog(context: context,
+        builder: (BuildContext context){
+          return TitleAndContentDialog(
+              titleToDisplay: "Fehlende Werte",
+              contentToDisplay: "Bitte füllen Sie mindestens die folgenden Felder aus, bevor Sie weitergehen: \n\n Titel");
+        });
+  }
 
   // FORMAT
   String formatSelectedDate(){

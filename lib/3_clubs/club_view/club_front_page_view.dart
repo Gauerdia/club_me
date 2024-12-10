@@ -1963,6 +1963,14 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
     var openingHourString = openingHourToDisplay < 10 ? "0${openingHourToDisplay.toString()}" : openingHourToDisplay.toString();
     var openingMinuteString = openingMinuteToDisplay < 10  ? "0${openingMinuteToDisplay.toString()}" : openingMinuteToDisplay.toString();
 
+    var closingHourString = "";
+    var closingMinuteString = "";
+
+    if(closingHourToDisplay != 99){
+      closingHourString = closingHourToDisplay < 10 ? "0${closingHourToDisplay.toString()}" : closingHourToDisplay.toString();
+      closingMinuteString = closingMinuteToDisplay < 10 ? "0${closingMinuteToDisplay.toString()}" : closingMinuteToDisplay.toString();
+    }
+
     return Container(
       width: screenWidth*0.9,
       child: Row(
@@ -1984,7 +1992,6 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                 ),
               ),
 
-
               Container(
                 child: Center(
                   child: Text(
@@ -1998,9 +2005,7 @@ class _ClubFrontPageViewState extends State<ClubFrontPageView> {
                   alignment: Alignment.centerRight,
                   child: Text(
                     closingHourToDisplay != 99 ?
-                    closingHourToDisplay < 10 ?
-                    "0${closingHourToDisplay.toString()}:00" :
-                    "${closingHourToDisplay.toString()}:00"
+                    "$closingHourString:$closingMinuteString"
                         : "  --.--",
                     style: customStyleClass.getFontStyle3(),
                   )

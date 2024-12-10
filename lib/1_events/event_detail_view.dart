@@ -488,6 +488,7 @@ class _EventDetailViewState extends State<EventDetailView>{
                                   for(String genre in genresToDisplay)
                                     Text(
                                       genre,
+                                      textAlign: TextAlign.center,
                                       style: customStyleClass.getFontStyle4(),
                                     )
                                 ],
@@ -1159,9 +1160,15 @@ class _EventDetailViewState extends State<EventDetailView>{
 
         if(currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenresToDisplay().genres.isNotEmpty){
 
-          for(var element in currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenresToDisplay().genres){
-            genresToDisplay.add("${element.displayGenre},");
+          for(var i=0; i<currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenresToDisplay().genres.length; i++){
+
+            if(i == currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenresToDisplay().genres.length-1){
+              genresToDisplay.add("${currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenresToDisplay().genres[i].displayGenre}");
+            }else{
+              genresToDisplay.add("${currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenresToDisplay().genres[i].displayGenre},");
+            }
           }
+
 
         }else{
           final splitNames = currentAndLikedElementsProvider.currentClubMeEvent.getMusicGenres().split(',');

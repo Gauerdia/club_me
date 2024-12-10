@@ -124,30 +124,12 @@ class _RegisterForUserAsClubViewState extends State<RegisterForUserAsClubView> {
                 height: 50,
                 width: screenWidth,
                 alignment: Alignment.centerRight,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                            headLine,
-                            textAlign: TextAlign.center,
-                            style: customStyleClass.getFontStyleHeadline1Bold()
-                        ),
-                        if(showVIP)
-                        Padding(
-                          padding: const EdgeInsets.only(
-                              bottom: 15
-                          ),
-                          child: Text(
-                            "VIP",
-                            style: customStyleClass.getFontStyleVIPGold(),
-                          ),
-                        )
-                      ],
-                    )
-                  ],
-                ),
+                child:Container(
+                  child: Image.asset(
+                    "assets/images/club_me_logo_name_1.png",
+                    width: 150,
+                  ),
+                )
               ),
 
               Container(
@@ -170,56 +152,23 @@ class _RegisterForUserAsClubViewState extends State<RegisterForUserAsClubView> {
   }
 
   Widget _buildBottomNavigationBar(){
-    return
-
-      Container(
+    return Container(
         width: screenWidth,
-        height: screenHeight*0.08,
         decoration: BoxDecoration(
             color: customStyleClass.backgroundColorMain,
-            border: Border(
-                top: BorderSide(
-                    color: Colors.grey[900]!
-                )
+            border: const Border(
+              top: BorderSide(color: Colors.grey, width: 1.0),
             )
         ),
-
-        // color: Colors.green,
-        alignment: Alignment.center,
-        padding: const EdgeInsets.only(
-          right: 10,
-          // bottom: 10
-        ),
-        child: GestureDetector(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Text(
-                "Registrieren",
-                style: customStyleClass.getFontStyle3BoldPrimeColor(),
-              ),
-              Icon(
-                Icons.arrow_forward_outlined,
-                color: customStyleClass.primeColor,
-              )
-            ],
+        height: 70,
+        alignment: Alignment.bottomCenter,
+        child: Center(
+          child: Image.asset(
+            "assets/images/runes_footer.PNG",
+            width: 100,
           ),
-          onTap: () => checkIfRegistrationIsLegit(), //clickEventRegister(),
         ),
       );
-
-    //   Container(
-    //   // color: Colors.red,
-    //   width: screenWidth,
-    //   height: 70,
-    //   alignment: Alignment.bottomCenter,
-    //   child: Center(
-    //     child: Image.asset(
-    //       "assets/images/runes_footer.PNG",
-    //       width: 100,
-    //     ),
-    //   ),
-    // );
   }
 
   // DB FUNCTIONS
@@ -363,17 +312,16 @@ class _RegisterForUserAsClubViewState extends State<RegisterForUserAsClubView> {
             child: Column(
                 children: [
 
-                  // Question headline
                   Container(
                     width: screenWidth*0.9,
-                    padding: EdgeInsets.symmetric(
-                        vertical: screenHeight*0.04,
-                        horizontal: screenWidth*0.02
+                    padding: EdgeInsets.only(
+                        top: distanceBetweenTitleAndTextField*2,
+                      bottom: distanceBetweenTitleAndTextField*2
                     ),
                     child: Text(
-                      "Erzähl uns ein wenig über dich!",
+                      "Wir freuen uns, dich in unserer Club-Community begrüßen zu dürfen!",
                       textAlign: TextAlign.center,
-                      style: customStyleClass.getFontStyle2Bold(),
+                      style: customStyleClass.getFontStyle5(),
                     ),
                   ),
 
@@ -717,6 +665,32 @@ class _RegisterForUserAsClubViewState extends State<RegisterForUserAsClubView> {
                   SizedBox(
                     height: screenHeight*0.1,
                   ),
+
+
+                  Container(
+                    width: screenWidth*0.9,
+                    alignment: Alignment.centerRight,
+                    child: InkWell(
+                      child: Container(
+                        width: 150,
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10,
+                            horizontal: 10
+                        ),
+                        decoration: BoxDecoration(
+                            color: customStyleClass.primeColor,
+                            borderRadius: BorderRadius.circular(15)
+                        ),
+                        child: Center(
+                          child: Text(
+                            "Registrieren",
+                            style: customStyleClass.getFontStyle4Bold(),
+                          ),
+                        ),
+                      ),
+                      onTap: () => checkIfRegistrationIsLegit(),
+                    ),
+                  )
 
                 ]
             )
