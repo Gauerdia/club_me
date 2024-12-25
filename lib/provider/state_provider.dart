@@ -60,13 +60,18 @@ class StateProvider extends ChangeNotifier{
 
   bool accessedTutorialFromSettings = false;
 
-
+  String currentInfoScreenFileName = "";
 
 
   final SupabaseService _supabaseService = SupabaseService();
   final log = getLogger();
 
 
+
+  void activateAlreadyCheckedForInfoScreen(){
+    alreadyCheckedForInfoScreen = true;
+    notifyListeners();
+  }
 
   void activateAccessedTutorialFromSettings(){
     accessedTutorialFromSettings = true;

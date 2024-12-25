@@ -210,7 +210,8 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
                         CameraPreview(_controller),
 
                         // Focus point
-                        if(showFocusCircle) Positioned(
+                        if(showFocusCircle)
+                          Positioned(
                             top: y-20,
                             left: x-20,
                             child: Container(
@@ -221,7 +222,7 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
                                   border: Border.all(color: Colors.white,width: 1.5)
                               ),
                             )
-                        ),
+                          ),
 
                         // Record button
                         Container(
@@ -263,6 +264,8 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
                                     )
                                 ),
                                 onTap: () => pressedRecord(),
+                                onLongPress: () => pressedRecord(),
+                                onLongPressEnd: (LongPressEndDetails longPressEndDetails) => pressedRecord(),
                               )
                             ],
                           ),

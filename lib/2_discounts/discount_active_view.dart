@@ -52,7 +52,7 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
       duration: const Duration(seconds: 5),
     )..repeat();
 
-    startTimer();
+    // startTimer();
 
   }
   @override
@@ -134,12 +134,12 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
               children: [
 
                 // COUNTER
-                SizedBox(
-                  child: Text(
-                    _start.toString(),
-                    style: customStyleClass.getFontStyleHeadline1Bold(),
-                  ),
-                ),
+                // SizedBox(
+                //   child: Text(
+                //     _start.toString(),
+                //     style: customStyleClass.getFontStyleHeadline1Bold(),
+                //   ),
+                // ),
 
                 // LOGO
                 SizedBox(
@@ -182,7 +182,8 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
                 Text(
                   currentAndLikedElementsProvider.currentClubMeDiscount.getClubName(),
                   style: customStyleClass.getFontStyle3Bold(),
-                )
+                ),
+
               ],
             ),
           ),
@@ -197,6 +198,41 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
             ),
           ),
 
+          Container(
+            width: screenWidth,
+            height: screenHeight*0.7,
+            // color: Colors.grey,
+            alignment: Alignment.center,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+
+                InkWell(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10
+                    ),
+                    width: screenWidth*0.5,
+                    decoration: BoxDecoration(
+                      color: customStyleClass.primeColorDark,
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Center(
+                      child: Text(
+                        "Weiter",
+                        style: customStyleClass.getFontStyle3Bold(),
+                      ),
+                    ),
+                  ),
+                onTap: () {
+                  fetchedContentProvider.setFetchedDiscounts([]);
+                  context.go('/user_coupons');
+                },
+                )
+              ],
+            ),
+          )
+
         ],
       ),
     );
@@ -204,28 +240,28 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
 
 
   // MISC
-  void startTimer() async{
-
-    const oneSec = Duration(seconds: 1);
-
-    _timer = Timer.periodic(
-      oneSec,
-          (Timer timer) async {
-        if (_start <= 0) {
-          setState(() {
-            _start = 0;
-            timer.cancel();
-            fetchedContentProvider.setFetchedDiscounts([]);
-            context.go('/user_coupons');
-          });
-        } else {
-          setState(() {
-            _start--;
-          });
-        }
-      },
-    );
-  }
+  // void startTimer() async{
+  //
+  //   const oneSec = Duration(seconds: 1);
+  //
+  //   _timer = Timer.periodic(
+  //     oneSec,
+  //         (Timer timer) async {
+  //       if (_start <= 0) {
+  //         setState(() {
+  //           _start = 0;
+  //           timer.cancel();
+  //           fetchedContentProvider.setFetchedDiscounts([]);
+  //           context.go('/user_coupons');
+  //         });
+  //       } else {
+  //         setState(() {
+  //           _start--;
+  //         });
+  //       }
+  //     },
+  //   );
+  // }
 
   String formatClock(){
 

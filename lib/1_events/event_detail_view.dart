@@ -11,6 +11,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:go_router/go_router.dart';
+import 'package:googleapis/admob/v1.dart';
 import 'package:logger/logger.dart';
 import 'package:mime/mime.dart';
 import 'package:provider/provider.dart';
@@ -116,7 +117,65 @@ class _EventDetailViewState extends State<EventDetailView>{
 
   // BUILD
   AppBar _buildAppBar(){
-    return AppBar(
+    return isContentShown ?
+    AppBar(
+      automaticallyImplyLeading: false,
+      backgroundColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      title: SizedBox(
+        width: screenWidth,
+        height: 50,
+        child: Stack(
+          children: [
+
+            // Show "close" button when content is shown
+            stateProvider.getUsingTheAppAsADeveloper() ?
+            Container(
+              alignment: Alignment.centerRight,
+              width: screenWidth,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+
+                  contentDownloadIsLoading ? CircularProgressIndicator(color: customStyleClass.primeColor,):
+                  IconButton(
+                    onPressed: () => clickEventDownloadContent(),
+                    icon: Icon(
+                      Icons.save,
+                      color: customStyleClass.primeColor,
+                      size: 30,
+                    ),
+                  ),
+
+                  IconButton(
+                    onPressed: () => clickEventContent(),
+                    icon: const Icon(
+                      Icons.close,
+                      color: Colors.white,
+                      size: 30,
+                    ),
+                  ),
+                ],
+              ),
+            ) :
+            Container(
+              alignment: Alignment.centerRight,
+              width: screenWidth,
+              child: IconButton(
+                onPressed: () => clickEventContent(),
+                icon: const Icon(
+                  Icons.close,
+                  color: Colors.white,
+                  size: 30,
+                ),
+              ),
+            ),
+
+          ],
+        ),
+      ),
+    ) :
+    AppBar(
       automaticallyImplyLeading: false,
       backgroundColor: customStyleClass.backgroundColorMain,
       surfaceTintColor: customStyleClass.backgroundColorMain,
@@ -188,35 +247,35 @@ class _EventDetailViewState extends State<EventDetailView>{
 
             // Show "close" button when content is shown
             isContentShown ?
-                stateProvider.getUsingTheAppAsADeveloper() ?
-                    Container(
-                      alignment: Alignment.centerRight,
-                      width: screenWidth,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
+            stateProvider.getUsingTheAppAsADeveloper() ?
+            Container(
+              alignment: Alignment.centerRight,
+              width: screenWidth,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
 
-                          contentDownloadIsLoading ? CircularProgressIndicator(color: customStyleClass.primeColor,):
-                          IconButton(
-                            onPressed: () => clickEventDownloadContent(),
-                            icon: Icon(
-                              Icons.save,
-                              color: customStyleClass.primeColor,
-                              size: 30,
-                            ),
-                          ),
+                  contentDownloadIsLoading ? CircularProgressIndicator(color: customStyleClass.primeColor,):
+                  IconButton(
+                    onPressed: () => clickEventDownloadContent(),
+                    icon: Icon(
+                      Icons.save,
+                      color: customStyleClass.primeColor,
+                      size: 30,
+                    ),
+                  ),
 
-                          IconButton(
-                            onPressed: () => clickEventContent(),
-                            icon: const Icon(
-                              Icons.close,
-                              color: Colors.white,
-                              size: 30,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ) :
+                  IconButton(
+                    onPressed: () => clickEventContent(),
+                    icon: const Icon(
+                      Icons.close,
+                      color: Colors.white,
+                      size: 30,
+                    ),
+                  ),
+                ],
+              ),
+            ) :
             Container(
               alignment: Alignment.centerRight,
               width: screenWidth,
@@ -245,6 +304,10 @@ class _EventDetailViewState extends State<EventDetailView>{
           // Main Column
           Column(
             children: [
+
+              SizedBox(
+                height: 100,
+              ),
 
               // Spacer
               // SizedBox(
@@ -726,13 +789,13 @@ class _EventDetailViewState extends State<EventDetailView>{
 
           return GestureDetector(
             child: Container(
-              padding: EdgeInsets.only(
-                  top: 10,
-                // top: screenHeight*0.135,
+              padding: const EdgeInsets.only(
+                  top: 120,
                 right: 6
               ),
               width: screenWidth,
               alignment: Alignment.topRight,
+              decoration: BoxDecoration(),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(45.0),
                 child: Image.file(
@@ -750,20 +813,28 @@ class _EventDetailViewState extends State<EventDetailView>{
         if(isVideo){
           return GestureDetector(
             child: Container(
-              padding: EdgeInsets.only(
-                top: 10,
-                  // top: screenHeight*0.135,
+              padding: const EdgeInsets.only(
+                top: 120,
                   right: 6
               ),
               width: screenWidth,
               alignment: Alignment.topRight,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(45.0),
-                child: Image.memory(
-                  videoThumbnail!,
-                  width: 60,
-                  height: 60,
-                  fit: BoxFit.cover,
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.white38,
+                    width: 1,
+                  ),
+                  borderRadius: BorderRadius.circular(45.0),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(45.0),
+                  child: Image.memory(
+                    videoThumbnail!,
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
             ),
@@ -773,9 +844,8 @@ class _EventDetailViewState extends State<EventDetailView>{
 
       return GestureDetector(
         child: Container(
-          padding: EdgeInsets.only(
-              top: 10,
-            // top: screenHeight*0.14,
+          padding: const EdgeInsets.only(
+              top: 125,
             right: 15
           ),
           width: screenWidth,
@@ -1311,7 +1381,7 @@ class _EventDetailViewState extends State<EventDetailView>{
     return Scaffold(
 
       extendBody: true,
-      extendBodyBehindAppBar: false,
+      extendBodyBehindAppBar: true,
       resizeToAvoidBottomInset: false,
 
 

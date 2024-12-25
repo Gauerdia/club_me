@@ -18,7 +18,9 @@ class ClubMeDiscountTemplate{
     required this.isRepeatedDays,
     required this.templateId,
     required this.bigBannerFileName,
-    required this.smallBannerFileName
+    required this.smallBannerFileName,
+    required this.longTermStartDate,
+    required this.longTermEndDate
   });
 
   @HiveField(0)
@@ -49,6 +51,17 @@ class ClubMeDiscountTemplate{
   String bigBannerFileName;
   @HiveField(14)
   String smallBannerFileName;
+  @HiveField(15)
+  DateTime? longTermStartDate;
+  @HiveField(16)
+  DateTime? longTermEndDate;
+
+  DateTime? getLongTermStartDate(){
+    return longTermStartDate;
+  }
+  DateTime? getLongTermEndDate(){
+    return longTermEndDate;
+  }
 
   String getSmallBannerFileName(){
     return smallBannerFileName;

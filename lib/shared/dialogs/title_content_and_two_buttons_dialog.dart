@@ -42,6 +42,7 @@ class TitleContentAndTwoButtonsDialog extends StatelessWidget{
       ),
       actions: [
         Row(
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
             firstButtonToDisplay,
             secondButtonToDisplay

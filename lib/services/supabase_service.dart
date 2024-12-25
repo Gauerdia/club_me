@@ -21,6 +21,22 @@ class SupabaseService{
 
 
 
+  Future<String> getLatestInfoScreenFileName() async{
+    try{
+
+      var data = await supabase
+          .from('latest_info_screen')
+          .select();
+
+      return data.first['file_name'];
+
+    }catch(e){
+      log.d("Error in SupabaseService. Function: getLatestInfoScreenFileName. Error: ${e.toString()}");
+      createErrorLog("Error in SupabaseService. Function: getLatestInfoScreenFileName. Error: ${e.toString()}");
+      return "";
+    }
+  }
+
   Future<List<DateTime>> getLatestInfoScreenDate() async{
     try{
       var data =  await supabase
@@ -656,7 +672,10 @@ class SupabaseService{
         'big_banner_file_name': clubMeDiscount.getBigBannerFileName(),
         'small_banner_file_name': clubMeDiscount.getSmallBannerFileName(),
         'show_discount_in_app': clubMeDiscount.getShowDiscountInApp(),
-        'is_redeemable': clubMeDiscount.getIsRedeemable()
+        'is_redeemable': clubMeDiscount.getIsRedeemable(),
+
+        'longterm_start_date': clubMeDiscount.getLongTermStartDate() != null ? clubMeDiscount.getLongTermStartDate().toString() : null,
+        'longterm_end_date': clubMeDiscount.getLongTermEndDate() != null ? clubMeDiscount.getLongTermEndDate().toString() : null,
 
       }).select();
       log.d("insertDiscount: Finished successfully. Response: $data");
@@ -724,7 +743,11 @@ class SupabaseService{
 
         'is_repeated_days': clubMeDiscount.getIsRepeatedDays(),
         'big_banner_file_name': clubMeDiscount.getBigBannerFileName(),
-        'is_redeemable': clubMeDiscount.getIsRedeemable()
+        'is_redeemable': clubMeDiscount.getIsRedeemable(),
+
+        'longterm_start_date': clubMeDiscount.getLongTermStartDate() != null ? clubMeDiscount.getLongTermStartDate().toString() : null,
+        'longterm_end_date': clubMeDiscount.getLongTermEndDate() != null ? clubMeDiscount.getLongTermEndDate().toString() : null,
+
 
       }).match({
         'discount_id' : clubMeDiscount.getDiscountId()
@@ -984,6 +1007,19 @@ class SupabaseService{
       return Uint8List(0);
     }
   }
+
+  Future<Uint8List?> getInfoScreenImage(String fileName) async{
+    try{
+      var data = await supabase.storage.from('info_screen').download(fileName);
+      log.d("getInfoScreenImage: Finished successfully. File: $fileName");
+      return data;
+    }catch(e){
+      log.d("Error in SupabaseService. Function: getInfoScreenImage. Error: ${e.toString()}. finalPath: $fileName");
+      createErrorLog("Error in SupabaseService. Function: getInfoScreenImage. Error: ${e.toString()}. finalPath: $fileName");
+      return null;
+    }
+  }
+
   Future<Uint8List?> getBannerImage(String fileName, String folder) async {
 
     String finalPath = "";

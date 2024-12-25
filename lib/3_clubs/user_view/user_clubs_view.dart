@@ -362,7 +362,17 @@ class _UserClubsViewState extends State<UserClubsView>
              ),
 
            // Filter menu
-           if(isFilterMenuActive)_buildFilterMenu()
+           if(isFilterMenuActive)_buildFilterMenu(),
+
+           if(isFilterMenuActive)
+             GestureDetector(
+               child: Container(
+                 width: screenWidth,
+                 height: screenHeight,
+               ),
+               onTap: () => setState(() {isFilterMenuActive = false;}),
+               onHorizontalDragDown: (DragDownDetails details) => setState(() {isFilterMenuActive = false;}),
+             )
          ],
        )
    );
@@ -402,8 +412,7 @@ class _UserClubsViewState extends State<UserClubsView>
                   onlyFavoritesIsActive ? "Derzeit sind keine Clubs als Favoriten markiert.":
                   "Derzeit sind keine Clubs verfügbar.",
                   style: customStyleClass.getFontStyle3(),
-                )
-                ,
+                ),
               ),
             ),
 

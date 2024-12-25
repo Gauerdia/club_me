@@ -166,6 +166,15 @@ class CustomStyleClass{
         )
     );
   }
+  TextStyle getFontStyle3RedBold(){
+    return GoogleFonts.inter(
+        textStyle: TextStyle(
+            fontSize: fontSize3,
+            color: Colors.red,
+          fontWeight: FontWeight.bold
+        )
+    );
+  }
   TextStyle getFontStyle3Bold(){
     return GoogleFonts.inter(
         textStyle: TextStyle(
@@ -233,6 +242,15 @@ class CustomStyleClass{
         )
     );
   }
+  TextStyle getFontStyle4RedBold(){
+    return GoogleFonts.inter(
+        textStyle: TextStyle(
+            fontSize: fontSize4,
+            color: Colors.red,
+            fontWeight: FontWeight.bold
+        )
+    );
+  }
   TextStyle getFontStyle4BoldGrey(){
     return GoogleFonts.inter(
         textStyle:TextStyle(
@@ -289,6 +307,17 @@ class CustomStyleClass{
         )
     );
   }
+
+  TextStyle getFontStyle5RedBold(){
+    return GoogleFonts.inter(
+        textStyle: TextStyle(
+            fontSize: fontSize5,
+            color: Colors.red,
+            fontWeight: FontWeight.bold
+        )
+    );
+  }
+
   TextStyle getFontStyle5BoldGrey(){
     return GoogleFonts.inter(
         textStyle:TextStyle(

@@ -146,6 +146,7 @@ class ClubMeClub{
     final berlin = tz.getLocation('Europe/Berlin');
     final todayTimestamp = tz.TZDateTime.from(DateTime.now(), berlin);
 
+    // Get the current time as DateTime
     final berlinTimeStampWithoutTZ = DateTime(
       todayTimestamp.year,
       todayTimestamp.month,
@@ -157,6 +158,8 @@ class ClubMeClub{
     // Get events of the club
     List<ClubMeEvent>? clubsEventsToday;
     List<ClubMeEvent>? clubsEventsYesterday;
+
+    // Check if there are any events for this club today
     try{
       clubsEventsToday = currentEvents.where((event) =>
       event.getClubId() == getClubId() &&
@@ -166,6 +169,7 @@ class ClubMeClub{
       );
     }catch(e){}
 
+    // Check if there are any events for this club yesterday
     try{
       clubsEventsYesterday = currentEvents.where((event) =>
       event.getClubId() == getClubId() &&
@@ -175,18 +179,19 @@ class ClubMeClub{
       );
     }catch(e){}
 
-    OpeningTimes tempOpeningTimes = OpeningTimes(days: []);
-
     // get all the club's open days
+    OpeningTimes tempOpeningTimes = OpeningTimes(days: []);
     if(getOpeningTimes().days != null){
       for(var element in getOpeningTimes().days!){
         tempOpeningTimes.days!.add(element);
       }
     }
 
+    // Check if there are any opening times for yesterday among the regular ones
     Days? yesterdaysOpeningTimes = tempOpeningTimes.days!
         .firstWhereOrNull((element) => element.day == (berlinTimeStampWithoutTZ.weekday-1));
 
+    // Check if there are any opening times for today among the regular ones
     Days? todaysOpeningTimes = tempOpeningTimes.days!
         .firstWhereOrNull((element) => element.day == berlinTimeStampWithoutTZ.weekday);
 
@@ -195,7 +200,7 @@ class ClubMeClub{
     DateTime? todayOpeningAsDateTime;
     DateTime? todayClosingAsDateTime;
 
-    // Check for opening times
+    // Set DateTime values if yesterday was regularly open
     if(yesterdaysOpeningTimes != null){
 
       yesterdayOpeningAsDateTime = DateTime(
@@ -220,6 +225,8 @@ class ClubMeClub{
       );
 
     }
+
+    // Set DateTime values if today is regularly open
     if(todaysOpeningTimes != null){
 
       todayOpeningAsDateTime = DateTime(
@@ -249,17 +256,20 @@ class ClubMeClub{
     ClubOpenStatus? currentStatusToReturn;
 
 
-    // Cases
+    /// Cases
 
 
     // First case: Check for opening times from yesterday
     if(yesterdayOpeningAsDateTime != null && yesterdayClosingAsDateTime != null){
 
       // We are inside of an active opening time
-      if(berlinTimeStampWithoutTZ.isAfter(yesterdayOpeningAsDateTime) && berlinTimeStampWithoutTZ.isBefore(yesterdayClosingAsDateTime)){
+      if (
+          berlinTimeStampWithoutTZ.isAfter(yesterdayOpeningAsDateTime) &&
+          berlinTimeStampWithoutTZ.isBefore(yesterdayClosingAsDateTime)
+      ){
 
+        // About to close? Tell that to the user
         if(yesterdayClosingAsDateTime.difference(berlinTimeStampWithoutTZ).inHours <= 2){
-
           return ClubOpenStatus(
               openingStatus: 3,
               textToDisplay:  yesterdayClosingAsDateTime.minute < 10 ?
@@ -381,6 +391,15 @@ class ClubMeClub{
                 "${event.getEventDate().hour}:${event.getEventDate().minute}"
             );
           }
+          // Events takes place after the regular opening hours
+          else if(berlinTimeStampWithoutTZ.isBefore(event.getEventDate()) && currentStatusToReturn != null){
+            return ClubOpenStatus(
+                openingStatus: 1,
+                textToDisplay: event.getEventDate().minute < 10 ?
+                "${event.getEventDate().hour}:${event.getEventDate().minute}0":
+                "${event.getEventDate().hour}:${event.getEventDate().minute}"
+            );
+          }
 
         }
         // If there is no closing date available, we assume at least 6 hours event time
@@ -397,6 +416,15 @@ class ClubMeClub{
           // if currentStatusToReturn is null, that means there is no opening time today
           if(berlinTimeStampWithoutTZ.isBefore(event.getEventDate()) && currentStatusToReturn == null){
 
+            return ClubOpenStatus(
+                openingStatus: 1,
+                textToDisplay: event.getEventDate().minute < 10 ?
+                "${event.getEventDate().hour}:${event.getEventDate().minute}0":
+                "${event.getEventDate().hour}:${event.getEventDate().minute}"
+            );
+          }
+          // Events takes place after the regular opening hours
+          else if(berlinTimeStampWithoutTZ.isBefore(event.getEventDate()) && currentStatusToReturn != null){
             return ClubOpenStatus(
                 openingStatus: 1,
                 textToDisplay: event.getEventDate().minute < 10 ?

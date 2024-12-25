@@ -300,6 +300,71 @@ class _UserCouponsViewState extends State<UserCouponsView>
       },
     );
   }
+
+  Widget _buildMainView(){
+    return Container(
+        width: screenWidth,
+        height: screenHeight,
+        color: customStyleClass.backgroundColorMain,
+        child: Stack(
+          children: [
+
+            Column(
+              children: [
+
+                // Spacer
+                SizedBox(height: screenHeight*0.05,),
+
+                // Swipe View
+                discountsToDisplay.isNotEmpty ?
+                _buildSwipeView() :
+                _buildNothingToDisplay(),
+
+                // Page arrows
+                if(discountsToDisplay.isNotEmpty)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      InkWell(
+                        child: Icon(
+                          Icons.keyboard_arrow_left_sharp,
+                          size: customStyleClass.navigationArrowSize,
+                          color: _currentPageIndex > 0 ? customStyleClass.primeColor : Colors.grey,
+                        ),
+                        onTap: () => clickEventDeiterateView(),
+                      ),
+                      InkWell(
+                        child: Icon(
+                          Icons.keyboard_arrow_right_sharp,
+                          size: customStyleClass.navigationArrowSize,
+                          color: _currentPageIndex < (discountsToDisplay.length-1) ? customStyleClass.primeColor : Colors.grey,
+                        ),
+                        onTap: () => clickEventIterateView(),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+
+            if(isFilterMenuActive)
+              _buildFilterMenu(),
+
+            if(isFilterMenuActive)
+              GestureDetector(
+                child: Container(
+                  color: Colors.transparent,
+                  width: screenWidth,
+                  height: screenHeight,
+                ),
+                onTap: () => setState(() {isFilterMenuActive = false;}),
+                onHorizontalDragDown: (DragDownDetails details) => setState(() {isFilterMenuActive = false;}),
+              )
+
+          ],
+        )
+    );
+  }
+
   Widget _buildFilterMenu(){
     return Container(
       padding: EdgeInsets.only(
@@ -801,7 +866,26 @@ class _UserCouponsViewState extends State<UserCouponsView>
       clubOpeningTimesForThisDay = null;
     }
 
-    // Edge case 1 : If there is a time limit, we already know exactly when to stop showing the discount
+    // Edge case 1: If it goes on for some time, we only check against the finish line
+    if(currentDiscount.getLongTermEndDate() != null){
+
+      closingHourToCompare = DateTime(
+          currentDiscount.getLongTermEndDate()!.year,
+          currentDiscount.getLongTermEndDate()!.month,
+          currentDiscount.getLongTermEndDate()!.day,
+          currentDiscount.getLongTermEndDate()!.hour,
+          currentDiscount.getLongTermEndDate()!.minute
+      );
+
+      if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
+          closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
+        return true;
+      }
+      return false;
+
+    }
+
+    // Edge case 2 : If there is a time limit, we already know exactly when to stop showing the discount
     if(currentDiscount.getHasTimeLimit()){
 
       closingHourToCompare = DateTime(
@@ -875,56 +959,7 @@ class _UserCouponsViewState extends State<UserCouponsView>
 
         bottomNavigationBar: CustomBottomNavigationBar(),
         appBar: _buildAppBar(),
-        body: Container(
-          width: screenWidth,
-          height: screenHeight,
-          color: customStyleClass.backgroundColorMain,
-          child: Stack(
-            children: [
-
-              Column(
-                children: [
-
-                  // Spacer
-                  SizedBox(height: screenHeight*0.05,),
-
-                  // Swipe View
-                  discountsToDisplay.isNotEmpty ?
-                  _buildSwipeView() :
-                  _buildNothingToDisplay(),
-
-                  // Page arrows
-                  if(discountsToDisplay.isNotEmpty)
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        InkWell(
-                          child: Icon(
-                            Icons.keyboard_arrow_left_sharp,
-                            size: customStyleClass.navigationArrowSize,
-                            color: _currentPageIndex > 0 ? customStyleClass.primeColor : Colors.grey,
-                          ),
-                          onTap: () => clickEventDeiterateView(),
-                        ),
-                        InkWell(
-                          child: Icon(
-                            Icons.keyboard_arrow_right_sharp,
-                            size: customStyleClass.navigationArrowSize,
-                            color: _currentPageIndex < (discountsToDisplay.length-1) ? customStyleClass.primeColor : Colors.grey,
-                          ),
-                          onTap: () => clickEventIterateView(),
-                        ),
-                      ],
-                    ),
-                ],
-              ),
-
-              if(isFilterMenuActive)
-                _buildFilterMenu()
-
-            ],
-          )
-        )
+        body: _buildMainView()
     );
   }
 }

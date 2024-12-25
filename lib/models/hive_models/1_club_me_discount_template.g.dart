@@ -32,13 +32,15 @@ class ClubMeDiscountTemplateAdapter
       templateId: fields[12] as String,
       bigBannerFileName: fields[13] as String,
       smallBannerFileName: fields[14] as String,
+      longTermStartDate: fields[15] as DateTime?,
+      longTermEndDate: fields[16] as DateTime?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ClubMeDiscountTemplate obj) {
     writer
-      ..writeByte(14)
+      ..writeByte(16)
       ..writeByte(0)
       ..write(obj.discountTitle)
       ..writeByte(1)
@@ -66,7 +68,11 @@ class ClubMeDiscountTemplateAdapter
       ..writeByte(13)
       ..write(obj.bigBannerFileName)
       ..writeByte(14)
-      ..write(obj.smallBannerFileName);
+      ..write(obj.smallBannerFileName)
+      ..writeByte(15)
+      ..write(obj.longTermStartDate)
+      ..writeByte(16)
+      ..write(obj.longTermEndDate);
   }
 
   @override

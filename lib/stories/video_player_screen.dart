@@ -110,23 +110,23 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                     if(Platform.isAndroid)
                     OrientationBuilder(
                       builder: (context, orientation) {
-                        // set the turn as per requirement
-                        final turn = orientation == Orientation.landscape ? 1: 0; // set the turn as per requirement
                         return RotatedBox(
-                          quarterTurns: turn,
-                          child: VideoPlayer(_controller),
+                          quarterTurns: 1,
+                          child: SizedBox(
+                            // height: screenHeight*0.8,
+                            width: screenHeight*0.8,
+                            child: VideoPlayer(_controller),
+                          ),
                         );
                       },
                     ),
 
                     if(Platform.isIOS)
-                      VideoPlayer(_controller),
+                      SizedBox(
+                        height: screenHeight*0.8,
+                        child: VideoPlayer(_controller),
+                      ),
 
-                    // SizedBox(
-                    //   height: screenHeight*0.8,
-                    //   width: screenWidth,
-                    //   child: VideoPlayer(_controller),
-                    // ),
                     // Three icons
                     Container(
                       height: screenHeight,

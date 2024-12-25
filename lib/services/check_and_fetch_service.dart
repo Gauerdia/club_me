@@ -291,4 +291,38 @@ class CheckAndFetchService{
     }
   }
 
+  void fetchAndSaveInfoScreen(
+      String fileName,
+      StateProvider stateProvider,
+      FetchedContentProvider fetchedContentProvider
+      ) async {
+
+    if(!currentlyLoadingFileNames.contains(fileName)) {
+
+      // We add the file name to a separate array so that we don't fetch the same image several times
+      currentlyLoadingFileNames.add(fileName);
+
+      final String dirPath = stateProvider.appDocumentsDir.path;
+
+      try{
+       await _supabaseService.getInfoScreenImage(fileName).then(
+           (response) async {
+             if(response != null){
+               await File("$dirPath/$fileName").writeAsBytes(response).then((onValue){
+                 log.d("CheckAndFetchService, Fct: fetchAndSaveInfoScreen: Finished successfully. Path: $dirPath/$fileName");
+                 fetchedContentProvider.addFetchedBannerImageId(fileName);
+               });
+             }else{
+               log.d("Error in CheckAndFetchService, fetchAndSaveInfoScreen. Error: Response is null. Image couln't be fetched. Path: $dirPath/$fileName");
+             }
+           });
+      }catch(e){
+        log.d("Error in CheckAndFetchService, fetchAndSaveInfoScreen. Error: $e. Path: $dirPath/$fileName");
+      }
+
+    }else{
+      log.d("CheckAndFetchService, Fct: fetchAndSaveInfoScreen: $fileName is already part of currentlyLoadingFileNames. No Fetching initialized.");
+    }
+  }
+
 }

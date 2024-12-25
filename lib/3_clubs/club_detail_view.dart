@@ -132,15 +132,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                 height: 50,
                 width: screenWidth,
                 child: IconButton(
-                    onPressed: (){
-                      switch(stateProvider.pageIndex){
-                        case(0):context.go("/user_events");break;
-                        case(1):context.go("/user_clubs");break;
-                        case(2):context.go("/user_map");break;
-                        case(3):context.go("/user_coupons");break;
-                        default:context.go("/user_clubs");break;
-                      }
-                    },
+                    onPressed: () => Navigator.pop(context),
                     icon: const Icon(
                       Icons.arrow_back_ios,
                       color: Colors.white,

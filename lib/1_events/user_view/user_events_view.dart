@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'dart:io';
+import 'dart:math';
+import 'package:club_me/1_events/user_view/components/ad_tile.dart';
 import 'package:club_me/models/hive_models/0_club_me_user_data.dart';
 import 'package:club_me/provider/user_data_provider.dart';
 import 'package:club_me/services/check_and_fetch_service.dart';
@@ -14,6 +17,7 @@ import 'package:go_router/go_router.dart';
 import 'package:logger/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../models/club.dart';
 import '../../models/event.dart';
 import '../../models/hive_models/7_days.dart';
@@ -23,6 +27,7 @@ import '../../provider/current_and_liked_elements_provider.dart';
 import '../../provider/fetched_content_provider.dart';
 import '../../provider/state_provider.dart';
 import '../../shared/custom_bottom_navigation_bar.dart';
+import '../../shared/dialogs/title_content_and_button_dialog.dart';
 import 'components/event_tile.dart';
 
 import 'package:collection/collection.dart';
@@ -81,12 +86,10 @@ class _UserEventsViewState extends State<UserEventsView> {
 
     super.initState();
     //requestStoragePermission();
-    dropdownValue = Utils.genreListForFiltering.first;
-    weekDayDropDownValue = Utils.weekDaysForFiltering.first;
 
-    stateProvider = Provider.of<StateProvider>(context, listen: false);
-    userDataProvider = Provider.of<UserDataProvider>(context, listen:  false);
-    fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
+    initDropDowns();
+
+    initProviders();
 
     // GEO LOCATION
     _determinePosition().then((value) => setPositionLocallyAndInSupabase(value));
@@ -95,23 +98,56 @@ class _UserEventsViewState extends State<UserEventsView> {
     checkForInfoScreen();
 
     // FETCHING CLUBS, THEN EVENTS
+    initFetchClubsAndEvents();
+
+    // Update the last login time
+    initUpdateLastLogIn();
+
+    // Test if it is ready by the time we navigate to the map
+    fetchedContentProvider.setCustomIcons();
+
+    // Get all locally saved liked events
+    getAllLikedEvents(stateProvider);
+
+
+  }
+
+  void initDropDowns(){
+    dropdownValue = Utils.genreListForFiltering.first;
+    weekDayDropDownValue = Utils.weekDaysForFiltering.first;
+  }
+  void initProviders(){
+    stateProvider = Provider.of<StateProvider>(context, listen: false);
+    userDataProvider = Provider.of<UserDataProvider>(context, listen:  false);
+    fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
+  }
+  void initFetchClubsAndEvents(){
+
+    // Sometimes the function is called twice even though only appearing once in the code.
+    // We don't want to have geminis in the provider so we check before fetching and sorting.
     if(fetchedContentProvider.getFetchedClubs().isEmpty){
+
+      // Get data from BaaS
       _supabaseService.getAllClubs().then(
               (data) {
+
             for(var element in data){
+
+              // Parse each element into our class form
               ClubMeClub currentClub = parseClubMeClub(element);
 
-              // Don't save the clubs that are only for development purposes
+              // If we are entering as a developer, add all clubs, including the test clubs
               if(stateProvider.getUsingTheAppAsADeveloper()){
 
                 if(!fetchedContentProvider.getFetchedClubs().contains(currentClub)){
                   fetchedContentProvider.addClubToFetchedClubs(currentClub);
                 }
 
-              }else if(!fetchedContentProvider.getFetchedClubs().contains(currentClub) && currentClub.getShowClubInApp()){
+              }
+              // If we are a casual user, only add the real ones
+              else if(!fetchedContentProvider.getFetchedClubs().contains(currentClub) && currentClub.getShowClubInApp()){
                 fetchedContentProvider.addClubToFetchedClubs(currentClub);
               }
-
             }
 
             // Check if we need to download the corresponding images
@@ -122,102 +158,99 @@ class _UserEventsViewState extends State<UserEventsView> {
                 false
             );
 
-            // Get or check all events
+            // TODO: Get the next two weeks but load more when scrolling down
             if(fetchedContentProvider.getFetchedEvents().isEmpty) {
               _supabaseService.getAllEventsAfterYesterday().then((data) => processEventsFromQuery(data));
             }else{
               processEventsFromProvider(fetchedContentProvider);
             }
-
           }
       );
     }else{
       processEventsFromProvider(fetchedContentProvider);
     }
-
-    // Update the last login time
-    if(!stateProvider.updatedLastLogInForNow){
-      _supabaseService.updateUserData(
-          ClubMeUserData(
-              firstName: userDataProvider.getUserData().getFirstName(),
-              lastName: userDataProvider.getUserData().getLastName(),
-              birthDate: userDataProvider.getUserData().getBirthDate(),
-              eMail: userDataProvider.getUserData().getEMail(),
-              gender: userDataProvider.getUserData().getGender(),
-              userId: userDataProvider.getUserData().getUserId(),
-              profileType: userDataProvider.getUserData().getProfileType(),
-              lastTimeLoggedIn: DateTime.now(),
-              userProfileAsClub: userDataProvider.getUserData().getUserProfileAsClub(),
-              clubId: ''
-          )
-      );
-      stateProvider.updatedLastLogInForNow = true;
-    }
-
-    // Test if it is ready by the time we navigate to the map
-    fetchedContentProvider.setCustomIcons();
-
-    // Get all locally saved liked events
-    getAllLikedEvents(stateProvider);
+  }
+  void initUpdateLastLogIn(){
 
     if(!stateProvider.updatedLastLogInForNow){
       _supabaseService.updateUserLastTimeLoggedIn(userDataProvider.getUserDataId()).then(
-          (result){
+              (result){
             if(result == 0){
               stateProvider.toggleUpdatedLastLogInForNow();
             }
           }
       );
     }
+
+
+    // if(!stateProvider.updatedLastLogInForNow){
+    //   _supabaseService.updateUserData(
+    //       ClubMeUserData(
+    //           firstName: userDataProvider.getUserData().getFirstName(),
+    //           lastName: userDataProvider.getUserData().getLastName(),
+    //           birthDate: userDataProvider.getUserData().getBirthDate(),
+    //           eMail: userDataProvider.getUserData().getEMail(),
+    //           gender: userDataProvider.getUserData().getGender(),
+    //           userId: userDataProvider.getUserData().getUserId(),
+    //           profileType: userDataProvider.getUserData().getProfileType(),
+    //           lastTimeLoggedIn: DateTime.now(),
+    //           userProfileAsClub: userDataProvider.getUserData().getUserProfileAsClub(),
+    //           clubId: ''
+    //       )
+    //   );
+    //   stateProvider.updatedLastLogInForNow = true;
+    // }
   }
 
   void checkForInfoScreen() async{
 
-    final stateProvider = Provider.of<StateProvider>(context, listen: false);
+    if(!stateProvider.alreadyCheckedForInfoScreen){
 
-    String currentInfoScreenName = "";
+      final stateProvider = Provider.of<StateProvider>(context, listen: false);
+      final fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:false);
 
+      try{
+
+        String infoScreenFileName = await _supabaseService.getLatestInfoScreenFileName();
+        _checkAndFetchService.checkIfImageExistsLocally(infoScreenFileName, stateProvider).then((exists) async {
+          if(!exists) {
+            log.d("CheckAndFetchService, Fct: checkAndFetchSpecificClubImages, Log: File doesn't exist. File name: $infoScreenFileName");
+            _checkAndFetchService.fetchAndSaveInfoScreen(infoScreenFileName, stateProvider, fetchedContentProvider);
+            checkInfoScreenWithHive(infoScreenFileName);
+          }else{
+            log.d("checkForNewInfoScreen, Fct: checkForNewInfoScreen, Log: already exists. File name: $infoScreenFileName");
+            checkInfoScreenWithHive(infoScreenFileName);
+          }
+        });
+      }catch(e){
+        _supabaseService.createErrorLog("UserEventsView. Fct: checkForInfoScreen. Error: $e");
+        setState(() {
+          noInfoScreenToShow = true;
+          checkedForInfoScreen = true;
+          stateProvider.alreadyCheckedForInfoScreen = true;
+        });
+      }
+
+    }
+  }
+
+  void checkInfoScreenWithHive(String currentInfoScreenName) async{
     try{
       if(!stateProvider.alreadyCheckedForInfoScreen){
 
         List<String> lastInfoScreenNames = await _hiveService.getLatestInfoScreenNames();
 
-        //List<DateTime> lastInfoScreenDate = await _supabaseService.getLatestInfoScreenDate();
-        //DateTime? localLastInfoScreenDate = await _hiveService.getLatestInfoScreenDate();
-
-        // Only relevant if we are before the expiration date.
-        // if( stateProvider.getBerlinTime().isBefore(lastInfoScreenDate[1]) ){
-        //
-        //   // If we have seen the ad already, let's see if there was an update.
-        //   if(localLastInfoScreenDate != null){
-        //
-        //     // Have we already seen the recent ad?
-        //     if(localLastInfoScreenDate.isAfter(lastInfoScreenDate[0])){
-        //       noInfoScreenToShow = true;
-        //     }else{
-        //       noInfoScreenToShow = false;
-        //     }
-        //
-        //   }else{
-        //     noInfoScreenToShow = false;
-        //   }
-        //
-        // }else{
-        //   noInfoScreenToShow = true;
-        // }
-
         if(lastInfoScreenNames.contains(currentInfoScreenName)){
           noInfoScreenToShow = true;
         }else{
+          stateProvider.currentInfoScreenFileName = currentInfoScreenName;
           noInfoScreenToShow = false;
           await _hiveService.insertLatestInfoScreenNames(currentInfoScreenName);
         }
 
-        //await _hiveService.updateLatestInfoScreenDate();
-
         setState(() {
           checkedForInfoScreen = true;
-          stateProvider.alreadyCheckedForInfoScreen = true;
+          stateProvider.activateAlreadyCheckedForInfoScreen();
         });
       }else{
         setState(() {
@@ -225,8 +258,10 @@ class _UserEventsViewState extends State<UserEventsView> {
           noInfoScreenToShow = true;
         });
       }
-    }catch(e){
+    }
+    catch(e){
       log.d("UserEventsView. Fct: checkForInfoScreen. Error: $e");
+      _supabaseService.createErrorLog("UserEventsView. Fct: checkInfoScreenWithHive. Error: $e");
     }
   }
 
@@ -378,98 +413,6 @@ class _UserEventsViewState extends State<UserEventsView> {
         backgroundColor: Colors.transparent,
       );
 
-    // Show the app bar with the title
-    // AppBar(
-    //     surfaceTintColor: customStyleClass.backgroundColorMain,
-    //     backgroundColor: customStyleClass.backgroundColorMain,
-    //     title: Container(
-    //       width: screenWidth,
-    //       color: customStyleClass.backgroundColorMain,
-    //       child: Stack(
-    //         children: [
-    //
-    //           // Headline
-    //           Container(
-    //               alignment: Alignment.bottomCenter,
-    //               height: 50,
-    //               width: screenWidth,
-    //               child: Column(
-    //                 mainAxisAlignment: MainAxisAlignment.center,
-    //                 children: [
-    //                   Row(
-    //                     mainAxisAlignment: MainAxisAlignment.spaceAround,
-    //                     children: [
-    //                       Row(
-    //                         children: [
-    //                           Text(
-    //                               headLine,
-    //                               textAlign: TextAlign.center,
-    //                               style: customStyleClass.getFontStyleHeadline1Bold()
-    //                           ),
-    //                         ],
-    //                       ),
-    //                     ],
-    //                   )
-    //                 ],
-    //               )
-    //           ),
-    //
-    //           // Search icon
-    //           Container(
-    //               width: screenWidth,
-    //               alignment: Alignment.centerLeft,
-    //               child: Column(
-    //                 mainAxisAlignment: MainAxisAlignment.end,
-    //                 children: [
-    //                   IconButton(
-    //                       onPressed: () => toggleIsSearchActive(),
-    //                       icon: Icon(
-    //                         Icons.search,
-    //                         color: searchValue != "" ? customStyleClass.primeColor : Colors.white,
-    //                         // size: 20,
-    //                       )
-    //                   )
-    //                 ],
-    //               )
-    //           ),
-    //
-    //           // Right icons
-    //           Container(
-    //             width: screenWidth,
-    //             alignment: Alignment.centerRight,
-    //             child: Row(
-    //               mainAxisAlignment: MainAxisAlignment.end,
-    //               children: [
-    //                 IconButton(
-    //                     onPressed: () => filterForFavorites(),
-    //                     icon: Icon(
-    //                       onlyFavoritesIsActive ? Icons.star : Icons.star_border,
-    //                       color: onlyFavoritesIsActive ? customStyleClass.primeColor : Colors.white,
-    //                     )
-    //                 ),
-    //                 Padding(
-    //                     padding: const EdgeInsets.only(right: 0),
-    //                     child: GestureDetector(
-    //                       child: Container(
-    //                           padding: const EdgeInsets.all(7),
-    //                           child: Icon(
-    //                             Icons.filter_alt_outlined,
-    //                             color: isAnyFilterActive || isFilterMenuActive ? customStyleClass.primeColor : Colors.white,
-    //                           )
-    //                       ),
-    //                       onTap: (){
-    //                         toggleIsFilterMenuActive();
-    //                       },
-    //                     )
-    //                 )
-    //               ],
-    //             ),
-    //           ),
-    //
-    //         ],
-    //       ),
-    //     )
-    // );
   }
   Widget _buildMainView(){
     return Container(
@@ -502,23 +445,59 @@ class _UserEventsViewState extends State<UserEventsView> {
 
             // Filter menu
             if(isFilterMenuActive)
-              _buildFilterWidget()
+              _buildFilterWidget(),
+
+            if(isFilterMenuActive)
+              GestureDetector(
+                child: Container(
+                  width: screenWidth,
+                  height: screenHeight,
+                  color: Colors.transparent,
+                ),
+                onTap: () => setState(() {isFilterMenuActive = false;}),
+                onHorizontalDragDown: (DragDownDetails details) => setState(() {isFilterMenuActive = false;}),
+              )
           ],
         )
     );
   }
   Widget _buildMainListView(){
+
+    List<int> listOfIndices = [];
+    int adIndex = 0;
+
+    if(eventsToDisplay.length > 8){
+      listOfIndices = List<int>.generate(5, (i) => i + 3);
+      adIndex = listOfIndices[Random().nextInt(listOfIndices.length)];
+    }
+
     return eventsToDisplay.isNotEmpty?
     ListView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        itemCount: eventsToDisplay.length,
+        itemCount: adIndex != 0 ? eventsToDisplay.length+1 : eventsToDisplay.length,
         itemBuilder: ((context, index){
+
+          int indexWithAdOffset = index;
+
+          if(index >= adIndex){
+            indexWithAdOffset -= 1;
+          }
 
           // Check if the event was already liked by the user
           var isLiked = false;
-          if(currentAndLikedElementsProvider.getLikedEvents().contains(eventsToDisplay[index].getEventId())){
+          if(currentAndLikedElementsProvider
+              .getLikedEvents().contains(eventsToDisplay[indexWithAdOffset].getEventId())){
             isLiked = true;
+          }
+
+          // Check if we want to display an add
+          if(eventsToDisplay.length > 8 && adIndex == index){
+
+            return InkWell(
+              child: AdTile(),
+              onTap: () => clickEventAdTile(context),
+            );
           }
 
           // return clickable widget
@@ -527,20 +506,20 @@ class _UserEventsViewState extends State<UserEventsView> {
 
               GestureDetector(
                 child: EventTile(
-                  clubMeEvent: eventsToDisplay[index],
+                  clubMeEvent: eventsToDisplay[indexWithAdOffset],
                   isLiked: isLiked,
                   clickEventLike: clickEventLike,
                   clickEventShare: clickEventShare,
                   showMaterialButton: true,
                 ),
                 onTap: (){
-                  currentAndLikedElementsProvider.setCurrentEvent(eventsToDisplay[index]);
+                  currentAndLikedElementsProvider.setCurrentEvent(eventsToDisplay[indexWithAdOffset]);
                   stateProvider.setAccessedEventDetailFrom(0);
                   context.push('/event_details');
                 },
               ),
 
-              if(eventsToDisplay[index].getEventMarketingFileName().isNotEmpty)
+              if(eventsToDisplay[indexWithAdOffset].getEventMarketingFileName().isNotEmpty)
               Container(
                   height: 140,
                   width: screenWidth*0.95,
@@ -562,7 +541,7 @@ class _UserEventsViewState extends State<UserEventsView> {
                           size: 30,
                         ),
                         onTap: () {
-                          currentAndLikedElementsProvider.setCurrentEvent(eventsToDisplay[index]);
+                          currentAndLikedElementsProvider.setCurrentEvent(eventsToDisplay[indexWithAdOffset]);
                           stateProvider.setAccessedEventDetailFrom(0);
                           stateProvider.toggleOpenEventDetailContentDirectly();
                           context.push('/event_details');
@@ -642,12 +621,38 @@ class _UserEventsViewState extends State<UserEventsView> {
       child: Stack(
         children: [
 
+          fetchedContentProvider.getFetchedBannerImageIds().contains(stateProvider.currentInfoScreenFileName)?
           Center(
-            child: Image.asset(
-                "assets/images/info_screen_09_12_24.jpg"
-            ),
+            child:
+
+            Image(
+              image: FileImage(
+                  File(
+                      "${stateProvider.appDocumentsDir.path}/${stateProvider.currentInfoScreenFileName}"
+                  )
+              ),
+              // fit: BoxFit.cover,
+            )
+
+            // Image.asset(
+            //     "${stateProvider.appDocumentsDir.path}/${stateProvider.currentInfoScreenFileName}"
+            // ),
+          ):
+          SizedBox(
+              width: screenWidth,
+              height: screenHeight,
+              child: Center(
+                child: SizedBox(
+                  // height: screenHeight*0.5,
+                  // width: screenWidth*0.2,
+                  child: CircularProgressIndicator(
+                    color: customStyleClass.primeColor,
+                  ),
+                ),
+              )
           ),
 
+          if(fetchedContentProvider.getFetchedBannerImageIds().contains(stateProvider.currentInfoScreenFileName))
           Container(
             width: screenHeight*0.9,
             alignment: Alignment.bottomCenter,
@@ -674,8 +679,16 @@ class _UserEventsViewState extends State<UserEventsView> {
                 ),
               ),
               onTap: (){
-                stateProvider.setPageIndex(3);
-                context.go("/user_coupons");
+
+                if(stateProvider.usingWithoutRegistration){
+                  context.push("/need_to_register");
+                }else{
+                  stateProvider.setPageIndex(3);
+                  context.go('/user_coupons');
+                }
+
+                // stateProvider.setPageIndex(3);
+                // context.go("/user_coupons");
               },
             ),
           )
@@ -685,7 +698,7 @@ class _UserEventsViewState extends State<UserEventsView> {
     );
   }
 
-  _buildLoadingScreen(){
+  Widget _buildLoadingScreen(){
     return SizedBox(
       width: screenWidth,
       height: screenHeight,
@@ -986,8 +999,6 @@ class _UserEventsViewState extends State<UserEventsView> {
       }
     }
 
-
-
     // Check if we need to download the corresponding images
     _checkAndFetchService.checkAndFetchEventImages(
         fetchedContentProvider.getFetchedEvents(),
@@ -999,7 +1010,6 @@ class _UserEventsViewState extends State<UserEventsView> {
 
     setState(() {processingComplete = true;});
 
-    log.d("processEventsFromQuery: Successful");
   }
 
 
@@ -1115,14 +1125,14 @@ class _UserEventsViewState extends State<UserEventsView> {
     eventsToDisplay.sort((a,b) {
 
       // Currently, we want to give absolute priority to high life
-      if(a.getClubId() == "2733b675-d574-4580-90c8-5fe371007b70" &&
-          b.getClubId() != "2733b675-d574-4580-90c8-5fe371007b70"){
-        return -1;
-      }
-      if(b.getClubId() == "2733b675-d574-4580-90c8-5fe371007b70" &&
-          a.getClubId() != "2733b675-d574-4580-90c8-5fe371007b70"){
-        return 1;
-      }
+      // if(a.getClubId() == "2733b675-d574-4580-90c8-5fe371007b70" &&
+      //     b.getClubId() != "2733b675-d574-4580-90c8-5fe371007b70"){
+      //   return -1;
+      // }
+      // if(b.getClubId() == "2733b675-d574-4580-90c8-5fe371007b70" &&
+      //     a.getClubId() != "2733b675-d574-4580-90c8-5fe371007b70"){
+      //   return 1;
+      // }
 
 
       DateTime firstDate = DateTime(a.getEventDate().year, a.getEventDate().month, a.getEventDate().day);
@@ -1324,6 +1334,33 @@ class _UserEventsViewState extends State<UserEventsView> {
   }
 
 
+  void clickEventAdTile(BuildContext context){
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context){
+          return
+            TitleContentAndButtonDialog(
+                titleToDisplay: "Sponsor",
+                contentToDisplay: "Dieser Link führt zu einer externen Seite des Sponsors. Möchten Sie fortfahren?",
+                buttonToDisplay: TextButton(
+                  child: Text(
+                    "OK",
+                    style: customStyleClass.getFontStyle4BoldPrimeColor(),
+                  ),
+                  onPressed: () async {
+                    final Uri url = Uri.parse("https://runesvodka.com/de/");
+                    if (!await launchUrl(url)) {
+                      throw Exception('Could not launch $url');
+                    }
+                  },
+                )
+            );
+        }
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
 
@@ -1335,6 +1372,12 @@ class _UserEventsViewState extends State<UserEventsView> {
 
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
+
+    if(!checkedForInfoScreen){
+      if(stateProvider.alreadyCheckedForInfoScreen){
+        checkedForInfoScreen = true;
+      }
+    }
 
     return Scaffold(
 

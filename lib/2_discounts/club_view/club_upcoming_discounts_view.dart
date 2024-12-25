@@ -274,6 +274,24 @@ class _ClubUpcomingDiscountsViewState extends State<ClubUpcomingDiscountsView>
       clubOpeningTimesForThisDay = null;
     }
 
+    // Edge case 1: If it goes on for some time, we only check against the finish line
+    if(currentDiscount.getLongTermEndDate() != null){
+
+      closingHourToCompare = DateTime(
+          currentDiscount.getLongTermEndDate()!.year,
+          currentDiscount.getLongTermEndDate()!.month,
+          currentDiscount.getLongTermEndDate()!.day,
+          currentDiscount.getLongTermEndDate()!.hour,
+          currentDiscount.getLongTermEndDate()!.minute
+      );
+
+      if(closingHourToCompare.isAfter(stateProvider.getBerlinTime()) ||
+          closingHourToCompare.isAtSameMomentAs(stateProvider.getBerlinTime())){
+        return true;
+      }
+      return false;
+
+    }
 
     // Easiest case: There is a time limit
     if(currentDiscount.getHasTimeLimit()){

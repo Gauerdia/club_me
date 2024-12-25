@@ -29,7 +29,9 @@ class ClubMeDiscount{
     required this.openingTimes,
     required this.showDiscountInApp,
     required this.specialOccasionActive,
-    required this.isRedeemable
+    required this.isRedeemable,
+    required this.longTermStartDate,
+    required this.longTermEndDate
   });
 
   @HiveField(0)
@@ -88,6 +90,22 @@ class ClubMeDiscount{
 
   @HiveField(22)
   bool isRedeemable;
+
+  // Nach 1.1.143
+  @HiveField(23)
+  DateTime? longTermStartDate;
+
+  // Nach 1.1.143
+  @HiveField(24)
+  DateTime? longTermEndDate;
+
+  DateTime? getLongTermStartDate(){
+    return longTermStartDate;
+  }
+
+  DateTime? getLongTermEndDate(){
+    return longTermEndDate;
+  }
 
   bool getIsRedeemable(){
     return isRedeemable;

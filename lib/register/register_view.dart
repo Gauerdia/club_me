@@ -20,6 +20,7 @@ import 'package:uuid/uuid.dart';
 import '../main.dart';
 import '../provider/state_provider.dart';
 import '../provider/user_data_provider.dart';
+import '../services/check_and_fetch_service.dart';
 import '../services/hive_service.dart';
 import '../services/supabase_service.dart';
 import '../shared/custom_text_style.dart';
@@ -54,6 +55,7 @@ class _RegisterViewState extends State<RegisterView>
 
   final HiveService _hiveService = HiveService();
   final SupabaseService _supabaseService = SupabaseService();
+  final CheckAndFetchService _checkAndFetchService = CheckAndFetchService();
 
   int progressIndex = 0;
   int profileType = 0;
@@ -118,8 +120,26 @@ class _RegisterViewState extends State<RegisterView>
 
     fetchUserDataFromHive();
     checkIfTutorialSeen();
-
+    // checkForNewInfoScreen();
   }
+
+
+  // Check and download if anything is new. The final check and display happens
+  // in user_events_view.
+  // void checkForNewInfoScreen() async{
+  //
+  //   stateProvider = Provider.of<StateProvider>(context,listen: false);
+  //
+  //   String infoScreenFileName = await _supabaseService.getLatestInfoScreenFileName();
+  //   _checkAndFetchService.checkIfImageExistsLocally(infoScreenFileName, stateProvider).then((exists){
+  //     if(!exists){
+  //       log.d("CheckAndFetchService, Fct: checkAndFetchSpecificClubImages, Log: File doesn't exist. File name: $infoScreenFileName");
+  //       _checkAndFetchService.fetchAndSaveInfoScreen(infoScreenFileName, stateProvider);
+  //     }else{
+  //       log.d("checkForNewInfoScreen, Fct: checkForNewInfoScreen, Log: already exists. File name: $infoScreenFileName");
+  //     }
+  //   });
+  // }
 
 
   Widget _buildNewRegisterView(){

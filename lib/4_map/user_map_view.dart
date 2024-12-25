@@ -113,7 +113,6 @@ class _UserMapViewState extends State<UserMapView>{
           children: [
 
             // GOOGLE MAP
-
             SizedBox(
                 height:screenHeight*0.79,
                 child: showMap ?
@@ -289,6 +288,16 @@ class _UserMapViewState extends State<UserMapView>{
                   ],
                 ),
               ),
+
+            if(showFilterMenu)
+              GestureDetector(
+                child: SizedBox(
+                  width: screenWidth,
+                  height: screenHeight,
+                ),
+                onTap: () => setState(() {showFilterMenu = false;}),
+                onHorizontalDragDown: (DragDownDetails details) => setState(() {showFilterMenu = false;}),
+              )
           ],
         )
     );

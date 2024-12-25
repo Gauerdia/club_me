@@ -57,6 +57,16 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
   late FixedExtentScrollController _fixedExtentScrollController1;
   late FixedExtentScrollController _fixedExtentScrollController2;
 
+  late FixedExtentScrollController _longtermStartDayController;
+  late FixedExtentScrollController _longtermStartMonthController;
+  late FixedExtentScrollController _longtermStartYearController;
+  int _longtermStartSelectedDay = 1, _longtermStartSelectedMonth = 1, _longtermStartSelectedYear = 2000;
+
+  late FixedExtentScrollController _longtermEndDayController;
+  late FixedExtentScrollController _longtermEndMonthController;
+  late FixedExtentScrollController _longtermEndYearController;
+  int _longtermEndSelectedDay = 1, _longtermEndSelectedMonth = 1, _longtermEndSelectedYear = 2000;
+
   bool isUploading = false;
   bool isDateSelected = false;
 
@@ -70,7 +80,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
     "0", "15", "30", "45", "59"
   ];
 
-
+  int isLongterm = 0;
   int hasAgeLimit = 0;
   int hasTimeLimit = 0;
   int targetGender = 0;
@@ -180,6 +190,49 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
 
       isTemplate = 1;
 
+
+      if(currentDiscount.getLongTermStartDate() != null){
+        isLongterm = 1;
+        _longtermStartSelectedDay = currentDiscount.getLongTermStartDate()!.day;
+        _longtermStartSelectedMonth = currentDiscount.getLongTermStartDate()!.month;
+        _longtermStartSelectedYear = currentDiscount.getLongTermStartDate()!.year;
+
+        _longtermStartDayController = FixedExtentScrollController(initialItem: _longtermStartSelectedDay-1);
+        _longtermStartMonthController= FixedExtentScrollController(initialItem: _longtermStartSelectedMonth-1);
+        _longtermStartYearController= FixedExtentScrollController(initialItem: _longtermStartSelectedYear-2024);
+      }else{
+
+        _longtermStartSelectedDay = 0;
+        _longtermStartSelectedMonth = 0;
+        _longtermStartSelectedYear = 2000;
+
+        _longtermStartDayController = FixedExtentScrollController(initialItem: 0);
+        _longtermStartMonthController= FixedExtentScrollController(initialItem: 0);
+        _longtermStartYearController= FixedExtentScrollController(initialItem: 0);
+      }
+
+      if(currentDiscount.getLongTermEndDate() != null){
+        _longtermEndSelectedDay = currentDiscount.getLongTermEndDate()!.day;
+        _longtermEndSelectedMonth = currentDiscount.getLongTermEndDate()!.month;
+        _longtermEndSelectedYear = currentDiscount.getLongTermEndDate()!.year;
+
+        // Don't adjust because we set it to the next day in the end
+        _longtermEndDayController= FixedExtentScrollController(initialItem: _longtermEndSelectedDay-2);
+        _longtermEndMonthController= FixedExtentScrollController(initialItem: _longtermEndSelectedMonth-1);
+        _longtermEndYearController= FixedExtentScrollController(initialItem: _longtermEndSelectedYear-2024);
+      }else{
+
+        _longtermEndSelectedDay = 0;
+        _longtermEndSelectedMonth = 0;
+        _longtermEndSelectedYear = 2000;
+
+        _longtermEndDayController= FixedExtentScrollController(initialItem: 0);
+        _longtermEndMonthController= FixedExtentScrollController(initialItem: 0);
+        _longtermEndYearController= FixedExtentScrollController(initialItem: 0);
+      }
+
+
+
       setState(() {});
 
     }else{
@@ -200,6 +253,14 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
 
       _pageViewController = PageController();
       _tabController = TabController(length: Utils.discountBigImageNames.length, vsync: this);
+
+      _longtermStartDayController = FixedExtentScrollController(initialItem: 0);
+      _longtermStartMonthController= FixedExtentScrollController(initialItem: 0);
+      _longtermStartYearController= FixedExtentScrollController(initialItem: 0);
+
+      _longtermEndDayController= FixedExtentScrollController(initialItem: 0);
+      _longtermEndMonthController= FixedExtentScrollController(initialItem: 0);
+      _longtermEndYearController= FixedExtentScrollController(initialItem: 0);
 
     }
   }
@@ -328,163 +389,362 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
                         ),
                       ),
 
-                      // Row: Datepicker, ToggleSwitch TimeLimit, TimeLimit
+                      // Row: ToggleSwitch, isLongterm
                       Container(
-                        width: screenWidth*0.9,
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 10
+                        padding: const EdgeInsets.only(
+                            top:30
                         ),
+                        width: screenWidth*0.9,
+                        // height: screenHeight*0.18,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
 
-                            // Datepicker
                             Container(
-                              alignment: Alignment.centerLeft,
-                              height: screenHeight*0.12,
-                              width: screenWidth*0.3,
-                              child: Column(
-                                children: [
+                                // width: screenWidth*0.4,
+                                alignment: Alignment.centerLeft,
+                                child: Column(
+                                  children: [
 
-                                  SizedBox(
-                                    width: screenWidth*0.28,
-                                    child: Text(
-                                      "Datum",
-                                      style: customStyleClass.getFontStyle3(),
-                                      textAlign: TextAlign.left,
+                                    // Text: AgeLimit
+                                    Container(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        "Läuft über einen Zeitraum",
+                                        style: customStyleClass.getFontStyle3(),
+                                      ),
                                     ),
-                                  ),
 
-                                  Container(
-                                    padding:  EdgeInsets.only(
-                                        top: distanceBetweenTitleAndTextField
-                                    ),
-                                    width: screenWidth*0.28,
-                                    child:OutlinedButton(
-                                        onPressed: (){
-                                          showDatePicker(
-                                              context: context,
-                                              locale: const Locale("de", "DE"),
-                                              initialDate: newSelectedDate,
-                                              firstDate: DateTime(2018),
-                                              lastDate: DateTime(2030),
-                                              builder: (BuildContext context, Widget? child) {
-                                                return Theme(
-                                                  data: ThemeData.dark(),
-                                                  child: child!,
-                                                );
-                                              }).then((pickedDate){
-                                            if( pickedDate == null){
-                                              return;
+                                    // Toggle switch
+                                    Container(
+                                      padding:  EdgeInsets.only(
+                                          top: distanceBetweenTitleAndTextField
+                                      ),
+                                      width: screenWidth*0.45,
+                                      alignment: Alignment.centerLeft,
+                                      child: ToggleSwitch(
+                                        minHeight: screenHeight*0.07,
+                                        initialLabelIndex: isLongterm,
+                                        totalSwitches: 2,
+                                        activeBgColor: [customStyleClass.primeColor],
+                                        activeFgColor: Colors.white,
+                                        inactiveFgColor: Colors.white,
+                                        inactiveBgColor:customStyleClass.backgroundColorEventTile,
+                                        labels: const [
+                                          'Nein',
+                                          'Ja',
+                                        ],
+                                        onToggle: (index) {
+                                          setState(() {
+                                            if(isLongterm == 0){
+                                              setState(() {
+                                                isLongterm = 1;
+                                              });
+                                            }else{
+                                              setState(() {
+                                                isLongterm = 0;
+                                              });
                                             }
-                                            setState(() {
-                                              newSelectedDate = pickedDate;
-                                            });
                                           });
                                         },
-                                        style: OutlinedButton.styleFrom(
-                                            minimumSize: Size(screenHeight*0.05,screenHeight*0.07),
-                                            shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(5.0)
-                                            )
-                                        ),
-                                        child: Text(
-                                          formatSelectedDate(),
-                                          style: customStyleClass.getFontStyle5(),
-                                        )
+                                      ),
                                     ),
-                                  )
-                                ],
-                              ),
-                            ),
-
-                            // Column: Text,ToggleSwitch: TimeLimit
-                            SizedBox(
-                                height: screenHeight*0.12,
-                                width: screenWidth*0.3,
-                                child: Column(
-                                    children: [
-
-                                      // TEXT: time limit
-                                      SizedBox(
-                                        width: screenWidth*0.28,
-                                        child: Text(
-                                          "Zeitlimit",
-                                          style: customStyleClass.getFontStyle3(),
-                                          textAlign: TextAlign.left,
-                                        ),
-                                      ),
-
-                                      // TOGGLE SWITCH
-                                      Container(
-                                        padding:  EdgeInsets.only(
-                                            top: distanceBetweenTitleAndTextField
-                                        ),
-                                        width: screenWidth*0.28,
-                                        child:  Center(
-                                          child: ToggleSwitch(
-                                            minHeight: screenHeight*0.07,
-                                            initialLabelIndex: hasTimeLimit,
-                                            totalSwitches: 2,
-                                            activeBgColor: [customStyleClass.primeColor],
-                                            activeFgColor: Colors.white,
-                                            inactiveBgColor: customStyleClass.backgroundColorEventTile,
-                                            inactiveFgColor: Colors.white,
-                                            labels: const [
-                                              'Nein',
-                                              'Ja',
-                                            ],
-                                            onToggle: (index) {
-                                              setState(() {
-                                                if(hasTimeLimit == 0){
-                                                  setState(() {
-                                                    hasTimeLimit = 1;
-                                                  });
-                                                }else{
-                                                  setState(() {
-                                                    hasTimeLimit = 0;
-                                                  });
-                                                }
-                                              });
-                                            },
-                                          ),
-                                        ),
-                                      ),
-
-                                    ]
+                                  ],
                                 )
                             ),
 
-                            // Column: Button: Hour and minute
-                            if(hasTimeLimit != 0)
+                          ],
+                        ),
+                      ),
+
+                      // DATE PICK // LONG TERM CUPERTINO PICKER
+                      AnimatedContainer(
+                          duration: const Duration(seconds: 2),
+                          curve: Curves.fastOutSlowIn,
+                          width: screenWidth*0.9,
+                          height: isLongterm == 1 ? screenHeight*0.35:screenHeight*0.15,
+                          padding: const EdgeInsets.only(
+                              top:20,
+                            bottom: 10
+                          ),
+                          child: isLongterm == 1 ?
+                          Column(
+                            children: [
+
+                              // TEXT : START DATE
                               Container(
-                                alignment: Alignment.centerRight,
+                                width: screenWidth*0.9,
+                                padding: const EdgeInsets.only(
+                                    bottom: 10
+                                ),
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  "Startdatum",
+                                  style: customStyleClass.getFontStyle3(),
+                                ),
+                              ),
+
+                              // CUPERTINO PICKER: START
+                              Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                  children:[
+
+                                    Row(
+                                      children: [
+                                        // day
+                                        SizedBox(
+                                          width: screenWidth*0.2,
+                                          height: screenHeight*0.1,
+                                          child: CupertinoPicker(
+                                              scrollController: _longtermStartDayController,
+                                              itemExtent: 50,
+                                              onSelectedItemChanged: (int index){
+                                                setState(() {
+                                                  _longtermStartSelectedDay = index+1;
+                                                });
+                                              },
+                                              children: List<Widget>.generate(31, (index){
+                                                return Center(
+                                                  child: Text(
+                                                    index < 9 ?
+                                                    "0${(index+1).toString()}" :
+                                                    (index+1).toString(),
+                                                    style: customStyleClass.getFontStyle3(),
+                                                  ),
+                                                );
+                                              })
+                                          ),
+                                        ),
+
+
+                                        // month
+                                        SizedBox(
+                                          width: screenWidth*0.4,
+                                          height: screenHeight*0.1,
+                                          child: CupertinoPicker(
+                                            scrollController: _longtermStartMonthController,
+                                            itemExtent: 50,
+                                            onSelectedItemChanged: (int index){
+                                              setState(() {
+                                                _longtermStartSelectedMonth = index+1;
+                                              });
+                                            },
+                                            children:
+                                            Utils.monthsForPicking.map((item){
+                                              return Padding(
+                                                padding: const EdgeInsets.only(
+                                                    top: 15
+                                                ),
+                                                child: Text(
+                                                  item,
+                                                  style: customStyleClass.getFontStyle2(),
+                                                ),
+                                              );
+                                            }).toList(),
+                                            // List<Widget>.generate(12, (index){
+                                            //   return Center(
+                                            //     child: Text(
+                                            //       index < 9 ?
+                                            //       "0${(index+1).toString()}" :
+                                            //       (index+1).toString(),
+                                            //       style: customStyleClass.getFontStyle3(),
+                                            //     ),
+                                            //   );
+                                            // })
+                                          ),
+                                        ),
+
+
+                                        // year
+                                        SizedBox(
+                                          width: screenWidth*0.2,
+                                          height: screenHeight*0.1,
+                                          child: CupertinoPicker(
+                                              scrollController: _longtermStartYearController,
+                                              itemExtent: 50,
+                                              onSelectedItemChanged: (int index){
+                                                setState(() {
+                                                  _longtermStartSelectedYear = (2025-index);
+                                                });
+                                              },
+                                              children: List<Widget>.generate(3, (index){
+                                                return Center(
+                                                  child: Text(
+                                                    (2025-index).toString(),
+                                                    style: customStyleClass.getFontStyle3(),
+                                                  ),
+                                                );
+                                              })
+                                          ),
+                                        ),
+                                      ],
+                                    )
+
+                                  ]
+                              ),
+
+                              // TEXT: END DATE
+                              Container(
+                                width: screenWidth*0.9,
+                                padding: const EdgeInsets.only(
+                                    top: 10,
+                                    bottom: 10
+                                ),
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  "Enddatum",
+                                  style: customStyleClass.getFontStyle3(),
+                                ),
+                              ),
+
+                              // CUPERTINO PICKER: END
+                              Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                  children:[
+
+                                    Row(
+                                      children: [
+                                        // day
+                                        SizedBox(
+                                          width: screenWidth*0.2,
+                                          height: screenHeight*0.1,
+                                          child: CupertinoPicker(
+                                              scrollController: _longtermEndDayController,
+                                              itemExtent: 50,
+                                              onSelectedItemChanged: (int index){
+                                                setState(() {
+                                                  _longtermEndSelectedDay = index+1;
+                                                });
+                                              },
+                                              children: List<Widget>.generate(31, (index){
+                                                return Center(
+                                                  child: Text(
+                                                    index < 9 ?
+                                                    "0${(index+1).toString()}" :
+                                                    (index+1).toString(),
+                                                    style: customStyleClass.getFontStyle3(),
+                                                  ),
+                                                );
+                                              })
+                                          ),
+                                        ),
+
+
+                                        // month
+                                        SizedBox(
+                                          width: screenWidth*0.4,
+                                          height: screenHeight*0.1,
+                                          child: CupertinoPicker(
+                                            scrollController: _longtermEndMonthController,
+                                            itemExtent: 50,
+                                            onSelectedItemChanged: (int index){
+                                              setState(() {
+                                                _longtermEndSelectedMonth = index+1;
+                                              });
+                                            },
+                                            children:
+                                            Utils.monthsForPicking.map((item){
+                                              return Padding(
+                                                padding: const EdgeInsets.only(
+                                                    top: 15
+                                                ),
+                                                child: Text(
+                                                  item,
+                                                  style: customStyleClass.getFontStyle2(),
+                                                ),
+                                              );
+                                            }).toList(),
+                                            // List<Widget>.generate(12, (index){
+                                            //   return Center(
+                                            //     child: Text(
+                                            //       index < 9 ?
+                                            //       "0${(index+1).toString()}" :
+                                            //       (index+1).toString(),
+                                            //       style: customStyleClass.getFontStyle3(),
+                                            //     ),
+                                            //   );
+                                            // })
+                                          ),
+                                        ),
+
+
+                                        // year
+                                        SizedBox(
+                                          width: screenWidth*0.2,
+                                          height: screenHeight*0.1,
+                                          child: CupertinoPicker(
+                                              scrollController: _longtermEndYearController,
+                                              itemExtent: 50,
+                                              onSelectedItemChanged: (int index){
+                                                setState(() {
+                                                  _longtermEndSelectedYear = (2025-index);
+                                                });
+                                              },
+                                              children: List<Widget>.generate(3, (index){
+                                                return Center(
+                                                  child: Text(
+                                                    (2025-index).toString(),
+                                                    style: customStyleClass.getFontStyle3(),
+                                                  ),
+                                                );
+                                              })
+                                          ),
+                                        ),
+                                      ],
+                                    )
+
+                                  ]
+                              ),
+
+                            ],
+                          ) :
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+
+                              // Datepicker
+                              Container(
+                                alignment: Alignment.centerLeft,
                                 height: screenHeight*0.12,
                                 width: screenWidth*0.3,
                                 child: Column(
                                   children: [
 
-                                    // Text: Time
                                     SizedBox(
                                       width: screenWidth*0.28,
                                       child: Text(
-                                        "Uhrzeit",
+                                        "Datum",
                                         style: customStyleClass.getFontStyle3(),
                                         textAlign: TextAlign.left,
                                       ),
                                     ),
 
-                                    // Button: Time
                                     Container(
-                                      width: screenWidth*0.28,
                                       padding:  EdgeInsets.only(
                                           top: distanceBetweenTitleAndTextField
                                       ),
-                                      child: OutlinedButton(
-                                          onPressed: () => {
-                                            setState(() {
-                                              pickHourAndMinuteIsActive = true;
-                                            })
+                                      width: screenWidth*0.28,
+                                      child:OutlinedButton(
+                                          onPressed: (){
+                                            showDatePicker(
+                                                context: context,
+                                                locale: const Locale("de", "DE"),
+                                                initialDate: newSelectedDate,
+                                                firstDate: DateTime(2018),
+                                                lastDate: DateTime(2030),
+                                                builder: (BuildContext context, Widget? child) {
+                                                  return Theme(
+                                                    data: ThemeData.dark(),
+                                                    child: child!,
+                                                  );
+                                                }).then((pickedDate){
+                                              if( pickedDate == null){
+                                                return;
+                                              }
+                                              setState(() {
+                                                newSelectedDate = pickedDate;
+                                              });
+                                            });
                                           },
                                           style: OutlinedButton.styleFrom(
                                               minimumSize: Size(screenHeight*0.05,screenHeight*0.07),
@@ -493,7 +753,7 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
                                               )
                                           ),
                                           child: Text(
-                                            formatSelectedHourAndMinute(),
+                                            formatSelectedDate(),
                                             style: customStyleClass.getFontStyle5(),
                                           )
                                       ),
@@ -502,14 +762,118 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
                                 ),
                               ),
 
-                            // Spacer
-                            if(hasTimeLimit == 0)
+                              // Column: Text,ToggleSwitch: TimeLimit
                               SizedBox(
-                                height: screenHeight*0.12,
-                                width: screenWidth*0.3,
-                              )
-                          ],
-                        ),
+                                  height: screenHeight*0.12,
+                                  width: screenWidth*0.3,
+                                  child: Column(
+                                      children: [
+
+                                        // TEXT: time limit
+                                        SizedBox(
+                                          width: screenWidth*0.28,
+                                          child: Text(
+                                            "Zeitlimit",
+                                            style: customStyleClass.getFontStyle3(),
+                                            textAlign: TextAlign.left,
+                                          ),
+                                        ),
+
+                                        // TOGGLE SWITCH
+                                        Container(
+                                          padding:  EdgeInsets.only(
+                                              top: distanceBetweenTitleAndTextField
+                                          ),
+                                          width: screenWidth*0.28,
+                                          child:  Center(
+                                            child: ToggleSwitch(
+                                              minHeight: screenHeight*0.07,
+                                              initialLabelIndex: hasTimeLimit,
+                                              totalSwitches: 2,
+                                              activeBgColor: [customStyleClass.primeColor],
+                                              activeFgColor: Colors.white,
+                                              inactiveBgColor: customStyleClass.backgroundColorEventTile,
+                                              inactiveFgColor: Colors.white,
+                                              labels: const [
+                                                'Nein',
+                                                'Ja',
+                                              ],
+                                              onToggle: (index) {
+                                                setState(() {
+                                                  if(hasTimeLimit == 0){
+                                                    setState(() {
+                                                      hasTimeLimit = 1;
+                                                    });
+                                                  }else{
+                                                    setState(() {
+                                                      hasTimeLimit = 0;
+                                                    });
+                                                  }
+                                                });
+                                              },
+                                            ),
+                                          ),
+                                        ),
+
+                                      ]
+                                  )
+                              ),
+
+                              // Column: Button: Hour and minute
+                              if(hasTimeLimit != 0)
+                                Container(
+                                  alignment: Alignment.centerRight,
+                                  height: screenHeight*0.12,
+                                  width: screenWidth*0.3,
+                                  child: Column(
+                                    children: [
+
+                                      // Text: Time
+                                      SizedBox(
+                                        width: screenWidth*0.28,
+                                        child: Text(
+                                          "Uhrzeit",
+                                          style: customStyleClass.getFontStyle3(),
+                                          textAlign: TextAlign.left,
+                                        ),
+                                      ),
+
+                                      // Button: Time
+                                      Container(
+                                        width: screenWidth*0.28,
+                                        padding:  EdgeInsets.only(
+                                            top: distanceBetweenTitleAndTextField
+                                        ),
+                                        child: OutlinedButton(
+                                            onPressed: () => {
+                                              setState(() {
+                                                pickHourAndMinuteIsActive = true;
+                                              })
+                                            },
+                                            style: OutlinedButton.styleFrom(
+                                                minimumSize: Size(screenHeight*0.05,screenHeight*0.07),
+                                                shape: RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.circular(5.0)
+                                                )
+                                            ),
+                                            child: Text(
+                                              formatSelectedHourAndMinute(),
+                                              style: customStyleClass.getFontStyle5(),
+                                            )
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+
+                              // Spacer
+                              if(hasTimeLimit == 0)
+                                SizedBox(
+                                  height: screenHeight*0.12,
+                                  width: screenWidth*0.3,
+                                )
+                            ],
+                          ),
                       ),
 
                       // Text: Gender
@@ -1408,6 +1772,29 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
       }
     }
 
+    DateTime longtermStartDate = DateTime.now(), longtermEndDate = DateTime.now();
+
+    if(isLongterm == 1){
+
+      longtermStartDate = DateTime(
+          _longtermStartSelectedYear,
+          _longtermStartSelectedMonth,
+          _longtermStartSelectedDay,
+          23,
+          59
+      );
+
+      longtermEndDate = DateTime(
+          _longtermEndSelectedYear,
+          _longtermEndSelectedMonth,
+          _longtermEndSelectedDay+1,
+          12,
+          00
+      );
+
+
+    }
+
     ClubMeDiscount clubMeDiscount = ClubMeDiscount(
 
         discountId: uuidV4.toString(),
@@ -1437,8 +1824,10 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
         showDiscountInApp: userDataProvider.getUserClub().getClubId() == "9876-1234-5684" ? false: true,
         specialOccasionActive: false,
 
-        isRedeemable: isRedeemable == 0 ? false: true
+        isRedeemable: isRedeemable == 0 ? false: true,
 
+        longTermStartDate: isLongterm == 1 ? longtermStartDate : null,
+        longTermEndDate:   isLongterm == 1 ? longtermEndDate : null
     );
 
     if(isSupposedToBeTemplate == 1){
@@ -1489,7 +1878,9 @@ class _ClubNewDiscountViewState extends State<ClubNewDiscountView>
         isRepeatedDays: discount.getIsRepeatedDays(),
         templateId:  uuidV4.toString(),
       smallBannerFileName: discount.getSmallBannerFileName(),
-      bigBannerFileName: discount.getBigBannerFileName()
+      bigBannerFileName: discount.getBigBannerFileName(),
+      longTermStartDate: isLongterm == 1 ? discount.getLongTermStartDate() : null,
+      longTermEndDate: isLongterm == 1 ? discount.getLongTermEndDate() : null,
     );
 
     _hiveService.addDiscountTemplate(clubMeDiscountTemplate).then(

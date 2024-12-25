@@ -224,24 +224,30 @@ class _ShowStoryChewieState extends State<ShowStoryChewie>
         appBar: _buildAppBar(),
         body: loadingFinished ?
           Platform.isAndroid ?
+          RotatedBox(
+            quarterTurns: 1,
+            child: VideoPlayer(_controller),
+          ): VideoPlayer(_controller)
 
-              Container(
-                // padding: EdgeInsets.only(
-                //   top: screenHeight*0.1
-                // ),
-                child: OrientationBuilder(
-                  builder: (context, orientation) {
-                    // set the turn as per requirement
-                    final turn = orientation == Orientation.landscape ? 1: 0; // set the turn as per requirement
-                    return RotatedBox(
-                      quarterTurns: turn,
-                      child: VideoPlayer(_controller),
-                    );
-                  },
-                ),
-              )
-
-              :VideoPlayer(_controller):
+          //
+          //     Container(
+          //       // padding: EdgeInsets.only(
+          //       //   top: screenHeight*0.1
+          //       // ),
+          //       child: OrientationBuilder(
+          //         builder: (context, orientation) {
+          //           // set the turn as per requirement
+          //           final turn = orientation == Orientation.landscape ? 1: 0; // set the turn as per requirement
+          //           return RotatedBox(
+          //             quarterTurns: turn,
+          //             child: VideoPlayer(_controller),
+          //           );
+          //         },
+          //       ),
+          //     )
+          //
+          //     :VideoPlayer(_controller)
+            :
         Center(
           child: CircularProgressIndicator(color: customStyleClass.primeColor),
         )

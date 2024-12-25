@@ -34,6 +34,10 @@ ClubMeDiscount parseClubMeDiscount(var data){
       openingTimes: OpeningTimes.fromJson(data['opening_times']),
       showDiscountInApp: data['show_discount_in_app'],
       specialOccasionActive: data['special_occasion_active'],
-      isRedeemable: data['is_redeemable']
+      isRedeemable: data['is_redeemable'],
+
+      longTermStartDate: data['longterm_start_date'] != null ? DateTime.tryParse(data['longterm_start_date']) : null,
+      longTermEndDate: data['longterm_end_date'] != null ? DateTime.tryParse(data['longterm_end_date']) : null
+
   );
 }

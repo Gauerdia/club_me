@@ -39,13 +39,15 @@ class ClubMeDiscountAdapter extends TypeAdapter<ClubMeDiscount> {
       showDiscountInApp: fields[20] as bool,
       specialOccasionActive: fields[21] as bool,
       isRedeemable: fields[22] as bool,
+      longTermStartDate: fields[23] as DateTime?,
+      longTermEndDate: fields[24] as DateTime?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ClubMeDiscount obj) {
     writer
-      ..writeByte(22)
+      ..writeByte(24)
       ..writeByte(0)
       ..write(obj.clubId)
       ..writeByte(1)
@@ -89,7 +91,11 @@ class ClubMeDiscountAdapter extends TypeAdapter<ClubMeDiscount> {
       ..writeByte(21)
       ..write(obj.specialOccasionActive)
       ..writeByte(22)
-      ..write(obj.isRedeemable);
+      ..write(obj.isRedeemable)
+      ..writeByte(23)
+      ..write(obj.longTermStartDate)
+      ..writeByte(24)
+      ..write(obj.longTermEndDate);
   }
 
   @override

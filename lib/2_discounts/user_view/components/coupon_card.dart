@@ -5,6 +5,7 @@ import 'package:club_me/provider/user_data_provider.dart';
 import 'package:club_me/services/hive_service.dart';
 import 'package:club_me/services/supabase_service.dart';
 import 'package:club_me/shared/dialogs/title_content_and_button_dialog.dart';
+import 'package:club_me/shared/dialogs/title_content_and_two_buttons_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -189,6 +190,34 @@ class CouponCard extends StatelessWidget {
                     )
                 ),
 
+              if(clubMeDiscount.getNumberOfUsages() != 0)
+              Container(
+                height: screenHeight*0.35,
+                width: screenWidth,
+                alignment: Alignment.topRight,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 10,
+                  horizontal: 10
+                ),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 10,
+                    horizontal: 15
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.all(Radius.circular(45)),
+                    color: customStyleClass.backgroundColorEventTile,
+                    border: Border.all(
+                      color: Colors.black
+                    )
+                  ),
+                  child: Text(
+                      "${clubMeDiscount.getNumberOfUsages()}x",
+                    style: customStyleClass.getFontStyle3Bold(),
+                  ),
+                ),
+              )
+
               ],
             )
         ),
@@ -207,14 +236,7 @@ class CouponCard extends StatelessWidget {
                     bottomRight: Radius.circular(12),
                     bottomLeft: Radius.circular(12)
                 ),
-                border: Border(
-                  // bottom: BorderSide(color: Colors.pinkAccent, width: 2.0),
-                  // left: BorderSide(color: Colors.pinkAccent, width: 2.0),
-                  // right: BorderSide(color: Colors.pinkAccent, width: 2.0),
-                  // bottom: BorderSide(color: Colors.yellow, width: 2.0),
-                ),
               ):
-
               BoxDecoration(
                 color: customStyleClass.backgroundColorEventTile,
                 borderRadius: const BorderRadius.only(
@@ -287,36 +309,37 @@ class CouponCard extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.only(
                             left: 10,
+                            top: 10
                             // bottom: 7
                           ),
                           child: Align(
-                            alignment: Alignment.bottomLeft,
+                            alignment: Alignment.bottomCenter,
                             child: GestureDetector(
                               child: Text(
-                                "Bis $timeLimitToDisplay Uhr",
-                                style: customStyleClass.getFontStyle5(),
+                                "Angebot gütig bis $timeLimitToDisplay Uhr!",
+                                style: customStyleClass.getFontStyle3Bold(),
                               ),
                               onTap: (){},
                             ),
                           ),
                         ),
-                      if(clubMeDiscount.getHasUsageLimit())
-                        Padding(
-                          padding: const EdgeInsets.only(
-                              left: 10,
-                              top: 5
-                          ),
-                          child: Align(
-                            alignment: Alignment.bottomLeft,
-                            child: GestureDetector(
-                              child: Text(
-                                "${clubMeDiscount.getNumberOfUsages()}x einlösbar",
-                                style: customStyleClass.getFontStyle5(),
-                              ),
-                              onTap: (){},
-                            ),
-                          ),
-                        ),
+                      // if(clubMeDiscount.getHasUsageLimit())
+                      //   Padding(
+                      //     padding: const EdgeInsets.only(
+                      //         left: 10,
+                      //         top: 5
+                      //     ),
+                      //     child: Align(
+                      //       alignment: Alignment.bottomLeft,
+                      //       child: GestureDetector(
+                      //         child: Text(
+                      //           "${clubMeDiscount.getNumberOfUsages()}x einlösbar",
+                      //           style: customStyleClass.getFontStyle5(),
+                      //         ),
+                      //         onTap: (){},
+                      //       ),
+                      //     ),
+                      //   ),
 
                     ],
                   ),
@@ -524,10 +547,10 @@ class CouponCard extends StatelessWidget {
 
     showDialog(context: context,
         builder: (BuildContext context){
-          return TitleContentAndButtonDialog(
+          return TitleContentAndTwoButtonsDialog(
                 titleToDisplay: "Coupon einlösen",
-                contentToDisplay: "Bist du sicher, dass du den Coupon einlösen möchtest? Du kannst ihn danach eventuell nicht noch einmal einlösen.",
-                buttonToDisplay: TextButton(
+                contentToDisplay: "Bitte löse das Angebot in Anwesenheit des Personals ein!",
+                firstButtonToDisplay: TextButton(
                     onPressed: () {
                       currentAndLikedElementsProvider.setCurrentDiscount(clubMeDiscount);
                       saveAsUsedDiscount();
@@ -537,7 +560,17 @@ class CouponCard extends StatelessWidget {
                       "Einlösen",
                       style: customStyleClass.getFontStyle4BoldPrimeColor(),
                     )
-                ));
+                ),
+            secondButtonToDisplay: TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  "Abbrechen",
+                  style: customStyleClass.getFontStyle4Bold(),
+                )
+            ),
+          );
         }
     );
   }
