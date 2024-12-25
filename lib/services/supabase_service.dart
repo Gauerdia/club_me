@@ -6,6 +6,7 @@ import 'package:club_me/models/hive_models/0_club_me_user_data.dart';
 import 'package:club_me/models/club_offers.dart';
 import 'package:club_me/models/event.dart';
 import 'package:club_me/models/front_page_images.dart';
+import 'package:club_me/models/info_screen.dart';
 import 'package:club_me/models/special_opening_times.dart';
 import 'package:club_me/provider/state_provider.dart';
 import 'package:club_me/provider/user_data_provider.dart';
@@ -21,19 +22,25 @@ class SupabaseService{
 
 
 
-  Future<String> getLatestInfoScreenFileName() async{
+  Future<InfoScreenData> getLatestInfoScreenFileName() async{
     try{
 
       var data = await supabase
           .from('latest_info_screen')
           .select();
 
-      return data.first['file_name'];
+      InfoScreenData infoScreenData = InfoScreenData(
+          fileName: data.first['file_name'],
+          buttonChoice: data.first['button_choice'],
+          buttonColor: data.first['button_color']
+      );
+
+      return infoScreenData;
 
     }catch(e){
       log.d("Error in SupabaseService. Function: getLatestInfoScreenFileName. Error: ${e.toString()}");
       createErrorLog("Error in SupabaseService. Function: getLatestInfoScreenFileName. Error: ${e.toString()}");
-      return "";
+      return InfoScreenData(fileName: "", buttonChoice: 0, buttonColor: 0);
     }
   }
 
@@ -82,6 +89,46 @@ class SupabaseService{
             2
         )
       ];
+    }
+  }
+
+  Future<int> insertInfoScreen(
+      var content, String fileName
+      ) async {
+    try{
+      var data = await supabase.storage.from('info_screen').upload(
+        fileName,
+        content,
+        fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
+      );
+      log.d("insertInfoScreen: Finished successfully. Response: $data");
+      return 0;
+    }catch(e){
+      log.d("Error in SupabaseService. Function: insertInfoScreen. Error: ${e.toString()}. Vars: fileName, $fileName");
+      createErrorLog("Error in SupabaseService. Function: insertInfoScreen. Error: ${e.toString()}");
+      return 1;
+    }
+  }
+
+  Future<int> updateInfoScreen(
+      String fileName, int buttonChoice, int buttonColor
+      ) async{
+    try{
+      var data = await supabase
+          .from('latest_info_screen')
+          .update({
+            'file_name': fileName,
+            'button_choice': buttonChoice,
+            'button_color': buttonColor
+          }).match({
+        'id' : 1
+      });
+      log.d("updateInfoScreen: Finished successfully. Response: $data");
+      return 0;
+    }catch(e){
+      log.d("Error in SupabaseService. Function: updateInfoScreen. Error: ${e.toString()}. Vars: fileName, $fileName");
+      createErrorLog("Error in SupabaseService. Function: updateInfoScreen. Error: ${e.toString()}");
+      return 1;
     }
   }
 

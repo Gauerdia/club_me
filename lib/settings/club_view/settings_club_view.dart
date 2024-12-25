@@ -173,7 +173,9 @@ class _SettingsClubViewState extends State<SettingsClubView> {
     context.push("/user_sponsors");
   }
 
-
+  void clickEventNewInfoScreen(){
+    context.push('/upload_new_info_screen');
+  }
 
   void clickEventSwitchToUserView(){
     if(userDataProvider.getUserData().getUserProfileAsClub()){
@@ -525,6 +527,31 @@ class _SettingsClubViewState extends State<SettingsClubView> {
                       ),
                       onTap: () => clickEventSwitchToUserView(),
                     ),
+
+                    if(stateProvider.usingTheAppAsADeveloper)
+                      InkWell(
+                        child: SizedBox(
+                          width: screenWidth*0.9,
+                          child: Row(
+                            children: [
+                              IconButton(onPressed: () => clickEventLogOut(), icon: Icon(
+                                Icons.perm_device_information,
+                                color: customStyleClass.primeColor,
+                                size: 25,
+                              )),
+                              SizedBox(
+                                width: screenWidth*0.02,
+                              ),
+                              Text(
+                                "Neuen Info-Screen hochladen",
+                                style: customStyleClass.getFontStyle1(),
+                              )
+                            ],
+                          ),
+                        ),
+                        onTap: () => clickEventNewInfoScreen(),
+                      ),
+
 
                     InkWell(
                       child: SizedBox(

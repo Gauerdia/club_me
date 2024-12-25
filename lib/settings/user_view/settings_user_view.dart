@@ -222,6 +222,10 @@ class _SettingsUserViewState extends State<SettingsUserView> {
     );
   }
 
+  void clickEventNewInfoScreen(){
+    context.push('/upload_new_info_screen');
+  }
+
   @override
   Widget build(BuildContext context) {
     stateProvider = Provider.of<StateProvider>(context);
@@ -294,7 +298,6 @@ class _SettingsUserViewState extends State<SettingsUserView> {
             height: screenHeight,
             color: customStyleClass.backgroundColorMain,
             child: SingleChildScrollView(
-
                 child: Column(
                   children: [
 
@@ -567,6 +570,30 @@ class _SettingsUserViewState extends State<SettingsUserView> {
                       ),
                       onTap: () => clickEventSwitchAccount(),
                     ),
+
+                    if(stateProvider.usingTheAppAsADeveloper)
+                      InkWell(
+                        child: SizedBox(
+                          width: screenWidth*0.9,
+                          child: Row(
+                            children: [
+                              IconButton(onPressed: () => clickEventLogOut(), icon: Icon(
+                                Icons.perm_device_information,
+                                color: customStyleClass.primeColor,
+                                size: 25,
+                              )),
+                              SizedBox(
+                                width: screenWidth*0.02,
+                              ),
+                              Text(
+                                "Neuen Info-Screen hochladen",
+                                style: customStyleClass.getFontStyle1(),
+                              )
+                            ],
+                          ),
+                        ),
+                        onTap: () => clickEventNewInfoScreen(),
+                      ),
 
                     // logout
                     InkWell(

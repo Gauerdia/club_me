@@ -30,6 +30,7 @@ import 'package:club_me/settings/club_view/components/faq_club_view.dart';
 import 'package:club_me/settings/club_view/settings_club_view.dart';
 import 'package:club_me/settings/user_view/components/faq_user_view.dart';
 import 'package:club_me/settings/user_view/components/sponsors_view.dart';
+import 'package:club_me/settings/user_view/components/upload_info_screen_view.dart';
 import 'package:club_me/settings/user_view/settings_user_view.dart';
 import 'package:club_me/shared/test.dart';
 import 'package:club_me/stories/show_story_chewie.dart';
@@ -162,7 +163,7 @@ final GoRouter _router = GoRouter(
     GoRoute(
       path: '/',
       builder: (BuildContext context, GoRouterState state)
-      => LogInView()
+      => RegisterView()
       //ComingSoonView();//LogInView(); //Test();
     ),
 
@@ -542,6 +543,14 @@ final GoRouter _router = GoRouter(
         path: '/show_tutorial',
         builder: (context, state) => const ShowTutorialPage()
     ),
+
+    GoRoute(
+        path: '/upload_new_info_screen',
+        builder: (context, state) => const UploadInfoScreenView()
+    ),
+
+
+
 
 
   ],

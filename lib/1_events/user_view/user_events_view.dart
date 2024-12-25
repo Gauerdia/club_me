@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 import 'package:club_me/1_events/user_view/components/ad_tile.dart';
 import 'package:club_me/models/hive_models/0_club_me_user_data.dart';
+import 'package:club_me/models/info_screen.dart';
 import 'package:club_me/provider/user_data_provider.dart';
 import 'package:club_me/services/check_and_fetch_service.dart';
 import 'package:club_me/services/hive_service.dart';
@@ -211,17 +212,23 @@ class _UserEventsViewState extends State<UserEventsView> {
 
       try{
 
-        String infoScreenFileName = await _supabaseService.getLatestInfoScreenFileName();
-        _checkAndFetchService.checkIfImageExistsLocally(infoScreenFileName, stateProvider).then((exists) async {
-          if(!exists) {
-            log.d("CheckAndFetchService, Fct: checkAndFetchSpecificClubImages, Log: File doesn't exist. File name: $infoScreenFileName");
-            _checkAndFetchService.fetchAndSaveInfoScreen(infoScreenFileName, stateProvider, fetchedContentProvider);
-            checkInfoScreenWithHive(infoScreenFileName);
-          }else{
-            log.d("checkForNewInfoScreen, Fct: checkForNewInfoScreen, Log: already exists. File name: $infoScreenFileName");
-            checkInfoScreenWithHive(infoScreenFileName);
-          }
-        });
+        InfoScreenData infoScreenData = await _supabaseService.getLatestInfoScreenFileName();
+        stateProvider.currentInfoScreenData = infoScreenData;
+
+        // Maybe something went wrong? Check for it.
+        if(infoScreenData.fileName != ""){
+          _checkAndFetchService.checkIfImageExistsLocally(infoScreenData.fileName, stateProvider).then((exists) async {
+            if(!exists) {
+              log.d("CheckAndFetchService, Fct: checkAndFetchSpecificClubImages, Log: File doesn't exist. File name: ${infoScreenData.fileName}");
+              _checkAndFetchService.fetchAndSaveInfoScreen(infoScreenData.fileName, stateProvider, fetchedContentProvider);
+              checkInfoScreenWithHive();
+            }else{
+              log.d("checkForNewInfoScreen, Fct: checkForNewInfoScreen, Log: already exists. File name: ${infoScreenData.fileName}");
+              checkInfoScreenWithHive();
+            }
+          });
+        }
+
       }catch(e){
         _supabaseService.createErrorLog("UserEventsView. Fct: checkForInfoScreen. Error: $e");
         setState(() {
@@ -234,18 +241,17 @@ class _UserEventsViewState extends State<UserEventsView> {
     }
   }
 
-  void checkInfoScreenWithHive(String currentInfoScreenName) async{
+  void checkInfoScreenWithHive() async{
     try{
       if(!stateProvider.alreadyCheckedForInfoScreen){
 
         List<String> lastInfoScreenNames = await _hiveService.getLatestInfoScreenNames();
 
-        if(lastInfoScreenNames.contains(currentInfoScreenName)){
+        if(lastInfoScreenNames.contains(stateProvider.currentInfoScreenData?.fileName)){
           noInfoScreenToShow = true;
         }else{
-          stateProvider.currentInfoScreenFileName = currentInfoScreenName;
           noInfoScreenToShow = false;
-          await _hiveService.insertLatestInfoScreenNames(currentInfoScreenName);
+          await _hiveService.insertLatestInfoScreenNames(stateProvider.currentInfoScreenData!.fileName);
         }
 
         setState(() {
@@ -621,22 +627,19 @@ class _UserEventsViewState extends State<UserEventsView> {
       child: Stack(
         children: [
 
-          fetchedContentProvider.getFetchedBannerImageIds().contains(stateProvider.currentInfoScreenFileName)?
+          fetchedContentProvider.getFetchedBannerImageIds().contains(stateProvider.currentInfoScreenData?.fileName)?
           Center(
             child:
 
             Image(
               image: FileImage(
                   File(
-                      "${stateProvider.appDocumentsDir.path}/${stateProvider.currentInfoScreenFileName}"
+                      "${stateProvider.appDocumentsDir.path}/${stateProvider.currentInfoScreenData?.fileName}"
                   )
               ),
               // fit: BoxFit.cover,
             )
 
-            // Image.asset(
-            //     "${stateProvider.appDocumentsDir.path}/${stateProvider.currentInfoScreenFileName}"
-            // ),
           ):
           SizedBox(
               width: screenWidth,
@@ -652,7 +655,8 @@ class _UserEventsViewState extends State<UserEventsView> {
               )
           ),
 
-          if(fetchedContentProvider.getFetchedBannerImageIds().contains(stateProvider.currentInfoScreenFileName))
+          if(fetchedContentProvider.getFetchedBannerImageIds().contains(stateProvider.currentInfoScreenData?.fileName) &&
+             stateProvider.currentInfoScreenData?.buttonChoice != 0)
           Container(
             width: screenHeight*0.9,
             alignment: Alignment.bottomCenter,
@@ -668,7 +672,7 @@ class _UserEventsViewState extends State<UserEventsView> {
                     horizontal: 10
                 ),
                 decoration: BoxDecoration(
-                    color: Color(0xffad9430),
+                    color: stateProvider.currentInfoScreenData?.buttonColor == 0 ? customStyleClass.primeColor : const Color(0xffad9430),
                     borderRadius: BorderRadius.circular(15)
                 ),
                 child: Center(
@@ -680,15 +684,26 @@ class _UserEventsViewState extends State<UserEventsView> {
               ),
               onTap: (){
 
-                if(stateProvider.usingWithoutRegistration){
-                  context.push("/need_to_register");
-                }else{
-                  stateProvider.setPageIndex(3);
-                  context.go('/user_coupons');
+                // print("onTap : ${stateProvider.currentInfoScreenData?.buttonChoice}");
+
+                // Events
+                if(stateProvider.currentInfoScreenData?.buttonChoice == 1){
+                  setState(() {
+                    noInfoScreenToShow = true;
+                  });
+                  // print("inside 1");
+                  // context.go('/user_events');
+                }
+                // Coupons
+                else{
+                  if(stateProvider.usingWithoutRegistration){
+                    context.push("/need_to_register");
+                  }else{
+                    stateProvider.setPageIndex(3);
+                    context.go('/user_coupons');
+                  }
                 }
 
-                // stateProvider.setPageIndex(3);
-                // context.go("/user_coupons");
               },
             ),
           )

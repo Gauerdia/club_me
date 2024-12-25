@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:camera/camera.dart';
+import 'package:club_me/models/info_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -60,7 +61,10 @@ class StateProvider extends ChangeNotifier{
 
   bool accessedTutorialFromSettings = false;
 
-  String currentInfoScreenFileName = "";
+  InfoScreenData? currentInfoScreenData;
+  // String currentInfoScreenFileName = "";
+  // int currentInfoScreenButtonChoice = 0;
+  // int currentInfoScreenButtonColor = 0;
 
 
   final SupabaseService _supabaseService = SupabaseService();
