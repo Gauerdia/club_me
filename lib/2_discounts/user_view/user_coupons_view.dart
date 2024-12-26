@@ -349,16 +349,16 @@ class _UserCouponsViewState extends State<UserCouponsView>
             if(isFilterMenuActive)
               _buildFilterMenu(),
 
-            if(isFilterMenuActive)
-              GestureDetector(
-                child: Container(
-                  color: Colors.transparent,
-                  width: screenWidth,
-                  height: screenHeight,
-                ),
-                onTap: () => setState(() {isFilterMenuActive = false;}),
-                onHorizontalDragDown: (DragDownDetails details) => setState(() {isFilterMenuActive = false;}),
-              )
+            // if(isFilterMenuActive)
+            //   GestureDetector(
+            //     child: Container(
+            //       color: Colors.transparent,
+            //       width: screenWidth,
+            //       height: screenHeight,
+            //     ),
+            //     onTap: () => setState(() {isFilterMenuActive = false;}),
+            //     onHorizontalDragDown: (DragDownDetails details) => setState(() {isFilterMenuActive = false;}),
+            //   )
 
           ],
         )
@@ -764,6 +764,7 @@ class _UserCouponsViewState extends State<UserCouponsView>
     _tabController.index = currentPageIndex;
     setState(() {
       _currentPageIndex = currentPageIndex;
+      isFilterMenuActive = false;
     });
   }
 

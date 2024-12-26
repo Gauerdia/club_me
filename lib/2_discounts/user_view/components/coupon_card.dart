@@ -16,6 +16,8 @@ import '../../../provider/state_provider.dart';
 import '../../../shared/custom_text_style.dart';
 import 'package:intl/intl.dart';
 
+import '../../../shared/dialogs/title_important_content_and_two_buttons_dialog.dart';
+
 class CouponCard extends StatelessWidget {
   CouponCard({
     Key? key,
@@ -415,23 +417,52 @@ class CouponCard extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            weekDayToDisplay,
-                            style: customStyleClass.getFontStyle5BoldPrimeColor(),
+
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 10,
+                                horizontal: 20
+                            ),
+                            decoration: BoxDecoration(
+                                color: Colors.grey,
+                                borderRadius: BorderRadius.circular(15)
+                            ),
+                            child: Text(
+                              weekDayToDisplay,
+                              style: customStyleClass.getFontStyle4Bold(),
+                            ),
                           ),
+
+
 
                           if(clubMeDiscount.getIsRedeemable())
                           InkWell(
                             child: Row(
                               children: [
-                                Text(
-                                  "Einlösen",
-                                  style: customStyleClass.getFontStyle3BoldPrimeColor(),
-                                ),
-                                Icon(
-                                  Icons.arrow_forward_outlined,
-                                  color: customStyleClass.primeColor,
+
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 10,
+                                      horizontal: 30
+                                  ),
+                                  decoration: BoxDecoration(
+                                      color: customStyleClass.primeColor,
+                                      borderRadius: BorderRadius.circular(15)
+                                  ),
+                                  child: Text(
+                                    "Einlösen",
+                                    style: customStyleClass.getFontStyle4Bold(),
+                                  ),
                                 )
+
+                                // Text(
+                                //   "Einlösen",
+                                //   style: customStyleClass.getFontStyle3BoldPrimeColor(),
+                                // ),
+                                // Icon(
+                                //   Icons.arrow_forward_outlined,
+                                //   color: customStyleClass.primeColor,
+                                // )
                               ],
                             ),
                             onTap: () => showRedeemDialog(context, stateProvider, clubMeDiscount),
@@ -525,14 +556,14 @@ class CouponCard extends StatelessWidget {
     String weekDayToDisplayWorkingString = DateFormat('dd.MM.yyyy').format(dateToUse);
 
     switch(eventDateWeekday){
-      case(0): weekDayToDisplay = "Sonntag, $weekDayToDisplayWorkingString";
-      case(1): weekDayToDisplay = "Montag, $weekDayToDisplayWorkingString";
-      case(2): weekDayToDisplay = "Dienstag, $weekDayToDisplayWorkingString";
-      case(3): weekDayToDisplay = "Mittwoch, $weekDayToDisplayWorkingString";
-      case(4): weekDayToDisplay = "Donnerstag, $weekDayToDisplayWorkingString";
-      case(5): weekDayToDisplay = "Freitag, $weekDayToDisplayWorkingString";
-      case(6): weekDayToDisplay = "Samstag, $weekDayToDisplayWorkingString";
-      case(7): weekDayToDisplay = "Sonntag, $weekDayToDisplayWorkingString";
+      case(0): weekDayToDisplay = "SA, $weekDayToDisplayWorkingString";
+      case(1): weekDayToDisplay = "MO, $weekDayToDisplayWorkingString";
+      case(2): weekDayToDisplay = "DI, $weekDayToDisplayWorkingString";
+      case(3): weekDayToDisplay = "MI, $weekDayToDisplayWorkingString";
+      case(4): weekDayToDisplay = "DO, $weekDayToDisplayWorkingString";
+      case(5): weekDayToDisplay = "FR, $weekDayToDisplayWorkingString";
+      case(6): weekDayToDisplay = "SA, $weekDayToDisplayWorkingString";
+      case(7): weekDayToDisplay = "SO, $weekDayToDisplayWorkingString";
     }
   }
 
@@ -547,11 +578,16 @@ class CouponCard extends StatelessWidget {
 
     showDialog(context: context,
         builder: (BuildContext context){
-          return TitleContentAndTwoButtonsDialog(
+          return TitleImportantContentAndTwoButtonsDialog(
                 titleToDisplay: "Coupon einlösen",
-                contentToDisplay: "Bitte löse das Angebot in Anwesenheit des Personals ein!",
+                contentToDisplay: "Bitte löse das Angebot erst in Anwesenheit des Personals ein!",
                 firstButtonToDisplay: TextButton(
                     onPressed: () {
+                      currentAndLikedElementsProvider.setCurrentClub(
+                        fetchedContentProvider.getFetchedClubs().firstWhere(
+                            (club) => club.getClubId() == clubMeDiscount.getClubId()
+                        )
+                      );
                       currentAndLikedElementsProvider.setCurrentDiscount(clubMeDiscount);
                       saveAsUsedDiscount();
                       context.go('/coupon_active');

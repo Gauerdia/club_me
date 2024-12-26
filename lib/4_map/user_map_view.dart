@@ -314,6 +314,13 @@ class _UserMapViewState extends State<UserMapView>{
       ),
       markers: _markers.values.toSet(),
       myLocationButtonEnabled: false,
+      onCameraMove: (CameraPosition cameraPosition){
+        if(showFilterMenu){
+          setState(() {
+            showFilterMenu = false;
+          });
+        }
+      },
     );
   }
   AppBar _buildAppBar(){

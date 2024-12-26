@@ -402,72 +402,72 @@ class _ClubEditDiscountState extends State<ClubEditDiscountView>
                       ),
 
                       // Row: ToggleSwitch, isLongterm
-                      Container(
-                        padding: const EdgeInsets.only(
-                            top:30
-                        ),
-                        width: screenWidth*0.9,
-                        // height: screenHeight*0.18,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-
-                            Container(
-                              // width: screenWidth*0.4,
-                                alignment: Alignment.centerLeft,
-                                child: Column(
-                                  children: [
-
-                                    // Text: AgeLimit
-                                    Container(
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(
-                                        "Läuft über einen Zeitraum",
-                                        style: customStyleClass.getFontStyle3(),
-                                      ),
-                                    ),
-
-                                    // Toggle switch
-                                    Container(
-                                      padding:  EdgeInsets.only(
-                                          top: distanceBetweenTitleAndTextField
-                                      ),
-                                      width: screenWidth*0.45,
-                                      alignment: Alignment.centerLeft,
-                                      child: ToggleSwitch(
-                                        minHeight: screenHeight*0.07,
-                                        initialLabelIndex: isLongterm,
-                                        totalSwitches: 2,
-                                        activeBgColor: [customStyleClass.primeColor],
-                                        activeFgColor: Colors.white,
-                                        inactiveFgColor: Colors.white,
-                                        inactiveBgColor:customStyleClass.backgroundColorEventTile,
-                                        labels: const [
-                                          'Nein',
-                                          'Ja',
-                                        ],
-                                        onToggle: (index) {
-                                          setState(() {
-                                            if(isLongterm == 0){
-                                              setState(() {
-                                                isLongterm = 1;
-                                              });
-                                            }else{
-                                              setState(() {
-                                                isLongterm = 0;
-                                              });
-                                            }
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                )
-                            ),
-
-                          ],
-                        ),
-                      ),
+                      // Container(
+                      //   padding: const EdgeInsets.only(
+                      //       top:30
+                      //   ),
+                      //   width: screenWidth*0.9,
+                      //   // height: screenHeight*0.18,
+                      //   child: Row(
+                      //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      //     children: [
+                      //
+                      //       Container(
+                      //         // width: screenWidth*0.4,
+                      //           alignment: Alignment.centerLeft,
+                      //           child: Column(
+                      //             children: [
+                      //
+                      //               // Text: AgeLimit
+                      //               Container(
+                      //                 alignment: Alignment.centerLeft,
+                      //                 child: Text(
+                      //                   "Läuft über einen Zeitraum",
+                      //                   style: customStyleClass.getFontStyle3(),
+                      //                 ),
+                      //               ),
+                      //
+                      //               // Toggle switch
+                      //               Container(
+                      //                 padding:  EdgeInsets.only(
+                      //                     top: distanceBetweenTitleAndTextField
+                      //                 ),
+                      //                 width: screenWidth*0.45,
+                      //                 alignment: Alignment.centerLeft,
+                      //                 child: ToggleSwitch(
+                      //                   minHeight: screenHeight*0.07,
+                      //                   initialLabelIndex: isLongterm,
+                      //                   totalSwitches: 2,
+                      //                   activeBgColor: [customStyleClass.primeColor],
+                      //                   activeFgColor: Colors.white,
+                      //                   inactiveFgColor: Colors.white,
+                      //                   inactiveBgColor:customStyleClass.backgroundColorEventTile,
+                      //                   labels: const [
+                      //                     'Nein',
+                      //                     'Ja',
+                      //                   ],
+                      //                   onToggle: (index) {
+                      //                     setState(() {
+                      //                       if(isLongterm == 0){
+                      //                         setState(() {
+                      //                           isLongterm = 1;
+                      //                         });
+                      //                       }else{
+                      //                         setState(() {
+                      //                           isLongterm = 0;
+                      //                         });
+                      //                       }
+                      //                     });
+                      //                   },
+                      //                 ),
+                      //               ),
+                      //             ],
+                      //           )
+                      //       ),
+                      //
+                      //     ],
+                      //   ),
+                      // ),
 
                       // DATE PICK // LONG TERM CUPERTINO PICKER
                       AnimatedContainer(

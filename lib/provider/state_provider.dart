@@ -62,9 +62,8 @@ class StateProvider extends ChangeNotifier{
   bool accessedTutorialFromSettings = false;
 
   InfoScreenData? currentInfoScreenData;
-  // String currentInfoScreenFileName = "";
-  // int currentInfoScreenButtonChoice = 0;
-  // int currentInfoScreenButtonColor = 0;
+
+  int eventAdIndex = 0;
 
 
   final SupabaseService _supabaseService = SupabaseService();

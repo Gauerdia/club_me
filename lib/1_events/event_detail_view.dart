@@ -117,182 +117,265 @@ class _EventDetailViewState extends State<EventDetailView>{
 
   // BUILD
   AppBar _buildAppBar(){
-    return isContentShown ?
-    AppBar(
-      automaticallyImplyLeading: false,
-      backgroundColor: Colors.transparent,
-      surfaceTintColor: Colors.transparent,
-      title: SizedBox(
-        width: screenWidth,
-        height: 50,
-        child: Stack(
-          children: [
 
-            // Show "close" button when content is shown
-            stateProvider.getUsingTheAppAsADeveloper() ?
-            Container(
-              alignment: Alignment.centerRight,
-              width: screenWidth,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
+    if(isContentShown){
+      return AppBar(
+          automaticallyImplyLeading: false,
+          backgroundColor: Colors.transparent,
+          surfaceTintColor: Colors.transparent,
+          actions: [
 
-                  contentDownloadIsLoading ? CircularProgressIndicator(color: customStyleClass.primeColor,):
-                  IconButton(
-                    onPressed: () => clickEventDownloadContent(),
-                    icon: Icon(
-                      Icons.save,
-                      color: customStyleClass.primeColor,
-                      size: 30,
-                    ),
+            if(stateProvider.getUsingTheAppAsADeveloper())
+              contentDownloadIsLoading ?
+              CircularProgressIndicator(color: customStyleClass.primeColor) :
+              Container(
+                padding: const EdgeInsets.only(
+                  top:30
+                ),
+                child: InkWell(
+                  child: Icon(
+                    Icons.save,
+                    color: customStyleClass.primeColor,
+                    size: 30,
                   ),
-
-                  IconButton(
-                    onPressed: () => clickEventContent(),
-                    icon: const Icon(
-                      Icons.close,
-                      color: Colors.white,
-                      size: 30,
-                    ),
-                  ),
-                ],
-              ),
-            ) :
-            Container(
-              alignment: Alignment.centerRight,
-              width: screenWidth,
-              child: IconButton(
-                onPressed: () => clickEventContent(),
-                icon: const Icon(
-                  Icons.close,
-                  color: Colors.white,
-                  size: 30,
+                  onTap: () =>clickEventDownloadContent(),
                 ),
               ),
-            ),
 
-          ],
+              Container(
+              padding: const EdgeInsets.only(
+              top:30
+              ),
+            child:InkWell(
+              child: const Icon(
+                Icons.close,
+                color: Colors.white,
+                size: 30,
+              ),
+              onTap: () => clickEventContent(),
+            )
+    )
+          ]);
+    }else{
+      return AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: customStyleClass.backgroundColorMain,
+        surfaceTintColor: customStyleClass.backgroundColorMain,
+        centerTitle: true,
+        bottom: PreferredSize(
+            preferredSize: Size.fromHeight(4.0),
+            child: Container(
+              color: Colors.grey[900],
+              height: 1.0,
+            )
         ),
-      ),
-    ) :
-    AppBar(
-      automaticallyImplyLeading: false,
-      backgroundColor: customStyleClass.backgroundColorMain,
-      surfaceTintColor: customStyleClass.backgroundColorMain,
-      centerTitle: true,
-      bottom: PreferredSize(
-          preferredSize: Size.fromHeight(4.0),
-          child: Container(
-            color: Colors.grey[900],
-            height: 1.0,
-          )
-      ),
-      title: SizedBox(
-        width: screenWidth,
-        height: 50,
-        child: Stack(
-          children: [
+        title: SizedBox(
+          width: screenWidth,
+          height: 50,
+          child: Stack(
+            children: [
 
-            // Show "back" button when no content displayed
-            isContentShown ? Container()
-                :SizedBox(
-              child: IconButton(
-                onPressed: () => clickEventBack(),
-                icon: const Icon(
-                  Icons.arrow_back_ios,
-                  color: Colors.white,
-                  // size: 20,
+              // Show "back" button when no content displayed
+              isContentShown ? Container()
+                  :SizedBox(
+                child: IconButton(
+                  onPressed: () => clickEventBack(),
+                  icon: const Icon(
+                    Icons.arrow_back_ios,
+                    color: Colors.white,
+                    // size: 20,
+                  ),
                 ),
               ),
-            ),
 
-            // Show Title when no content displayed
-            isContentShown ? Container()
-                :SizedBox(
-              width: screenWidth,
-              height: 50,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
+              // Show Title when no content displayed
+              isContentShown ? Container()
+                  :SizedBox(
+                width: screenWidth,
+                height: 50,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
 
 
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                              titleToDisplay,
-                              textAlign: TextAlign.center,
-                              style: customStyleClass.getFontStyleHeadline1Bold()
-                          ),
-                          if(showVIP)
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  bottom: 15
-                              ),
-                              child: Text(
-                                "VIP",
-                                style: customStyleClass.getFontStyleVIPGold(),
-                              ),
-                            )
-                        ],
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                                titleToDisplay,
+                                textAlign: TextAlign.center,
+                                style: customStyleClass.getFontStyleHeadline1Bold()
+                            ),
+                            if(showVIP)
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                    bottom: 15
+                                ),
+                                child: Text(
+                                  "VIP",
+                                  style: customStyleClass.getFontStyleVIPGold(),
+                                ),
+                              )
+                          ],
+                        ),
+                      ],
+                    )
+
+                  ],
+                ),
+              ),
+
+              // Show "close" button when content is shown
+              isContentShown ?
+              stateProvider.getUsingTheAppAsADeveloper() ?
+              Container(
+                alignment: Alignment.centerRight,
+                width: screenWidth,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+
+                    contentDownloadIsLoading ? CircularProgressIndicator(color: customStyleClass.primeColor,):
+                    IconButton(
+                      onPressed: () => clickEventDownloadContent(),
+                      icon: Icon(
+                        Icons.save,
+                        color: customStyleClass.primeColor,
+                        size: 30,
                       ),
-                    ],
-                  )
-
-                ],
-              ),
-            ),
-
-            // Show "close" button when content is shown
-            isContentShown ?
-            stateProvider.getUsingTheAppAsADeveloper() ?
-            Container(
-              alignment: Alignment.centerRight,
-              width: screenWidth,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-
-                  contentDownloadIsLoading ? CircularProgressIndicator(color: customStyleClass.primeColor,):
-                  IconButton(
-                    onPressed: () => clickEventDownloadContent(),
-                    icon: Icon(
-                      Icons.save,
-                      color: customStyleClass.primeColor,
-                      size: 30,
                     ),
-                  ),
 
-                  IconButton(
-                    onPressed: () => clickEventContent(),
-                    icon: const Icon(
-                      Icons.close,
-                      color: Colors.white,
-                      size: 30,
+                    IconButton(
+                      onPressed: () => clickEventContent(),
+                      icon: const Icon(
+                        Icons.close,
+                        color: Colors.white,
+                        size: 30,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ) :
-            Container(
-              alignment: Alignment.centerRight,
-              width: screenWidth,
-              child: IconButton(
-                onPressed: () => clickEventContent(),
-                icon: const Icon(
-                  Icons.close,
-                  color: Colors.white,
-                  size: 30,
+                  ],
                 ),
-              ),
-            ):Container(),
+              ) :
+              Container(
+                alignment: Alignment.centerRight,
+                width: screenWidth,
+                child: IconButton(
+                  onPressed: () => clickEventContent(),
+                  icon: const Icon(
+                    Icons.close,
+                    color: Colors.white,
+                    size: 30,
+                  ),
+                ),
+              ):Container(),
 
-          ],
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    }
+
+      // title: Container(
+      //   // color: Colors.green,
+      //   // width: screenWidth,
+      //   // height: 50,
+      //   child: Container(
+      //     width: screenWidth,
+      //     color: Colors.red,
+      //     height: 50,
+      //   ),
+
+
+        // Stack(
+        //   children: [
+        //
+        //     // Show "close" button when content is shown
+        //     stateProvider.getUsingTheAppAsADeveloper() ?
+        //     Container(
+        //       alignment: Alignment.centerRight,
+        //       width: screenWidth,
+        //       child: Row(
+        //         mainAxisAlignment: MainAxisAlignment.end,
+        //         children: [
+        //
+        //           contentDownloadIsLoading ?
+        //           CircularProgressIndicator(color: customStyleClass.primeColor) :
+        //           InkWell(
+        //             child: Icon(
+        //               Icons.save,
+        //               color: customStyleClass.primeColor,
+        //               size: 30,
+        //             ),
+        //             onTap: () =>clickEventDownloadContent(),
+        //           ),
+        //           // IconButton(
+        //           //   onPressed: () => clickEventDownloadContent(),
+        //             icon: Icon(
+        //               Icons.save,
+        //               color: customStyleClass.primeColor,
+        //               size: 30,
+        //             ),
+        //           ),
+        //
+        //           InkWell(
+        //             child: const Icon(
+        //               Icons.close,
+        //               color: Colors.white,
+        //               size: 30,
+        //             ),
+        //             onTap: () => clickEventContent(),
+        //           )
+        //
+        //           // IconButton(
+        //           //   onPressed: () => clickEventContent(),
+        //           //   icon: const Icon(
+        //           //     Icons.close,
+        //           //     color: Colors.white,
+        //           //     size: 30,
+        //           //   ),
+        //           // ),
+        //         ],
+        //       ),
+        //     ) :
+        //     Container(
+        //       color: Colors.red,
+        //       // padding: EdgeInsets.only(
+        //       //   top:30
+        //       // ),
+        //       // alignment: Alignment.centerRight,
+        //       // width: screenWidth,
+        //       child:
+        //       Row(
+        //         mainAxisAlignment: MainAxisAlignment.end,
+        //         children: [
+        //           InkWell(
+        //             child: const Icon(
+        //               Icons.close,
+        //               color: Colors.white,
+        //               size: 30,
+        //             ),
+        //             onTap:  () => clickEventContent(),
+        //           )
+        //         ],
+        //       )
+        //
+        //       // IconButton(
+        //       //   onPressed: () => clickEventContent(),
+        //       //   icon: const Icon(
+        //       //     Icons.close,
+        //       //     color: Colors.white,
+        //       //     size: 30,
+        //       //   ),
+        //       // ),
+        //     ),
+        //
+        //   ],
+        // ),
+    //   ),
+    // ) :
+
   }
   Widget _buildMainColumn(){
 
@@ -694,8 +777,11 @@ class _EventDetailViewState extends State<EventDetailView>{
           // File
           SizedBox(
             width: screenWidth,
-            height: screenHeight*1.2,
-            child: Image.file(file),
+            height: screenHeight,
+            child: Image.file(
+                file,
+              // fit: BoxFit.cover,
+            ),
           ),
 
         ],
@@ -706,15 +792,14 @@ class _EventDetailViewState extends State<EventDetailView>{
         children: [
 
           // Video container
-          SizedBox(
+          Container(
+            // color: Colors.green,
             width: screenWidth,
-            // height: screenHeight*0.8,
             child: _chewieController != null &&
                 _chewieController!
                     .videoPlayerController.value.isInitialized
                 ? SizedBox(
               width: screenWidth,
-              // height: screenHeight*0.8, // 97
               child: Chewie(
                 controller: _chewieController!,
               ),
@@ -787,26 +872,28 @@ class _EventDetailViewState extends State<EventDetailView>{
 
         if(isImage){
 
-          return GestureDetector(
-            child: Container(
+          return Container(
               padding: const EdgeInsets.only(
                   top: 120,
                 right: 6
               ),
+              // color: Colors.red,
               width: screenWidth,
+              height: screenHeight*0.165+100,
               alignment: Alignment.topRight,
-              decoration: BoxDecoration(),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(45.0),
-                child: Image.file(
-                  file,
-                  width: 50,
-                  height: 50,
-                  fit: BoxFit.cover,
+
+              child: InkWell(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(45.0),
+                  child: Image.file(
+                    file,
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                  ),
                 ),
+                onTap: () => clickEventContent(),
               ),
-            ),
-            onTap: () => clickEventContent(),
           );
 
         }
@@ -1143,8 +1230,8 @@ class _EventDetailViewState extends State<EventDetailView>{
                 (club) => club.getClubId() == clubId
         ).first
     );
-    stateProvider.setPageIndex(1);
-    stateProvider.setAccessedEventDetailFrom(0);
+    // stateProvider.setPageIndex(1);
+    // stateProvider.setAccessedEventDetailFrom(0);
     context.push('/club_details');
 
 

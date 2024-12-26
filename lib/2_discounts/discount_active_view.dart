@@ -4,6 +4,7 @@ import 'package:club_me/provider/fetched_content_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:glowy_borders/glowy_borders.dart';
+import 'package:hive/hive.dart';
 import 'package:no_screenshot/no_screenshot.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -156,7 +157,12 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
                               customStyleClass.primeColor
                             ],
                             borderRadius: const BorderRadius.all(Radius.circular(210)),
-                            child: SizedBox(
+                            child: Container(
+
+                              decoration: BoxDecoration(
+                                color: Colors.black,
+                                borderRadius: const BorderRadius.all(Radius.circular(210)),
+                              ),
                               // width: 300,
                               // height: 300,
                                 child: ClipRRect(
@@ -166,7 +172,8 @@ class _DiscountActiveViewState extends State<DiscountActiveView>
                                     height: 200,
                                     image: FileImage(
                                         File(
-                                            "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeDiscount.getBigBannerFileName()}"
+                                            "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeClub.getBigLogoFileName()}"
+                                            // "${stateProvider.appDocumentsDir.path}/${currentAndLikedElementsProvider.currentClubMeDiscount.getBigBannerFileName()}"
                                         )
                                     ),
                                     fit: BoxFit.cover,

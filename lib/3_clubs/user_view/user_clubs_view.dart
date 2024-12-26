@@ -49,7 +49,7 @@ class _UserClubsViewState extends State<UserClubsView>
   late TabController _tabController;
   late PageController _pageViewController;
   final TextEditingController _textEditingController = TextEditingController();
-
+  final ScrollController _scrollController = ScrollController();
 
   String searchValue = "";
   int _currentPageIndex = 0;
@@ -82,10 +82,24 @@ class _UserClubsViewState extends State<UserClubsView>
   @override
   void dispose() {
     super.dispose();
+    _scrollController.dispose();
     _pageViewController.dispose();
     _tabController.dispose();
   }
 
+  void _onScroll() {
+
+    if(isFilterMenuActive){
+      setState(() {
+        isFilterMenuActive = false;
+      });
+    }
+
+    // if (_scrollController.offset >= _scrollController.position.maxScrollExtent &&
+    //     !_scrollController.position.outOfRange) {
+    //   // Load more data
+    // }
+  }
 
   // BUILD
   AppBar _buildAppBar(){
@@ -364,21 +378,22 @@ class _UserClubsViewState extends State<UserClubsView>
            // Filter menu
            if(isFilterMenuActive)_buildFilterMenu(),
 
-           if(isFilterMenuActive)
-             GestureDetector(
-               child: Container(
-                 width: screenWidth,
-                 height: screenHeight,
-               ),
-               onTap: () => setState(() {isFilterMenuActive = false;}),
-               onHorizontalDragDown: (DragDownDetails details) => setState(() {isFilterMenuActive = false;}),
-             )
+           // if(isFilterMenuActive)
+           //   GestureDetector(
+           //     child: Container(
+           //       width: screenWidth,
+           //       height: screenHeight,
+           //     ),
+           //     onTap: () => setState(() {isFilterMenuActive = false;}),
+           //     onHorizontalDragDown: (DragDownDetails details) => setState(() {isFilterMenuActive = false;}),
+           //   )
          ],
        )
    );
   }
   Widget _buildPageView(){
     return SingleChildScrollView(
+      controller: _scrollController,
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -777,6 +792,7 @@ class _UserClubsViewState extends State<UserClubsView>
     _tabController.index = currentPageIndex;
     setState(() {
       _currentPageIndex = currentPageIndex;
+      isFilterMenuActive = false;
     });
   }
   bool checkIfIsEventIsAfterToday(ClubMeEvent currentEvent, ClubMeClub currentClub){

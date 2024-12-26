@@ -57,7 +57,7 @@ class _UserEventsViewState extends State<UserEventsView> {
   late FetchedContentProvider fetchedContentProvider;
   late UserDataProvider userDataProvider;
   late CurrentAndLikedElementsProvider currentAndLikedElementsProvider;
-
+  final ScrollController _scrollController = ScrollController();
 
   final HiveService _hiveService = HiveService();
   final SupabaseService _supabaseService = SupabaseService();
@@ -81,6 +81,10 @@ class _UserEventsViewState extends State<UserEventsView> {
 
   bool checkedForInfoScreen = false;
   bool noInfoScreenToShow = true;
+
+  List<Widget> _eventTilesToDisplay = [];
+
+  bool firstBuildForEventTiles = false;
 
   @override
   void initState(){
@@ -110,7 +114,119 @@ class _UserEventsViewState extends State<UserEventsView> {
     // Get all locally saved liked events
     getAllLikedEvents(stateProvider);
 
+    _scrollController.addListener(_onScroll);
 
+    setAdIndex();
+
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+
+    if(isFilterMenuActive){
+      setState(() {
+        isFilterMenuActive = false;
+      });
+    }
+
+    // if (_scrollController.offset >= _scrollController.position.maxScrollExtent &&
+    //     !_scrollController.position.outOfRange) {
+    //   // Load more data
+    // }
+  }
+
+
+  void setAdIndex(){
+    if(stateProvider.eventAdIndex == 0){
+      setState(() {
+        stateProvider.eventAdIndex = Random().nextInt(5)+3;
+      });
+    }
+  }
+
+  void _buildEventTiles(){
+
+    _eventTilesToDisplay = [];
+
+    for(var i=0;i<eventsToDisplay.length;i++){
+
+      ClubMeEvent currentEvent = eventsToDisplay[i];
+
+      if(stateProvider.eventAdIndex != 0 && i==stateProvider.eventAdIndex){
+        _eventTilesToDisplay.add(
+          InkWell(
+            child: AdTile(),
+            onTap: () => clickEventAdTile(context),
+          )
+        );
+      }
+
+      // Check if the event was already liked by the user
+      var isLiked = false;
+      if(currentAndLikedElementsProvider
+          .getLikedEvents().contains(currentEvent.getEventId())){
+        isLiked = true;
+      }
+
+      _eventTilesToDisplay.add(
+
+          Stack(
+            children: [
+
+              GestureDetector(
+                child: EventTile(
+                  clubMeEvent: currentEvent,
+                  isLiked: isLiked,
+                  clickEventLike: clickEventLike,
+                  clickEventShare: clickEventShare,
+                  showMaterialButton: true,
+                ),
+                onTap: (){
+                  currentAndLikedElementsProvider.setCurrentEvent(currentEvent);
+                  context.push('/event_details');
+                },
+              ),
+
+              if(currentEvent.getEventMarketingFileName().isNotEmpty)
+                Container(
+                  height: 140,
+                  width: screenWidth*0.95,
+                  padding: const EdgeInsets.only(
+                      top: 12,
+                      right: 8
+                  ),
+                  alignment: Alignment.topRight,
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                        topRight: Radius.circular(15),
+                        topLeft: Radius.circular(15)
+                    ),
+                    child: InkWell(
+                        child:
+                        Icon(
+                          Icons.camera_alt_outlined,
+                          color: customStyleClass.primeColor,
+                          size: 30,
+                        ),
+                        onTap: () {
+                          currentAndLikedElementsProvider.setCurrentEvent(currentEvent);
+                          stateProvider.toggleOpenEventDetailContentDirectly();
+                          context.push('/event_details');
+                        }
+                    ),
+                  ),
+                ),
+
+            ],
+          )
+
+      );
+    }
   }
 
   void initDropDowns(){
@@ -121,6 +237,10 @@ class _UserEventsViewState extends State<UserEventsView> {
     stateProvider = Provider.of<StateProvider>(context, listen: false);
     userDataProvider = Provider.of<UserDataProvider>(context, listen:  false);
     fetchedContentProvider = Provider.of<FetchedContentProvider>(context, listen:  false);
+    currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context, listen:  false);
+
+
+
   }
   void initFetchClubsAndEvents(){
 
@@ -430,6 +550,7 @@ class _UserEventsViewState extends State<UserEventsView> {
 
             // MainListView
             SingleChildScrollView(
+                controller: _scrollController,
                 keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                 physics: const ScrollPhysics(),
                 child: Column(
@@ -449,20 +570,20 @@ class _UserEventsViewState extends State<UserEventsView> {
                 )
             ),
 
+            // if(isFilterMenuActive)
+            //   GestureDetector(
+            //     child: Container(
+            //       width: screenWidth,
+            //       height: screenHeight,
+            //       color: Colors.transparent,
+            //     ),
+            //     onTap: () => setState(() {isFilterMenuActive = false;}),
+            //     onHorizontalDragDown: (DragDownDetails details) => setState(() {isFilterMenuActive = false;}),
+            //   ),
+
             // Filter menu
             if(isFilterMenuActive)
               _buildFilterWidget(),
-
-            if(isFilterMenuActive)
-              GestureDetector(
-                child: Container(
-                  width: screenWidth,
-                  height: screenHeight,
-                  color: Colors.transparent,
-                ),
-                onTap: () => setState(() {isFilterMenuActive = false;}),
-                onHorizontalDragDown: (DragDownDetails details) => setState(() {isFilterMenuActive = false;}),
-              )
           ],
         )
     );
@@ -478,99 +599,118 @@ class _UserEventsViewState extends State<UserEventsView> {
     }
 
     return eventsToDisplay.isNotEmpty?
-    ListView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: adIndex != 0 ? eventsToDisplay.length+1 : eventsToDisplay.length,
-        itemBuilder: ((context, index){
 
-          int indexWithAdOffset = index;
+        Column(
+          children: [
 
-          if(index >= adIndex){
-            indexWithAdOffset -= 1;
-          }
+            const SizedBox(
+              height: 100,
+            ),
 
-          // Check if the event was already liked by the user
-          var isLiked = false;
-          if(currentAndLikedElementsProvider
-              .getLikedEvents().contains(eventsToDisplay[indexWithAdOffset].getEventId())){
-            isLiked = true;
-          }
-
-          // Check if we want to display an add
-          if(eventsToDisplay.length > 8 && adIndex == index){
-
-            return InkWell(
-              child: AdTile(),
-              onTap: () => clickEventAdTile(context),
-            );
-          }
-
-          // return clickable widget
-          return Stack(
-            children: [
-
-              GestureDetector(
-                child: EventTile(
-                  clubMeEvent: eventsToDisplay[indexWithAdOffset],
-                  isLiked: isLiked,
-                  clickEventLike: clickEventLike,
-                  clickEventShare: clickEventShare,
-                  showMaterialButton: true,
-                ),
-                onTap: (){
-                  currentAndLikedElementsProvider.setCurrentEvent(eventsToDisplay[indexWithAdOffset]);
-                  stateProvider.setAccessedEventDetailFrom(0);
-                  context.push('/event_details');
-                },
-              ),
-
-              if(eventsToDisplay[indexWithAdOffset].getEventMarketingFileName().isNotEmpty)
-              Container(
-                  height: 140,
-                  width: screenWidth*0.95,
-                  padding: const EdgeInsets.only(
-                    top: 12,
-                    right: 8
-                  ),
-                  alignment: Alignment.topRight,
-                  child: ClipRRect(
-                    borderRadius: const BorderRadius.only(
-                        topRight: Radius.circular(15),
-                        topLeft: Radius.circular(15)
-                    ),
-                    child: InkWell(
-                      child:
-                        Icon(
-                          Icons.camera_alt_outlined,
-                          color: customStyleClass.primeColor,
-                          size: 30,
-                        ),
-                        onTap: () {
-                          currentAndLikedElementsProvider.setCurrentEvent(eventsToDisplay[indexWithAdOffset]);
-                          stateProvider.setAccessedEventDetailFrom(0);
-                          stateProvider.toggleOpenEventDetailContentDirectly();
-                          context.push('/event_details');
-                        }
-                    ),
-                  ),
-                ),
-
-            ],
-          );
-        })
-    ): SizedBox(
-      height: screenHeight*0.8,
-      width: screenWidth,
-      child: Center(
-        child: Text(
-          onlyFavoritesIsActive ?
-          "Derzeit sind keine Events als Favoriten markiert." :
-          "Derzeit sind keine Events geplant.",
-          style: customStyleClass.getFontStyle3(),
-        ),
-      ),
+            // I dropped the listview builder approach because the index offset
+            // due to the ads became annoying.
+            for(var element in _eventTilesToDisplay)
+              element,
+          ],
+        ):
+    SizedBox(
+    height: screenHeight*0.8,
+    width: screenWidth,
+    child: Center(
+    child: Text(
+    onlyFavoritesIsActive ?
+    "Derzeit sind keine Events als Favoriten markiert." :
+    "Derzeit sind keine Events geplant.",
+    style: customStyleClass.getFontStyle3(),
+    ),
+    ),
     );
+
+    // ListView.builder(
+    //     shrinkWrap: true,
+    //     physics: const NeverScrollableScrollPhysics(),
+    //     itemCount: adIndex != 0 ? eventsToDisplay.length+1 : eventsToDisplay.length,
+    //     itemBuilder: ((context, index){
+    //
+    //       int indexWithAdOffset = index;
+    //
+    //       if(index >= adIndex){
+    //         indexWithAdOffset -= 1;
+    //       }
+    //
+    //       // Check if the event was already liked by the user
+    //       var isLiked = false;
+    //       if(currentAndLikedElementsProvider
+    //           .getLikedEvents().contains(eventsToDisplay[indexWithAdOffset].getEventId())){
+    //         isLiked = true;
+    //       }
+    //
+    //       // Check if we want to display an add
+    //       if(eventsToDisplay.length > 8 && adIndex == index){
+    //
+    //         return InkWell(
+    //           child: AdTile(),
+    //           onTap: () => clickEventAdTile(context),
+    //         );
+    //       }
+    //
+    //       // return clickable widget
+    //       return Stack(
+    //         children: [
+    //
+    //           GestureDetector(
+    //             child: EventTile(
+    //               clubMeEvent: eventsToDisplay[indexWithAdOffset],
+    //               isLiked: isLiked,
+    //               clickEventLike: clickEventLike,
+    //               clickEventShare: clickEventShare,
+    //               showMaterialButton: true,
+    //             ),
+    //             onTap: (){
+    //               currentAndLikedElementsProvider.setCurrentEvent(eventsToDisplay[indexWithAdOffset]);
+    //               stateProvider.setAccessedEventDetailFrom(0);
+    //               context.push('/event_details');
+    //             },
+    //           ),
+    //
+    //           if(eventsToDisplay[indexWithAdOffset].getEventMarketingFileName().isNotEmpty)
+    //           Container(
+    //               height: 140,
+    //               width: screenWidth*0.95,
+    //               padding: const EdgeInsets.only(
+    //                 top: 12,
+    //                 right: 8
+    //               ),
+    //               alignment: Alignment.topRight,
+    //               child: ClipRRect(
+    //                 borderRadius: const BorderRadius.only(
+    //                     topRight: Radius.circular(15),
+    //                     topLeft: Radius.circular(15)
+    //                 ),
+    //                 child: InkWell(
+    //                   child:
+    //                     Icon(
+    //                       Icons.camera_alt_outlined,
+    //                       color: customStyleClass.primeColor,
+    //                       size: 30,
+    //                     ),
+    //                     onTap: () {
+    //                       currentAndLikedElementsProvider.setCurrentEvent(eventsToDisplay[indexWithAdOffset]);
+    //                       stateProvider.setAccessedEventDetailFrom(0);
+    //                       stateProvider.toggleOpenEventDetailContentDirectly();
+    //                       context.push('/event_details');
+    //                     }
+    //                 ),
+    //               ),
+    //             ),
+    //
+    //         ],
+    //       );
+    //     })
+    // )
+
+
+
   }
   Widget _buildNothingToDisplay(){
 
@@ -1158,6 +1298,11 @@ class _UserEventsViewState extends State<UserEventsView> {
       return b.getPriorityScore().compareTo(a.getPriorityScore());
     });
 
+    // Problem: This is called before Ì can init screenheight/width. Therefore we postpone.
+    if(firstBuildForEventTiles){
+      _buildEventTiles();
+    }
+
   }
   void filterForFavorites(){
     setState(() {
@@ -1387,6 +1532,11 @@ class _UserEventsViewState extends State<UserEventsView> {
 
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
+
+    if(!firstBuildForEventTiles){
+      _buildEventTiles();
+      firstBuildForEventTiles = true;
+    }
 
     if(!checkedForInfoScreen){
       if(stateProvider.alreadyCheckedForInfoScreen){
