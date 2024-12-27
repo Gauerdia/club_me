@@ -110,20 +110,20 @@ class StateProvider extends ChangeNotifier{
     updatedLastLogInForNow = true;
   }
 
-  void leaveEventDetailPage(BuildContext context){
-    switch(accessedEventDetailFrom){
-      case(0): context.go("/user_events");break;
-      case(1): context.go("/user_clubs");break;
-      case(2): context.go("/club_details");break;
-      case(3): context.go("/user_map");break;
-      case(4): context.go("/user_upcoming_events");break;
-      case(5): context.go("/club_events");break;
-      case(6): Navigator.pop(context);break;
-      case(7): Navigator.pop(context);break;
-      case(8): context.go("/club_frontpage");break;
-
-    }
-  }
+  // void leaveEventDetailPage(BuildContext context){
+  //   switch(accessedEventDetailFrom){
+  //     case(0): context.go("/user_events");break;
+  //     case(1): context.go("/user_clubs");break;
+  //     case(2): context.go("/club_details");break;
+  //     case(3): context.go("/user_map");break;
+  //     case(4): context.go("/user_upcoming_events");break;
+  //     case(5): context.go("/club_events");break;
+  //     case(6): Navigator.pop(context);break;
+  //     case(7): Navigator.pop(context);break;
+  //     case(8): context.go("/club_frontpage");break;
+  //
+  //   }
+  // }
   void setAccessedEventDetailFrom(int index){
     accessedEventDetailFrom = index;
   }

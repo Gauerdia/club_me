@@ -122,40 +122,7 @@ class _EventDetailViewState extends State<EventDetailView>{
       return AppBar(
           automaticallyImplyLeading: false,
           backgroundColor: Colors.transparent,
-          surfaceTintColor: Colors.transparent,
-          actions: [
-
-            if(stateProvider.getUsingTheAppAsADeveloper())
-              contentDownloadIsLoading ?
-              CircularProgressIndicator(color: customStyleClass.primeColor) :
-              Container(
-                padding: const EdgeInsets.only(
-                  top:30
-                ),
-                child: InkWell(
-                  child: Icon(
-                    Icons.save,
-                    color: customStyleClass.primeColor,
-                    size: 30,
-                  ),
-                  onTap: () =>clickEventDownloadContent(),
-                ),
-              ),
-
-              Container(
-              padding: const EdgeInsets.only(
-              top:30
-              ),
-            child:InkWell(
-              child: const Icon(
-                Icons.close,
-                color: Colors.white,
-                size: 30,
-              ),
-              onTap: () => clickEventContent(),
-            )
-    )
-          ]);
+          surfaceTintColor: Colors.transparent,);
     }else{
       return AppBar(
         automaticallyImplyLeading: false,
@@ -784,6 +751,64 @@ class _EventDetailViewState extends State<EventDetailView>{
             ),
           ),
 
+          Container(
+              padding: const EdgeInsets.only(
+                  top: 100,
+                  right: 10
+              ),
+              width: screenWidth,
+              height: screenHeight,
+              alignment: Alignment.topRight,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+
+                  if(stateProvider.getUsingTheAppAsADeveloper())
+                    contentDownloadIsLoading ?
+                    CircularProgressIndicator(color: customStyleClass.primeColor) :
+                    Container(
+                      child: InkWell(
+                        child:  Container(
+                          width: 30,
+                          height: 30,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.grey.withOpacity(0.3),
+                          ),
+                          child:  const Icon(
+                            Icons.save,
+                            color: Colors.white,
+                            size: 25,
+                          ),
+                        ),
+                        onTap: () =>clickEventDownloadContent(),
+                      ),
+                    ),
+
+                  const SizedBox(
+                    width: 10,
+                  ),
+
+                  InkWell(
+                    child: Container(
+                      width: 30,
+                      height: 30,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.grey.withOpacity(0.3),
+                      ),
+                      child:  const Icon(
+                        Icons.close,
+                        color: Colors.white,
+                        size: 25,
+                      ),
+                    ),
+                    onTap: () => clickEventContent(),
+                  )
+                ],
+              )
+          ),
+
         ],
       )
 
@@ -825,25 +850,64 @@ class _EventDetailViewState extends State<EventDetailView>{
             ),
           ),
 
-          // GestureDetector(
-          //   child: Container(
-          //     height: screenHeight*0.91,
-          //     width: screenWidth*0.95,
-          //     alignment: Alignment.bottomRight,
-          //     child: ClipRRect(
-          //       borderRadius: const BorderRadius.only(
-          //           topRight: Radius.circular(15),
-          //           topLeft: Radius.circular(15)
-          //       ),
-          //       child: Image.asset(
-          //         "assets/images/club_me_icon_round.png",
-          //         scale: 15,
-          //         // fit: BoxFit.cover,
-          //       ),
-          //     ),
-          //   ),
-          //   onTap: () => clickEventContent(),
-          // )
+          Container(
+            padding: const EdgeInsets.only(
+              top: 100,
+              right: 10
+            ),
+            width: screenWidth,
+            height: screenHeight,
+            alignment: Alignment.topRight,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+
+                if(stateProvider.getUsingTheAppAsADeveloper())
+                  contentDownloadIsLoading ?
+                  CircularProgressIndicator(color: customStyleClass.primeColor) :
+                  Container(
+                    child: InkWell(
+                      child:  Container(
+                        width: 30,
+                        height: 30,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.grey.withOpacity(0.3),
+                        ),
+                        child:  const Icon(
+                          Icons.save,
+                          color: Colors.white,
+                          size: 25,
+                        ),
+                      ),
+                      onTap: () =>clickEventDownloadContent(),
+                    ),
+                  ),
+
+                const SizedBox(
+                  width: 10,
+                ),
+
+                InkWell(
+                  child: Container(
+                    width: 30,
+                    height: 30,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.grey.withOpacity(0.3),
+                    ),
+                    child:  const Icon(
+                      Icons.close,
+                      color: Colors.white,
+                      size: 25,
+                    ),
+                  ),
+                  onTap: () => clickEventContent(),
+                )
+              ],
+            )
+          ),
+
         ],
       ) :
 
@@ -1142,6 +1206,7 @@ class _EventDetailViewState extends State<EventDetailView>{
     }
   }
   void clickEventContent(){
+    print("clickEventContent");
     setState(() {
 
       stateProvider.resetOpenEventDetailContentDirectly();
@@ -1158,7 +1223,8 @@ class _EventDetailViewState extends State<EventDetailView>{
     });
   }
   void clickEventBack(){
-    stateProvider.leaveEventDetailPage(context);
+    Navigator.pop(context);
+    // stateProvider.leaveEventDetailPage(context);
   }
   void clickEventDownloadContent() async{
     if(isImage || isVideo){
@@ -1354,7 +1420,7 @@ class _EventDetailViewState extends State<EventDetailView>{
       videoPlayerController: _controller,
       looping: true,
       autoPlay: false,
-      showOptions: true,
+      showOptions: false,
       autoInitialize: true,
       allowFullScreen: true,
     );
@@ -1365,7 +1431,7 @@ class _EventDetailViewState extends State<EventDetailView>{
       videoPlayerController: _controller,
       looping: true,
       autoPlay: true,
-      showOptions: true,
+      showOptions: false,
       autoInitialize: true,
       allowFullScreen: true,
     );

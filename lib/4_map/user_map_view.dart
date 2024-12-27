@@ -62,6 +62,8 @@ class _UserMapViewState extends State<UserMapView>{
   final SupabaseService _supabaseService = SupabaseService();
   final CheckAndFetchService _checkAndFetchService = CheckAndFetchService();
 
+  final ScrollController _scrollController = ScrollController();
+
   bool showMap = false;
   bool showVIP = false;
   bool allPinsLoaded = false;
@@ -91,6 +93,8 @@ class _UserMapViewState extends State<UserMapView>{
 
     checkAndFetchClubs();
 
+    _scrollController.addListener(_onScroll);
+
   }
   void initGeneralSettings(){
     stateProvider = Provider.of<StateProvider>(context);
@@ -100,6 +104,22 @@ class _UserMapViewState extends State<UserMapView>{
     screenHeight = MediaQuery.of(context).size.height;
     currentAndLikedElementsProvider = Provider.of<CurrentAndLikedElementsProvider>(context);
     userDataProvider = Provider.of<UserDataProvider>(context);
+  }
+
+
+
+  void _onScroll() {
+
+    if(showFilterMenu){
+      setState(() {
+        showFilterMenu = false;
+      });
+    }
+
+    // if (_scrollController.offset >= _scrollController.position.maxScrollExtent &&
+    //     !_scrollController.position.outOfRange) {
+    //   // Load more data
+    // }
   }
 
 
@@ -188,6 +208,7 @@ class _UserMapViewState extends State<UserMapView>{
                             bottom: 20
                         ),
                         child: SingleChildScrollView(
+                          controller: _scrollController,
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
