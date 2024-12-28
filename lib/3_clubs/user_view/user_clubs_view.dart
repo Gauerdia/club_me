@@ -793,6 +793,7 @@ class _UserClubsViewState extends State<UserClubsView>
     setState(() {
       _currentPageIndex = currentPageIndex;
       isFilterMenuActive = false;
+      isSearchbarActive = false;
     });
   }
   bool checkIfIsEventIsAfterToday(ClubMeEvent currentEvent, ClubMeClub currentClub){

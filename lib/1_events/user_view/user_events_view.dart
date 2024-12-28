@@ -128,9 +128,11 @@ class _UserEventsViewState extends State<UserEventsView> {
 
   void _onScroll() {
 
-    if(isFilterMenuActive){
+    if(isFilterMenuActive || isAnyFilterActive || isSearchActive){
       setState(() {
         isFilterMenuActive = false;
+        isAnyFilterActive = false;
+        isSearchActive = false;
       });
     }
 
@@ -405,6 +407,7 @@ class _UserEventsViewState extends State<UserEventsView> {
         color: noInfoScreenToShow ? customStyleClass.backgroundColorMain : Colors.transparent,
         child: Stack(
           children: [
+
             // Headline
             if(noInfoScreenToShow)
             Container(

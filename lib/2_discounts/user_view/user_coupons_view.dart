@@ -765,6 +765,7 @@ class _UserCouponsViewState extends State<UserCouponsView>
     setState(() {
       _currentPageIndex = currentPageIndex;
       isFilterMenuActive = false;
+      isSearchActive = false;
     });
   }
 
