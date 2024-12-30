@@ -1914,18 +1914,14 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
 
     // Is there a file to upload?
     if( file != null){
-      _supabaseService.insertEventContent(file, contentFileName, uuidV4, stateProvider).then((value) => {
+          _supabaseService.insertEventContent(file, contentFileName, uuidV4, stateProvider).then((value) => {
 
       // Has the upload been successful?
       if(value == 0){
           _supabaseService.insertEvent(newEvent, userDataProvider).then((value) => {
         if(value == 0){
           setState(() {
-            currentAndLikedElementsProvider.setCurrentEvent(newEvent);
-            fetchedContentProvider.addEventToFetchedEvents(newEvent);
-            stateProvider.setAccessedEventDetailFrom(5);
-            // stateProvider.resetEventTemplates();
-            context.go('/event_details');
+            afterCreationSetProvidersAndGoToEventDetails(newEvent);
           })
         }else{
           setState(() {
@@ -1947,11 +1943,7 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
         // Has the entry been successfuL?
         if(value == 0){
           setState(() {
-            currentAndLikedElementsProvider.setCurrentEvent(newEvent);
-            fetchedContentProvider.addEventToFetchedEvents(newEvent);
-            stateProvider.setAccessedEventDetailFrom(5);
-            // stateProvider.resetEventTemplates();
-            context.go('/event_details');
+            afterCreationSetProvidersAndGoToEventDetails(newEvent);
           })
         }else{
           setState(() {
@@ -2004,6 +1996,13 @@ class _ClubNewEventViewState extends State<ClubNewEventView>{
     );
   }
 
+  void afterCreationSetProvidersAndGoToEventDetails(ClubMeEvent newEvent){
+
+    currentAndLikedElementsProvider.setCurrentEvent(newEvent);
+    fetchedContentProvider.addEventToFetchedEvents(newEvent);
+    Navigator.pop(context);
+    context.push('/event_details');
+  }
 
   // DIALOG/ BOTTOM SHEET
   void showErrorBottomSheet(int errorCode){

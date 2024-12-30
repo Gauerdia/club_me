@@ -163,7 +163,7 @@ final GoRouter _router = GoRouter(
     GoRoute(
       path: '/',
       builder: (BuildContext context, GoRouterState state)
-      => RegisterView()
+      => LogInView()
       //ComingSoonView();//LogInView(); //Test();
     ),
 
